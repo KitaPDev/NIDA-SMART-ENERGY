@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  database:
+    build: ./db
+    container_name: nse-database
+    volumes:
+      - ./db/backup/backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    ports:
+      - 5432:5432
+
+  server:
+    build: ./server
+    image: server:latest
+    container_name: nse-server
+    ports:
+      - 9876:9876
+    depends_on:
+      - database
+
+  # frontend:
+  #   build: ./frontend
+  #   image: frontend:latest
+  #   container_name: nse-frontend
+  #   ports:
+  #     - 3000:80
+  #   depends_on:
+  #     - server

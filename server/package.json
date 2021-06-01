@@ -1,0 +1,24 @@
+{
+	"name": "server",
+	"version": "1.0.0",
+	"description": "NIDA Smart Energy Server",
+	"main": "app.js",
+	"repository": "https://github.com/KitaPDev/NIDA-SMART-ENERGY",
+	"author": "Kita Pairojtanachai",
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"start": "node app.js"
+	},
+	"dependencies": {
+		"body-parser": "^1.19.0",
+		"cookie-parser": "^1.4.5",
+		"cors": "^2.8.5",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"fs": "^0.0.1-security",
+		"http-status-codes": "^2.1.4",
+		"knex": "^0.95.6",
+		"request": "^2.88.2"
+	}
+}
