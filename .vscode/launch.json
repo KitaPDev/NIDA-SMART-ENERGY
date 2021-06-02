@@ -8,9 +8,15 @@
 			"type": "node",
 			"request": "launch",
 			"name": "Launch Node Server",
-			"program": "${workspaceRoot}/server/app.js",
+			"program": "${workspaceRoot}/server/bin/www",
 			"cwd": "${workspaceRoot}/server",
 			"runtimeExecutable": "/Users/kitap/.nvm/versions/node/v16.2.0/bin/node"
+		},
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Launch Chrome Frontend",
+			"url": "http://localhost:3000/"
 		}
 	]
 }

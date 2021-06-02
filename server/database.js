@@ -21,3 +21,5 @@ exports.isDBConnected = async function () {
 	let result = await knex.raw("select 1+1 as result");
 	return Boolean(result);
 };
+
+module.exports = knex;
