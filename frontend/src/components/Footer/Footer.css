@@ -1,0 +1,39 @@
+footer {
+	background-color: #214455;
+	height: 6rem;
+	padding: 1rem;
+}
+
+.container-fluid {
+	height: 100%;
+}
+
+.row {
+	height: 100%;
+}
+
+.col-left {
+	color: white;
+}
+
+.col-right {
+	text-align: right;
+}
+
+.col-right li {
+	list-style: none;
+}
+
+.col-right a {
+	padding-left: 2rem;
+	color: white;
+}
+
+.col-right a :hover {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.col-right a:link {
+	text-decoration: none;
+}
