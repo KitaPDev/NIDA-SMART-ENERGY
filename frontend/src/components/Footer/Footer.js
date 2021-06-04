@@ -9,41 +9,8 @@ class Footer extends React.Component {
 				<footer>
 					<Container fluid>
 						<Row className="align-items-center">
-							<Col sm="6" className="col-left">
-								Copyright © 2021 KNP Global Group Co., Ltd.
-							</Col>
-							<Col sm="6" className="col-right">
-								<li>
-									<a
-										href="https://facebook.com/frenchiebabiesofficial"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Facebook
-									</a>
-									<a
-										href="https://instagram.com/frenchiebabiesofficial"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Instagram
-									</a>
-									<a
-										href="https://youtube.com/channel/UCfF3uVVKB8XrjbgmwPDHcJQ"
-										target="_blank"
-										rel="noreferrer"
-									>
-										YouTube
-									</a>
-									<a
-										href="https://youtube.com/channel/UCfF3uVVKB8XrjbgmwPDHcJQ"
-										target="_blank"
-										rel="noreferrer"
-									>
-										LINE
-									</a>
-								</li>
-							</Col>
+							<Col sm="6" className="col-left"></Col>
+							<Col sm="6" className="col-right"></Col>
 						</Row>
 					</Container>
 				</footer>

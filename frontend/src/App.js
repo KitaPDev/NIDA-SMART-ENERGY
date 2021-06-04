@@ -3,6 +3,12 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import NavBar from "./components/NavBar/Navbar";
 import Home from "./components/Home/Home";
+import Login from "./components/Login/Login";
+import Building from "./components/Building/Building";
+import Dashboard from "./components/Dashboard/Dashboard";
+import Report from "./components/Report/Report";
+import Meter from "./components/Meter/Meter";
+import User from "./components/User/User";
 import Footer from "./components/Footer/Footer";
 import ScrollToTop from "./ScrollToTop";
 
@@ -14,7 +20,14 @@ class App extends React.Component {
 					<NavBar />
 					<ScrollToTop>
 						<Switch>
+							<Route path="/login" component={Login} />
+
 							<Route path="/" component={Home} exact />
+							<Route path="/building" component={Building} exact />
+							<Route path="/dashboard" component={Dashboard} exact />
+							<Route path="/report" component={Report} exact />
+							<Route path="/meter" component={Meter} exact />
+							<Route path="/user" component={User} exact />
 						</Switch>
 					</ScrollToTop>
 				</Router>

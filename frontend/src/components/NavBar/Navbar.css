@@ -4,4 +4,17 @@
 
 .navbar-logo {
 	width: 150px;
+	margin-right: 1rem;
+}
+
+.nav-link {
+	width: 100px;
+}
+
+a.nav-link {
+	text-align: center;
+}
+
+.activeLink {
+	font-weight: bold;
 }
