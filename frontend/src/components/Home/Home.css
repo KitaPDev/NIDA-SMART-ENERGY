@@ -1,0 +1,48 @@
+.total-energy-consumption-pane {
+	border: 1px solid #000000;
+	padding: 1rem;
+}
+
+.total-energy-consumption-pane span {
+	display: inline;
+	width: fit-content;
+}
+
+.dot-grey {
+	height: 36px;
+	width: 36px !important;
+	background-color: #696665;
+	border-radius: 50%;
+}
+
+.dot-orange {
+	height: 36px;
+	width: 36px !important;
+	background-color: #ff9233;
+	border-radius: 50%;
+	display: inline-block;
+}
+
+.dot-blue {
+	height: 36px;
+	width: 36px !important;
+	background-color: #3c67be;
+	border-radius: 50%;
+	display: inline-block;
+}
+
+.dot-red {
+	height: 36px;
+	width: 36px !important;
+	background-color: #be4114;
+	border-radius: 50%;
+	display: inline-block;
+}
+
+.row-pie-charts {
+	height: 200px;
+}
+
+.recharts-wrapper {
+	display: inline-block;
+}
