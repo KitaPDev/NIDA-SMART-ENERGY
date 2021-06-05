@@ -70,8 +70,6 @@ class NavBar extends React.Component {
 		let { isUserDropdownOpen, isLocaleDropdownOpen, locale } = this.state;
 		let { location } = this.props;
 
-		console.log(this.props);
-
 		return (
 			<div>
 				{location.pathname === "/login" ? (

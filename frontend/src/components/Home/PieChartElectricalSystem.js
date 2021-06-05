@@ -1,95 +1,117 @@
 import React, { PureComponent } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-export default class PieChartElectricalSystem extends PureComponent {
-	renderCustomizedLabel = ({
-		cx,
-		cy,
-		midAngle,
-		innerRadius,
-		outerRadius,
-		percent,
-		index,
-	}) => {
-		const RADIAN = Math.PI / 180;
-		const radius = innerRadius + (outerRadius - innerRadius) * 0.4;
-		const x = cx + radius * Math.cos(-midAngle * RADIAN);
-		const y = cy + radius * Math.sin(-midAngle * RADIAN);
+const COLORS = ["#3c67be", "#be4114"];
+
+const numberWithCommas = (x) => {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+const RADIAN = Math.PI / 180;
+const renderCustomizedLabel = ({
+	cx,
+	cy,
+	midAngle,
+	innerRadius,
+	outerRadius,
+	percent,
+	index,
+}) => {
+	const radius = innerRadius + (outerRadius - innerRadius) * 0.4;
+	const x = cx + radius * Math.cos(-midAngle * RADIAN);
+	const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+	return (
+		<text
+			x={x}
+			y={y}
+			fill="white"
+			textAnchor={x > cx ? "start" : "end"}
+			dominantBaseline="central"
+			fontWeight="600"
+		>
+			{`${(percent * 100).toFixed(0)}%`}
+		</text>
+	);
+};
+
+const getLine1 = () => {
+	return (
+		"TODAY 00:00 - " + new Date().getHours() + ":" + new Date().getMinutes()
+	);
+};
+
+const getLine2 = (building, ac, others) => {
+	let totalEnergyConsumption = ac + others;
+
+	return building + " " + numberWithCommas(totalEnergyConsumption) + " kWh";
+};
+
+const getLine3 = (ac, others) => {
+	let percentAC = Math.round((ac / (ac + others)) * 100);
+
+	return "AHU " + percentAC + "% " + numberWithCommas(ac) + " kWh";
+};
+
+const getLine4 = (ac, others) => {
+	let percentOthers = Math.round((others / (ac + others)) * 100);
+
+	return "Others " + percentOthers + "% " + numberWithCommas(others) + " kWh";
+};
+
+const CustomTooltip = ({ active, label, ...props }) => {
+	if (active) {
+		let building = props.building;
+		let ac = props.ac;
+		let others = props.others;
 
 		return (
-			<text
-				x={x}
-				y={y}
-				fill="white"
-				textAnchor={x > cx ? "start" : "end"}
-				dominantBaseline="central"
-				fontWeight="600"
+			<div
+				style={{
+					backgroundColor: "#F0F0F0",
+					borderRadius: "1rem",
+					padding: "1rem",
+				}}
 			>
-				{`${(percent * 100).toFixed(0)}%`}
-			</text>
+				<p style={{ marginBottom: 0, fontSize: "125%", fontWeight: "bold" }}>
+					{getLine1()}
+				</p>
+				<p style={{ marginBottom: 0, fontSize: "125%", fontWeight: "bold" }}>
+					{getLine2(building, ac, others)}
+				</p>
+				<p style={{ marginBottom: 0, color: "#3c67be", fontWeight: "600" }}>
+					{getLine3(ac, others)}
+				</p>
+				<p style={{ marginBottom: 0, color: "#be4114", fontWeight: "600" }}>
+					{getLine4(ac, others)}
+				</p>
+			</div>
 		);
-	};
+	}
 
-	getIntroOfPage = () => {
-		let totalEnergyConsumption = this.props.ac + this.props.others;
+	return null;
+};
 
-		return (
-			"TODAY 00:00 - " +
-			new Date().getHours() +
-			":" +
-			new Date().getMinutes() +
-			"\n" +
-			this.props.building +
-			" " +
-			totalEnergyConsumption +
-			" kWh"
-		);
-	};
-
-	CustomTooltip = ({ active, payload, label }) => {
-		let totalEnergyConsumption = this.props.ac + this.props.others;
-		let ahuPercentage = (this.props.ac / totalEnergyConsumption) * 100;
-		let othersPercentage = (this.props.others / totalEnergyConsumption) * 100;
-
-		if (active && payload && payload.length) {
-			return (
-				<div className="custom-tooltip">
-					<p className="intro">{this.getIntroOfPage()}</p>
-					<p className="desc">
-						<span>
-							AHU {ahuPercentage}% {this.props.ac} kWh
-						</span>
-						<span>
-							Others {othersPercentage}% {this.props.others} kWh
-						</span>
-					</p>
-				</div>
-			);
-		}
-
-		return null;
-	};
-
+class PieChartElectricalSystem extends PureComponent {
 	render() {
-		let data = [
+		const data = [
 			{ name: "A/C", value: this.props.ac },
 			{ name: "Others", value: this.props.others },
 		];
-
-		let COLORS = ["#3c67be", "#be4114"];
 
 		return (
 			<ResponsiveContainer width="100%" height="100%">
 				<PieChart width={400} height={400}>
 					<Pie
+						dataKey="value"
+						isAnimationActive={false}
 						data={data}
 						cx="50%"
 						cy="50%"
-						labelLine={false}
-						label={this.renderCustomizedLabel}
 						outerRadius={80}
 						fill="#8884d8"
-						dataKey="value"
+						label={renderCustomizedLabel}
+						labelLine={false}
 					>
 						{data.map((entry, index) => (
 							<Cell
@@ -97,10 +119,21 @@ export default class PieChartElectricalSystem extends PureComponent {
 								fill={COLORS[index % COLORS.length]}
 							/>
 						))}
-						<Tooltip />
 					</Pie>
+					<Tooltip
+						position={{ x: 250, y: 100 }}
+						content={
+							<CustomTooltip
+								building={this.props.building}
+								ac={this.props.ac}
+								others={this.props.others}
+							/>
+						}
+					/>
 				</PieChart>
 			</ResponsiveContainer>
 		);
 	}
 }
+
+export default PieChartElectricalSystem;

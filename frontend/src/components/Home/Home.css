@@ -9,31 +9,31 @@
 }
 
 .dot-grey {
-	height: 36px;
-	width: 36px !important;
+	height: 25px;
+	width: 25px !important;
 	background-color: #696665;
 	border-radius: 50%;
 }
 
 .dot-orange {
-	height: 36px;
-	width: 36px !important;
+	height: 25px;
+	width: 25px !important;
 	background-color: #ff9233;
 	border-radius: 50%;
 	display: inline-block;
 }
 
 .dot-blue {
-	height: 36px;
-	width: 36px !important;
+	height: 25px;
+	width: 25px !important;
 	background-color: #3c67be;
 	border-radius: 50%;
 	display: inline-block;
 }
 
 .dot-red {
-	height: 36px;
-	width: 36px !important;
+	height: 25px;
+	width: 25px !important;
 	background-color: #be4114;
 	border-radius: 50%;
 	display: inline-block;

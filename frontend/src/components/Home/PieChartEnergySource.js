@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const COLORS = ["#696665", "#ff9233"];
 
@@ -57,7 +57,6 @@ export default class PieChartEnergySource extends PureComponent {
 								fill={COLORS[index % COLORS.length]}
 							/>
 						))}
-						<Tooltip />
 					</Pie>
 				</PieChart>
 			</ResponsiveContainer>
