@@ -11,10 +11,21 @@
 	width: 100px;
 }
 
-a.nav-link {
+.nav-item {
 	text-align: center;
 }
 
 .activeLink {
 	font-weight: bold;
+}
+
+ul {
+	display: flex;
+	align-items: center;
+}
+
+a.dropdown-toggle.nav-link {
+	width: 100%;
+	padding: 0;
+	text-align: center;
 }

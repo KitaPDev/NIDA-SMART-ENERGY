@@ -27,7 +27,7 @@ class App extends React.Component {
 							<Route path="/dashboard" component={Dashboard} exact />
 							<Route path="/report" component={Report} exact />
 							<Route path="/meter" component={Meter} exact />
-							<Route path="/user" component={User} exact />
+							<Route path="/user" component={User} />
 						</Switch>
 					</ScrollToTop>
 				</Router>
