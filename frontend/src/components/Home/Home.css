@@ -40,9 +40,29 @@
 }
 
 .row-pie-charts {
-	height: 200px;
+	padding-top: 0.5rem;
+	height: 130px;
 }
 
-.recharts-wrapper {
-	display: inline-block;
+.electricity-bill-pane {
+	border: 1px solid #000000;
+	padding: 1rem;
+	margin-top: 1rem;
+}
+
+.electricity-bill-pane span {
+	display: inline;
+	width: fit-content;
+}
+
+.row-progress {
+	padding: 1rem;
+	padding-top: 0;
+}
+
+.building-power-consumption-pane {
+	border: 1px solid #000000;
+	padding: 1rem;
+	margin-top: 1rem;
+	height: 248px;
 }

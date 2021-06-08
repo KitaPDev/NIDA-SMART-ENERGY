@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import "./PieChartElectricalSystem.css";
 
 const COLORS = ["#3c67be", "#be4114"];
 
@@ -37,7 +38,12 @@ const renderCustomizedLabel = ({
 
 const getLine1 = () => {
 	return (
-		"TODAY 00:00 - " + new Date().getHours() + ":" + new Date().getMinutes()
+		"TODAY 00:00 - " +
+		new Date().toLocaleString([], {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		})
 	);
 };
 
@@ -73,16 +79,28 @@ const CustomTooltip = ({ active, label, ...props }) => {
 					padding: "1rem",
 				}}
 			>
-				<p style={{ marginBottom: 0, fontSize: "125%", fontWeight: "bold" }}>
-					{getLine1()}
-				</p>
-				<p style={{ marginBottom: 0, fontSize: "125%", fontWeight: "bold" }}>
+				<p style={{ marginBottom: 0, fontWeight: "bold" }}>{getLine1()}</p>
+				<p style={{ marginBottom: 0, fontWeight: "bold" }}>
 					{getLine2(building, ac, others)}
 				</p>
-				<p style={{ marginBottom: 0, color: "#3c67be", fontWeight: "600" }}>
+				<p
+					style={{
+						marginBottom: 0,
+						color: "#3c67be",
+						fontSize: "90%",
+						fontWeight: "600",
+					}}
+				>
 					{getLine3(ac, others)}
 				</p>
-				<p style={{ marginBottom: 0, color: "#be4114", fontWeight: "600" }}>
+				<p
+					style={{
+						marginBottom: 0,
+						color: "#be4114",
+						fontSize: "90%",
+						fontWeight: "600",
+					}}
+				>
 					{getLine4(ac, others)}
 				</p>
 			</div>
@@ -104,11 +122,11 @@ class PieChartElectricalSystem extends PureComponent {
 				<PieChart width={400} height={400}>
 					<Pie
 						dataKey="value"
-						isAnimationActive={false}
+						isAnimationActive={true}
 						data={data}
 						cx="50%"
 						cy="50%"
-						outerRadius={80}
+						outerRadius={60}
 						fill="#8884d8"
 						label={renderCustomizedLabel}
 						labelLine={false}
@@ -121,7 +139,7 @@ class PieChartElectricalSystem extends PureComponent {
 						))}
 					</Pie>
 					<Tooltip
-						position={{ x: 250, y: 100 }}
+						position={{ x: 250, y: 50 }}
 						content={
 							<CustomTooltip
 								building={this.props.building}
