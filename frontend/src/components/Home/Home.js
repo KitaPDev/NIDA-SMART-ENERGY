@@ -21,31 +21,30 @@ class Home extends React.Component {
 		let electricityBill = 350000;
 		let solarSavings = 10000;
 
-		let lsBuilding = ["Navamin", "Auditorium"];
-		let mapLsLogPower_Building = {
+		let lsLogPower_Building = {
 			Navamin: [
-				{ log_timestamp: "2021-06-08T00:00:00Z", kw: 1.34 },
-				{ log_timestamp: "2021-06-08T00:15:00Z", kw: 1.99 },
-				{ log_timestamp: "2021-06-08T00:30:00Z", kw: 2.5 },
-				{ log_timestamp: "2021-06-08T00:45:00Z", kw: 2.3 },
-				{ log_timestamp: "2021-06-08T01:00:00Z", kw: 1.0 },
-				{ log_timestamp: "2021-06-08T01:15:00Z", kw: 1.21 },
-				{ log_timestamp: "2021-06-08T01:30:00Z", kw: 5.99 },
-				{ log_timestamp: "2021-06-08T01:45:00Z", kw: 4.52 },
-				{ log_timestamp: "2021-06-08T02:00:00Z", kw: 10.2 },
-				{ log_timestamp: "2021-06-08T02:15:00Z", kw: 8.09 },
+				{ log_timestamp: "2021-06-08T00:00:00Z", ac: 18, others: 12 },
+				{ log_timestamp: "2021-06-08T00:15:00Z", ac: 13, others: 11 },
+				{ log_timestamp: "2021-06-08T00:30:00Z", ac: 14, others: 14 },
+				{ log_timestamp: "2021-06-08T00:45:00Z", ac: 12, others: 15 },
+				{ log_timestamp: "2021-06-08T01:00:00Z", ac: 18, others: 14 },
+				{ log_timestamp: "2021-06-08T01:15:00Z", ac: 19, others: 13 },
+				{ log_timestamp: "2021-06-08T01:30:00Z", ac: 15, others: 12 },
+				{ log_timestamp: "2021-06-08T01:45:00Z", ac: 16, others: 11 },
+				{ log_timestamp: "2021-06-08T02:00:00Z", ac: 17, others: 12 },
+				{ log_timestamp: "2021-06-08T02:15:00Z", ac: 11, others: 10 },
 			],
 			Auditorium: [
-				{ log_timestamp: "2021-06-08T00:00:00Z", kw: 1.84 },
-				{ log_timestamp: "2021-06-08T00:15:00Z", kw: 1.09 },
-				{ log_timestamp: "2021-06-08T00:30:00Z", kw: 2.0 },
-				{ log_timestamp: "2021-06-08T00:45:00Z", kw: 2.9 },
-				{ log_timestamp: "2021-06-08T01:00:00Z", kw: 1.0 },
-				{ log_timestamp: "2021-06-08T01:15:00Z", kw: 1.21 },
-				{ log_timestamp: "2021-06-08T01:30:00Z", kw: 4.99 },
-				{ log_timestamp: "2021-06-08T01:45:00Z", kw: 2.52 },
-				{ log_timestamp: "2021-06-08T02:00:00Z", kw: 7.2 },
-				{ log_timestamp: "2021-06-08T02:15:00Z", kw: 5.09 },
+				{ log_timestamp: "2021-06-08T00:00:00Z", ac: 16, others: 1 },
+				{ log_timestamp: "2021-06-08T00:15:00Z", ac: 14, others: 3 },
+				{ log_timestamp: "2021-06-08T00:30:00Z", ac: 5, others: 2 },
+				{ log_timestamp: "2021-06-08T00:45:00Z", ac: 8, others: 6 },
+				{ log_timestamp: "2021-06-08T01:00:00Z", ac: 9, others: 7 },
+				{ log_timestamp: "2021-06-08T01:15:00Z", ac: 3, others: 9 },
+				{ log_timestamp: "2021-06-08T01:30:00Z", ac: 4, others: 5 },
+				{ log_timestamp: "2021-06-08T01:45:00Z", ac: 7, others: 3 },
+				{ log_timestamp: "2021-06-08T02:00:00Z", ac: 11, others: 1 },
+				{ log_timestamp: "2021-06-08T02:15:00Z", ac: 19, others: 5 },
 			],
 		};
 
@@ -271,7 +270,9 @@ class Home extends React.Component {
 								</span>
 							</Row>
 							<Row>
-								<LineChartBuildingPowerConsumption />
+								<LineChartBuildingPowerConsumption
+									lsLogPower_Building={lsLogPower_Building}
+								/>
 							</Row>
 						</div>
 					</Col>

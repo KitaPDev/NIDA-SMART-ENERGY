@@ -3,6 +3,7 @@ import {
 	LineChart,
 	Line,
 	CartesianGrid,
+	XAxis,
 	YAxis,
 	Tooltip,
 	ReferenceArea,
@@ -11,31 +12,8 @@ import {
 } from "recharts";
 import { Row, Col, Button } from "reactstrap";
 
-const initialData = [
-	{ log_timestamp: "", kw: 50.34 },
-	{ name: 2, cost: 2.39 },
-	{ name: 3, cost: 1.37 },
-	{ name: 4, cost: 1.16 },
-	{ name: 5, cost: 2.29 },
-	{ name: 6, cost: 3 },
-	{ name: 7, cost: 0.53 },
-	{ name: 8, cost: 2.52 },
-	{ name: 9, cost: 1.79 },
-	{ name: 10, cost: 2.94 },
-	{ name: 11, cost: 4.3 },
-	{ name: 12, cost: 4.41 },
-	{ name: 13, cost: 2.1 },
-	{ name: 14, cost: 8 },
-	{ name: 15, cost: 0 },
-	{ name: 16, cost: 9 },
-	{ name: 17, cost: 3 },
-	{ name: 18, cost: 2 },
-	{ name: 19, cost: 3 },
-	{ name: 20, cost: 7 },
-];
-
-const getAxisYDomain = (from, to, ref, offset) => {
-	const refData = initialData.slice(from - 1, to);
+const getAxisYDomain = (data, from, to, ref, offset) => {
+	const refData = data.slice(from - 1, to);
 	let [bottom, top] = [refData[0][ref], refData[0][ref]];
 	refData.forEach((d) => {
 		if (d[ref] > top) top = d[ref];
@@ -45,23 +23,107 @@ const getAxisYDomain = (from, to, ref, offset) => {
 	return [(bottom | 0) - offset, (top | 0) + offset];
 };
 
-const initialState = {
-	data: initialData,
-	left: "dataMin",
-	right: "dataMax",
-	refAreaLeft: "",
-	refAreaRight: "",
-	top: "dataMax+1",
-	bottom: "dataMin-1",
-	top2: "dataMax+20",
-	bottom2: "dataMin-20",
-	animation: true,
-};
-
 export default class LineChartBuildingPowerConsumption extends PureComponent {
 	constructor(props) {
 		super(props);
-		this.state = initialState;
+		this.state = {
+			refAreaLeft: "",
+			refAreaRight: "",
+			animation: true,
+		};
+
+		let lsLogPower_Building = this.props.lsLogPower_Building;
+
+		let data = [];
+		let powerMin = -1;
+		let powerMax = -1;
+		let timeBegin;
+		let timeEnd;
+
+		for (let building of Object.keys(lsLogPower_Building)) {
+			for (let logPower of lsLogPower_Building[building]) {
+				let tmp = {};
+
+				let overall = logPower.ac + logPower.others;
+				let log_datetime = new Date(logPower.log_timestamp);
+
+				tmp[building] = overall;
+				tmp.ac = logPower.ac;
+				tmp.others = logPower.others;
+				tmp.log_datetime = log_datetime;
+
+				if (powerMin === -1) {
+					powerMin = overall;
+				} else if (powerMin > overall) {
+					powerMin = overall;
+				}
+
+				if (powerMax === -1) {
+					powerMax = overall;
+				} else if (powerMax < overall) {
+					powerMin = overall;
+				}
+
+				if (timeBegin === undefined) {
+					timeBegin = log_datetime;
+				} else if (timeBegin > log_datetime) {
+					timeBegin = log_datetime;
+				}
+
+				if (timeEnd === undefined) {
+					timeEnd = log_datetime;
+				} else if (timeEnd < log_datetime) {
+					timeEnd = log_datetime;
+				}
+
+				data.push(tmp);
+			}
+		}
+
+		this.state.data = data;
+		this.state.bottom = powerMin;
+		this.state.top = powerMax;
+		this.state.left = timeBegin;
+		this.state.right = timeEnd;
+
+		this.getColorCode = this.getColorCode.bind(this);
+	}
+
+	getColorCode(building) {
+		switch (building.toUpperCase()) {
+			case "NAVAMIN":
+				return "#BFF0B5";
+
+			case "SIAM":
+				return "#BFF0B5";
+
+			case "BUNCHANA":
+				return "#BFF0B5";
+
+			case "NIDA HOUSE":
+				return "#BFF0B5";
+
+			case "CHUP":
+				return "#BFF0B5";
+
+			case "NIDASUMPAN":
+				return "#BFF0B5";
+
+			case "NARATHIP":
+				return "#BFF0B5";
+
+			case "RATCHAPHRUEK":
+				return "#BFF0B5";
+
+			case "SERITHAI":
+				return "#BFF0B5";
+
+			case "AUDITORIUM":
+				return "#BFF0B5";
+
+			default:
+				return "#000000";
+		}
 	}
 
 	zoom() {
@@ -81,12 +143,12 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 			[refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
 		// yAxis domain
-		const [bottom, top] = getAxisYDomain(refAreaLeft, refAreaRight, "cost", 1);
-		const [bottom2, top2] = getAxisYDomain(
+		const [bottom, top] = getAxisYDomain(
+			this.state.data,
 			refAreaLeft,
 			refAreaRight,
-			"impression",
-			50
+			"cost",
+			1
 		);
 
 		this.setState(() => ({
@@ -97,8 +159,6 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 			right: refAreaRight,
 			bottom,
 			top,
-			bottom2,
-			top2,
 		}));
 	}
 
@@ -118,7 +178,7 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 	}
 
 	render() {
-		const {
+		let {
 			data,
 			barIndex,
 			left,
@@ -127,9 +187,9 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 			refAreaRight,
 			top,
 			bottom,
-			top2,
-			bottom2,
 		} = this.state;
+
+		let lsBuilding = Object.keys(this.props.lsLogPower_Building);
 
 		return (
 			<div
@@ -152,6 +212,12 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 								onMouseUp={this.zoom.bind(this)}
 							>
 								<CartesianGrid strokeDasharray="3 3" />
+								<XAxis
+									allowDataOverflow
+									dataKey="log_datetime"
+									domain={[left, right]}
+									type="number"
+								/>
 								<YAxis
 									allowDataOverflow
 									domain={[bottom, top]}
@@ -159,13 +225,15 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 									yAxisId="1"
 								/>
 								<Tooltip />
-								<Line
-									yAxisId="1"
-									type="natural"
-									dataKey="cost"
-									stroke="#8884d8"
-									animationDuration={300}
-								/>
+								{lsBuilding.map((building) => (
+									<Line
+										yAxisId="1"
+										type="natural"
+										dataKey={building}
+										stroke={this.getColorCode(building)}
+										animationDuration={300}
+									/>
+								))}
 
 								{refAreaLeft && refAreaRight ? (
 									<ReferenceArea
@@ -175,11 +243,7 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 										strokeOpacity={0.3}
 									/>
 								) : null}
-								<Legend
-									layout="vertical"
-									verticalAlign="bottom"
-									align="center"
-								/>
+								<Legend layout="vertical" verticalAlign="top" align="center" />
 							</LineChart>
 						</ResponsiveContainer>
 					</Col>
