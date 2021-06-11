@@ -11,16 +11,157 @@ import {
 	Legend,
 } from "recharts";
 import { Row, Col, Button } from "reactstrap";
+import "./LineChartBuildingPowerConsumption.css";
 
-const getAxisYDomain = (data, from, to, ref, offset) => {
-	const refData = data.slice(from - 1, to);
-	let [bottom, top] = [refData[0][ref], refData[0][ref]];
-	refData.forEach((d) => {
-		if (d[ref] > top) top = d[ref];
-		if (d[ref] < bottom) bottom = d[ref];
-	});
+const numberWithCommas = (x) => {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+const getAxisYDomain = (series, from, to, ref, offset) => {
+	let dateFrom = new Date(from);
+	let dateTo = new Date(to);
+
+	let bottom = -1;
+	let top = -1;
+
+	for (let set of series) {
+		for (let data of set.data) {
+			let dateLog = new Date(data.log_datetime);
+
+			if (
+				dateLog.getTime() > dateFrom.getTime() &&
+				dateLog.getTime() < dateTo.getTime()
+			) {
+				if (bottom === -1) {
+					bottom = data.total;
+				} else if (bottom > data.total) {
+					bottom = data.total;
+				}
+
+				if (top === -1) {
+					top = data.total;
+				} else if (top < data.total) {
+					top = data.total;
+				}
+			}
+		}
+	}
+
+	// const refData = series.slice(from - 1, to);
+	// let [bottom, top] = [refData[0][ref], refData[0][ref]];
+	// refData.forEach((d) => {
+	// 	if (d[ref] > top) top = d[ref];
+	// 	if (d[ref] < bottom) bottom = d[ref];
+	// });
 
 	return [(bottom | 0) - offset, (top | 0) + offset];
+};
+
+const getLine1 = (log_datetime) => {
+	return new Date(log_datetime).toLocaleString([], {
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	});
+};
+
+const getLine2 = (building, percentage) => {
+	return building.toUpperCase() + " " + percentage + "%";
+};
+
+const getLine3Left = (total) => {
+	return total + " kW ";
+};
+
+const getLine3Middle = (total, ac) => {
+	let percentAC = Math.round((ac / total) * 100);
+
+	return " AHU " + percentAC + "% " + numberWithCommas(ac) + " kW";
+};
+
+const getLine3Right = (total, others) => {
+	let percentOthers = Math.round((others / total) * 100);
+
+	return "Others " + percentOthers + "% " + numberWithCommas(others) + " kW";
+};
+
+const CustomTooltip = ({ payload, active, label, ...props }) => {
+	if (active && payload && payload.length > 0) {
+		let buildingData = payload[0].payload;
+
+		let dateLog = new Date(buildingData.log_datetime);
+		let building = payload[0].name;
+		let total = buildingData.total;
+		let ac = buildingData.ac;
+		let others = buildingData.others;
+		let series = props.series;
+
+		let allBuildingsTotal = 0;
+		for (let set of series) {
+			for (let data of set.data) {
+				if (new Date(data.log_datetime).getTime() === dateLog.getTime()) {
+					allBuildingsTotal += data.total;
+				}
+			}
+		}
+
+		let percentage = Math.round((total / allBuildingsTotal) * 100);
+
+		return (
+			<div
+				style={{
+					backgroundColor: "#F0F0F0",
+					borderRadius: "1rem",
+					padding: "1rem",
+					paddingBottom: "0.5rem",
+				}}
+			>
+				<p style={{ marginBottom: 0, fontWeight: "bold" }}>
+					{getLine1(dateLog)}
+				</p>
+				<p style={{ marginBottom: 0, fontWeight: "bold" }}>
+					{getLine2(building, percentage)}
+				</p>
+				<p>
+					<span
+						style={{
+							marginBottom: 0,
+							color: "#944B50",
+							fontSize: "90%",
+							fontWeight: "600",
+						}}
+					>
+						{getLine3Left(total)}
+					</span>
+					{" ; "}
+					<span
+						style={{
+							marginBottom: 0,
+							color: "#3c67be",
+							fontSize: "90%",
+							fontWeight: "600",
+						}}
+					>
+						{getLine3Middle(total, ac)}
+					</span>
+					,
+					<span
+						style={{
+							marginBottom: 0,
+							color: "#be4114",
+							fontSize: "90%",
+							fontWeight: "600",
+						}}
+					>
+						{" "}
+						{getLine3Right(total, others)}
+					</span>
+				</p>
+			</div>
+		);
+	}
+
+	return null;
 };
 
 export default class LineChartBuildingPowerConsumption extends PureComponent {
@@ -34,59 +175,69 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 
 		let lsLogPower_Building = this.props.lsLogPower_Building;
 
-		let data = [];
+		let series = [];
 		let powerMin = -1;
 		let powerMax = -1;
-		let timeBegin;
-		let timeEnd;
+		let dateBegin;
+		let dateEnd;
 
 		for (let building of Object.keys(lsLogPower_Building)) {
+			let buildingData = {};
+			buildingData.building = building;
+
+			let data = [];
+
 			for (let logPower of lsLogPower_Building[building]) {
 				let tmp = {};
 
-				let overall = logPower.ac + logPower.others;
-				let log_datetime = new Date(logPower.log_timestamp);
+				let total = logPower.ac + logPower.others;
+				let dateLog = new Date(logPower.log_timestamp);
 
-				tmp[building] = overall;
+				tmp.log_datetime = dateLog;
+				tmp.total = total;
 				tmp.ac = logPower.ac;
 				tmp.others = logPower.others;
-				tmp.log_datetime = log_datetime;
 
 				if (powerMin === -1) {
-					powerMin = overall;
-				} else if (powerMin > overall) {
-					powerMin = overall;
+					powerMin = total;
+				} else if (powerMin > total) {
+					powerMin = total;
 				}
 
 				if (powerMax === -1) {
-					powerMax = overall;
-				} else if (powerMax < overall) {
-					powerMin = overall;
+					powerMax = total;
+				} else if (powerMax < total) {
+					powerMax = total;
 				}
 
-				if (timeBegin === undefined) {
-					timeBegin = log_datetime;
-				} else if (timeBegin > log_datetime) {
-					timeBegin = log_datetime;
+				if (dateBegin === undefined) {
+					dateBegin = dateLog;
+				} else if (dateBegin > dateLog) {
+					dateBegin = dateLog;
 				}
 
-				if (timeEnd === undefined) {
-					timeEnd = log_datetime;
-				} else if (timeEnd < log_datetime) {
-					timeEnd = log_datetime;
+				if (dateEnd === undefined) {
+					dateEnd = dateLog;
+				} else if (dateEnd < dateLog) {
+					dateEnd = dateLog;
 				}
 
 				data.push(tmp);
 			}
+
+			buildingData.data = data;
+
+			series.push(buildingData);
 		}
 
-		this.state.data = data;
+		this.state.series = series;
 		this.state.bottom = powerMin;
 		this.state.top = powerMax;
-		this.state.left = timeBegin;
-		this.state.right = timeEnd;
+		this.state.left = dateBegin;
+		this.state.right = dateEnd;
 
 		this.getColorCode = this.getColorCode.bind(this);
+		this.formatXAxis = this.formatXAxis.bind(this);
 	}
 
 	getColorCode(building) {
@@ -95,31 +246,34 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 				return "#BFF0B5";
 
 			case "SIAM":
-				return "#BFF0B5";
+				return "#FA999A";
 
 			case "BUNCHANA":
-				return "#BFF0B5";
+				return "#CCEBFF";
 
 			case "NIDA HOUSE":
-				return "#BFF0B5";
+				return "#DCC87E";
+
+			case "MALAI":
+				return "#FFDFB3";
 
 			case "CHUP":
-				return "#BFF0B5";
+				return "#FFBE7C";
 
 			case "NIDASUMPAN":
-				return "#BFF0B5";
+				return "#FFECA0";
 
 			case "NARATHIP":
-				return "#BFF0B5";
+				return "#9BCD95";
 
 			case "RATCHAPHRUEK":
-				return "#BFF0B5";
+				return "#91C5C2";
 
 			case "SERITHAI":
-				return "#BFF0B5";
+				return "#B9DFDB";
 
 			case "AUDITORIUM":
-				return "#BFF0B5";
+				return "#95B2D1";
 
 			default:
 				return "#000000";
@@ -128,7 +282,7 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 
 	zoom() {
 		let { refAreaLeft, refAreaRight } = this.state;
-		const { data } = this.state;
+		const { series } = this.state;
 
 		if (refAreaLeft === refAreaRight || refAreaRight === "") {
 			this.setState(() => ({
@@ -144,17 +298,17 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 
 		// yAxis domain
 		const [bottom, top] = getAxisYDomain(
-			this.state.data,
+			this.state.series,
 			refAreaLeft,
 			refAreaRight,
-			"cost",
-			1
+			"total",
+			15
 		);
 
 		this.setState(() => ({
 			refAreaLeft: "",
 			refAreaRight: "",
-			data: data.slice(),
+			series: series.slice(),
 			left: refAreaLeft,
 			right: refAreaRight,
 			bottom,
@@ -163,33 +317,66 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 	}
 
 	zoomOut() {
-		const { data } = this.state;
+		let { series } = this.state;
+
+		let powerMin = -1;
+		let powerMax = -1;
+		let dateBegin;
+		let dateEnd;
+
+		for (let set of series) {
+			for (let data of set.data) {
+				let total = data.ac + data.others;
+				let dateLog = new Date(data.log_datetime);
+
+				if (powerMin === -1) {
+					powerMin = total;
+				} else if (powerMin > total) {
+					powerMin = total;
+				}
+
+				if (powerMax === -1) {
+					powerMax = total;
+				} else if (powerMax < total) {
+					powerMax = total;
+				}
+
+				if (dateBegin === undefined) {
+					dateBegin = dateLog;
+				} else if (dateBegin > dateLog) {
+					dateBegin = dateLog;
+				}
+
+				if (dateEnd === undefined) {
+					dateEnd = dateLog;
+				} else if (dateEnd < dateLog) {
+					dateEnd = dateLog;
+				}
+			}
+		}
+
 		this.setState(() => ({
-			data: data.slice(),
+			series: series.slice(),
 			refAreaLeft: "",
 			refAreaRight: "",
-			left: "dataMin",
-			right: "dataMax",
-			top: "dataMax+1",
-			bottom: "dataMin",
-			top2: "dataMax+50",
-			bottom2: "dataMin+50",
+			left: dateBegin,
+			right: dateEnd,
+			top: powerMax + 2,
+			bottom: powerMin - 2,
 		}));
 	}
 
-	render() {
-		let {
-			data,
-			barIndex,
-			left,
-			right,
-			refAreaLeft,
-			refAreaRight,
-			top,
-			bottom,
-		} = this.state;
+	formatXAxis(tickItem) {
+		return new Date(tickItem).toLocaleString([], {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		});
+	}
 
-		let lsBuilding = Object.keys(this.props.lsLogPower_Building);
+	render() {
+		let { series, left, right, refAreaLeft, refAreaRight, top, bottom } =
+			this.state;
 
 		return (
 			<div
@@ -197,57 +384,81 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 				style={{ userSelect: "none", width: "100%" }}
 			>
 				<Row>
-					<Col sm={10}>
-						<ResponsiveContainer width="100%" height={200}>
+					<Col sm={10} style={{ paddingLeft: 0, paddingRight: 0 }}>
+						<ResponsiveContainer width="100%" height={150}>
 							<LineChart
-								data={data}
+								width={560}
+								height={200}
+								margin={{ left: 0, right: 18 }}
 								onMouseDown={(e) =>
-									this.setState({ refAreaLeft: e.activeLabel })
+									e.chartX !== undefined
+										? this.setState({ refAreaLeft: e.activeLabel })
+										: ""
 								}
 								onMouseMove={(e) =>
-									this.state.refAreaLeft &&
-									this.setState({ refAreaRight: e.activeLabel })
+									e.chartX !== undefined
+										? this.state.refAreaLeft !== "" &&
+										  this.setState({ refAreaRight: e.activeLabel })
+										: ""
 								}
 								// eslint-disable-next-line react/jsx-no-bind
 								onMouseUp={this.zoom.bind(this)}
 							>
 								<CartesianGrid strokeDasharray="3 3" />
 								<XAxis
-									allowDataOverflow
+									allowDataOverflow={true}
+									allowDuplicatedCategory={false}
 									dataKey="log_datetime"
 									domain={[left, right]}
-									type="number"
+									scale="time"
+									tickFormatter={this.formatXAxis}
+									interval={0}
+									fontSize="80%"
 								/>
 								<YAxis
-									allowDataOverflow
-									domain={[bottom, top]}
-									type="number"
+									allowDataOverflow={true}
+									domain={[bottom - 2, top + 2]}
 									yAxisId="1"
+									fontSize="80%"
 								/>
-								<Tooltip />
-								{lsBuilding.map((building) => (
+								<Tooltip
+									position={{ x: 500, y: 100 }}
+									content={<CustomTooltip series={series} />}
+								/>
+								{series.map((s) => (
 									<Line
 										yAxisId="1"
 										type="natural"
-										dataKey={building}
-										stroke={this.getColorCode(building)}
+										dataKey="total"
+										data={s.data}
+										name={s.building}
+										key={s.building}
+										stroke={this.getColorCode(s.building)}
 										animationDuration={300}
+										dot={false}
+										strokeWidth={2}
 									/>
 								))}
 
-								{refAreaLeft && refAreaRight ? (
+								{refAreaLeft !== "" && refAreaRight !== "" ? (
 									<ReferenceArea
 										yAxisId="1"
-										x1={refAreaLeft}
-										x2={refAreaRight}
-										strokeOpacity={0.3}
+										x1={refAreaLeft.getTime()}
+										x2={refAreaRight.getTime()}
+										strokeOpacity={0.5}
 									/>
 								) : null}
+
 								<Legend layout="vertical" verticalAlign="top" align="center" />
 							</LineChart>
 						</ResponsiveContainer>
 					</Col>
-					<Col sm={2} style={{ margin: "auto" }}>
+					<Col
+						sm={2}
+						style={{
+							margin: "auto",
+						}}
+					>
 						<Button
 							style={{ fontSize: "80%" }}
 							outline

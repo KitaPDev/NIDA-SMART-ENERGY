@@ -18,7 +18,7 @@ const renderCustomizedLabel = ({
 	percent,
 	index,
 }) => {
-	const radius = innerRadius + (outerRadius - innerRadius) * 0.4;
+	const radius = innerRadius + (outerRadius - innerRadius) * 0.3;
 	const x = cx + radius * Math.cos(-midAngle * RADIAN);
 	const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -126,7 +126,7 @@ class PieChartElectricalSystem extends PureComponent {
 						data={data}
 						cx="50%"
 						cy="50%"
-						outerRadius={60}
+						outerRadius={50}
 						fill="#8884d8"
 						label={renderCustomizedLabel}
 						labelLine={false}
@@ -139,7 +139,7 @@ class PieChartElectricalSystem extends PureComponent {
 						))}
 					</Pie>
 					<Tooltip
-						position={{ x: 250, y: 50 }}
+						position={{ x: 210, y: 50 }}
 						content={
 							<CustomTooltip
 								building={this.props.building}

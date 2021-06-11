@@ -13,7 +13,7 @@ const renderCustomizedLabel = ({
 	percent,
 	index,
 }) => {
-	const radius = innerRadius + (outerRadius - innerRadius) * 0.4;
+	const radius = innerRadius + (outerRadius - innerRadius) * 0.2;
 	const x = cx + radius * Math.cos(-midAngle * RADIAN);
 	const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -47,7 +47,7 @@ export default class PieChartEnergySource extends PureComponent {
 						cy="50%"
 						labelLine={false}
 						label={renderCustomizedLabel}
-						outerRadius={60}
+						outerRadius={50}
 						fill="#8884d8"
 						dataKey="value"
 					>

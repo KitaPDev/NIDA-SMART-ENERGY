@@ -4,6 +4,7 @@ import { Container, Row, Col, Progress } from "reactstrap";
 import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
 import PieChartElectricalSystem from "./PieChartElectricalSystem/PieChartElectricalSystem";
 import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
+import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
 
 class Home extends React.Component {
 	constructor(props) {
@@ -51,12 +52,13 @@ class Home extends React.Component {
 		return (
 			<div>
 				<Container style={{ padding: "1rem" }} fluid>
+					{/* ******************************** LEFT COLUMN ******************************** */}
 					<Col sm="5">
 						{/* ******************************** ENERGY CONSUMPTION PANE ******************************** */}
 						<div className="total-energy-consumption-pane">
 							<Row
 								style={{
-									fontSize: "200%",
+									fontSize: "160%",
 								}}
 							>
 								<span>Total</span>
@@ -73,7 +75,7 @@ class Home extends React.Component {
 							<Row>
 								<span
 									style={{
-										fontSize: "200%",
+										fontSize: "160%",
 										fontWeight: "600",
 										display: "inline-flex",
 										alignItems: "center",
@@ -96,7 +98,7 @@ class Home extends React.Component {
 										hour12: false,
 									})}
 								</span>
-								<span style={{ fontSize: "300%", fontWeight: "bold" }}>
+								<span style={{ fontSize: "200%", fontWeight: "bold" }}>
 									{this.numberWithCommas(3330)}
 								</span>
 								<span
@@ -231,7 +233,7 @@ class Home extends React.Component {
 									<span>฿ {this.numberWithCommas(target)}</span>
 								</Col>
 							</Row>
-							<Row className="row-progress">
+							<Row className="row-progress" style={{ paddingBottom: 0 }}>
 								<Col sm="3" style={{ paddingRight: 0 }}>
 									<Progress
 										color="warning"
@@ -275,8 +277,25 @@ class Home extends React.Component {
 								/>
 							</Row>
 						</div>
+						{/* ******************************** ELECTRICAL SYSTEM POWER CONSUMPTION PANE ******************************** */}
+						<div className="electrical-system-power-consumption-pane">
+							<Row>
+								<span style={{ fontWeight: "bold" }}>
+									Power Consumption by Electrical System (kW)
+								</span>
+							</Row>
+							<Row>
+								<BarChartElectricalSystemPowerConsumption
+									lsLogPower_Building={lsLogPower_Building}
+								/>
+							</Row>
+						</div>
 					</Col>
-					<Col sm="7"></Col>
+
+					{/* ******************************** RIGHT COLUMN ******************************** */}
+					<Col sm="7">
+						<div className="map-campus"></div>
+					</Col>
 				</Container>
 			</div>
 		);
