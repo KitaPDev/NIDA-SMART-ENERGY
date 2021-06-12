@@ -34,12 +34,35 @@ class NavBar extends React.Component {
 			isLocaleDropdownOpen: false,
 			isUserDropdownOpen: false,
 			locale: "English",
+			currentTime: new Date().toLocaleString([], {
+				hour: "2-digit",
+				minute: "2-digit",
+				hour12: false,
+			}),
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
 		this.toggleLocaleDropdown = this.toggleLocaleDropdown.bind(this);
 		this.toggleUserDropdown = this.toggleUserDropdown.bind(this);
 		this.changeLocale = this.changeLocale.bind(this);
+	}
+
+	componentDidMount() {
+		this.interval = setInterval(
+			() =>
+				this.setState({
+					currentTime: new Date().toLocaleString([], {
+						hour: "2-digit",
+						minute: "2-digit",
+						hour12: false,
+					}),
+				}),
+			1000
+		);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.interval);
 	}
 
 	toggleCollapse() {
@@ -67,7 +90,8 @@ class NavBar extends React.Component {
 	}
 
 	render() {
-		let { isUserDropdownOpen, isLocaleDropdownOpen, locale } = this.state;
+		let { isUserDropdownOpen, isLocaleDropdownOpen, locale, currentTime } =
+			this.state;
 		let { location } = this.props;
 
 		return (
@@ -355,7 +379,7 @@ class NavBar extends React.Component {
 									fontSize: "330%",
 								}}
 							>
-								22:09
+								{currentTime}
 							</Row>
 						</div>
 					</Navbar>

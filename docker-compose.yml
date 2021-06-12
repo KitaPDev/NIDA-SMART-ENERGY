@@ -5,9 +5,9 @@ services:
     build: ./db
     container_name: nse-database
     volumes:
-      - ./db/backup/backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      - ./db/backup:/var/lib/mysql
     ports:
-      - 5432:5432
+      - 3306:3306
 
   server:
     build: ./server

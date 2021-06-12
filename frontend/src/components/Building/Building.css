@@ -1,0 +1,48 @@
+.building-list-pane {
+	height: fit-content;
+	border: 1px solid #f2f3f7;
+	border-radius: 0.5rem;
+}
+
+.building-list-pane #heading-1 {
+	font-size: 125%;
+	font-weight: 600;
+	background-color: #f2f3f7;
+	width: 100%;
+	text-align: center;
+	padding: 0.5rem;
+	border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.square-building {
+	height: 15px;
+	width: 15px;
+}
+
+.row-building {
+	margin-top: 1rem !important;
+	font-size: 125%;
+	font-weight: 600;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+.row-building :hover {
+	cursor: pointer;
+	background-color: #b4d7ff;
+}
+
+.col-square-building {
+	margin: auto !important;
+}
+
+.row-title {
+	font-size: 250%;
+	font-weight: bold;
+}
+
+.row-heading p {
+	white-space: nowrap;
+	padding-left: 0;
+	font-weight: 600;
+}
