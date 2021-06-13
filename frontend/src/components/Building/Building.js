@@ -2,12 +2,34 @@ import React from "react";
 import { Container, Row, Col } from "reactstrap";
 import "./Building.css";
 import { MdPeople } from "react-icons/md";
-import { Form, FormGroup, Label, Input } from "reactstrap";
+import {
+	Form,
+	FormGroup,
+	Label,
+	Input,
+	Dropdown,
+	DropdownToggle,
+	DropdownMenu,
+	DropdownItem,
+} from "reactstrap";
 
 class Building extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+
+		let tzOffset = new Date().getTimezoneOffset() * 60000;
+
+		let dateFrom = new Date(
+			new Date(new Date(Date.now() - tzOffset).setHours(0, 0, 0, 0)) - tzOffset
+		);
+		dateFrom.setDate(dateFrom.getDate() - 1);
+
+		this.state = {
+			dateFrom: dateFrom.toISOString().substring(0, 16),
+			dateTo: new Date(Date.now() - tzOffset).toISOString().substring(0, 16),
+			isElectricalSystemDropdownOpen: false,
+			electricalSystem: "Overall",
+		};
 
 		this.state.lsBuilding = [
 			"Auditorium",
@@ -32,6 +54,10 @@ class Building extends React.Component {
 		this.state.amountPeople = 30;
 
 		this.getColorCode = this.getColorCode.bind(this);
+		this.handleChangeDateFrom = this.handleChangeDateFrom.bind(this);
+		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
+		this.toggleElectricalSystem = this.toggleElectricalSystem.bind(this);
+		this.changeElectricalSystem = this.changeElectricalSystem.bind(this);
 	}
 
 	getColorCode(building) {
@@ -74,8 +100,39 @@ class Building extends React.Component {
 		}
 	}
 
+	handleChangeDateFrom(event) {
+		this.setState({
+			dateFrom: event.target.value,
+		});
+	}
+
+	handleChangeDateTo(event) {
+		this.setState({ dateTo: event.target.value });
+	}
+
+	toggleElectricalSystem() {
+		this.setState((prevState) => ({
+			isElectricalSystemDropdownOpen: !prevState.isElectricalSystemDropdownOpen,
+		}));
+	}
+
+	changeElectricalSystem(e) {
+		this.setState({
+			electricalSystem: e.currentTarget.textContent,
+		});
+	}
+
 	render() {
-		let { lsBuilding, building, amountPeople } = this.state;
+		let {
+			lsBuilding,
+			building,
+			amountPeople,
+			dateFrom,
+			dateTo,
+			isElectricalSystemDropdownOpen,
+			electricalSystem,
+		} = this.state;
+
 		return (
 			<div>
 				<Container style={{ padding: "1rem" }} fluid>
@@ -129,34 +186,76 @@ class Building extends React.Component {
 										</p>
 									</Row>
 								</Col>
-								<Col sm={7}>
-									<Row>
+								<Col sm={7} style={{ paddingRight: "1rem" }}>
+									<Row className="row-form">
 										<Form>
 											<FormGroup row>
-												<Label for="dateFrom" sm={1}>
+												<Col sm={1} />
+												<Label
+													for="dateFrom"
+													sm={1}
+													className="label-datepicker"
+												>
 													From
 												</Label>
-												<Col sm={5}>
+												<Col sm={4} className="col-datepicker">
 													<Input
-														type="date"
-														name="date"
+														className="datepicker"
+														type="datetime-local"
+														name="datetime"
 														id="dateFrom"
-														placeholder="date placeholder"
+														placeholder="datetime placeholder"
+														value={dateFrom}
+														onChange={this.handleChangeDateFrom}
 													/>
 												</Col>
-												<Label for="dateTo" sm={1}>
+												<Label for="dateTo" sm={1} className="label-datepicker">
 													To
 												</Label>
-												<Col sm={5}>
+												<Col sm={4} className="col-datepicker">
 													<Input
-														type="date"
-														name="date"
+														className="datepicker"
+														type="datetime-local"
+														name="datetime"
 														id="dateTo"
-														placeholder="date placeholder"
+														placeholder="datetime placeholder"
+														value={dateTo}
+														onChange={this.handleChangeDateTo}
 													/>
 												</Col>
+												<Col sm={1} />
 											</FormGroup>
 										</Form>
+									</Row>
+									<Row className="row-graph-power">
+										<Row>
+											<Col sm={10}>
+												<span style={{ fontWeight: 600, fontSize: "125%" }}>
+													Power (kW)
+												</span>
+											</Col>
+											<Col sm={2}>
+												<Dropdown
+													isOpen={isElectricalSystemDropdownOpen}
+													toggle={this.toggleElectricalSystem}
+												>
+													<DropdownToggle color="transparent" caret>
+														{electricalSystem}
+													</DropdownToggle>
+													<DropdownMenu>
+														<DropdownItem onClick={this.changeElectricalSystem}>
+															Overall
+														</DropdownItem>
+														<DropdownItem onClick={this.changeElectricalSystem}>
+															A/C
+														</DropdownItem>
+														<DropdownItem onClick={this.changeElectricalSystem}>
+															Others
+														</DropdownItem>
+													</DropdownMenu>
+												</Dropdown>
+											</Col>
+										</Row>
 									</Row>
 								</Col>
 							</Row>

@@ -46,3 +46,28 @@
 	padding-left: 0;
 	font-weight: 600;
 }
+
+.row-form {
+	background-color: #f2f3f7;
+}
+
+.label-datepicker {
+	text-align: right;
+	font-weight: bold;
+}
+
+.col-datepicker {
+	display: flex;
+}
+
+.datepicker {
+	width: fit-content !important;
+	border-radius: 1rem !important;
+	height: 80%;
+	margin: auto !important;
+}
+
+.row-graph-power {
+	border: 1px solid #000000;
+	margin-top: 1rem !important;
+}
