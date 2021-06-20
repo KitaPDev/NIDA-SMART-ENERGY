@@ -7,7 +7,7 @@ router.post("/login", async function (req, res) {
 	authController.login(req, res);
 });
 
-router.post("/logout", async function (req, res) {
+router.get("/logout", async function (req, res) {
 	authController.logout(req, res);
 });
 

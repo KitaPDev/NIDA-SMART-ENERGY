@@ -1,4 +1,3 @@
-const User = require("../models/user.model");
 const knex = require("../database").knex;
 const authService = require("../services/auth.service");
 const crypto = require("crypto");
@@ -148,6 +147,11 @@ async function getSaltByUserID(userID) {
 	return result[0].salt;
 }
 
+async function getAllUserType() {
+	let result = await knex(knex.ref("user_type")).select();
+	return result;
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -166,4 +170,5 @@ module.exports = {
 	emailHashExists,
 	getEmailHashByUserID,
 	getSaltByUserID,
+	getAllUserType,
 };

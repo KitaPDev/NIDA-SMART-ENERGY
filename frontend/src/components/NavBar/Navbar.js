@@ -25,6 +25,7 @@ import {
 } from "react-icons/fa";
 import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
+import axios from "axios";
 
 class NavBar extends React.Component {
 	constructor(props) {
@@ -45,6 +46,7 @@ class NavBar extends React.Component {
 		this.toggleLocaleDropdown = this.toggleLocaleDropdown.bind(this);
 		this.toggleUserDropdown = this.toggleUserDropdown.bind(this);
 		this.changeLocale = this.changeLocale.bind(this);
+		this.logout = this.logout.bind(this);
 	}
 
 	componentDidMount() {
@@ -89,6 +91,18 @@ class NavBar extends React.Component {
 		});
 	}
 
+	logout() {
+		axios
+			.get(process.env.REACT_APP_API_BASE_URL + "/auth/logout")
+			.then((resp) => {
+				if (resp.status === 200) {
+					this.props.history.push({
+						pathname: "/login",
+					});
+				}
+			});
+	}
+
 	render() {
 		let { isUserDropdownOpen, isLocaleDropdownOpen, locale, currentTime } =
 			this.state;
@@ -96,7 +110,9 @@ class NavBar extends React.Component {
 
 		return (
 			<div>
-				{location.pathname === "/login" ? (
+				{location.pathname === "/login" ||
+				location.pathname === "/forgot-password" ||
+				location.pathname === "/register" ? (
 					<div></div>
 				) : (
 					<Navbar style={{ backgroundColor: "#F2F3F7" }} light expand="md">
@@ -298,7 +314,10 @@ class NavBar extends React.Component {
 											</NavLink>
 										</DropdownItem>
 										<DropdownItem divider />
-										<DropdownItem>Logout</DropdownItem>
+										<DropdownItem>
+											{" "}
+											<div onClick={this.logout}>Logout</div>
+										</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
 							</Nav>

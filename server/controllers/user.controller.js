@@ -96,7 +96,13 @@ async function forgotPassword(req, res) {
 		let username = body.username;
 		let email = body.email;
 
-		if (username && !email) {
+		if (username.length === 0 && email.length === 0) {
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send("Provide either username or email");
+		}
+
+		if (username.length > 0 && email.length === 0) {
 			email = await userService.getEmailFromUsername(username);
 		}
 
@@ -172,10 +178,33 @@ async function changePassword(req, res) {
 		.sendFile(process.cwd() + "/views/success_resetPassword.html");
 }
 
+async function getAllUserType(req, res) {
+	try {
+		let result = await userService.getAllUserType();
+
+		let lsUserType = [];
+
+		for (let r of result) {
+			let userType = {};
+
+			userType.id = r.id;
+			userType.label = r.label;
+
+			lsUserType.push(userType);
+		}
+
+		res.status(httpStatusCodes.OK).send(lsUserType);
+		return;
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	register,
 	confirmEmail,
 	forgotPassword,
 	getResetPasswordForm,
 	changePassword,
+	getAllUserType,
 };

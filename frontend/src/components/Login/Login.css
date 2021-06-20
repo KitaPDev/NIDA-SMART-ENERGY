@@ -1,0 +1,94 @@
+.container-login {
+	padding: 1rem;
+}
+
+.col-brand {
+	width: fit-content !important;
+}
+
+.col-title {
+	text-transform: uppercase;
+	font-size: 300%;
+	font-weight: 600;
+	color: #282541;
+}
+
+.container-form {
+	background-color: #ffffff;
+	border-radius: 1rem;
+	margin-top: 8vh;
+	padding: 3rem !important;
+	width: 50vw !important;
+}
+
+.row-heading {
+	padding-left: 1rem;
+	font-size: 200%;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #6b6666;
+}
+
+.row-form {
+	text-align: center;
+}
+
+.form-group {
+	justify-content: center;
+	margin-top: 1rem !important;
+}
+
+label {
+	text-align: right;
+	font-weight: 500;
+	color: #6e6969;
+}
+
+input {
+	border-radius: 0.5rem !important;
+}
+
+form {
+	height: 80% !important;
+	margin: auto !important;
+}
+
+.btn-login {
+	background-color: #000000 !important;
+	font-size: 150% !important;
+	font-weight: 600 !important;
+	text-transform: uppercase !important;
+	border-radius: 0.4rem !important;
+	width: 40% !important;
+}
+
+.row-forgot-password {
+	margin-top: 1rem !important;
+	justify-content: center;
+}
+
+.row-link {
+	justify-content: center;
+	margin-top: 0.5rem !important;
+}
+
+.link {
+	color: black;
+	font-weight: 500;
+	width: fit-content !important;
+}
+
+.row-feedback {
+	justify-content: center;
+	color: red;
+	margin-top: 1rem !important;
+}
+
+footer {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	padding: 1rem;
+	font-weight: 500;
+	color: #777172;
+}

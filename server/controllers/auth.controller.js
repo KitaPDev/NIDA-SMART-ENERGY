@@ -8,9 +8,6 @@ async function login(req, res) {
 		let username = body.username;
 		let clearTextPassword = body.password;
 
-		let a = await authService.generateSalt();
-		let b = await authService.hashPassword(clearTextPassword, a);
-
 		if (!userService.usernameExists(username)) {
 			res.status(httpStatusCodes.NOT_FOUND).send("Username does not exist.");
 			return;
@@ -29,10 +26,11 @@ async function login(req, res) {
 
 		res.cookie("jwt", jwt);
 		res.cookie("refresh_jwt", refreshJwt);
-		res.status(httpStatusCodes.OK).send();
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
+
+	res.sendStatus(httpStatusCodes.OK);
 }
 
 async function logout(req, res) {

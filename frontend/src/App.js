@@ -11,6 +11,8 @@ import Meter from "./components/Meter/Meter";
 import User from "./components/User/User";
 import Footer from "./components/Footer/Footer";
 import ScrollToTop from "./ScrollToTop";
+import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
+import Register from "./components/Register/Register";
 
 class App extends React.Component {
 	render() {
@@ -21,6 +23,8 @@ class App extends React.Component {
 					<ScrollToTop>
 						<Switch>
 							<Route path="/login" component={Login} />
+							<Route path="/forgot-password" component={ForgotPassword} />
+							<Route path="/register" component={Register} />
 
 							<Route path="/" component={Home} exact />
 							<Route path="/building" component={Building} exact />
