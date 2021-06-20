@@ -1,4 +1,4 @@
-export class User {
+module.exports = class User {
 	id;
 	user_type_id;
 	username;
@@ -33,4 +33,4 @@ export class User {
 		this.last_login_timestamp = last_login_timestamp;
 		this.is_enabled = is_enabled;
 	}
-}
+};

@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const request = require("request");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
+const authRouter = require("./routers/auth.router");
 const userRouter = require("./routers/user.router");
 
 const app = express();
@@ -23,6 +24,7 @@ app.get("/", async function (req, res) {
 	res.send("Server Operating Normally");
 });
 
+app.use("/auth", authRouter);
 app.use("/user", userRouter);
 
 module.exports = app;

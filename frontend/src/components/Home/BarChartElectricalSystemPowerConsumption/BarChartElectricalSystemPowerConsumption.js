@@ -80,15 +80,15 @@ export default class BarChartElectricalSystemPowerConsumption extends PureCompon
 		let lsLogPower_Building = this.props.lsLogPower_Building;
 
 		let data = [];
-		for (let building of Object.keys(lsLogPower_Building)) {
-			for (let logPower of lsLogPower_Building[building]) {
+		for (let log of lsLogPower_Building) {
+			for (let d of log.data) {
 				let tmp = {};
 
-				let dateLog = new Date(logPower.log_timestamp);
+				let dateLog = new Date(d.log_timestamp);
 
 				tmp.dateLog = dateLog;
-				tmp.ac = logPower.ac;
-				tmp.others = logPower.others;
+				tmp.ac = d.ac;
+				tmp.others = d.others;
 
 				let containsDate = false;
 				if (data.length > 0) {

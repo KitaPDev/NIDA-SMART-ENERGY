@@ -10,7 +10,8 @@
 			"name": "Launch Node Server",
 			"program": "${workspaceRoot}/server/bin/www",
 			"cwd": "${workspaceRoot}/server",
-			"runtimeExecutable": "/Users/kitap/.nvm/versions/node/v16.2.0/bin/node"
+			"runtimeExecutable": "/Users/kitap/.nvm/versions/node/v16.2.0/bin/node",
+			"console": "integratedTerminal"
 		},
 		{
 			"type": "chrome",

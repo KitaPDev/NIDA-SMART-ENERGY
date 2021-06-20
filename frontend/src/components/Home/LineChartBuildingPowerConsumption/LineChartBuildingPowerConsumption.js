@@ -47,13 +47,6 @@ const getAxisYDomain = (series, from, to, ref, offset) => {
 		}
 	}
 
-	// const refData = series.slice(from - 1, to);
-	// let [bottom, top] = [refData[0][ref], refData[0][ref]];
-	// refData.forEach((d) => {
-	// 	if (d[ref] > top) top = d[ref];
-	// 	if (d[ref] < bottom) bottom = d[ref];
-	// });
-
 	return [(bottom | 0) - offset, (top | 0) + offset];
 };
 
@@ -181,22 +174,23 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 		let dateBegin;
 		let dateEnd;
 
-		for (let building of Object.keys(lsLogPower_Building)) {
+		for (let log of lsLogPower_Building) {
+			let building = log.building;
 			let buildingData = {};
 			buildingData.building = building;
 
 			let data = [];
 
-			for (let logPower of lsLogPower_Building[building]) {
+			for (let d of log.data) {
 				let tmp = {};
 
-				let total = logPower.ac + logPower.others;
-				let dateLog = new Date(logPower.log_timestamp);
+				let total = d.ac + d.others;
+				let dateLog = new Date(d.log_timestamp);
 
 				tmp.log_datetime = dateLog;
 				tmp.total = total;
-				tmp.ac = logPower.ac;
-				tmp.others = logPower.others;
+				tmp.ac = d.ac;
+				tmp.others = d.others;
 
 				if (powerMin === -1) {
 					powerMin = total;

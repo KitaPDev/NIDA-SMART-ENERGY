@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Row, Col } from "reactstrap";
 import "./Building.css";
 import { MdPeople } from "react-icons/md";
+import { RiFileExcel2Fill } from "react-icons/ri";
 import {
 	Form,
 	FormGroup,
@@ -12,6 +13,7 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "reactstrap";
+import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
 
 class Building extends React.Component {
 	constructor(props) {
@@ -133,6 +135,48 @@ class Building extends React.Component {
 			electricalSystem,
 		} = this.state;
 
+		let lsLogPower_Building = [
+			{
+				building: "Navamin",
+				data: [
+					{ log_timestamp: "2021-06-08T00:00:00Z", ac: 18, others: 12 },
+					{ log_timestamp: "2021-06-08T00:15:00Z", ac: 13, others: 11 },
+					{ log_timestamp: "2021-06-08T00:30:00Z", ac: 14, others: 14 },
+					{ log_timestamp: "2021-06-08T00:45:00Z", ac: 12, others: 15 },
+					{ log_timestamp: "2021-06-08T01:00:00Z", ac: 18, others: 14 },
+					{ log_timestamp: "2021-06-08T01:15:00Z", ac: 19, others: 13 },
+					{ log_timestamp: "2021-06-08T01:30:00Z", ac: 15, others: 12 },
+					{ log_timestamp: "2021-06-08T01:45:00Z", ac: 16, others: 11 },
+					{ log_timestamp: "2021-06-08T02:00:00Z", ac: 17, others: 12 },
+					{ log_timestamp: "2021-06-08T02:15:00Z", ac: 11, others: 10 },
+				],
+			},
+			{
+				building: "Auditorium",
+				data: [
+					{ log_timestamp: "2021-06-08T00:00:00Z", ac: 16, others: 1 },
+					{ log_timestamp: "2021-06-08T00:15:00Z", ac: 14, others: 3 },
+					{ log_timestamp: "2021-06-08T00:30:00Z", ac: 5, others: 2 },
+					{ log_timestamp: "2021-06-08T00:45:00Z", ac: 8, others: 6 },
+					{ log_timestamp: "2021-06-08T01:00:00Z", ac: 9, others: 7 },
+					{ log_timestamp: "2021-06-08T01:15:00Z", ac: 3, others: 9 },
+					{ log_timestamp: "2021-06-08T01:30:00Z", ac: 4, others: 5 },
+					{ log_timestamp: "2021-06-08T01:45:00Z", ac: 7, others: 3 },
+					{ log_timestamp: "2021-06-08T02:00:00Z", ac: 11, others: 1 },
+					{ log_timestamp: "2021-06-08T02:15:00Z", ac: 19, others: 5 },
+				],
+			},
+		];
+
+		let lsLogPower = {};
+
+		for (let log of lsLogPower_Building) {
+			if (log.building === building) {
+				lsLogPower = log;
+				break;
+			}
+		}
+
 		return (
 			<div>
 				<Container style={{ padding: "1rem" }} fluid>
@@ -228,13 +272,18 @@ class Building extends React.Component {
 										</Form>
 									</Row>
 									<Row className="row-graph-power">
-										<Row>
-											<Col sm={10}>
-												<span style={{ fontWeight: 600, fontSize: "125%" }}>
+										<Row style={{ padding: "0.5rem", margin: "auto" }}>
+											<Col sm={9} style={{ margin: "auto" }}>
+												<span
+													style={{
+														fontWeight: 600,
+														fontSize: "125%",
+													}}
+												>
 													Power (kW)
 												</span>
 											</Col>
-											<Col sm={2}>
+											<Col sm={2} style={{ textAlign: "right" }}>
 												<Dropdown
 													isOpen={isElectricalSystemDropdownOpen}
 													toggle={this.toggleElectricalSystem}
@@ -255,6 +304,23 @@ class Building extends React.Component {
 													</DropdownMenu>
 												</Dropdown>
 											</Col>
+											<Col
+												sm={1}
+												style={{ margin: "auto", textAlign: "right" }}
+											>
+												<RiFileExcel2Fill
+													style={{
+														width: "60%",
+														height: "auto",
+													}}
+												/>
+											</Col>
+										</Row>
+										<Row>
+											<BarChartElectricalSystemPowerConsumption
+												lsLogPower={lsLogPower}
+												electricalSystem={electricalSystem}
+											/>
 										</Row>
 									</Row>
 								</Col>

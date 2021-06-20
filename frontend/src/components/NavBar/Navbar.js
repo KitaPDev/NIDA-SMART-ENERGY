@@ -57,7 +57,7 @@ class NavBar extends React.Component {
 						hour12: false,
 					}),
 				}),
-			1000
+			500
 		);
 	}
 

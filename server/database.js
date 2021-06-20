@@ -17,9 +17,12 @@ const dbConfig = {
 
 let knex = Knex(dbConfig);
 
-exports.isDBConnected = async function () {
+async function isDBConnected() {
 	let result = await knex.raw("select 1+1 as result");
 	return Boolean(result);
-};
+}
 
-module.exports = knex;
+module.exports = {
+	knex,
+	isDBConnected,
+};
