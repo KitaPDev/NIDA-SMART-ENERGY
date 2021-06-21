@@ -20,9 +20,9 @@ async function login(req, res) {
 
 		userService.login(username);
 
-		let jwt = authService.generateJwt(username);
+		let jwt = await authService.generateJwt(username);
 
-		let refreshJwt = authService.generateRefreshJwt(username);
+		let refreshJwt = await authService.generateRefreshJwt(username);
 
 		res.cookie("jwt", jwt);
 		res.cookie("refresh_jwt", refreshJwt);
@@ -44,27 +44,19 @@ async function logout(req, res) {
 	}
 }
 
-async function newToken(req, res) {
+async function getUsername(req, res) {
 	try {
-		let body = req.body;
+		let token = req.cookie.jwt;
+		let username = authService.getUsernameFromToken(token);
 
-		let refreshToken = body.refresh_jwt;
-
-		let newToken = authService.newToken(refreshToken);
-
-		if (newToken === undefined) {
-			res.clearCookie("jwt");
-			res.clearCookie("refresh_jwt");
-			res.status(httpStatusCodes.UNAUTHORIZED).send();
-			return;
+		if (username) {
+			return res.status(httpStatusCodes.OK).send(username);
 		}
 
-		res.cookie("jwt", newToken);
-		res.status(httpStatusCodes.OK).send();
-		return;
+		return res.sendStatus(httpStatusCodes.FORBIDDEN);
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
 
-module.exports = { login, logout, newToken };
+module.exports = { login, logout, getUsername };

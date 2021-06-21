@@ -190,7 +190,7 @@ async function getAllUserType(req, res) {
 			userType.id = r.id;
 			userType.label = r.label;
 
-			lsUserType.push(userType);
+			userType.id !== 0 ? lsUserType.push(userType) : "";
 		}
 
 		res.status(httpStatusCodes.OK).send(lsUserType);

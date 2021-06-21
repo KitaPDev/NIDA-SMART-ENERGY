@@ -1,7 +1,6 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const emails = require("./emails");
-const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 let transporter = nodemailer.createTransport({
 	name: process.env.MAIL_HOST,

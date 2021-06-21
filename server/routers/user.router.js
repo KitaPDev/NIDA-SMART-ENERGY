@@ -24,7 +24,7 @@ router.post("/reset-password/:hash", async function (req, res) {
 	userController.changePassword(req, res);
 });
 
-router.get("/user-type", async function (req, res) {
+router.get("/user-type/all", async function (req, res) {
 	userController.getAllUserType(req, res);
 });
 

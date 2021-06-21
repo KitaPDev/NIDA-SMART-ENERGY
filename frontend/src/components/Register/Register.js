@@ -12,6 +12,7 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import validator from "validator";
 
 class Register extends React.Component {
 	constructor(props) {
@@ -22,6 +23,7 @@ class Register extends React.Component {
 			email: "",
 			password: "",
 			confirmPassword: "",
+			userTypeLabel: "General User",
 			isCredentialsIncorrect: false,
 			isUsernameEmpty: false,
 			isEmailEmpty: false,
@@ -29,23 +31,17 @@ class Register extends React.Component {
 			isPasswordEmpty: false,
 			isPasswordsMatch: false,
 			isUserTypeSelected: false,
+			loading: false,
 		};
 
 		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleInputChangeSelect = this.handleInputChangeSelect.bind(this);
 		this.submitRegister = this.submitRegister.bind(this);
+		this.setLoading = this.setLoading.bind(this);
 	}
 
-	async componentWillMount() {
-		let resp = await axios.get(
-			process.env.REACT_APP_API_BASE_URL + "/user/user-type"
-		);
-
-		let lsUserType = [];
-		if (resp.data) {
-			lsUserType = resp.data;
-		}
-
-		this.setState({ lsUserType: lsUserType });
+	componentWillMount() {
+		this.getAllUserType();
 	}
 
 	toggleShowPassword() {
@@ -56,26 +52,59 @@ class Register extends React.Component {
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
+	handleInputChangeSelect(e) {
+		this.setState({ userTypeLabel: e.target.value });
+	}
+
 	async submitRegister() {
-		let { username, password } = this.state;
+		let {
+			username,
+			email,
+			password,
+			confirmPassword,
+			userTypeLabel,
+			lsUserType,
+		} = this.state;
 
 		this.setState({ isCredentialsIncorrect: false });
 
-		if (username.length === 0) {
-			this.setState({ isUsernameEmpty: true });
+		username.length === 0
+			? this.setState({ isUsernameEmpty: true })
+			: this.setState({ isUsernameEmpty: false });
+
+		email.length === 0
+			? this.setState({ isEmailEmpty: true })
+			: this.setState({ isEmailEmpty: false });
+
+		email.length > 0 && !validator.isEmail(email)
+			? this.setState({ isEmailValid: true })
+			: this.setState({ isEmailValid: false });
+
+		password.length === 0
+			? this.setState({ isPasswordEmpty: true })
+			: this.setState({ isPasswordEmpty: false });
+
+		let { isUsernameEmpty, isEmailEmpty, isPasswordEmpty, isEmailValid } =
+			this.state;
+
+		if (isUsernameEmpty && isEmailEmpty && isPasswordEmpty && isEmailValid) {
 			return;
-		} else {
-			this.setState({ isUsernameEmpty: false });
 		}
 
-		if (password.length === 0) {
-			this.setState({ isPasswordEmpty: true });
+		if (!(password === confirmPassword)) {
+			alert("Passwords don't match");
 			return;
-		} else {
-			this.setState({ isPasswordEmpty: false });
 		}
 
-		let resp = await this.postRegister(username, password);
+		let userTypeID;
+		for (let userType of lsUserType) {
+			if (userType.label === userTypeLabel) {
+				userTypeID = userType.id;
+				break;
+			}
+		}
+
+		let resp = await this.postRegister(username, email, password, userTypeID);
 
 		if (resp.status === 200) {
 			this.props.history.push({
@@ -106,13 +135,42 @@ class Register extends React.Component {
 		}
 	}
 
+	async getAllUserType() {
+		this.setLoading(true);
+
+		try {
+			let resp = await axios.get(
+				process.env.REACT_APP_API_BASE_URL + "/user/user-type/all"
+			);
+
+			this.setState({ lsUserType: resp.data });
+		} catch (err) {
+			console.log(err);
+		} finally {
+			this.setLoading(false);
+		}
+	}
+
+	setLoading(loading) {
+		this.setState({
+			loading: loading,
+		});
+	}
+
 	render() {
 		let {
 			username,
+			email,
 			password,
+			confirmPassword,
+			userTypeLabel,
 			isCredentialsIncorrect,
 			isUsernameEmpty,
+			isEmailEmpty,
+			isEmailValid,
 			isPasswordEmpty,
+			lsUserType,
+			loading,
 		} = this.state;
 
 		return (
@@ -132,10 +190,10 @@ class Register extends React.Component {
 						<Row>
 							<Form>
 								<FormGroup row>
-									<Label for="username" sm={3}>
+									<Label for="username" sm={2}>
 										Username
 									</Label>
-									<Col sm={9}>
+									<Col sm={6}>
 										<Input
 											type="text"
 											name="username"
@@ -146,10 +204,24 @@ class Register extends React.Component {
 									</Col>
 								</FormGroup>
 								<FormGroup row>
-									<Label for="password" sm={3}>
+									<Label for="email" sm={2}>
+										Email
+									</Label>
+									<Col sm={6}>
+										<Input
+											type="text"
+											name="email"
+											id="email"
+											onChange={this.handleInputChange}
+											value={email}
+										/>
+									</Col>
+								</FormGroup>
+								<FormGroup row>
+									<Label for="password" sm={2}>
 										Password
 									</Label>
-									<Col sm={9}>
+									<Col sm={6}>
 										<Input
 											type="password"
 											name="password"
@@ -159,6 +231,42 @@ class Register extends React.Component {
 										/>
 									</Col>
 								</FormGroup>
+								<FormGroup row>
+									<Label for="confirmPassword" sm={2}>
+										Password
+									</Label>
+									<Col sm={6}>
+										<Input
+											type="password"
+											name="confirmPassword"
+											id="confirmPassword"
+											value={confirmPassword}
+											onChange={this.handleInputChange}
+										/>
+									</Col>
+								</FormGroup>
+								{loading ? (
+									""
+								) : (
+									<FormGroup row>
+										<Label for="userType" sm={2}>
+											User Type
+										</Label>
+										<Col sm={6}>
+											<Input
+												type="select"
+												name="userType"
+												id="userType"
+												value={userTypeLabel}
+												onChange={this.handleInputChangeSelect}
+											>
+												{lsUserType.map((userType) => (
+													<option>{userType.label}</option>
+												))}
+											</Input>
+										</Col>
+									</FormGroup>
+								)}
 								<FormGroup row>
 									<Button className="btn-login" onClick={this.submitRegister}>
 										Register
@@ -173,6 +281,16 @@ class Register extends React.Component {
 						)}
 						{isUsernameEmpty ? (
 							<Row className="row-feedback">Please fill in your username.</Row>
+						) : (
+							""
+						)}
+						{isEmailEmpty ? (
+							<Row className="row-feedback">Please fill in your email.</Row>
+						) : (
+							""
+						)}
+						{isEmailValid ? (
+							<Row className="row-feedback">Email is invalid.</Row>
 						) : (
 							""
 						)}

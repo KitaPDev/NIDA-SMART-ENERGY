@@ -40,6 +40,7 @@ class NavBar extends React.Component {
 				minute: "2-digit",
 				hour12: false,
 			}),
+			username: "",
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
@@ -47,6 +48,7 @@ class NavBar extends React.Component {
 		this.toggleUserDropdown = this.toggleUserDropdown.bind(this);
 		this.changeLocale = this.changeLocale.bind(this);
 		this.logout = this.logout.bind(this);
+		this.getUsername = this.getUsername.bind(this);
 	}
 
 	componentDidMount() {
@@ -61,10 +63,25 @@ class NavBar extends React.Component {
 				}),
 			500
 		);
+
+		let unauthenticatedPathnames = [
+			"./login",
+			"./forgot-password",
+			"./register",
+		];
+		this.unlisten = this.props.history.listen((location, action) => {
+			if (
+				this.state.username.length === 0 &&
+				unauthenticatedPathnames.indexOf(location.pathname) === -1
+			) {
+				this.getUsername();
+			}
+		});
 	}
 
 	componentWillUnmount() {
 		clearInterval(this.interval);
+		this.unlisten();
 	}
 
 	toggleCollapse() {
@@ -103,9 +120,29 @@ class NavBar extends React.Component {
 			});
 	}
 
+	async getUsername() {
+		try {
+			let resp = await axios.get(
+				process.env.REACT_APP_API_BASE_URL + "/auth/username",
+				{ withCredentials: true }
+			);
+
+			if (resp.status === 200) {
+				this.setState({ username: resp.data });
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
 	render() {
-		let { isUserDropdownOpen, isLocaleDropdownOpen, locale, currentTime } =
-			this.state;
+		let {
+			isUserDropdownOpen,
+			isLocaleDropdownOpen,
+			locale,
+			currentTime,
+			username,
+		} = this.state;
 		let { location } = this.props;
 
 		return (
@@ -214,7 +251,7 @@ class NavBar extends React.Component {
 									/>
 
 									<DropdownToggle style={{ paddingTop: 0 }} nav caret>
-										User
+										{username}
 									</DropdownToggle>
 									<DropdownMenu style={{ width: "200px" }}>
 										<DropdownItem>

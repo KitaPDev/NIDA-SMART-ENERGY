@@ -79,6 +79,7 @@ class Login extends React.Component {
 
 			return await axios.post(
 				process.env.REACT_APP_API_BASE_URL + "/auth/login",
+				{ withCredentials: true, credentials: "include" },
 				payload
 			);
 		} catch (err) {

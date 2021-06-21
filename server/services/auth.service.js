@@ -49,6 +49,15 @@ async function newToken(refreshToken) {
 	return token;
 }
 
+async function getUsernameFromToken(token) {
+	let verifiedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+	let username = verifiedToken.username;
+
+	if (username) {
+		return username;
+	}
+}
+
 module.exports = {
 	generateSalt,
 	hashPassword,
@@ -56,4 +65,5 @@ module.exports = {
 	generateJwt,
 	generateRefreshJwt,
 	newToken,
+	getUsernameFromToken,
 };
