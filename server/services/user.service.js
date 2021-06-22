@@ -1,6 +1,6 @@
 const knex = require("../database").knex;
-const authService = require("../services/auth.service");
 const crypto = require("crypto");
+const cryptoUtil = require("../utils/crypto.util");
 
 async function generateEmailHash() {
 	return crypto.randomBytes(20).toString("hex");
@@ -28,8 +28,8 @@ async function userTypeExists(id) {
 }
 
 async function insertUser(username, email, clearTextPassword, userTypeID) {
-	let salt = await authService.generateSalt();
-	let hash = await authService.hashPassword(clearTextPassword, salt);
+	let salt = await cryptoUtil.generateSalt();
+	let hash = await cryptoUtil.hashPassword(clearTextPassword, salt);
 
 	await knex(knex.ref("user")).insert({
 		user_type_id: userTypeID,
@@ -152,6 +152,17 @@ async function getAllUserType() {
 	return result;
 }
 
+async function getUserTypeByUsername(username) {
+	let userID = await getUserIDbyUsername(username);
+	let lsUserType = await getAllUserType();
+
+	for (let userType of lsUserType) {
+		if (userType.user_id === userID) {
+			return userType.label;
+		}
+	}
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -171,4 +182,5 @@ module.exports = {
 	getEmailHashByUserID,
 	getSaltByUserID,
 	getAllUserType,
+	getUserTypeByUsername,
 };

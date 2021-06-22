@@ -11,7 +11,7 @@ import {
 	Input,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import http from "../../httpService";
 
 class Login extends React.Component {
 	constructor(props) {
@@ -59,11 +59,18 @@ class Login extends React.Component {
 
 		let resp = await this.postLogin(username, password);
 
+		if (!resp) {
+			alert(
+				"Unable to connect to the server at this moment. Please try again later."
+			);
+			return;
+		}
+
 		if (resp.status === 200) {
 			this.props.history.push({
 				pathname: "/",
 			});
-		} else if (resp.status === 500) {
+		} else if (resp.status === 500 || resp.status === 403) {
 			alert("Could not perform login. Please try again");
 		} else {
 			this.setState({ isCredentialsIncorrect: true });
@@ -77,13 +84,10 @@ class Login extends React.Component {
 				password: password,
 			};
 
-			return await axios.post(
-				process.env.REACT_APP_API_BASE_URL + "/auth/login",
-				{ withCredentials: true, credentials: "include" },
-				payload
-			);
+			return await http.post("/auth/login", payload);
 		} catch (err) {
 			console.log(err);
+			return err.response;
 		}
 	}
 
@@ -147,8 +151,8 @@ class Login extends React.Component {
 										<Label check>
 											<Input
 												type="checkbox"
-												onClick={this.toggleShowPassword}
 												checked={showPassword}
+												onChange={this.toggleShowPassword}
 											/>{" "}
 											Show password
 										</Label>

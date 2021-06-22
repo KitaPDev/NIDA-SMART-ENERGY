@@ -8,14 +8,18 @@ async function login(req, res) {
 		let username = body.username;
 		let clearTextPassword = body.password;
 
-		if (!userService.usernameExists(username)) {
-			res.status(httpStatusCodes.NOT_FOUND).send("Username does not exist.");
-			return;
+		if (!username) {
+			return res.status(httpStatusCodes.FORBIDDEN).send("Username is required");
 		}
 
-		if (!authService.verifyPassword(username, clearTextPassword)) {
-			res.status(httpStatusCodes.UNAUTHORIZED).send("Wrong password.");
-			return;
+		if (!(await userService.usernameExists(username))) {
+			return res
+				.status(httpStatusCodes.NOT_FOUND)
+				.send("Username does not exist.");
+		}
+
+		if (!(await authService.verifyPassword(username, clearTextPassword))) {
+			return res.status(httpStatusCodes.UNAUTHORIZED).send("Wrong password.");
 		}
 
 		userService.login(username);
@@ -46,8 +50,8 @@ async function logout(req, res) {
 
 async function getUsername(req, res) {
 	try {
-		let token = req.cookie.jwt;
-		let username = authService.getUsernameFromToken(token);
+		let token = req.cookies.jwt;
+		let username = await authService.getUsernameFromToken(token);
 
 		if (username) {
 			return res.status(httpStatusCodes.OK).send(username);

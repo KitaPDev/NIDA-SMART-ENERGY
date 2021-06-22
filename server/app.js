@@ -10,7 +10,7 @@ const userRouter = require("./routers/user.router");
 
 const app = express();
 
-const corsOptions = { credentials: true };
+const corsOptions = { credentials: true, origin: true };
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());

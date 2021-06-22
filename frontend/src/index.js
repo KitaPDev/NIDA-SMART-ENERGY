@@ -4,20 +4,6 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.min.css";
-import axios from "axios";
-
-axios.interceptors.response.use(
-	(resp) => {
-		if (resp.status === 401) {
-			window.location.pathname = "/login";
-		}
-
-		return resp;
-	},
-	(err) => {
-		return Promise.reject(err);
-	}
-);
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

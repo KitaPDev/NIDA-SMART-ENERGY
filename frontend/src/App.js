@@ -8,11 +8,11 @@ import Building from "./components/Building/Building";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Report from "./components/Report/Report";
 import Meter from "./components/Meter/Meter";
-import User from "./components/User/User";
 import Footer from "./components/Footer/Footer";
 import ScrollToTop from "./ScrollToTop";
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
 import Register from "./components/Register/Register";
+import EditProfile from "./components/User/EditProfile/EditProfile";
 
 class App extends React.Component {
 	render() {
@@ -31,7 +31,7 @@ class App extends React.Component {
 							<Route path="/dashboard" component={Dashboard} exact />
 							<Route path="/report" component={Report} exact />
 							<Route path="/meter" component={Meter} exact />
-							<Route path="/user" component={User} />
+							<Route path="/user/edit-profile" component={EditProfile} exact />
 						</Switch>
 					</ScrollToTop>
 				</Router>

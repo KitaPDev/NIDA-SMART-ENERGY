@@ -11,8 +11,8 @@ import {
 	Input,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import validator from "validator";
+import http from "../../httpService";
 
 class Register extends React.Component {
 	constructor(props) {
@@ -126,10 +126,7 @@ class Register extends React.Component {
 				user_type_id: userTypeID,
 			};
 
-			return await axios.post(
-				process.env.REACT_APP_API_BASE_URL + "/user/register",
-				payload
-			);
+			return await http.post("/user/register", payload);
 		} catch (err) {
 			console.log(err);
 		}
@@ -139,9 +136,7 @@ class Register extends React.Component {
 		this.setLoading(true);
 
 		try {
-			let resp = await axios.get(
-				process.env.REACT_APP_API_BASE_URL + "/user/user-type/all"
-			);
+			let resp = await http.get("/user/user-type/all");
 
 			this.setState({ lsUserType: resp.data });
 		} catch (err) {

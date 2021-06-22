@@ -1,15 +1,9 @@
 const knex = require("../database").knex;
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-
-async function generateSalt() {
-	return await bcrypt.genSalt(10);
-}
-
-async function hashPassword(clearTextPassword, salt) {
-	return await bcrypt.hash(clearTextPassword, salt);
-}
+const userService = require("../services/user.service");
+const cryptoUtil = require("../utils/crypto.util");
+const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function verifyPassword(username, clearTextPassword) {
 	let result = await knex(knex.ref("user"))
@@ -18,15 +12,21 @@ async function verifyPassword(username, clearTextPassword) {
 	let recvHash = result[0].hash_password;
 	let salt = result[0].salt;
 
-	let hash = hashPassword(clearTextPassword, salt);
+	let hash = await cryptoUtil.hashPassword(clearTextPassword, salt);
 
 	return hash === recvHash;
 }
 
 async function generateJwt(username) {
-	return jwt.sign({ username: username }, process.env.TOKEN_SECRET, {
-		expiresIn: process.env.TOKEN_LIFE,
-	});
+	let userType = await userService.getUserTypeByUsername(username);
+
+	return jwt.sign(
+		{ username: username, type: userType },
+		process.env.TOKEN_SECRET,
+		{
+			expiresIn: process.env.TOKEN_LIFE,
+		}
+	);
 }
 
 async function generateRefreshJwt(username) {
@@ -36,15 +36,15 @@ async function generateRefreshJwt(username) {
 }
 
 async function newToken(refreshToken) {
-	let verifiedToken = jwt.verify(refreshToken, process.env.TOKEN_SECRET);
-	let exp = verifiedToken.exp;
+	let decodedToken = jwt.decode(refreshToken, process.env.TOKEN_SECRET);
+	let exp = decodedToken.exp;
 
-	if (Date.now() >= exp) {
-		return { undefined, undefined };
+	if (Date.now() >= exp * 1000) {
+		return;
 	}
 
-	let username = verifiedToken.username;
-	let token = generateJwt(username);
+	let username = decodedToken.username;
+	let token = await generateJwt(username);
 
 	return token;
 }
@@ -59,8 +59,6 @@ async function getUsernameFromToken(token) {
 }
 
 module.exports = {
-	generateSalt,
-	hashPassword,
 	verifyPassword,
 	generateJwt,
 	generateRefreshJwt,

@@ -25,7 +25,7 @@ import {
 } from "react-icons/fa";
 import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
-import axios from "axios";
+import http from "../../httpService";
 
 class NavBar extends React.Component {
 	constructor(props) {
@@ -41,6 +41,7 @@ class NavBar extends React.Component {
 				hour12: false,
 			}),
 			username: "",
+			unauthenticatedPathnames: ["/login", "/forgot-password", "/register"],
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
@@ -64,15 +65,10 @@ class NavBar extends React.Component {
 			500
 		);
 
-		let unauthenticatedPathnames = [
-			"./login",
-			"./forgot-password",
-			"./register",
-		];
 		this.unlisten = this.props.history.listen((location, action) => {
 			if (
 				this.state.username.length === 0 &&
-				unauthenticatedPathnames.indexOf(location.pathname) === -1
+				this.state.unauthenticatedPathnames.indexOf(location.pathname) === -1
 			) {
 				this.getUsername();
 			}
@@ -82,6 +78,17 @@ class NavBar extends React.Component {
 	componentWillUnmount() {
 		clearInterval(this.interval);
 		this.unlisten();
+	}
+
+	async componentDidUpdate() {
+		if (
+			this.state.username.length === 0 &&
+			this.state.unauthenticatedPathnames.indexOf(
+				this.props.history.location.pathname
+			) === -1
+		) {
+			await this.getUsername();
+		}
 	}
 
 	toggleCollapse() {
@@ -109,23 +116,16 @@ class NavBar extends React.Component {
 	}
 
 	logout() {
-		axios
-			.get(process.env.REACT_APP_API_BASE_URL + "/auth/logout")
-			.then((resp) => {
-				if (resp.status === 200) {
-					this.props.history.push({
-						pathname: "/login",
-					});
-				}
-			});
+		http.get("/auth/logout");
+		this.props.history.push({
+			pathname: "/login",
+		});
+		this.setState({ username: "" });
 	}
 
 	async getUsername() {
 		try {
-			let resp = await axios.get(
-				process.env.REACT_APP_API_BASE_URL + "/auth/username",
-				{ withCredentials: true }
-			);
+			let resp = await http.get("/auth/username");
 
 			if (resp.status === 200) {
 				this.setState({ username: resp.data });
@@ -250,7 +250,11 @@ class NavBar extends React.Component {
 										style={{ margin: "auto", opacity: 0.8 }}
 									/>
 
-									<DropdownToggle style={{ paddingTop: 0 }} nav caret>
+									<DropdownToggle
+										style={{ paddingTop: 0, fontWeight: 600 }}
+										nav
+										caret
+									>
 										{username}
 									</DropdownToggle>
 									<DropdownMenu style={{ width: "200px" }}>

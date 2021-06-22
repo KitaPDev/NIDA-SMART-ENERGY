@@ -11,8 +11,8 @@ import {
 	Input,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import validator from "validator";
+import http from "../../httpService";
 
 class ForgotPassword extends React.Component {
 	constructor(props) {
@@ -66,10 +66,7 @@ class ForgotPassword extends React.Component {
 				email: email,
 			};
 
-			return await axios.post(
-				process.env.REACT_APP_API_BASE_URL + "/user/forgot-password",
-				payload
-			);
+			return await http.post("/user/forgot-password", payload);
 		} catch (err) {
 			console.log(err);
 			return err.response;
