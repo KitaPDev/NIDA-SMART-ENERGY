@@ -1,0 +1,12 @@
+.container-fluid {
+	padding: 2rem;
+}
+
+.heading {
+	font-size: 200%;
+	font-weight: bold;
+}
+
+.row {
+	margin: auto;
+}
