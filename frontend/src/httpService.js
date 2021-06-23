@@ -1,8 +1,9 @@
 import axios from "axios";
 
-axios.interceptors.request.use(
+const instance = axios.create({baseURL: process.env.REACT_APP_API_BASE_URL})
+
+instance.interceptors.request.use(
 	function (config) {
-		config.baseURL = process.env.REACT_APP_API_BASE_URL;
 		config.withCredentials = true;
 
 		return config;
@@ -12,7 +13,7 @@ axios.interceptors.request.use(
 	}
 );
 
-axios.interceptors.response.use(
+instance.interceptors.response.use(
 	(resp) => {
 		if (resp.status === 401) {
 			window.location.pathname = "/login";
@@ -26,6 +27,6 @@ axios.interceptors.response.use(
 );
 
 export default {
-	get: axios.get,
-	post: axios.post,
+	get: instance.get,
+	post: instance.post,
 };

@@ -1,7 +1,8 @@
 const express = require("express");
-let router = express.Router();
 const authController = require("../controllers/auth.controller");
 const authenticateJWT = require("../middleware/authenticateJWT");
+
+let router = express.Router();
 
 router.post("/login", async function (req, res) {
 	authController.login(req, res);

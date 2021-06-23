@@ -1,5 +1,6 @@
 const express = require("express");
 const userController = require("../controllers/user.controller");
+const authenticateJWT = require("../middleware/authenticateJWT");
 
 let router = express.Router();
 
@@ -25,6 +26,10 @@ router.post("/reset-password/:hash", async function (req, res) {
 
 router.get("/user-type/all", async function (req, res) {
 	userController.getAllUserType(req, res);
+});
+
+router.get("/info", authenticateJWT, async function (req, res) {
+	userController.getUserInfo(req, res);
 });
 
 module.exports = router;

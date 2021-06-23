@@ -18,6 +18,10 @@ async function login(req, res) {
 				.send("Username does not exist.");
 		}
 
+		if (!(await userService.isEmailVerified(await userService.getEmailFromUsername(username)))) {
+			res.status(httpStatusCodes.UNAUTHORIZED).send("Email is not verified");
+		}
+
 		if (!(await authService.verifyPassword(username, clearTextPassword))) {
 			return res.status(httpStatusCodes.UNAUTHORIZED).send("Wrong password.");
 		}

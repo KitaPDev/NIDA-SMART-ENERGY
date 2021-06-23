@@ -30,3 +30,7 @@ a.dropdown-toggle.nav-link {
 	padding: 0;
 	text-align: center;
 }
+
+li.dropdown.nav-item {
+	width: fit-content !important;
+}

@@ -364,7 +364,7 @@ class NavBar extends React.Component {
 							</Nav>
 						</Collapse>
 
-						<div style={{ marginRight: "2rem" }}>
+						<div>
 							<Dropdown
 								isOpen={isLocaleDropdownOpen}
 								toggle={this.toggleLocaleDropdown}
@@ -395,11 +395,8 @@ class NavBar extends React.Component {
 							>
 								Temperature
 							</Row>
-							<Row>
-								<Col sm="2">
-									<FaTemperatureLow />
-								</Col>
-								<Col sm="10">37°C</Col>
+							<Row style={{justifyContent: "center", alignItems: "center"}}>
+									<FaTemperatureLow/>37°C
 							</Row>
 						</div>
 						<div style={{ width: "100px", fontWeight: "600" }}>
@@ -411,13 +408,8 @@ class NavBar extends React.Component {
 							>
 								Humidity
 							</Row>
-							<Row>
-								<Col sm="2" style={{ padding: 0 }}>
-									<IoIosWater />
-								</Col>
-								<Col sm="10" style={{ padding: 0 }}>
-									48%
-								</Col>
+							<Row style={{justifyContent: "center", alignItems: "center"}}>
+									<IoIosWater />48%
 							</Row>
 						</div>
 						<div style={{ width: "100px", fontWeight: "600" }}>

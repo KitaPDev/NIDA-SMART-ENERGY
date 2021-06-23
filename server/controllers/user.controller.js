@@ -200,6 +200,24 @@ async function getAllUserType(req, res) {
 	}
 }
 
+async function getUserInfo(req, res) {
+	try {
+		let cookies = req.cookies;
+		let token = cookies.jwt;
+		let decodedToken = jwt.decode(token, process.env.TOKEN_SECRET);
+
+		let username = decodedToken.username;
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+		let userInfo = await userService.getUserInfo(username);
+		res.status(httpStatusCodes.OK).send(userInfo);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	register,
 	confirmEmail,
@@ -207,4 +225,5 @@ module.exports = {
 	getResetPasswordForm,
 	changePassword,
 	getAllUserType,
+	getUserInfo,
 };

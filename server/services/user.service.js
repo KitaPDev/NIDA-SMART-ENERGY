@@ -163,6 +163,23 @@ async function getUserTypeByUsername(username) {
 	}
 }
 
+async function getUserInfoByUsername(username) {
+	let result = await knex(knex.ref("user"))
+		.select(
+			"username",
+			"email",
+			"activated_timestamp",
+			"last_login_timestamp",
+			"profile_image",
+			"is_user_type_approved",
+			"is_activated"
+		)
+		.where("username", username);
+	result.userType = await getUserTypeByUsername(username);
+
+	return result;
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -183,4 +200,5 @@ module.exports = {
 	getSaltByUserID,
 	getAllUserType,
 	getUserTypeByUsername,
+	getUserInfoByUsername,
 };
