@@ -1,6 +1,7 @@
 const knex = require("../database").knex;
 const crypto = require("crypto");
 const cryptoUtil = require("../utils/crypto.util");
+const b64toBlob = require("../utils/b64blob.util").b64toBlob;
 
 async function generateEmailHash() {
 	return crypto.randomBytes(20).toString("hex");
@@ -31,6 +32,11 @@ async function insertUser(username, email, clearTextPassword, userTypeID) {
 	let salt = await cryptoUtil.generateSalt();
 	let hash = await cryptoUtil.hashPassword(clearTextPassword, salt);
 
+	let isUserTypeApproved = 0;
+	if (userTypeID === 4) {
+		isUserTypeApproved = 1;
+	}
+
 	await knex(knex.ref("user")).insert({
 		user_type_id: userTypeID,
 		username: username,
@@ -38,6 +44,7 @@ async function insertUser(username, email, clearTextPassword, userTypeID) {
 		salt: salt,
 		hash_password: hash,
 		is_email_verified: false,
+		is_user_type_approved: isUserTypeApproved,
 	});
 }
 
@@ -106,7 +113,7 @@ async function getUserIDByEmail(email) {
 	return result ? result[0].id : undefined;
 }
 
-async function login(username) {
+async function stampLogin(username) {
 	await knex(knex.ref("user"))
 		.where("username", username)
 		.update({
@@ -166,18 +173,56 @@ async function getUserTypeByUsername(username) {
 async function getUserInfoByUsername(username) {
 	let result = await knex(knex.ref("user"))
 		.select(
+			"user_type_id",
 			"username",
 			"email",
 			"activated_timestamp",
 			"last_login_timestamp",
 			"profile_image",
+			"profile_image_content_type",
 			"is_user_type_approved",
-			"is_activated"
+			"is_deactivated"
 		)
 		.where("username", username);
-	result.userType = await getUserTypeByUsername(username);
+	result[0].user_type = await getUserTypeLabel(result[0].user_type_id);
 
-	return result;
+	return result[0];
+}
+
+async function getUserTypeLabel(userTypeID) {
+	let result = await knex(knex.ref("user_type"))
+		.select("label")
+		.where("id", userTypeID);
+
+	return result[0].label;
+}
+
+async function updateUsername(prevUsername, username) {
+	await knex(knex.ref("user"))
+		.where("username", prevUsername)
+		.update({ username: username });
+}
+
+async function updateEmail(username, email) {
+	await knex(knex.ref("user"))
+		.where("username", username)
+		.update({ email: email, is_email_verified: 0 });
+}
+
+async function updateProfileImage(username, b64Image) {
+	let contentType = b64Image.substring(
+		b64Image.lastIndexOf(":") + 1,
+		b64Image.lastIndexOf(";")
+	);
+
+	let b64data = atob(b64Image.split(",")[1]);
+
+	const blob = b64toBlob(b64data, contentType);
+	let buffer = blob.buffer;
+
+	await knex(knex.ref("user"))
+		.where("username", username)
+		.update({ profile_image: buffer, profile_image_content_type: contentType });
 }
 
 module.exports = {
@@ -193,7 +238,7 @@ module.exports = {
 	getEmailFromUsername,
 	isEmailVerified,
 	getUserIDByEmail,
-	login,
+	stampLogin,
 	updatePassword,
 	emailHashExists,
 	getEmailHashByUserID,
@@ -201,4 +246,8 @@ module.exports = {
 	getAllUserType,
 	getUserTypeByUsername,
 	getUserInfoByUsername,
+	getUserTypeLabel,
+	updateUsername,
+	updateEmail,
+	updateProfileImage,
 };

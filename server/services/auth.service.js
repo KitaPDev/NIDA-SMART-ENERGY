@@ -49,13 +49,12 @@ async function newToken(refreshToken) {
 	return token;
 }
 
-async function getUsernameFromToken(token) {
-	let verifiedToken = jwt.verify(token, process.env.TOKEN_SECRET);
-	let username = verifiedToken.username;
+async function getUsernameFromCookies(req) {
+	let cookies = req.cookies;
+	let token = cookies.jwt;
+	let decodedToken = jwt.decode(token, process.env.TOKEN_SECRET);
 
-	if (username) {
-		return username;
-	}
+	return decodedToken.username;
 }
 
 module.exports = {
@@ -63,5 +62,5 @@ module.exports = {
 	generateJwt,
 	generateRefreshJwt,
 	newToken,
-	getUsernameFromToken,
+	getUsernameFromCookies,
 };

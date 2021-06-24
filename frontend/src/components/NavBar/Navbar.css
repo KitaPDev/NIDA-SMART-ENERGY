@@ -34,3 +34,7 @@ a.dropdown-toggle.nav-link {
 li.dropdown.nav-item {
 	width: fit-content !important;
 }
+
+.locale-toggler {
+	margin-right: 1rem;
+}

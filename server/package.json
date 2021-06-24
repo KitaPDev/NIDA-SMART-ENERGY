@@ -11,6 +11,7 @@
 		"start:dev": "nodemon ./bin/www"
 	},
 	"dependencies": {
+		"b64-to-blob": "^1.2.19",
 		"bcrypt": "^5.0.1",
 		"body-parser": "^1.19.0",
 		"cookie-parser": "^1.4.5",
@@ -23,6 +24,7 @@
 		"jsonwebtoken": "^8.5.1",
 		"knex": "^0.95.6",
 		"mysql": "^2.18.1",
+		"node-blob": "^0.0.2",
 		"nodemailer": "^6.6.2",
 		"nodemon": "^2.0.7",
 		"pg": "^8.6.0",

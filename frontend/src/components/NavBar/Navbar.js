@@ -7,7 +7,6 @@ import {
 	Nav,
 	NavItem,
 	Row,
-	Col,
 	Dropdown,
 	DropdownToggle,
 	DropdownMenu,
@@ -364,7 +363,7 @@ class NavBar extends React.Component {
 							</Nav>
 						</Collapse>
 
-						<div>
+						<div className="locale-toggler">
 							<Dropdown
 								isOpen={isLocaleDropdownOpen}
 								toggle={this.toggleLocaleDropdown}
@@ -389,27 +388,27 @@ class NavBar extends React.Component {
 						>
 							<Row
 								style={{
-									width: "fit-content",
 									justifyContent: "center",
 								}}
 							>
 								Temperature
 							</Row>
-							<Row style={{justifyContent: "center", alignItems: "center"}}>
-									<FaTemperatureLow/>37°C
+							<Row style={{ justifyContent: "center", alignItems: "center" }}>
+								<FaTemperatureLow />
+								37°C
 							</Row>
 						</div>
 						<div style={{ width: "100px", fontWeight: "600" }}>
 							<Row
 								style={{
-									width: "fit-content",
 									justifyContent: "center",
 								}}
 							>
 								Humidity
 							</Row>
-							<Row style={{justifyContent: "center", alignItems: "center"}}>
-									<IoIosWater />48%
+							<Row style={{ justifyContent: "center", alignItems: "center" }}>
+								<IoIosWater />
+								48%
 							</Row>
 						</div>
 						<div style={{ width: "100px", fontWeight: "600" }}>

@@ -1,15 +1,17 @@
-.container-fluid {
+.container-user-info {
 	padding: 2rem !important;
-}
-
-.row {
-	margin: auto !important;
 }
 
 .row.heading {
 	font-size: 200%;
 	font-weight: bold;
-	margin-bottom: 1rem !important;
+	padding-left: 1rem;
+}
+
+.row-content {
+	margin-top: 2rem !important;
+	justify-content: center !important;
+	align-items: center;
 }
 
 svg {
@@ -21,6 +23,8 @@ svg {
 .choose-image {
 	align-items: center !important;
 	font-weight: 500;
+	padding: 0.5rem;
+	border-radius: 0.2rem;
 }
 
 .choose-image svg {
@@ -44,4 +48,86 @@ svg {
 .row-imagepicker {
 	margin-top: 0.8rem !important;
 	text-align: center;
+}
+
+.green-dot {
+	display: inline-block;
+	width: 16px !important;
+	height: 16px !important;
+	background-color: lightgreen;
+	border-radius: 50%;
+	margin-right: 0.2rem;
+	vertical-align: baseline;
+}
+
+.btn-change-password {
+	background-color: black !important;
+	color: white !important;
+	font-weight: 600 !important;
+}
+
+.btn-change-password:hover {
+	background-color: white !important;
+	color: black !important;
+	transition-duration: 0.3s;
+}
+
+.btn-deactivate {
+	background-color: transparent !important;
+	color: red !important;
+	border: 2px solid red !important;
+	font-weight: 600 !important;
+}
+
+.btn-deactivate:hover {
+	background-color: red !important;
+	color: white !important;
+	transition-duration: 0.3s;
+}
+
+.td-edit :hover {
+	cursor: pointer;
+}
+
+button.close {
+	border: none;
+	background-color: white;
+	font-size: 120%;
+}
+
+.modal-content {
+	border-radius: 1rem !important;
+}
+
+.td-button {
+	border: none !important;
+}
+
+.row-upload {
+	margin-top: 0.2rem !important;
+	justify-content: center;
+}
+
+.btn-upload {
+	width: fit-content !important;
+	background-color: transparent !important;
+	color: black !important;
+	border: none !important;
+	font-weight: 600 !important;
+}
+
+.btn-upload:hover {
+	cursor: pointer !important;
+	background-color: black !important;
+	color: white !important;
+	transition-duration: 0.3s !important;
+}
+
+.col-image {
+	margin-right: 1rem;
+}
+
+.table-user-info {
+	vertical-align: middle;
+	margin: auto;
 }

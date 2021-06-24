@@ -23,6 +23,7 @@ class Login extends React.Component {
 			isCredentialsIncorrect: false,
 			isUsernameEmpty: false,
 			isPasswordEmpty: false,
+			errorMessage: "",
 		};
 
 		this.toggleShowPassword = this.toggleShowPassword.bind(this);
@@ -67,13 +68,15 @@ class Login extends React.Component {
 		}
 
 		if (resp.status === 200) {
+			localStorage.setItem("current_username", username);
+
 			this.props.history.push({
 				pathname: "/",
 			});
 		} else if (resp.status === 500 || resp.status === 403) {
 			alert("Could not perform login. Please try again");
 		} else {
-			this.setState({ isCredentialsIncorrect: true });
+			this.setState({ isCredentialsIncorrect: true, errorMessage: resp.data });
 		}
 	}
 
@@ -99,6 +102,7 @@ class Login extends React.Component {
 			isCredentialsIncorrect,
 			isUsernameEmpty,
 			isPasswordEmpty,
+			errorMessage,
 		} = this.state;
 
 		return (
@@ -166,7 +170,7 @@ class Login extends React.Component {
 							</Form>
 						</Row>
 						{isCredentialsIncorrect ? (
-							<Row className="row-feedback">Credentials don't match!</Row>
+							<Row className="row-feedback">{errorMessage}</Row>
 						) : (
 							""
 						)}

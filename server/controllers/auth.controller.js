@@ -18,15 +18,21 @@ async function login(req, res) {
 				.send("Username does not exist.");
 		}
 
-		if (!(await userService.isEmailVerified(await userService.getEmailFromUsername(username)))) {
-			res.status(httpStatusCodes.UNAUTHORIZED).send("Email is not verified");
+		if (
+			!(await userService.isEmailVerified(
+				await userService.getEmailFromUsername(username)
+			))
+		) {
+			return res
+				.status(httpStatusCodes.UNAUTHORIZED)
+				.send("Email is not verified");
 		}
 
 		if (!(await authService.verifyPassword(username, clearTextPassword))) {
 			return res.status(httpStatusCodes.UNAUTHORIZED).send("Wrong password.");
 		}
 
-		userService.login(username);
+		userService.stampLogin(username);
 
 		let jwt = await authService.generateJwt(username);
 
@@ -54,8 +60,7 @@ async function logout(req, res) {
 
 async function getUsername(req, res) {
 	try {
-		let token = req.cookies.jwt;
-		let username = await authService.getUsernameFromToken(token);
+		let username = await authService.getUsernameFromCookies(req);
 
 		if (username) {
 			return res.status(httpStatusCodes.OK).send(username);

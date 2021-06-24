@@ -1,6 +1,8 @@
 const userService = require("../services/user.service");
+const authService = require("../services/auth.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 const mailer = require("../mailer");
+const jwt = require("jsonwebtoken");
 
 const emailRegex =
 	/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -202,17 +204,108 @@ async function getAllUserType(req, res) {
 
 async function getUserInfo(req, res) {
 	try {
-		let cookies = req.cookies;
-		let token = cookies.jwt;
-		let decodedToken = jwt.decode(token, process.env.TOKEN_SECRET);
+		let username;
 
-		let username = decodedToken.username;
+		let body = req.body;
+		body.username
+			? (username = body.username)
+			: (username = await authService.getUsernameFromCookies(req));
 
 		if (!username) {
 			return res.sendStatus(httpStatusCodes.FORBIDDEN);
 		}
-		let userInfo = await userService.getUserInfo(username);
+		let userInfo = await userService.getUserInfoByUsername(username);
+
+		let profileImageBlob = userInfo.profile_image;
+		if (profileImageBlob != null) {
+			let contentType = userInfo.profile_image_content_type;
+
+			userInfo.profile_image = profileImageBlob.toString("base64");
+			userInfo.profile_image =
+				"data:" + contentType + ";base64," + userInfo.profile_image;
+		}
+
 		res.status(httpStatusCodes.OK).send(userInfo);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function changeUsername(req, res) {
+	try {
+		let body = req.body;
+		let username = body.username;
+
+		let prevUsername = await authService.getUsernameFromCookies(req);
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		await userService.updateUsername(prevUsername, username);
+
+		let refreshToken = await authService.generateRefreshJwt(username);
+		let token = await authService.generateJwt(username);
+
+		res.cookie("refresh_jwt", refreshToken);
+		res.cookie("jwt", token);
+
+		res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function changeEmail(req, res) {
+	try {
+		let body = req.body;
+		let email = body.email;
+
+		if (!email) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		let username = await authService.getUsernameFromCookies(req);
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		await userService.updateEmail(username, email);
+
+		let userID = await userService.getUserIDbyUsername(username);
+		let hash = await userService.insertEmailHash(userID);
+
+		mailer.sendConfirmationEmail(email, hash, username);
+
+		return res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function uploadProfileImage(req, res) {
+	try {
+		let body = req.body;
+		let base64Image = body.image;
+
+		if (!base64Image) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		if (base64Image.length === 0) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		let username = await authService.getUsernameFromCookies(req);
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		await userService.updateProfileImage(username, base64Image);
+
+		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
@@ -226,4 +319,7 @@ module.exports = {
 	changePassword,
 	getAllUserType,
 	getUserInfo,
+	changeUsername,
+	changeEmail,
+	uploadProfileImage,
 };

@@ -32,4 +32,20 @@ router.get("/info", authenticateJWT, async function (req, res) {
 	userController.getUserInfo(req, res);
 });
 
+router.post("/info", authenticateJWT, async function (req, res) {
+	userController.getUserInfo(req, res);
+});
+
+router.post("/username", authenticateJWT, async function (req, res) {
+	userController.changeUsername(req, res);
+});
+
+router.post("/email", authenticateJWT, async function (req, res) {
+	userController.changeEmail(req, res);
+});
+
+router.post("/profile-image", authenticateJWT, async function (req, res) {
+	userController.uploadProfileImage(req, res);
+});
+
 module.exports = router;
