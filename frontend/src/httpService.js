@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const instance = axios.create({baseURL: process.env.REACT_APP_API_BASE_URL})
+const instance = axios.create({ baseURL: process.env.REACT_APP_API_BASE_URL });
 
 instance.interceptors.request.use(
 	function (config) {
@@ -15,13 +15,14 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
 	(resp) => {
+		return resp;
+	},
+	(err) => {
+		let resp = err.response;
 		if (resp.status === 401) {
 			window.location.pathname = "/login";
 		}
 
-		return resp;
-	},
-	(err) => {
 		return Promise.reject(err);
 	}
 );

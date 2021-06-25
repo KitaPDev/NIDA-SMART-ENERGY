@@ -13,6 +13,7 @@ import ScrollToTop from "./ScrollToTop";
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
 import Register from "./components/Register/Register";
 import EditProfile from "./components/User/EditProfile/EditProfile";
+import SetTarget from "./components/User/SetTarget/SetTarget";
 
 class App extends React.Component {
 	render() {
@@ -32,6 +33,7 @@ class App extends React.Component {
 							<Route path="/report" component={Report} exact />
 							<Route path="/meter" component={Meter} exact />
 							<Route path="/user/edit-profile" component={EditProfile} exact />
+							<Route path="/user/set-target" component={SetTarget} exact />
 						</Switch>
 					</ScrollToTop>
 				</Router>

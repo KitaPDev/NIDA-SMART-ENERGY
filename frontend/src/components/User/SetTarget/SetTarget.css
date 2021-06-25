@@ -1,0 +1,81 @@
+.div-set-target {
+	height: 100vh;
+}
+
+.container-set-target {
+	padding: 2rem !important;
+}
+
+.row.heading {
+	font-size: 200%;
+	font-weight: bold;
+	padding-left: 1rem;
+}
+
+.row-config {
+	margin-top: 1rem !important;
+	border: 1px solid #000000;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.col-label {
+	color: black;
+	width: fit-content !important;
+}
+
+.fg-config-1 {
+	margin-top: 0 !important;
+}
+
+.fg-config-building {
+	margin-left: auto !important;
+}
+
+.form-target {
+	height: fit-content !important;
+}
+
+.col-btn-set-target {
+	text-align: right;
+}
+
+.btn-set-target {
+	background-color: black !important;
+	font-weight: bold !important ;
+	padding-left: 2rem !important;
+	padding-right: 2rem !important;
+	border-radius: 0.5rem !important;
+}
+
+.btn-set-target:hover {
+	cursor: pointer !important;
+	background-color: transparent !important;
+	color: black !important;
+	border-radius: 0.5rem !important;
+	transition-duration: 0.3s !important;
+}
+
+.col-note {
+	margin: auto !important;
+	margin-bottom: 0 !important;
+	margin-left: 0 !important;
+}
+
+.row-building-users {
+	margin-top: 1rem !important;
+	border: 1px solid #000000;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.row-building-users-heading {
+	font-size: 150%;
+	font-weight: 600;
+	margin: auto !important;
+	color: #6b6666;
+}

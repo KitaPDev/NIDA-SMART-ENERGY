@@ -325,7 +325,7 @@ class Home extends React.Component {
 												alignSelf: "flex-end",
 											}}
 										>
-											Remark:
+											*Note:
 										</span>
 										<span
 											style={{
@@ -333,7 +333,7 @@ class Home extends React.Component {
 												marginLeft: "0.2rem",
 											}}
 										>
-											Electricity cost (Baht) is an estimate
+											Electricity bill is estimated
 										</span>
 									</Col>
 									<Col sm="3" style={{ verticalAlign: "bottom" }}>

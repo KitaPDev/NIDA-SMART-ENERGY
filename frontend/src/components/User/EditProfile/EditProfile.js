@@ -240,7 +240,7 @@ class EditProfile extends React.Component {
 		} = this.state;
 
 		return (
-			<div style={{ height: "100vh" }}>
+			<div className="div-edit-profile">
 				<Container className="container-user-info" fluid>
 					<Row className="heading">User Information</Row>
 

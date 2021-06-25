@@ -7,6 +7,8 @@ const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 const authRouter = require("./routers/auth.router");
 const userRouter = require("./routers/user.router");
+const targetRouter = require("./routers/target.router");
+const buildingRouter = require("./routers/building.router");
 
 const app = express();
 
@@ -28,5 +30,7 @@ app.get("/", async function (req, res) {
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/target", targetRouter);
+app.use("/building", buildingRouter);
 
 module.exports = app;
