@@ -9,6 +9,7 @@ import {
 	Label,
 	Input,
 	Button,
+	Table,
 } from "reactstrap";
 import { MdPeople } from "react-icons/md";
 import http from "../../../httpService";
@@ -31,9 +32,6 @@ class SetTarget extends React.Component {
 			"November",
 			"December",
 		];
-
-		let currentMonth = new Date().getMonth();
-		lsMonth = lsMonth.slice(currentMonth);
 
 		this.state = {
 			lsMonth: lsMonth,
@@ -70,7 +68,7 @@ class SetTarget extends React.Component {
 		let currentYear = new Date().getFullYear();
 		let end = currentYear + 20;
 		let lsYear = [];
-		for (let i = currentYear; i < end; i++) {
+		for (let i = currentYear - 10; i < end; i++) {
 			lsYear.push(i);
 		}
 
@@ -81,6 +79,7 @@ class SetTarget extends React.Component {
 					<Container fluid>
 						<Row>
 							<Col sm={4}>
+								{/* ******************************** CONFIG PANE ******************************** */}
 								<Row className="row-config">
 									<Form className="form-target">
 										<FormGroup row className="fg-config-1">
@@ -88,8 +87,13 @@ class SetTarget extends React.Component {
 												Month
 											</Label>
 											<Col sm={4}>
-												<Input type="select" name="month" id="monthSelect">
-													{lsMonth.map((month) => (
+												<Input
+													type="select"
+													name="month"
+													id="monthSelect"
+													value={lsMonth[new Date().getMonth()]}
+												>
+													{lsMonth.map((month, index) => (
 														<option>{month}</option>
 													))}
 												</Input>
@@ -98,7 +102,12 @@ class SetTarget extends React.Component {
 												Year
 											</Label>
 											<Col sm={4}>
-												<Input type="select" name="year" id="yearSelect">
+												<Input
+													type="select"
+													name="year"
+													id="yearSelect"
+													value={new Date().getFullYear()}
+												>
 													{lsYear.map((year) => (
 														<option>{year}</option>
 													))}
@@ -197,6 +206,7 @@ class SetTarget extends React.Component {
 										</FormGroup>
 									</Form>
 								</Row>
+								{/* ******************************** BUILDING USERS PANE ******************************** */}
 								<Row className="row-building-users">
 									<Row className="row-building-users-heading">
 										Building Users
@@ -207,8 +217,13 @@ class SetTarget extends React.Component {
 												Month
 											</Label>
 											<Col sm={4}>
-												<Input type="select" name="month" id="monthSelect">
-													{lsMonth.map((month) => (
+												<Input
+													type="select"
+													name="month"
+													id="monthSelect"
+													value={lsMonth[new Date().getMonth()]}
+												>
+													{lsMonth.map((month, index) => (
 														<option>{month}</option>
 													))}
 												</Input>
@@ -217,7 +232,12 @@ class SetTarget extends React.Component {
 												Year
 											</Label>
 											<Col sm={4}>
-												<Input type="select" name="year" id="yearSelect">
+												<Input
+													type="select"
+													name="year"
+													id="yearSelect"
+													value={new Date().getFullYear()}
+												>
 													{lsYear.map((year) => (
 														<option>{year}</option>
 													))}
@@ -225,6 +245,24 @@ class SetTarget extends React.Component {
 											</Col>
 										</FormGroup>
 									</Form>
+									<Table>
+										<tbody>
+											{lsBuilding.map((building) => (
+												<tr>
+													<th>
+														<div
+															className="building-color"
+															style={{
+																backgroundColor: building.color_code,
+															}}
+														></div>
+													</th>
+													<td>{building.label}</td>
+													<td>0</td>
+												</tr>
+											))}
+										</tbody>
+									</Table>
 								</Row>
 							</Col>
 							<Col sm={8}></Col>

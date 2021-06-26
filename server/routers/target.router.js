@@ -4,8 +4,8 @@ const authenticateJWT = require("../middleware/authenticateJWT");
 
 let router = express.Router();
 
-// router.post("/login", async function (req, res) {
-// 	targetController.login(req, res);
-// });
+router.post("/people", authenticateJWT, async function (req, res) {
+	targetController.getBuildingPeople(req, res);
+});
 
 module.exports = router;
