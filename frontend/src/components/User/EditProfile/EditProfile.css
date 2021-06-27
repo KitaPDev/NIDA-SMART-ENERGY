@@ -1,15 +1,12 @@
-.div-edit-profile {
-	height: 100vh;
-}
-
 .container-user-info {
 	padding: 2rem !important;
 }
 
-.row.heading {
+.div-edit-profile .heading {
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
+	text-transform: uppercase;
 }
 
 .row-content {

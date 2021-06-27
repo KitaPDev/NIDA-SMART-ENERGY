@@ -1,0 +1,28 @@
+.div-device-manager .row-heading {
+	padding: 2rem !important;
+}
+
+.div-device-manager .col-heading {
+	font-size: 100%;
+	font-weight: bold;
+	padding-left: 1rem;
+	text-transform: uppercase;
+	width: fit-content;
+	color: black !important;
+}
+
+.excel-icon {
+	width: fit-content !important;
+	color: black !important;
+}
+
+.excel-icon :hover {
+	cursor: pointer;
+	opacity: 0.8;
+	transition-duration: 0.3s;
+}
+
+.col-excel-icon {
+	display: flex;
+	align-items: center;
+}

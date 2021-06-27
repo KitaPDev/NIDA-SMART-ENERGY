@@ -8,4 +8,8 @@ router.post("/people", authenticateJWT, async function (req, res) {
 	targetController.getBuildingPeople(req, res);
 });
 
+router.post("/", authenticateJWT, async function (req, res) {
+	targetController.inputTarget(req, res);
+});
+
 module.exports = router;

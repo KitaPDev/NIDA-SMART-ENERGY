@@ -1,15 +1,12 @@
-.div-set-target {
-	height: 100vh;
-}
-
 .container-set-target {
 	padding: 2rem !important;
 }
 
-.row.heading {
+.div-set-target .heading {
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
+	text-transform: uppercase;
 }
 
 .row-config {
@@ -78,4 +75,144 @@
 	font-weight: 600;
 	margin: auto !important;
 	color: #6b6666;
+}
+
+.container-historical-data {
+	margin-top: 1rem !important;
+	margin-left: 1rem !important;
+	border: 1px solid #000000;
+	border-radius: 0.5rem;
+	padding: 1rem;
+}
+
+.container-bill-chart {
+	height: 25vh !important;
+	margin-right: 0 !important;
+}
+
+.row-chart-title {
+	font-size: 150%;
+	font-weight: 600;
+	margin-left: 0.5rem !important;
+}
+
+.row-bill-chart {
+	padding-left: 0 !important;
+}
+
+.col-bill-chart {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+.row-historical-data-title {
+	margin: auto !important;
+	margin: auto;
+}
+
+.title {
+	width: fit-content !important;
+	font-size: 175%;
+	font-weight: bold;
+}
+
+.excel-icon {
+	width: fit-content !important;
+	margin-top: auto !important;
+	margin-bottom: auto !important;
+}
+
+.excel-icon :hover {
+	cursor: pointer;
+	opacity: 0.8;
+}
+
+.btn-period {
+	width: fit-content !important;
+	height: fit-content !important;
+	background-color: white !important;
+	color: black !important;
+	font-weight: 600 !important;
+	margin-left: 1rem;
+	margin-top: auto !important;
+	margin-bottom: auto !important;
+}
+
+.btn-period:hover {
+	background-color: black !important;
+	color: white !important;
+}
+
+.btn-period:focus {
+	background-color: black !important;
+	color: white !important;
+	outline: 0 !important;
+	box-shadow: none !important;
+}
+
+.dot-actual {
+	width: 10px !important;
+	background-color: #ffb800;
+	border-radius: 50%;
+}
+
+.col-form {
+	padding-left: 0 !important;
+}
+
+.label-actual {
+	width: fit-content !important;
+	font-weight: 500;
+	color: #6d6969;
+}
+
+.form-historical-data-charts .form-group {
+	margin-top: 0 !important;
+}
+
+.form-historical-data-charts .form-check-label {
+	display: flex;
+	text-align: left;
+	margin-top: 0.5rem;
+	padding-left: 0;
+	padding-right: 0;
+	align-items: center;
+}
+
+.form-historical-data-charts .form-check-input {
+	margin-right: 0.5rem;
+	width: 24px;
+	height: 24px;
+	border-radius: 50% !important;
+}
+
+.container-compare-chart {
+	height: 25vh !important;
+	margin-right: 0 !important;
+}
+
+.col-legend {
+	margin: auto !important;
+}
+
+.block-saved {
+	text-align: center;
+	padding: 0.5rem;
+	background-color: #b6cee9;
+	border-radius: 0.5rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+}
+
+.block-excess {
+	text-align: center;
+	padding: 0.5rem;
+	background-color: #ffafaf;
+	border-radius: 0.5rem;
+	font-weight: 600;
+}
+
+.container-capita-chart {
+	height: 25vh !important;
+	margin-right: 0 !important;
 }
