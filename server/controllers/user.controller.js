@@ -155,7 +155,7 @@ async function getResetPasswordForm(req, res) {
 	}
 }
 
-async function changePassword(req, res) {
+async function resetPassword(req, res) {
 	try {
 		let body = req.body;
 		let hash = req.params.hash;
@@ -311,15 +311,99 @@ async function uploadProfileImage(req, res) {
 	}
 }
 
+async function changePassword(req, res) {
+	try {
+		let username = await authService.getUsernameFromCookies(req);
+		let changePasswordUsername = req.body.username;
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		// todo check edit user permission
+		// if (changePasswordUsername === username && ) {}
+
+		let email = await userService.getEmailFromUsername(changePasswordUsername);
+
+		if (!(await userService.emailExists(email))) {
+			return res.status(httpStatusCodes.FORBIDDEN).send("Email does not exist");
+		}
+
+		if (!(await userService.isEmailVerified(email))) {
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send("Email has not been verified");
+		}
+
+		let userID = await userService.getUserIDByEmail(email);
+		let hash = "";
+
+		if (await userService.emailHashExists(userID)) {
+			hash = await userService.getEmailHashByUserID(userID);
+		} else {
+			hash = await userService.insertEmailHash(userID);
+		}
+
+		mailer.sendForgotPasswordEmail(email, hash);
+
+		return res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function deactivateUser(req, res) {
+	try {
+		let username = await authService.getUsernameFromCookies(req);
+		let deactivateUsername = req.body.username;
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		// todo check edit user permission
+		// if (username !== deactivateUsername) {}
+
+		await userService.deactivateUser(deactivateUsername);
+
+		return res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function activateUser(req, res) {
+	try {
+		let username = await authService.getUsernameFromCookies(req);
+		let activateUsername = req.body.username;
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		// todo check edit user permission
+		// if (username !== activateUsername) {}
+
+		await userService.activateUser(activateUsername);
+
+		return res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	register,
 	confirmEmail,
 	forgotPassword,
 	getResetPasswordForm,
-	changePassword,
+	resetPassword,
 	getAllUserType,
 	getUserInfo,
 	changeUsername,
 	changeEmail,
 	uploadProfileImage,
+	changePassword,
+	deactivateUser,
+	activateUser,
 };

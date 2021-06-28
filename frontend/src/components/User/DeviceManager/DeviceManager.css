@@ -1,3 +1,7 @@
+.div-device-manager {
+	height: 85vh;
+}
+
 .div-device-manager .row-heading {
 	padding: 2rem !important;
 }
@@ -25,4 +29,14 @@
 .col-excel-icon {
 	display: flex;
 	align-items: center;
+}
+
+.row-table {
+	padding-left: 2rem;
+	padding-right: 2rem;
+	height: 85%;
+}
+
+.device-table-head {
+	text-align: center;
 }

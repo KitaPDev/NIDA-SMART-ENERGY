@@ -36,6 +36,9 @@ class EditProfile extends React.Component {
 			isEditEmailMode: false,
 			isModalConfirmUsernameOpen: false,
 			isModalConfirmEmailOpen: false,
+			isModalConfirmChangePasswordOpen: false,
+			isModalConfirmDeactivateOpen: false,
+			isModalConfirmActivateOpen: false,
 		};
 
 		this.getUserInfo = this.getUserInfo.bind(this);
@@ -48,8 +51,17 @@ class EditProfile extends React.Component {
 		this.toggleModalConfirmUsername =
 			this.toggleModalConfirmUsername.bind(this);
 		this.toggleModalConfirmEmail = this.toggleModalConfirmEmail.bind(this);
+		this.toggleModalConfirmChangePassword =
+			this.toggleModalConfirmChangePassword.bind(this);
+		this.toggleModalConfirmDeactivate =
+			this.toggleModalConfirmDeactivate.bind(this);
+		this.toggleModalConfirmActivate =
+			this.toggleModalConfirmActivate.bind(this);
 		this.logout = this.logout.bind(this);
 		this.uploadImage = this.uploadImage.bind(this);
+		this.changePassword = this.changePassword.bind(this);
+		this.deactivate = this.deactivate.bind(this);
+		this.activate = this.activate.bind(this);
 	}
 
 	componentDidMount() {
@@ -193,6 +205,25 @@ class EditProfile extends React.Component {
 		}));
 	}
 
+	toggleModalConfirmChangePassword() {
+		this.setState((prevState) => ({
+			isModalConfirmChangePasswordOpen:
+				!prevState.isModalConfirmChangePasswordOpen,
+		}));
+	}
+
+	toggleModalConfirmDeactivate() {
+		this.setState((prevState) => ({
+			isModalConfirmDeactivateOpen: !prevState.isModalConfirmDeactivateOpen,
+		}));
+	}
+
+	toggleModalConfirmActivate() {
+		this.setState((prevState) => ({
+			isModalConfirmActivateOpen: !prevState.isModalConfirmActivateOpen,
+		}));
+	}
+
 	logout() {
 		http.get("/auth/logout");
 		this.props.history.push({
@@ -220,6 +251,61 @@ class EditProfile extends React.Component {
 		}
 	}
 
+	async changePassword() {
+		try {
+			let payload = {
+				username: this.state.username,
+			};
+
+			await http.post("/user/change-password", payload);
+			alert("Check your email for further instructions.");
+
+			this.toggleModalConfirmChangePassword();
+		} catch (err) {
+			console.log(err);
+			alert("Unable to change your password. Please try again.");
+			return err.response;
+		}
+	}
+
+	async deactivate() {
+		try {
+			let payload = {
+				username: this.state.username,
+			};
+
+			payload();
+			await http.post("/user/deactivate", payload);
+
+			this.toggleModalConfirmDeactivate();
+
+			let currentUsername = localStorage.getItem("current_username");
+
+			if ((currentUsername = payload.username)) {
+				this.logout();
+			}
+		} catch (err) {
+			console.log(err);
+			alert("Unable to deactivate. Please try again.");
+			return err.response;
+		}
+	}
+
+	async activate() {
+		try {
+			let payload = {
+				username: this.state.username,
+			};
+			await http.post("/user/activate", payload);
+
+			this.toggleModalConfirmDeactivate();
+		} catch (err) {
+			console.log(err);
+			alert("Unable to activate. Please try again.");
+			return err.response;
+		}
+	}
+
 	render() {
 		let currentUsername = localStorage.getItem("current_username");
 
@@ -237,6 +323,9 @@ class EditProfile extends React.Component {
 			isEditEmailMode,
 			isModalConfirmUsernameOpen,
 			isModalConfirmEmailOpen,
+			isModalConfirmChangePasswordOpen,
+			isModalConfirmDeactivateOpen,
+			isModalConfirmActivateOpen,
 		} = this.state;
 
 		return (
@@ -413,7 +502,10 @@ class EditProfile extends React.Component {
 									</tr>
 									<tr>
 										<td className="td-button">
-											<Button className="btn-change-password">
+											<Button
+												className="btn-change-password"
+												onClick={this.toggleModalConfirmChangePassword}
+											>
 												Change Password
 											</Button>
 										</td>
@@ -421,7 +513,21 @@ class EditProfile extends React.Component {
 										userType === "Super Admin" ||
 										userType === "Admin" ? (
 											<td className="td-button">
-												<Button className="btn-deactivate">Deactivate</Button>
+												{isDeactivated ? (
+													<Button
+														className="btn-activate"
+														onClick={this.toggleModalConfirmActivate}
+													>
+														Activate
+													</Button>
+												) : (
+													<Button
+														className="btn-deactivate"
+														onClick={this.toggleModalConfirmDeactivate}
+													>
+														Deactivate
+													</Button>
+												)}
 											</td>
 										) : (
 											<td></td>
@@ -443,7 +549,7 @@ class EditProfile extends React.Component {
 						<Button color="primary" onClick={this.submitUsername}>
 							Confirm
 						</Button>{" "}
-						<Button color="secondary" onClick={this.toggleModalConfirmUsername}>
+						<Button color="danger" onClick={this.toggleModalConfirmUsername}>
 							Cancel
 						</Button>
 					</ModalFooter>
@@ -462,7 +568,62 @@ class EditProfile extends React.Component {
 						<Button color="primary" onClick={this.submitEmail}>
 							Confirm
 						</Button>{" "}
-						<Button color="secondary" onClick={this.toggleModalConfirmEmail}>
+						<Button color="danger" onClick={this.toggleModalConfirmEmail}>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</Modal>
+				<Modal
+					isOpen={isModalConfirmChangePasswordOpen}
+					toggle={this.toggleModalConfirmChangePassword}
+				>
+					<ModalHeader toggle={this.toggleModalConfirmChangePassword}>
+						Confirm Change Password
+					</ModalHeader>
+					<ModalBody>
+						An email with instructions to change your password will be sent to
+						your email address.
+					</ModalBody>
+					<ModalFooter>
+						<Button color="primary" onClick={this.changePassword}>
+							Confirm
+						</Button>{" "}
+						<Button
+							color="danger"
+							onClick={this.toggleModalConfirmChangePassword}
+						>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</Modal>
+				<Modal
+					isOpen={isModalConfirmDeactivateOpen}
+					toggle={this.toggleModalConfirmDeactivate}
+				>
+					<ModalHeader toggle={this.toggleModalConfirmDeactivate}>
+						Confirm Deactivate User
+					</ModalHeader>
+					<ModalFooter>
+						<Button color="primary" onClick={this.deactivate}>
+							Confirm
+						</Button>{" "}
+						<Button color="danger" onClick={this.toggleModalConfirmDeactivate}>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</Modal>
+				<Modal
+					isOpen={isModalConfirmActivateOpen}
+					toggle={this.toggleModalConfirmActivate}
+				>
+					<ModalHeader toggle={this.toggleModalConfirmActivate}>
+						Confirm Activate User
+					</ModalHeader>
+					<ModalFooter>
+						<Button color="primary" onClick={this.activate}>
+							Confirm
+						</Button>{" "}
+						<Button color="danger" onClick={this.toggleModalConfirmActivate}>
 							Cancel
 						</Button>
 					</ModalFooter>

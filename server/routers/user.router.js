@@ -21,7 +21,7 @@ router.get("/reset-password/:hash", async function (req, res) {
 });
 
 router.post("/reset-password/:hash", async function (req, res) {
-	userController.changePassword(req, res);
+	userController.resetPassword(req, res);
 });
 
 router.get("/user-type/all", async function (req, res) {
@@ -46,6 +46,18 @@ router.post("/email", authenticateJWT, async function (req, res) {
 
 router.post("/profile-image", authenticateJWT, async function (req, res) {
 	userController.uploadProfileImage(req, res);
+});
+
+router.post("/change-password", authenticateJWT, async function (req, res) {
+	userController.changePassword(req, res);
+});
+
+router.post("/deactivate", authenticateJWT, async function (req, res) {
+	userController.deactivateUser(req, res);
+});
+
+router.post("/activate", authenticateJWT, async function (req, res) {
+	userController.activateUser(req, res);
 });
 
 module.exports = router;

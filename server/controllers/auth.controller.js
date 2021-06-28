@@ -18,6 +18,14 @@ async function login(req, res) {
 				.send("Username does not exist.");
 		}
 
+		if (await userService.isDeactivated(username)) {
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send(
+					"Your user has been deactivated. For help, contact an administrator."
+				);
+		}
+
 		if (
 			!(await userService.isEmailVerified(
 				await userService.getEmailFromUsername(username)

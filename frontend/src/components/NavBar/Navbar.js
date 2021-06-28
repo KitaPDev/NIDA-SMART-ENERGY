@@ -26,6 +26,21 @@ import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
 import http from "../../httpService";
 
+const lsMonthNames = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
+
 class NavBar extends React.Component {
 	constructor(props) {
 		super(props);
@@ -143,6 +158,8 @@ class NavBar extends React.Component {
 			username,
 		} = this.state;
 		let { location } = this.props;
+
+		let today = new Date();
 
 		return (
 			<div>
@@ -411,7 +428,12 @@ class NavBar extends React.Component {
 								48%
 							</Row>
 						</div>
-						<div style={{ width: "100px", fontWeight: "600" }}>
+						<div
+							style={{
+								width: "fit-content",
+								fontWeight: "600",
+							}}
+						>
 							<Row
 								style={{
 									width: "100%",
@@ -420,7 +442,13 @@ class NavBar extends React.Component {
 							>
 								Wednesday
 							</Row>
-							<Row style={{ width: "100%", margin: 0 }}>3 June 2020</Row>
+							<Row style={{ width: "100%", margin: 0 }}>
+								{today.getDate() +
+									" " +
+									lsMonthNames[today.getMonth()] +
+									" " +
+									today.getFullYear()}
+							</Row>
 						</div>
 						<div style={{ fontWeight: "700", marginLeft: "0.5rem" }}>
 							<Row

@@ -126,7 +126,7 @@ async function stampLogin(username) {
 
 async function updatePassword(userID, clearTextPassword) {
 	let salt = await getSaltByUserID(userID);
-	let hash = await authService.hashPassword(clearTextPassword, salt);
+	let hash = await cryptoUtil.hashPassword(clearTextPassword, salt);
 
 	await knex(knex.ref("user"))
 		.where("id", userID)
@@ -225,6 +225,26 @@ async function updateProfileImage(username, b64Image) {
 		.update({ profile_image: buffer, profile_image_content_type: contentType });
 }
 
+async function isDeactivated(username) {
+	let result = await knex(knex.ref("user"))
+		.select("is_deactivated")
+		.where("username", username);
+
+	return result ? result[0].is_deactivated : undefined;
+}
+
+async function deactivateUser(username) {
+	await knex(knex.ref("user"))
+		.where("username", username)
+		.update({ is_deactivated: 1 });
+}
+
+async function activateUser(username) {
+	await knex(knex.ref("user"))
+		.where("username", username)
+		.update({ is_deactivated: 0 });
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -250,4 +270,7 @@ module.exports = {
 	updateUsername,
 	updateEmail,
 	updateProfileImage,
+	isDeactivated,
+	deactivateUser,
+	activateUser,
 };

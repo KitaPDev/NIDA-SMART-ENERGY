@@ -2,8 +2,14 @@ import React from "react";
 import "./DeviceManager.css";
 import { Col, Row, Table } from "reactstrap";
 import { RiFileExcel2Fill } from "react-icons/ri";
+import BootstrapTable from "react-bootstrap-table-next";
 
 class DeviceManager extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
+
 	render() {
 		return (
 			<div className="div-device-manager">
@@ -16,9 +22,9 @@ class DeviceManager extends React.Component {
 					</Col>
 					<Col sm={8}></Col>
 				</Row>
-				<Row>
-					<Table>
-						<thead>
+				<Row className="row-table">
+					<Table responsive>
+						<thead className="device-table-head">
 							<th>Meter ID</th>
 							<th>Building</th>
 							<th>Location</th>

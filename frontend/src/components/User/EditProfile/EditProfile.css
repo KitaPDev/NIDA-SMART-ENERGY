@@ -80,6 +80,13 @@ svg {
 	font-weight: 600 !important;
 }
 
+.btn-activate {
+	background-color: transparent !important;
+	color: green !important;
+	border: 2px solid green !important;
+	font-weight: 600 !important;
+}
+
 .btn-deactivate:hover {
 	background-color: red !important;
 	color: white !important;
