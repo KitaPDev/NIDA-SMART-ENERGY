@@ -1,0 +1,10 @@
+.container-activity-log {
+	padding: 2rem !important;
+}
+
+.activity-log .heading {
+	font-size: 200%;
+	font-weight: bold;
+	padding-left: 1rem;
+	text-transform: uppercase;
+}

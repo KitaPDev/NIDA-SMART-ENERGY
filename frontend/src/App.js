@@ -15,6 +15,7 @@ import Register from "./components/Register/Register";
 import EditProfile from "./components/User/EditProfile/EditProfile";
 import SetTarget from "./components/User/SetTarget/SetTarget";
 import DeviceManager from "./components/User/DeviceManager/DeviceManager";
+import ActivityLog from "./components/User/ActivityLog/ActivityLog";
 
 class App extends React.Component {
 	render() {
@@ -40,6 +41,7 @@ class App extends React.Component {
 								component={DeviceManager}
 								exact
 							/>
+							<Route path="/user/activity-log" component={ActivityLog} exact />
 						</Switch>
 					</ScrollToTop>
 				</Router>

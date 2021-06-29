@@ -33,7 +33,7 @@
 	text-align: center;
 }
 
-.form-group {
+.container-login.form-group {
 	justify-content: center;
 	margin-top: 1rem !important;
 }
@@ -53,13 +53,24 @@ form {
 	margin: auto !important;
 }
 
-.btn-login {
-	background-color: #000000 !important;
+#btn-login {
+	background-color: black !important;
 	font-size: 150% !important;
 	font-weight: 600 !important;
 	text-transform: uppercase !important;
 	border-radius: 0.4rem !important;
 	width: 40% !important;
+}
+
+#btn-login:hover {
+	background-color: white !important;
+	color: black !important;
+	font-size: 150% !important;
+	font-weight: 600 !important;
+	text-transform: uppercase !important;
+	border-radius: 0.4rem !important;
+	width: 40% !important;
+	transition-duration: 0.3s;
 }
 
 .row-forgot-password {

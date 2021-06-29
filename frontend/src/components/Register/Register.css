@@ -53,8 +53,18 @@ form {
 	margin: auto !important;
 }
 
-.btn-forgot-password {
+#btn-register {
 	background-color: #000000 !important;
+	font-size: 150% !important;
+	font-weight: 600 !important;
+	text-transform: uppercase !important;
+	border-radius: 0.4rem !important;
+	width: 40% !important;
+}
+
+#btn-register:hover {
+	background-color: white !important;
+	color: black !important;
 	font-size: 150% !important;
 	font-weight: 600 !important;
 	text-transform: uppercase !important;

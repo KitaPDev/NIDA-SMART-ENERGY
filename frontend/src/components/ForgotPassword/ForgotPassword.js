@@ -78,7 +78,7 @@ class ForgotPassword extends React.Component {
 
 		return (
 			<div style={{ backgroundColor: "#f2f3f7", height: "100vh" }}>
-				<Container fluid className="container-login">
+				<Container fluid className="container-forgot-password">
 					<Row>
 						<Col sm={2} className="col-brand">
 							<img className="navbar-logo" src="favicon.ico" alt="logo"></img>
@@ -106,7 +106,8 @@ class ForgotPassword extends React.Component {
 										/>
 									</Col>
 								</FormGroup>
-								<FormGroup row>
+								<Row className="row-or">or</Row>
+								<FormGroup row id="fg-email">
 									<Label for="email" sm={2}>
 										Email
 									</Label>
@@ -122,6 +123,7 @@ class ForgotPassword extends React.Component {
 								</FormGroup>
 								<FormGroup row>
 									<Button
+										id="btn-forgot-password"
 										className="btn-forgot-password"
 										onClick={this.submitForgotPassword}
 									>

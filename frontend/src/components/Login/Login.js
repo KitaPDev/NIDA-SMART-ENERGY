@@ -163,7 +163,11 @@ class Login extends React.Component {
 									</Col>
 								</FormGroup>
 								<FormGroup row>
-									<Button className="btn-login" onClick={this.submitLogin}>
+									<Button
+										id="btn-login"
+										className="btn-login"
+										onClick={this.submitLogin}
+									>
 										Log In
 									</Button>
 								</FormGroup>

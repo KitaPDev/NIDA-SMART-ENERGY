@@ -139,7 +139,7 @@ class Register extends React.Component {
 			let resp = await http.get("/user/user-type/all");
 
 			let lsUserType = resp.data;
-			lsUserType.splice(0, 1)
+			lsUserType.splice(0, 1);
 
 			this.setState({ lsUserType: lsUserType });
 		} catch (err) {
@@ -266,7 +266,11 @@ class Register extends React.Component {
 									</FormGroup>
 								)}
 								<FormGroup row>
-									<Button className="btn-login" onClick={this.submitRegister}>
+									<Button
+										id="btn-register"
+										className="btn-register"
+										onClick={this.submitRegister}
+									>
 										Register
 									</Button>
 								</FormGroup>
