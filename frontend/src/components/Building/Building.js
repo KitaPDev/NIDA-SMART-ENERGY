@@ -24,7 +24,6 @@ class Building extends React.Component {
 		let dateFrom = new Date(
 			new Date(new Date(Date.now() - tzOffset).setHours(0, 0, 0, 0)) - tzOffset
 		);
-		dateFrom.setDate(dateFrom.getDate() - 1);
 
 		this.state = {
 			dateFrom: dateFrom.toISOString().substring(0, 16),

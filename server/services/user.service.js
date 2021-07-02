@@ -245,6 +245,20 @@ async function activateUser(username) {
 		.update({ is_deactivated: 0 });
 }
 
+async function getAllUser() {
+	let result = await knex("user")
+		.join("user_type", "user.user_type_id", "=", "user_type.id")
+		.select(
+			"user.username",
+			"user.email",
+			"user_type.label as user_type",
+			"user.activated_timestamp",
+			"user.last_login_timestamp"
+		);
+
+	return result;
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -273,4 +287,5 @@ module.exports = {
 	isDeactivated,
 	deactivateUser,
 	activateUser,
+	getAllUser,
 };

@@ -60,4 +60,8 @@ router.post("/activate", authenticateJWT, async function (req, res) {
 	userController.activateUser(req, res);
 });
 
+router.get("/all", authenticateJWT, async function (req, res) {
+	userController.getAllUser(req, res);
+});
+
 module.exports = router;

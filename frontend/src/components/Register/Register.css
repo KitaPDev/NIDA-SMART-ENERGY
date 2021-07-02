@@ -1,19 +1,19 @@
-.container-login {
+.container-register {
 	padding: 1rem;
 }
 
-.col-brand {
+.container-register .col-brand {
 	width: fit-content !important;
 }
 
-.col-title {
+.container-register .col-title {
 	text-transform: uppercase;
 	font-size: 300%;
 	font-weight: 600;
 	color: #282541;
 }
 
-.container-form {
+.container-register .container-form {
 	background-color: #ffffff;
 	border-radius: 1rem;
 	margin-top: 8vh;
@@ -21,7 +21,7 @@
 	width: 50vw !important;
 }
 
-.row-heading {
+.container-register .row-heading {
 	padding-left: 1rem;
 	font-size: 200%;
 	font-weight: 600;
@@ -29,31 +29,31 @@
 	color: #6b6666;
 }
 
-.row-form {
+.container-register .row-form {
 	text-align: center;
 }
 
-.form-group {
+.container-register .form-group {
 	justify-content: center;
 	margin-top: 1rem !important;
 }
 
-label {
+.container-register label {
 	text-align: right;
 	font-weight: 500;
 	color: #6e6969;
 }
 
-input {
+.container-register input {
 	border-radius: 0.5rem !important;
 }
 
-form {
+.container-register form {
 	height: 80% !important;
 	margin: auto !important;
 }
 
-#btn-register {
+.container-register #btn-register {
 	background-color: #000000 !important;
 	font-size: 150% !important;
 	font-weight: 600 !important;
@@ -62,7 +62,7 @@ form {
 	width: 40% !important;
 }
 
-#btn-register:hover {
+.container-register #btn-register:hover {
 	background-color: white !important;
 	color: black !important;
 	font-size: 150% !important;
@@ -72,28 +72,28 @@ form {
 	width: 40% !important;
 }
 
-.row-login {
+.container-register .row-login {
 	margin-top: 1rem !important;
 	justify-content: center;
 }
 
-.row-link {
+.container-register .row-link {
 	justify-content: center;
 	margin-top: 0.5rem !important;
 }
 
-.link {
+.container-register .link {
 	color: black;
 	font-weight: 500;
 }
 
-.row-feedback {
+.container-register .row-feedback {
 	justify-content: center;
 	color: red;
 	margin-top: 1rem !important;
 }
 
-footer {
+.container-register footer {
 	position: fixed;
 	right: 0;
 	bottom: 0;
@@ -102,6 +102,12 @@ footer {
 	color: #777172;
 }
 
-select {
+.container-register select {
 	background-color: #f2f3f7 !important;
+}
+
+.container-register .row-login a.link {
+	text-align: center;
+	color: black;
+	font-weight: 500;
 }

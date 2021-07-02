@@ -173,7 +173,7 @@ class Register extends React.Component {
 
 		return (
 			<div style={{ backgroundColor: "#f2f3f7", height: "100vh" }}>
-				<Container fluid className="container-login">
+				<Container fluid className="container-register">
 					<Row>
 						<Col sm={2} className="col-brand">
 							<img className="navbar-logo" src="favicon.ico" alt="logo"></img>

@@ -8,3 +8,24 @@
 	padding-left: 1rem;
 	text-transform: uppercase;
 }
+
+.activity-log .col-form-label {
+	width: fit-content !important;
+}
+
+.fg-search {
+	justify-content: end;
+}
+
+#searchText {
+	width: auto;
+	margin-left: auto;
+	margin-right: 0;
+}
+
+.span-search-icon {
+	width: fit-content !important;
+	vertical-align: middle;
+	display: flex;
+	align-items: center;
+}

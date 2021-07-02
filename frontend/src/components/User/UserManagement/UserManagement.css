@@ -1,0 +1,19 @@
+.container-user-management {
+	padding: 2rem !important;
+}
+
+.user-management .heading {
+	font-size: 200%;
+	font-weight: bold;
+	padding-left: 1rem;
+	text-transform: uppercase;
+}
+
+.user-management .excel-icon {
+	margin-left: 2rem;
+}
+
+.user-management .excel-icon {
+	width: fit-content !important;
+	color: black !important;
+}

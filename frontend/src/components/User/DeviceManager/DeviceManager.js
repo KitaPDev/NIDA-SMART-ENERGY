@@ -18,7 +18,7 @@ class DeviceManager extends React.Component {
 						Device Manager
 					</Col>
 					<Col sm={1} className="col-excel-icon">
-						<RiFileExcel2Fill className="excel-icon" size={30} />
+						<RiFileExcel2Fill className="excel-icon" size={25} />
 					</Col>
 					<Col sm={8}></Col>
 				</Row>

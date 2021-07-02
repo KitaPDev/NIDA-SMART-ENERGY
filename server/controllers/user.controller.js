@@ -392,6 +392,18 @@ async function activateUser(req, res) {
 	}
 }
 
+async function getAllUser(req, res) {
+	try {
+		let lsUser = await userService.getAllUser();
+
+		lsUser = lsUser.filter((user) => user.user_type !== "Super Admin");
+
+		return res.status(httpStatusCodes.OK).send(lsUser);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	register,
 	confirmEmail,
@@ -406,4 +418,5 @@ module.exports = {
 	changePassword,
 	deactivateUser,
 	activateUser,
+	getAllUser,
 };
