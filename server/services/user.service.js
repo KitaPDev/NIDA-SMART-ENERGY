@@ -253,7 +253,8 @@ async function getAllUser() {
 			"user.email",
 			"user_type.label as user_type",
 			"user.activated_timestamp",
-			"user.last_login_timestamp"
+			"user.last_login_timestamp",
+			"user.is_user_type_approved"
 		);
 
 	return result;

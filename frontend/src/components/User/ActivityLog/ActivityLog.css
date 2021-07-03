@@ -17,7 +17,7 @@
 	justify-content: end;
 }
 
-#searchText {
+.activity-log #searchText {
 	width: auto;
 	margin-left: auto;
 	margin-right: 0;

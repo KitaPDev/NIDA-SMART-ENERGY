@@ -139,3 +139,7 @@ button.close {
 	vertical-align: middle;
 	margin: auto;
 }
+
+.table-user-info .pending {
+	color: red;
+}

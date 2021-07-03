@@ -21,6 +21,7 @@ class ActivityLog extends React.Component {
 
 		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
 		this.handleChangeDateFrom = this.handleChangeDateFrom.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
 	}
 
 	handleChangeDateFrom(e) {
@@ -49,6 +50,10 @@ class ActivityLog extends React.Component {
 		this.setState({
 			dateTo: dateTo,
 		});
+	}
+
+	handleInputChange(e) {
+		this.setState({ [e.target.name]: e.target.value });
 	}
 
 	render() {

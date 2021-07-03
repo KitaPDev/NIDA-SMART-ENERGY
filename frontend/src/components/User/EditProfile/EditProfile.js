@@ -15,7 +15,8 @@ import {
 import "./EditProfile.css";
 import { FaCamera, FaUserCircle } from "react-icons/fa";
 import { MdModeEdit } from "react-icons/md";
-import http from "../../../httpService";
+import http from "../../../util/httpService";
+import dateFormatter from "../../../util/dateFormatter";
 
 class EditProfile extends React.Component {
 	constructor(props) {
@@ -69,7 +70,7 @@ class EditProfile extends React.Component {
 	}
 
 	async getUserInfo() {
-		let propsUsername = this.props.username;
+		let propsUsername = this.props.history.location.username;
 
 		let resp;
 		if (!propsUsername) {
@@ -120,7 +121,20 @@ class EditProfile extends React.Component {
 		if (date instanceof Date) {
 			const offset = date.getTimezoneOffset();
 			date = new Date(date.getTime() - offset * 60 * 1000);
-			return date.toISOString().split("T")[0];
+
+			let dd = date.getDate();
+			let mm = date.getMonth() + 1;
+			let yyyy = date.getFullYear();
+
+			if (dd < 10) {
+				dd = "0" + dd;
+			}
+
+			if (mm < 10) {
+				mm = "0" + mm;
+			}
+
+			return dd + "/" + mm + "/" + yyyy;
 		}
 	}
 
@@ -473,7 +487,7 @@ class EditProfile extends React.Component {
 									</tr>
 									<tr>
 										<th scope="row">User Type</th>
-										<td>
+										<td className={isUserTypeApproved ? "" : "pending"}>
 											{userType}
 											{isUserTypeApproved ? "" : " (Pending)"}
 										</td>

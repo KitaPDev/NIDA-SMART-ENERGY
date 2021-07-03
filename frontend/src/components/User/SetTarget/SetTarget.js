@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import { MdPeople } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
-import http from "../../../httpService";
+import http from "../../../util/httpService";
 import BarAreaElectricityBillChart from "./BarAreaElectricityBillChart/BarAreaElectricityBillChart";
 import PNBarBillCompareChart from "./PNBarBillCompareChart/PNBarBillCompareChart";
 import EnergyCapitaLineChart from "./EnergyCapitaLineChart/EnergyCapitaLineChart";
