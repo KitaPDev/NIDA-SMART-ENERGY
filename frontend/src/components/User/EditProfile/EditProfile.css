@@ -61,6 +61,16 @@ svg {
 	vertical-align: baseline;
 }
 
+.red-dot {
+	display: inline-block;
+	width: 16px !important;
+	height: 16px !important;
+	background-color: red;
+	border-radius: 50%;
+	margin-right: 0.2rem;
+	vertical-align: baseline;
+}
+
 .btn-change-password {
 	background-color: black !important;
 	color: white !important;
@@ -107,7 +117,7 @@ button.close {
 	border-radius: 1rem !important;
 }
 
-.td-button {
+.div-edit-profile .td-button {
 	border: none !important;
 }
 
@@ -142,4 +152,19 @@ button.close {
 
 .table-user-info .pending {
 	color: red;
+}
+
+.div-edit-profile .btn-approve {
+	background-color: transparent !important;
+	color: green !important;
+	font-weight: 600;
+	border: 0;
+	padding: 0 0.5rem 0 0.5rem;
+}
+
+.div-edit-profile .td-approve :hover {
+	background-color: green !important;
+	color: white !important;
+	border: 0;
+	padding: 0 0.5rem 0 0.5rem;
 }

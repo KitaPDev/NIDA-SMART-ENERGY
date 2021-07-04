@@ -26,14 +26,16 @@ async function login(req, res) {
 				);
 		}
 
-		if (
-			!(await userService.isEmailVerified(
-				await userService.getEmailFromUsername(username)
-			))
-		) {
-			return res
-				.status(httpStatusCodes.UNAUTHORIZED)
-				.send("Email is not verified");
+		if (username !== "admin") {
+			if (
+				!(await userService.isEmailVerified(
+					await userService.getEmailFromUsername(username)
+				))
+			) {
+				return res
+					.status(httpStatusCodes.UNAUTHORIZED)
+					.send("Email is not verified");
+			}
 		}
 
 		if (!(await authService.verifyPassword(username, clearTextPassword))) {

@@ -64,4 +64,12 @@ router.get("/all", authenticateJWT, async function (req, res) {
 	userController.getAllUser(req, res);
 });
 
+router.get("/type", authenticateJWT, async function (req, res) {
+	userController.getUserType(req, res);
+});
+
+router.post("/approve", authenticateJWT, async function (req, res) {
+	userController.approveUserType(req, res);
+});
+
 module.exports = router;

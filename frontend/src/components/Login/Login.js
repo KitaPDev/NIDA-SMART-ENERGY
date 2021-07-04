@@ -74,7 +74,11 @@ class Login extends React.Component {
 				pathname: "/",
 			});
 		} else if (resp.status === 500 || resp.status === 403) {
-			alert("Could not perform login. Please try again");
+			if (resp.data.length > 0) {
+				alert(resp.data);
+			} else {
+				alert("Could not perform login. Please try again");
+			}
 		} else {
 			this.setState({ isCredentialsIncorrect: true, errorMessage: resp.data });
 		}

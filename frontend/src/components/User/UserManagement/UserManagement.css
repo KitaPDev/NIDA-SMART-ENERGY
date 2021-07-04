@@ -46,9 +46,7 @@
 
 .table-user-management tr:hover {
 	cursor: pointer;
-	background-color: black;
-	color: white;
-	transition-duration: 0.3s;
+	background: #f2f3f7;
 }
 
 .table-user-management .pending {

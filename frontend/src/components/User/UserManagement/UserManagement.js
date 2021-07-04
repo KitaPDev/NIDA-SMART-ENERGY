@@ -6,7 +6,6 @@ import http from "../../../util/httpService";
 import dateFormatter from "../../../util/dateFormatter";
 import { FaEye } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
-import { Redirect } from "react-router-dom";
 
 class UserManagement extends React.Component {
 	constructor(props) {
@@ -28,6 +27,7 @@ class UserManagement extends React.Component {
 		this.toggleSortByLastLoginDate = this.toggleSortByLastLoginDate.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.navigateToUserProfile = this.navigateToUserProfile.bind(this);
+		this.navigateToActivityLog = this.navigateToActivityLog.bind(this);
 	}
 
 	componentDidMount() {
@@ -149,7 +149,12 @@ class UserManagement extends React.Component {
 	}
 
 	navigateToUserProfile(username) {
-		this.props.history.push({ pathname: "edit-profile", username: username });
+		this.props.history.push({ pathname: "edit-profile/" + username });
+	}
+
+	navigateToActivityLog(username, e) {
+		this.props.history.push({ pathname: "activity-log/" + username });
+		e.stopPropagation();
 	}
 
 	render() {
@@ -301,7 +306,13 @@ class UserManagement extends React.Component {
 												new Date(user.last_login_timestamp)
 											)}
 										</td>
-										<td className="td-view-activity-log">
+										<td
+											className="td-view-activity-log"
+											onClick={this.navigateToActivityLog.bind(
+												this,
+												user.username
+											)}
+										>
 											<FaEye size={25} />
 										</td>
 									</tr>

@@ -160,31 +160,29 @@ async function getAllUserType() {
 }
 
 async function getUserTypeByUsername(username) {
-	let userID = await getUserIDbyUsername(username);
-	let lsUserType = await getAllUserType();
+	let result = await knex("user")
+		.join("user_type", "user.user_type_id", "=", "user_type.id")
+		.select("user_type.label as user_type")
+		.where("username", username);
 
-	for (let userType of lsUserType) {
-		if (userType.user_id === userID) {
-			return userType.label;
-		}
-	}
+	return result[0].user_type;
 }
 
 async function getUserInfoByUsername(username) {
-	let result = await knex(knex.ref("user"))
+	let result = await knex("user")
+		.join("user_type", "user.user_type_id", "=", "user_type.id")
 		.select(
-			"user_type_id",
-			"username",
-			"email",
-			"activated_timestamp",
-			"last_login_timestamp",
-			"profile_image",
-			"profile_image_content_type",
-			"is_user_type_approved",
-			"is_deactivated"
+			"user.username",
+			"user.email",
+			"user.activated_timestamp",
+			"user.last_login_timestamp",
+			"user.profile_image",
+			"user.profile_image_content_type",
+			"user.is_user_type_approved",
+			"user.is_deactivated",
+			"user_type.label as user_type"
 		)
 		.where("username", username);
-	result[0].user_type = await getUserTypeLabel(result[0].user_type_id);
 
 	return result[0];
 }
@@ -260,6 +258,12 @@ async function getAllUser() {
 	return result;
 }
 
+async function approveUserType(username) {
+	await knex(knex.ref("user"))
+		.where("username", username)
+		.update({ is_user_type_approved: 1 });
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -289,4 +293,5 @@ module.exports = {
 	deactivateUser,
 	activateUser,
 	getAllUser,
+	approveUserType,
 };

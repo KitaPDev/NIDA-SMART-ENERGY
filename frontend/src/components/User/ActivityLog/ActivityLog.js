@@ -2,7 +2,6 @@ import React from "react";
 import "./ActivityLog.css";
 import { Container, Row, Col, Form, FormGroup, Input, Label } from "reactstrap";
 import { IoMdSearch } from "react-icons/io";
-// import TableActivityLog from "./TableActivityLog/TableActivityLog";
 
 class ActivityLog extends React.Component {
 	constructor(props) {

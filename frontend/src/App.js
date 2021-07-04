@@ -36,6 +36,11 @@ class App extends React.Component {
 							<Route path="/report" component={Report} exact />
 							<Route path="/meter" component={Meter} exact />
 							<Route path="/user/edit-profile" component={EditProfile} exact />
+							<Route
+								path="/user/edit-profile/:username"
+								component={EditProfile}
+								exact
+							/>
 							<Route path="/user/set-target" component={SetTarget} exact />
 							<Route
 								path="/user/device-manager"
@@ -43,6 +48,11 @@ class App extends React.Component {
 								exact
 							/>
 							<Route path="/user/activity-log" component={ActivityLog} exact />
+							<Route
+								path="/user/activity-log/:username"
+								component={ActivityLog}
+								exact
+							/>
 							<Route
 								path="/user/user-management"
 								component={UserManagement}

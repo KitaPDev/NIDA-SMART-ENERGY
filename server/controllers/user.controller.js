@@ -404,6 +404,41 @@ async function getAllUser(req, res) {
 	}
 }
 
+async function getUserType(req, res) {
+	try {
+		let username = await authService.getUsernameFromCookies(req);
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		let userType = await userService.getUserTypeByUsername(username);
+
+		return res.status(httpStatusCodes.OK).send(userType);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER);
+	}
+}
+
+async function approveUserType(req, res) {
+	try {
+		let username = await authService.getUsernameFromCookies(req);
+		let approveUsername = req.body.username;
+
+		if (!username) {
+			return res.sendStatus(httpStatusCodes.FORBIDDEN);
+		}
+
+		// todo check edit user permission
+		// if (username !== approveUsername) {}
+
+		await userService.approveUserType(approveUsername);
+		return res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	register,
 	confirmEmail,
@@ -419,4 +454,6 @@ module.exports = {
 	deactivateUser,
 	activateUser,
 	getAllUser,
+	getUserType,
+	approveUserType,
 };

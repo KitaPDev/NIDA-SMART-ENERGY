@@ -16,12 +16,13 @@ import "./EditProfile.css";
 import { FaCamera, FaUserCircle } from "react-icons/fa";
 import { MdModeEdit } from "react-icons/md";
 import http from "../../../util/httpService";
-import dateFormatter from "../../../util/dateFormatter";
 
 class EditProfile extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			currentUsername: localStorage.getItem("current_username"),
+			currentUserType: "",
 			prevUsername: "",
 			prevEmail: "",
 			username: "",
@@ -40,6 +41,7 @@ class EditProfile extends React.Component {
 			isModalConfirmChangePasswordOpen: false,
 			isModalConfirmDeactivateOpen: false,
 			isModalConfirmActivateOpen: false,
+			isModalConfirmApproveOpen: false,
 		};
 
 		this.getUserInfo = this.getUserInfo.bind(this);
@@ -58,11 +60,13 @@ class EditProfile extends React.Component {
 			this.toggleModalConfirmDeactivate.bind(this);
 		this.toggleModalConfirmActivate =
 			this.toggleModalConfirmActivate.bind(this);
+		this.toggleModalConfirmApprove = this.toggleModalConfirmApprove.bind(this);
 		this.logout = this.logout.bind(this);
 		this.uploadImage = this.uploadImage.bind(this);
 		this.changePassword = this.changePassword.bind(this);
 		this.deactivate = this.deactivate.bind(this);
 		this.activate = this.activate.bind(this);
+		this.approve = this.approve.bind(this);
 	}
 
 	componentDidMount() {
@@ -70,47 +74,56 @@ class EditProfile extends React.Component {
 	}
 
 	async getUserInfo() {
-		let propsUsername = this.props.history.location.username;
+		try {
+			let paramsUsername = this.props.match.params.username;
 
-		let resp;
-		if (!propsUsername) {
-			resp = await http.get("/user/info");
-		} else {
-			let payload = {
-				username: propsUsername,
-			};
-			resp = await http.post("/user/info", payload);
+			let resp;
+			if (!paramsUsername) {
+				resp = await http.get("/user/info");
+			} else {
+				resp = await http.get("/user/type");
+
+				this.setState({ currentUserType: resp.data });
+
+				let payload = {
+					username: paramsUsername,
+				};
+				resp = await http.post("/user/info", payload);
+			}
+
+			let userInfo = resp.data;
+
+			let prevUsername = userInfo.username;
+			let username = userInfo.username;
+			let prevEmail = userInfo.email;
+			let email = userInfo.email;
+			let userType = userInfo.user_type;
+			let dateActivated = new Date(userInfo.activated_timestamp);
+			let dateLastLogin = new Date(userInfo.last_login_timestamp);
+			let prevProfileImage =
+				userInfo.profile_image === undefined || userInfo.profile_image === null
+					? ""
+					: userInfo.profile_image;
+			let isUserTypeApproved = userInfo.is_user_type_approved;
+			let isDeactivated = userInfo.is_deactivated;
+
+			this.setState({
+				prevUsername: prevUsername,
+				prevEmail: prevEmail,
+				username: username,
+				email: email,
+				userType: userType,
+				dateActivated: dateActivated,
+				dateLastLogin: dateLastLogin,
+				prevProfileImage: prevProfileImage,
+				profileImage: prevProfileImage,
+				isUserTypeApproved: isUserTypeApproved,
+				isDeactivated: isDeactivated,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
 		}
-
-		let userInfo = resp.data;
-
-		let prevUsername = userInfo.username;
-		let username = userInfo.username;
-		let prevEmail = userInfo.email;
-		let email = userInfo.email;
-		let userType = userInfo.user_type;
-		let dateActivated = new Date(userInfo.activated_timestamp);
-		let dateLastLogin = new Date(userInfo.last_login_timestamp);
-		let prevProfileImage =
-			userInfo.profile_image === undefined || userInfo.profile_image === null
-				? ""
-				: userInfo.profile_image;
-		let isUserTypeApproved = userInfo.is_user_type_approved;
-		let isDeactivated = userInfo.is_deactivated;
-
-		this.setState({
-			prevUsername: prevUsername,
-			prevEmail: prevEmail,
-			username: username,
-			email: email,
-			userType: userType,
-			dateActivated: dateActivated,
-			dateLastLogin: dateLastLogin,
-			prevProfileImage: prevProfileImage,
-			profileImage: prevProfileImage,
-			isUserTypeApproved: isUserTypeApproved,
-			isDeactivated: isDeactivated,
-		});
 	}
 
 	handleInputChange(e) {
@@ -238,6 +251,12 @@ class EditProfile extends React.Component {
 		}));
 	}
 
+	toggleModalConfirmApprove() {
+		this.setState((prevState) => ({
+			isModalConfirmApproveOpen: !prevState.isModalConfirmApproveOpen,
+		}));
+	}
+
 	logout() {
 		http.get("/auth/logout");
 		this.props.history.push({
@@ -284,20 +303,20 @@ class EditProfile extends React.Component {
 
 	async deactivate() {
 		try {
+			let { currentUsername } = this.state;
+
 			let payload = {
 				username: this.state.username,
 			};
-
-			payload();
 			await http.post("/user/deactivate", payload);
 
 			this.toggleModalConfirmDeactivate();
 
-			let currentUsername = localStorage.getItem("current_username");
-
-			if ((currentUsername = payload.username)) {
+			if (currentUsername === payload.username) {
 				this.logout();
 			}
+
+			this.getUserInfo();
 		} catch (err) {
 			console.log(err);
 			alert("Unable to deactivate. Please try again.");
@@ -312,7 +331,9 @@ class EditProfile extends React.Component {
 			};
 			await http.post("/user/activate", payload);
 
-			this.toggleModalConfirmDeactivate();
+			this.toggleModalConfirmActivate();
+
+			this.getUserInfo();
 		} catch (err) {
 			console.log(err);
 			alert("Unable to activate. Please try again.");
@@ -320,10 +341,28 @@ class EditProfile extends React.Component {
 		}
 	}
 
-	render() {
-		let currentUsername = localStorage.getItem("current_username");
+	async approve() {
+		try {
+			let payload = {
+				username: this.state.username,
+			};
+			let resp = await http.post("/user/approve", payload);
 
+			if (resp.status === 200) {
+				this.getUserInfo();
+			}
+
+			this.toggleModalConfirmApprove();
+		} catch (err) {
+			alert("Unable to approve. Please try again.");
+			return err.response;
+		}
+	}
+
+	render() {
 		let {
+			currentUsername,
+			currentUserType,
 			prevProfileImage,
 			profileImage,
 			username,
@@ -340,6 +379,7 @@ class EditProfile extends React.Component {
 			isModalConfirmChangePasswordOpen,
 			isModalConfirmDeactivateOpen,
 			isModalConfirmActivateOpen,
+			isModalConfirmApproveOpen,
 		} = this.state;
 
 		return (
@@ -491,6 +531,23 @@ class EditProfile extends React.Component {
 											{userType}
 											{isUserTypeApproved ? "" : " (Pending)"}
 										</td>
+										{isUserTypeApproved ? (
+											""
+										) : !(
+												currentUserType === "Super Admin" ||
+												currentUserType === "Admin "
+										  ) ? (
+											""
+										) : (
+											<td className="td-approve">
+												<Button
+													className="btn-approve"
+													onClick={this.toggleModalConfirmApprove}
+												>
+													Approve
+												</Button>
+											</td>
+										)}
 									</tr>
 									<tr>
 										<th scope="row">Activated Date</th>
@@ -638,6 +695,22 @@ class EditProfile extends React.Component {
 							Confirm
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmActivate}>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</Modal>
+				<Modal
+					isOpen={isModalConfirmApproveOpen}
+					toggle={this.toggleModalConfirmApprove}
+				>
+					<ModalHeader toggle={this.toggleModalConfirmApprove}>
+						Confirm Approve User Type
+					</ModalHeader>
+					<ModalFooter>
+						<Button color="primary" onClick={this.approve}>
+							Confirm
+						</Button>{" "}
+						<Button color="danger" onClick={this.toggleModalConfirmApprove}>
 							Cancel
 						</Button>
 					</ModalFooter>

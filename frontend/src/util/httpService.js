@@ -24,7 +24,7 @@ instance.interceptors.response.use(
 			alert("Unable to connect to the server. Please try again.");
 		}
 
-		if (resp.status === 401) {
+		if (resp.status === 401 && window.location.pathname !== "/login") {
 			window.location.pathname = "/login";
 		}
 
