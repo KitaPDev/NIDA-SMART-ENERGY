@@ -49,11 +49,6 @@ class App extends React.Component {
 							/>
 							<Route path="/user/activity-log" component={ActivityLog} exact />
 							<Route
-								path="/user/activity-log/:username"
-								component={ActivityLog}
-								exact
-							/>
-							<Route
 								path="/user/user-management"
 								component={UserManagement}
 								exact

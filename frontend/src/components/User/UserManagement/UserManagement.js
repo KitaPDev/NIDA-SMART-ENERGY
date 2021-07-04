@@ -153,7 +153,7 @@ class UserManagement extends React.Component {
 	}
 
 	navigateToActivityLog(username, e) {
-		this.props.history.push({ pathname: "activity-log/" + username });
+		this.props.history.push({ pathname: "activity-log/", username: username });
 		e.stopPropagation();
 	}
 

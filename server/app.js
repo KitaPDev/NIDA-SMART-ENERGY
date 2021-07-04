@@ -9,6 +9,7 @@ const authRouter = require("./routers/auth.router");
 const userRouter = require("./routers/user.router");
 const targetRouter = require("./routers/target.router");
 const buildingRouter = require("./routers/building.router");
+const activityRouter = require("./routers/activity.router");
 
 const app = express();
 
@@ -32,5 +33,6 @@ app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/target", targetRouter);
 app.use("/building", buildingRouter);
+app.use("/activity", activityRouter);
 
 module.exports = app;
