@@ -216,3 +216,7 @@
 	height: 25vh !important;
 	margin-right: 0 !important;
 }
+
+.form-target .form-group {
+	margin-top: 1rem;
+}

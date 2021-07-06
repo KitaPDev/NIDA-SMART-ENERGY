@@ -7,12 +7,11 @@
 }
 
 .div-device-manager .col-heading {
-	font-size: 100%;
+	width: fit-content;
+	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
-	width: fit-content;
-	color: black !important;
 }
 
 .div-device-manager .excel-icon {
@@ -31,6 +30,12 @@
 	align-items: center;
 }
 
+.container-table-device-manager {
+	margin-top: 1.5rem;
+	max-height: 75vh;
+	overflow-y: auto;
+}
+
 .row-table {
 	padding-left: 2rem;
 	padding-right: 2rem;
@@ -39,4 +44,22 @@
 
 .device-table-head {
 	text-align: center;
+}
+
+.sort {
+	background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIUnC2nKLnT4or00PvyrQwrPzUZshQAOw==)
+		no-repeat center right !important;
+}
+.sort_asc {
+	background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIRnC2nKLnT4or00Puy3rx7VQAAOw==)
+		no-repeat center right !important;
+}
+.sort_desc {
+	background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=)
+		no-repeat center right !important;
+}
+
+.table-device-manager thead {
+	text-align: center;
+	border-bottom: 2px solid #bfbcbc;
 }
