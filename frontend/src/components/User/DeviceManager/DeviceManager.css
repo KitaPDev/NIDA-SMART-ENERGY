@@ -1,5 +1,6 @@
 .div-device-manager {
 	height: 85vh;
+	padding: 2rem;
 }
 
 .div-device-manager .row-heading {
@@ -36,6 +37,10 @@
 	overflow-y: auto;
 }
 
+.table-device-manager {
+	margin-top: 1rem;
+}
+
 .row-table {
 	padding-left: 2rem;
 	padding-right: 2rem;
@@ -62,4 +67,67 @@
 .table-device-manager thead {
 	text-align: center;
 	border-bottom: 2px solid #bfbcbc;
+}
+
+.container-table-device-manager #searchText {
+	width: auto;
+	margin-left: auto;
+	margin-right: 0;
+	border: 2px solid #898989;
+}
+
+.container-table-device-manager input:focus {
+	box-shadow: none !important;
+	border: 2px solid black !important;
+}
+
+.container-table-device-manager .span-search-icon {
+	width: fit-content !important;
+	vertical-align: middle;
+	display: flex;
+	align-items: center;
+}
+
+.div-device-manager .btn-add-meter {
+	position: fixed;
+	bottom: 2rem;
+	right: 2rem;
+}
+
+.div-device-manager .div-add-meter :hover {
+	cursor: pointer;
+	opacity: 0.8;
+}
+
+.form-add-meter .form-group {
+	margin-top: 1rem;
+}
+
+.form-add-meter label {
+	font-weight: 500;
+	font-size: 90%;
+}
+
+.btn-add {
+	background-color: black !important;
+	color: white !important;
+	font-weight: 600 !important;
+}
+
+.btn-add :hover {
+	background: white;
+	color: black;
+	transition-duration: 0.3s;
+}
+
+.btn-discard {
+	background-color: white !important;
+	color: black !important;
+	font-weight: 600 !important;
+}
+
+.btn-discard :hover {
+	background-color: black !important;
+	color: white !important;
+	font-weight: 600 !important;
 }

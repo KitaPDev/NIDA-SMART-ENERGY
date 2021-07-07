@@ -1,7 +1,5 @@
-const targetService = require("../services/target.service");
 const activityService = require("../services/activity.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
-const { response } = require("express");
 
 async function getActivityPeriod(req, res) {
 	try {

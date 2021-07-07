@@ -13,6 +13,7 @@ import {
 import { IoMdSearch } from "react-icons/io";
 import http from "../../../util/httpService";
 import dateFormatter from "../../../util/dateFormatter";
+import { RiFileExcel2Fill } from "react-icons/ri";
 
 class ActivityLog extends React.Component {
 	constructor(props) {
@@ -139,7 +140,15 @@ class ActivityLog extends React.Component {
 		return (
 			<div className="activity-log">
 				<Container fluid className="container-activity-log">
-					<Row className="heading">Activity Log</Row>
+					<Row className="row-heading">
+						<Col sm={3} className="col-heading">
+							Activity Log
+						</Col>
+						<Col sm={1} className="col-excel-icon">
+							<RiFileExcel2Fill className="excel-icon" size={25} />
+						</Col>
+						<Col sm={8}></Col>
+					</Row>
 					<Container className="container-table-activity-log">
 						<Row className="row-input">
 							<Form>
@@ -187,15 +196,17 @@ class ActivityLog extends React.Component {
 						</Row>
 						<Table className="table-activity-log">
 							<thead>
-								<th
-									className={isSortByTimestampAsc ? "sort_asc" : "sort_desc"}
-									onClick={this.toggleSortByTimestamp}
-								>
-									Timestamp
-								</th>
-								<th>Username</th>
-								<th>User Type</th>
-								<th>Action</th>
+								<tr>
+									<th
+										className={isSortByTimestampAsc ? "sort_asc" : "sort_desc"}
+										onClick={this.toggleSortByTimestamp}
+									>
+										Timestamp
+									</th>
+									<th>Username</th>
+									<th>User Type</th>
+									<th>Action</th>
+								</tr>
 							</thead>
 							<tbody>
 								{lsActivity.map((d) => (

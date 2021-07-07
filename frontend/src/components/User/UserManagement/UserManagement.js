@@ -247,45 +247,47 @@ class UserManagement extends React.Component {
 						</Row>
 						<Table className="table-user-management">
 							<thead>
-								<th
-									className={
-										isSortByUsernameAsc
-											? "sort_asc"
-											: isSortByUsernameDesc
-											? "sort_desc"
-											: "sort"
-									}
-									onClick={this.toggleSortByUsername}
-								>
-									Username{" "}
-								</th>
-								<th>Email</th>
-								<th>User Type</th>
-								<th
-									className={
-										isSortByDateActivatedAsc
-											? "sort_asc"
-											: isSortByDateActivatedDesc
-											? "sort_desc"
-											: "sort"
-									}
-									onClick={this.toggleSortByActivatedDate}
-								>
-									Activated Date
-								</th>
-								<th
-									className={
-										isSortByDateLastLoginAsc
-											? "sort_asc"
-											: isSortByDateLastLoginDesc
-											? "sort_desc"
-											: "sort"
-									}
-									onClick={this.toggleSortByLastLoginDate}
-								>
-									Last Login
-								</th>
-								<th>View Activity Log</th>
+								<tr>
+									<th
+										className={
+											isSortByUsernameAsc
+												? "sort_asc"
+												: isSortByUsernameDesc
+												? "sort_desc"
+												: "sort"
+										}
+										onClick={this.toggleSortByUsername}
+									>
+										Username{" "}
+									</th>
+									<th>Email</th>
+									<th>User Type</th>
+									<th
+										className={
+											isSortByDateActivatedAsc
+												? "sort_asc"
+												: isSortByDateActivatedDesc
+												? "sort_desc"
+												: "sort"
+										}
+										onClick={this.toggleSortByActivatedDate}
+									>
+										Activated Date
+									</th>
+									<th
+										className={
+											isSortByDateLastLoginAsc
+												? "sort_asc"
+												: isSortByDateLastLoginDesc
+												? "sort_desc"
+												: "sort"
+										}
+										onClick={this.toggleSortByLastLoginDate}
+									>
+										Last Login
+									</th>
+									<th>View Activity Log</th>
+								</tr>
 							</thead>
 							<tbody>
 								{lsUserDisplay.map((user) => (

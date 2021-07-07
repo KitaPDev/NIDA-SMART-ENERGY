@@ -10,6 +10,8 @@ const userRouter = require("./routers/user.router");
 const targetRouter = require("./routers/target.router");
 const buildingRouter = require("./routers/building.router");
 const activityRouter = require("./routers/activity.router");
+const deviceRouter = require("./routers/device.router");
+const electricalSystemRouter = require("./routers/electricalSystem.router");
 
 const app = express();
 
@@ -34,5 +36,7 @@ app.use("/user", userRouter);
 app.use("/target", targetRouter);
 app.use("/building", buildingRouter);
 app.use("/activity", activityRouter);
+app.use("/device", deviceRouter);
+app.use("/electricalSystem", electricalSystemRouter);
 
 module.exports = app;
