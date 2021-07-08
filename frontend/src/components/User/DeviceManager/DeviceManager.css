@@ -51,6 +51,14 @@
 	text-align: center;
 }
 
+.table-device-manager td {
+	text-align: center;
+}
+
+.table-device-manager tr {
+	vertical-align: middle;
+}
+
 .sort {
 	background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIUnC2nKLnT4or00PvyrQwrPzUZshQAOw==)
 		no-repeat center right !important;
@@ -130,4 +138,9 @@
 	background-color: black !important;
 	color: white !important;
 	font-weight: 600 !important;
+}
+
+.table-device-manager .icon :hover {
+	cursor: pointer;
+	opacity: 0.8;
 }

@@ -12,6 +12,7 @@ async function getAllDevice(from, to) {
 		.select(
 			"device.meter_id",
 			"building.label as building",
+			"device.brand_model",
 			"device.floor",
 			"device.location",
 			"device.site",
@@ -23,6 +24,42 @@ async function getAllDevice(from, to) {
 	return result;
 }
 
+async function insertDevice(
+	meterID,
+	building,
+	floor,
+	location,
+	site,
+	brandModel,
+	electricalSystem,
+	isActive,
+	activatedDate
+) {
+	let result = await knex("building").select("id").where("label", building);
+	let buildingID = result[0].id;
+
+	result = await knex("electrical_system")
+		.select("id")
+		.where("label", electricalSystem);
+	let electricalSystemID = result[0].id;
+
+	await knex("device").insert({
+		building_id: buildingID,
+		electrical_system_id: electricalSystemID,
+		brand_model: brandModel,
+		location: location,
+		site: site,
+		activated_timestamp: activatedDate
+			.toISOString()
+			.slice(0, 19)
+			.replace("T", " "),
+		is_active: isActive,
+		meter_id: meterID,
+		floor: floor,
+	});
+}
+
 module.exports = {
 	getAllDevice,
+	insertDevice,
 };

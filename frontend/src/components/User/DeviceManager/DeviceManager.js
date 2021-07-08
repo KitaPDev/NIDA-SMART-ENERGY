@@ -17,15 +17,16 @@ import {
 } from "reactstrap";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { IoMdSearch, IoMdAddCircle } from "react-icons/io";
+import { MdModeEdit, MdDelete } from "react-icons/md";
+import { GiConfirmed, GiCancel } from "react-icons/gi";
 import dateFormatter from "../../../util/dateFormatter";
 import http from "../../../util/httpService";
+
+const tzOffset = new Date().getTimezoneOffset() * 60000;
 
 class DeviceManager extends React.Component {
 	constructor(props) {
 		super(props);
-
-		let tzOffset = new Date().getTimezoneOffset() * 60000;
-
 		this.state = {
 			lsDevice: [],
 			lsBuilding: [],
@@ -48,6 +49,7 @@ class DeviceManager extends React.Component {
 			activatedDate: new Date(Date.now() - tzOffset)
 				.toISOString()
 				.substring(0, 16),
+			meterIDEdit: -1,
 		};
 
 		this.toggleSortByMeterID = this.toggleSortByMeterID.bind(this);
@@ -57,12 +59,18 @@ class DeviceManager extends React.Component {
 			this.toggleModalConfirmAddMeter.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getAllElectricalSystem = this.getAllElectricalSystem.bind(this);
+		this.getAllDevice = this.getAllDevice.bind(this);
 		this.addMeter = this.addMeter.bind(this);
+		this.editMeter = this.editMeter.bind(this);
+		this.deleteMeter = this.deleteMeter.bind(this);
+		this.setMeterEditMode = this.setMeterEditMode.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
 	}
 
 	componentDidMount() {
 		this.getAllBuilding();
 		this.getAllElectricalSystem();
+		this.getAllDevice();
 	}
 
 	toggleSortByMeterID() {
@@ -122,6 +130,18 @@ class DeviceManager extends React.Component {
 	toggleModalAddMeter() {
 		this.setState((prevState) => ({
 			isModalAddMeterOpen: !prevState.isModalAddMeterOpen,
+			meterIDEdit: -1,
+			meterID: "",
+			building: "",
+			floor: 0,
+			location: "",
+			site: "",
+			brandModel: "",
+			system: "Main",
+			isActive: false,
+			activatedDate: new Date(Date.now() - tzOffset)
+				.toISOString()
+				.substring(0, 16),
 		}));
 	}
 
@@ -157,6 +177,17 @@ class DeviceManager extends React.Component {
 		}
 	}
 
+	async getAllDevice() {
+		try {
+			let resp = await http.get("/device/all");
+
+			this.setState({ lsDevice: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	async addMeter() {
 		let {
 			meterID,
@@ -171,7 +202,7 @@ class DeviceManager extends React.Component {
 
 		try {
 			if (meterID.length === 0) {
-				alert("Meter ID is requireds.");
+				alert("Meter ID is required.");
 			}
 
 			if (building.length === 0) {
@@ -210,6 +241,107 @@ class DeviceManager extends React.Component {
 			if (resp.status === 200) {
 				alert("Meter has been created.");
 			}
+
+			this.toggleModalConfirmAddMeter();
+			this.toggleModalAddMeter();
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	setMeterEditMode(meterID) {
+		if (meterID !== -1) {
+			let { lsDevice } = this.state;
+			let device = lsDevice.filter((device) => {
+				return device.meter_id === meterID;
+			});
+
+			this.setState({
+				building: device.building,
+				floor: device.floor,
+				location: device.location,
+				site: device.site,
+				brandModel: device.brand_model,
+				system: device.system,
+				activatedDate: device.activated_date,
+			});
+		}
+
+		this.setState({ meterIDEdit: meterID });
+	}
+
+	async editMeter() {
+		let {
+			meterID,
+			building,
+			floor,
+			location,
+			site,
+			brandModel,
+			system,
+			activatedDate,
+		} = this.state;
+
+		try {
+			if (meterID.length === 0) {
+				alert("Meter ID is required.");
+			}
+
+			if (building.length === 0) {
+				alert("Building is required.");
+			}
+
+			if (location.length === 0) {
+				alert("Location is required.");
+			}
+
+			if (site.length === 0) {
+				alert("Site is required.");
+			}
+
+			if (brandModel.length === 0) {
+				alert("Brand / Model is required.");
+			}
+
+			if (system.length === 0) {
+				alert("System is required.");
+			}
+
+			let payload = {
+				meter_id: meterID,
+				building: building,
+				floor: floor,
+				location: location,
+				site: site,
+				brand_model: brandModel,
+				system: system,
+				activated_date: activatedDate,
+			};
+
+			let resp = await http.post("/device/edit", payload);
+
+			if (resp.status === 200) {
+				alert("Meter has been edited.");
+				this.setState({ meterIDEdit: -1 });
+			}
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async deleteMeter() {
+		try {
+			let { meterID } = this.state;
+
+			let payload = { meter_id: meterID };
+
+			let resp = await http.post("/device/delete", payload);
+
+			if (resp.status === 200) {
+				alert("Meter has been deleted.");
+			}
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -237,6 +369,7 @@ class DeviceManager extends React.Component {
 			activatedDate,
 			lsBuilding,
 			lsElectricalSystem,
+			meterIDEdit,
 		} = this.state;
 
 		let lsDeviceDisplay = lsDevice.slice();
@@ -286,7 +419,7 @@ class DeviceManager extends React.Component {
 					</Col>
 					<Col sm={8}></Col>
 				</Row>
-				<Container className="container-table-device-manager">
+				<Container className="container-table-device-manager" fluid>
 					<Row className="row-input">
 						<Form>
 							<FormGroup row className="fg-period">
@@ -344,17 +477,122 @@ class DeviceManager extends React.Component {
 						<tbody>
 							{lsDeviceDisplay.map((device, index) => (
 								<tr>
-									<td>{device.meter_id}</td>
-									<td>{device.building}</td>
-									<td>{device.floor}</td>
-									<td>{device.location}</td>
-									<td>{device.site}</td>
-									<td>{device.brand_model}</td>
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="text"
+												name="meterID"
+												id="meterID"
+												value={meterID}
+												onChange={this.handleInputChange}
+											/>
+										) : (
+											device.meter_id
+										)}
+									</td>
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="select"
+												name="building"
+												id="building"
+												value={building}
+												onChange={this.handleInputChange}
+											>
+												{lsBuilding.map((building) => (
+													<option>{building.label}</option>
+												))}
+											</Input>
+										) : (
+											device.building
+										)}
+									</td>
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="number"
+												name="floor"
+												id="floor"
+												min="0"
+												value={floor}
+												onChange={this.handleInputChange}
+											/>
+										) : (
+											device.floor
+										)}
+									</td>
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="text"
+												name="location"
+												id="location"
+												value={location}
+												onChange={this.handleInputChange}
+											/>
+										) : (
+											device.location
+										)}
+									</td>
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="text"
+												name="location"
+												id="location"
+												value={location}
+												onChange={this.handleInputChange}
+											/>
+										) : (
+											device.site
+										)}
+									</td>
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="text"
+												name="brandModel"
+												id="brandModel"
+												value={brandModel}
+												onChange={this.handleInputChange}
+											/>
+										) : (
+											device.brand_model
+										)}
+									</td>
 									<td>{device.system}</td>
 									<td>{device.status}</td>
-									<td>{dateFormatter.ddmmyyyy(device.activated_timestamp)}</td>
-									<td></td>
-									<td></td>
+									<td>
+										{dateFormatter.ddmmyyyy(
+											new Date(device.activated_timestamp)
+										)}
+									</td>
+									<td className="icon">
+										{meterIDEdit === device.meter_id ? (
+											<GiConfirmed
+												size={20}
+												onClick={() => this.editMeter(device.meter_id)}
+											/>
+										) : (
+											<MdModeEdit
+												size={20}
+												onClick={() => this.setMeterEditMode(device.meter_id)}
+											/>
+										)}
+									</td>
+									<td className="icon">
+										{meterIDEdit === device.meter_id ? (
+											<GiCancel
+												size={20}
+												onClick={() => this.setMeterEditMode(-1)}
+											/>
+										) : (
+											<MdDelete
+												size={20}
+												onClick={() => this.deleteMeter(device.meter_id)}
+											/>
+										)}
+									</td>
 								</tr>
 							))}
 						</tbody>
@@ -511,7 +749,7 @@ class DeviceManager extends React.Component {
 						Confirm Add Meter
 					</ModalHeader>
 					<ModalFooter>
-						<Button color="primary" onClick={this.approve}>
+						<Button color="primary" onClick={this.addMeter}>
 							Confirm
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmAddMeter}>

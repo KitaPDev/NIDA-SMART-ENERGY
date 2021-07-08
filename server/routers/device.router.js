@@ -8,4 +8,8 @@ router.get("/all", authenticateJWT, async function (req, res) {
 	deviceController.getAllDevice(req, res);
 });
 
+router.post("/", authenticateJWT, async function (req, res) {
+	deviceController.newDevice(req, res);
+});
+
 module.exports = router;
