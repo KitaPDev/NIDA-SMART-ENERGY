@@ -17,6 +17,7 @@ import SetTarget from "./components/User/SetTarget/SetTarget";
 import DeviceManager from "./components/User/DeviceManager/DeviceManager";
 import ActivityLog from "./components/User/ActivityLog/ActivityLog";
 import UserManagement from "./components/User/UserManagement/UserManagement";
+import SetPermission from "./components/User/SetPermission/SetPermission";
 
 class App extends React.Component {
 	render() {
@@ -51,6 +52,11 @@ class App extends React.Component {
 							<Route
 								path="/user/user-management"
 								component={UserManagement}
+								exact
+							/>
+							<Route
+								path="/user/set-permission"
+								component={SetPermission}
 								exact
 							/>
 						</Switch>

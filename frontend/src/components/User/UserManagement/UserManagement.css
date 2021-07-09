@@ -81,3 +81,9 @@
 	box-shadow: none !important;
 	border: 2px solid black !important;
 }
+
+.user-management .span-search-icon {
+	width: fit-content;
+	margin-top: auto;
+	margin-bottom: auto;
+}

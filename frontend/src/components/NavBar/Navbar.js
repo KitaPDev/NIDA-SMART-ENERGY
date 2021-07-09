@@ -26,7 +26,7 @@ import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
 import http from "../../util/httpService";
 
-const lsMonthNames = [
+const lsMonthName = [
 	"January",
 	"February",
 	"March",
@@ -39,6 +39,16 @@ const lsMonthNames = [
 	"October",
 	"November",
 	"December",
+];
+
+const lsDay = [
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
 ];
 
 class NavBar extends React.Component {
@@ -356,14 +366,14 @@ class NavBar extends React.Component {
 											<NavLink
 												exact
 												tag={Link}
-												to="/user/set-permissions"
+												to="/user/set-permission"
 												className="nav-link d-flex flex-column"
 												activeClassName="activeLink"
 												onClick={() =>
 													window.history.pushState(
 														"",
 														"",
-														"/user/set-permissions"
+														"/user/set-permission"
 													)
 												}
 											>
@@ -437,15 +447,17 @@ class NavBar extends React.Component {
 							<Row
 								style={{
 									width: "100%",
-									margin: 0,
+									margin: "auto",
 								}}
 							>
-								Wednesday
+								<span style={{ textAlign: "center" }}>
+									{lsDay[today.getDay()]}
+								</span>
 							</Row>
 							<Row style={{ width: "100%", margin: 0 }}>
 								{today.getDate() +
 									" " +
-									lsMonthNames[today.getMonth()] +
+									lsMonthName[today.getMonth()] +
 									" " +
 									today.getFullYear()}
 							</Row>

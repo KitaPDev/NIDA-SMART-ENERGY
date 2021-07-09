@@ -1,0 +1,11 @@
+.set-permission {
+	height: 85vh;
+	padding: 2rem;
+}
+.set-permission .col-heading {
+	width: fit-content;
+	font-size: 200%;
+	font-weight: bold;
+	padding-left: 1rem;
+	text-transform: uppercase;
+}

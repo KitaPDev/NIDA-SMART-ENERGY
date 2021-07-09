@@ -3,10 +3,6 @@
 	padding: 2rem;
 }
 
-.div-device-manager .row-heading {
-	padding: 2rem !important;
-}
-
 .div-device-manager .col-heading {
 	width: fit-content;
 	font-size: 200%;

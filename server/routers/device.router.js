@@ -12,4 +12,8 @@ router.post("/", authenticateJWT, async function (req, res) {
 	deviceController.newDevice(req, res);
 });
 
+router.post("/edit", authenticateJWT, async function (req, res) {
+	deviceController.editDevice(req, res);
+});
+
 module.exports = router;

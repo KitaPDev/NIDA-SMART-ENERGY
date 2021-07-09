@@ -38,7 +38,9 @@ class DeviceManager extends React.Component {
 			searchText: "",
 			isModalAddMeterOpen: false,
 			isModalConfirmAddMeterOpen: false,
-			meterID: "",
+			isModalConfirmEditMeterOpen: false,
+			isModalConfirmDeleteMeterOpen: false,
+			meterIDEdit: "",
 			building: "",
 			floor: 0,
 			location: "",
@@ -57,6 +59,10 @@ class DeviceManager extends React.Component {
 		this.toggleModalAddMeter = this.toggleModalAddMeter.bind(this);
 		this.toggleModalConfirmAddMeter =
 			this.toggleModalConfirmAddMeter.bind(this);
+		this.toggleModalConfirmDeleteMeter =
+			this.toggleModalConfirmDeleteMeter.bind(this);
+		this.toggleModalConfirmEditMeter =
+			this.toggleModalConfirmEditMeter.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getAllElectricalSystem = this.getAllElectricalSystem.bind(this);
 		this.getAllDevice = this.getAllDevice.bind(this);
@@ -148,6 +154,18 @@ class DeviceManager extends React.Component {
 	toggleModalConfirmAddMeter() {
 		this.setState((prevState) => ({
 			isModalConfirmAddMeterOpen: !prevState.isModalConfirmAddMeterOpen,
+		}));
+	}
+
+	toggleModalConfirmEditMeter() {
+		this.setState((prevState) => ({
+			isModalConfirmEditMeterOpen: !prevState.isModalConfirmEditMeterOpen,
+		}));
+	}
+
+	toggleModalConfirmDeleteMeter() {
+		this.setState((prevState) => ({
+			isModalConfirmDeleteMeterOpen: !prevState.isModalConfirmDeleteMeterOpen,
 		}));
 	}
 
@@ -253,7 +271,7 @@ class DeviceManager extends React.Component {
 	setMeterEditMode(meterID) {
 		if (meterID !== -1) {
 			let { lsDevice } = this.state;
-			let device = lsDevice.filter((device) => {
+			let device = lsDevice.find((device) => {
 				return device.meter_id === meterID;
 			});
 
@@ -273,7 +291,7 @@ class DeviceManager extends React.Component {
 
 	async editMeter() {
 		let {
-			meterID,
+			meterIDEdit,
 			building,
 			floor,
 			location,
@@ -284,7 +302,7 @@ class DeviceManager extends React.Component {
 		} = this.state;
 
 		try {
-			if (meterID.length === 0) {
+			if (meterIDEdit.length === 0) {
 				alert("Meter ID is required.");
 			}
 
@@ -309,7 +327,7 @@ class DeviceManager extends React.Component {
 			}
 
 			let payload = {
-				meter_id: meterID,
+				meter_id: meterIDEdit,
 				building: building,
 				floor: floor,
 				location: location,
@@ -327,15 +345,16 @@ class DeviceManager extends React.Component {
 			}
 		} catch (err) {
 			console.log(err);
+			alert("Failed to edit Meter. Please try again.");
 			return err.response;
 		}
 	}
 
 	async deleteMeter() {
 		try {
-			let { meterID } = this.state;
+			let { meterIDEdit } = this.state;
 
-			let payload = { meter_id: meterID };
+			let payload = { meter_id: meterIDEdit };
 
 			let resp = await http.post("/device/delete", payload);
 
@@ -344,6 +363,7 @@ class DeviceManager extends React.Component {
 			}
 		} catch (err) {
 			console.log(err);
+			alert("Failed to delete Meter. Please try again.");
 			return err.response;
 		}
 	}
@@ -358,14 +378,14 @@ class DeviceManager extends React.Component {
 			searchText,
 			isModalAddMeterOpen,
 			isModalConfirmAddMeterOpen,
-			meterID,
+			isModalConfirmEditMeterOpen,
+			isModalConfirmDeleteMeterOpen,
 			building,
 			floor,
 			location,
 			site,
 			brandModel,
 			system,
-			isActive,
 			activatedDate,
 			lsBuilding,
 			lsElectricalSystem,
@@ -457,18 +477,23 @@ class DeviceManager extends React.Component {
 								<th>Site</th>
 								<th>Brand / Model</th>
 								<th>System</th>
-								<th
-									className={
-										isSortByStatusActive
-											? "sort_asc"
-											: isSortByStatusInactive
-											? "sort_desc"
-											: "sort"
-									}
-									onClick={this.toggleSortByStatus}
-								>
-									Status
-								</th>
+								{meterIDEdit !== -1 ? (
+									""
+								) : (
+									<th
+										className={
+											isSortByStatusActive
+												? "sort_asc"
+												: isSortByStatusInactive
+												? "sort_desc"
+												: "sort"
+										}
+										onClick={this.toggleSortByStatus}
+									>
+										Status
+									</th>
+								)}
+
 								<th>Activated Date</th>
 								<th></th>
 								<th></th>
@@ -483,7 +508,7 @@ class DeviceManager extends React.Component {
 												type="text"
 												name="meterID"
 												id="meterID"
-												value={meterID}
+												value={meterIDEdit}
 												onChange={this.handleInputChange}
 											/>
 										) : (
@@ -560,18 +585,48 @@ class DeviceManager extends React.Component {
 											device.brand_model
 										)}
 									</td>
-									<td>{device.system}</td>
-									<td>{device.status}</td>
 									<td>
-										{dateFormatter.ddmmyyyy(
-											new Date(device.activated_timestamp)
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="select"
+												name="system"
+												id="system"
+												value={system}
+												onChange={this.handleInputChange}
+											>
+												{lsElectricalSystem.map((system) => (
+													<option>{system.label}</option>
+												))}
+											</Input>
+										) : (
+											device.system
+										)}
+									</td>
+									{meterIDEdit === device.meter_id ? (
+										""
+									) : (
+										<td>{device.status}</td>
+									)}
+									<td>
+										{meterIDEdit === device.meter_id ? (
+											<Input
+												type="datetime-local"
+												name="activatedDate"
+												id="activatedDate"
+												value={activatedDate}
+												onChange={this.handleInputChange}
+											/>
+										) : (
+											dateFormatter.ddmmyyyy(
+												new Date(device.activated_timestamp)
+											)
 										)}
 									</td>
 									<td className="icon">
 										{meterIDEdit === device.meter_id ? (
 											<GiConfirmed
 												size={20}
-												onClick={() => this.editMeter(device.meter_id)}
+												onClick={() => this.toggleModalConfirmEditMeter()}
 											/>
 										) : (
 											<MdModeEdit
@@ -589,7 +644,7 @@ class DeviceManager extends React.Component {
 										) : (
 											<MdDelete
 												size={20}
-												onClick={() => this.deleteMeter(device.meter_id)}
+												onClick={() => this.toggleModalConfirmDeleteMeter()}
 											/>
 										)}
 									</td>
@@ -618,7 +673,7 @@ class DeviceManager extends React.Component {
 										type="text"
 										name="meterID"
 										id="meterID"
-										value={meterID}
+										value={meterIDEdit}
 										onChange={this.handleInputChange}
 									/>
 								</Col>
@@ -753,6 +808,38 @@ class DeviceManager extends React.Component {
 							Confirm
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmAddMeter}>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</Modal>
+				<Modal
+					isOpen={isModalConfirmEditMeterOpen}
+					toggle={this.toggleModalConfirmEditMeter}
+				>
+					<ModalHeader toggle={this.toggleModalConfirmEditMeter}>
+						Confirm Edit Meter
+					</ModalHeader>
+					<ModalFooter>
+						<Button color="primary" onClick={this.editMeter}>
+							Confirm
+						</Button>{" "}
+						<Button color="danger" onClick={this.toggleModalConfirmEditMeter}>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</Modal>
+				<Modal
+					isOpen={isModalConfirmDeleteMeterOpen}
+					toggle={this.toggleModalConfirmDeleteMeter}
+				>
+					<ModalHeader toggle={this.toggleModalConfirmDeleteMeter}>
+						Confirm Delete Meter
+					</ModalHeader>
+					<ModalFooter>
+						<Button color="primary" onClick={this.deleteMeter}>
+							Confirm
+						</Button>{" "}
+						<Button color="danger" onClick={this.toggleModalConfirmDeleteMeter}>
 							Cancel
 						</Button>
 					</ModalFooter>
