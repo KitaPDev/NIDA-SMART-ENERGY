@@ -27,7 +27,7 @@
 	padding-right: 1rem;
 }
 
-.row-building :hover {
+.row-building:hover {
 	cursor: pointer;
 	background-color: #b4d7ff;
 }

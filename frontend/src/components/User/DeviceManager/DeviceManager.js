@@ -422,7 +422,7 @@ class DeviceManager extends React.Component {
 					device.brand_model.includes(searchText) ||
 					device.system.includes(searchText) ||
 					dateFormatter
-						.ddmmyyyy(new Date(device.logged_timestamp))
+						.ddmmyyyy(new Date(device.activated_timestamp))
 						.includes(searchText)
 				);
 			});
@@ -605,7 +605,13 @@ class DeviceManager extends React.Component {
 									{meterIDEdit === device.meter_id ? (
 										""
 									) : (
-										<td>{device.status}</td>
+										<td>
+											<span
+												className={
+													device.is_active === 1 ? "green-dot" : "red-dot"
+												}
+											></span>
+										</td>
 									)}
 									<td>
 										{meterIDEdit === device.meter_id ? (

@@ -39,7 +39,7 @@
 	border: 0;
 }
 
-.table-user-management .td-view-activity-log :hover {
+.table-user-management .td-view-activity-log:hover {
 	cursor: pointer;
 	opacity: 0.7;
 }

@@ -103,8 +103,9 @@ svg {
 	transition-duration: 0.3s;
 }
 
-.td-edit :hover {
+.td-edit:hover {
 	cursor: pointer;
+	opacity: 0.7;
 }
 
 button.close {
@@ -162,7 +163,7 @@ button.close {
 	padding: 0 0.5rem 0 0.5rem;
 }
 
-.div-edit-profile .td-approve :hover {
+.div-edit-profile .td-approve:hover {
 	background-color: green !important;
 	color: white !important;
 	border: 0;

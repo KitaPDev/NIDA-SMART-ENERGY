@@ -16,7 +16,7 @@
 	color: black !important;
 }
 
-.excel-icon :hover {
+.excel-icon:hover {
 	cursor: pointer;
 	opacity: 0.8;
 	transition-duration: 0.3s;
@@ -98,7 +98,7 @@
 	right: 2rem;
 }
 
-.div-device-manager .div-add-meter :hover {
+.div-device-manager .div-add-meter:hover {
 	cursor: pointer;
 	opacity: 0.8;
 }
@@ -118,9 +118,9 @@
 	font-weight: 600 !important;
 }
 
-.btn-add :hover {
-	background: white;
-	color: black;
+.btn-add:hover {
+	background: white !important;
+	color: black !important;
 	transition-duration: 0.3s;
 }
 
@@ -130,13 +130,31 @@
 	font-weight: 600 !important;
 }
 
-.btn-discard :hover {
+.btn-discard:hover {
 	background-color: black !important;
 	color: white !important;
 	font-weight: 600 !important;
 }
 
-.table-device-manager .icon :hover {
+.table-device-manager .icon:hover {
 	cursor: pointer;
 	opacity: 0.8;
+}
+
+.table-device-manager .green-dot {
+	width: 16px !important;
+	height: 16px !important;
+	background-color: lightgreen;
+	border-radius: 50%;
+	margin: auto;
+	vertical-align: middle;
+}
+
+.table-device-manager .red-dot {
+	width: 16px !important;
+	height: 16px !important;
+	background-color: lightsalmon;
+	border-radius: 50%;
+	margin: auto;
+	vertical-align: middle;
 }
