@@ -20,7 +20,7 @@ async function targetExists(buildingID, month, year) {
 		})
 		.count("* as count");
 
-	return result[0] !== 0;
+	return result[0].count !== 0;
 }
 
 async function insertTarget(

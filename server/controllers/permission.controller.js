@@ -21,4 +21,22 @@ async function getAllUserTypePermission(req, res) {
 	}
 }
 
-module.exports = { getAllPermission, getAllUserTypePermission };
+async function updateUserTypePermission(req, res) {
+	try {
+		let body = req.body;
+		let userTypeID = body.user_type_id;
+		let permissionID = body.permission_id;
+
+		await permissionService.updateUserTypePermission(userTypeID, permissionID);
+
+		return res.status(httpStatusCodes.OK).send();
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+module.exports = {
+	getAllPermission,
+	getAllUserTypePermission,
+	updateUserTypePermission,
+};

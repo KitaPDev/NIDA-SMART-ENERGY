@@ -2,10 +2,43 @@
 	height: 85vh;
 	padding: 2rem;
 }
+
 .set-permission .col-heading {
 	width: fit-content;
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
+}
+
+.set-permission .container-set-permission {
+	max-height: 75vh;
+	overflow-x: auto;
+	overflow-y: auto;
+}
+
+.set-permission .table-set-permission {
+	table-layout: fixed;
+}
+
+.set-permission .table-set-permission thead {
+	border-bottom: 2px solid black;
+	text-align: center;
+}
+
+.set-permission .table-set-permission thead th {
+	width: fit-content;
+}
+
+.set-permission .table-set-permission td {
+	text-align: center;
+}
+
+.set-permission .table-set-permission .form-check-input {
+	border: 1px solid black;
+	border-radius: 0;
+}
+
+.set-permission .table-set-permission input[type="checkbox"]:checked {
+	background-color: black !important;
 }

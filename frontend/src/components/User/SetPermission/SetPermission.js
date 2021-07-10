@@ -1,6 +1,6 @@
 import React from "react";
 import "./SetPermission.css";
-import { Row, Col, Container, Table } from "reactstrap";
+import { Row, Col, Container, Table, Input } from "reactstrap";
 import http from "../../../util/httpService";
 
 class SetPermission extends React.Component {
@@ -15,6 +15,13 @@ class SetPermission extends React.Component {
 		this.getAllUserType = this.getAllUserType.bind(this);
 		this.getAllPermission = this.getAllPermission.bind(this);
 		this.getAllUserTypePermission = this.getAllUserTypePermission.bind(this);
+		this.updateUserTypePermission = this.updateUserTypePermission.bind(this);
+	}
+
+	componentDidMount() {
+		this.getAllUserType();
+		this.getAllPermission();
+		this.getAllUserTypePermission();
 	}
 
 	async getAllUserType() {
@@ -54,6 +61,20 @@ class SetPermission extends React.Component {
 		}
 	}
 
+	async updateUserTypePermission(userTypeID, permissionID) {
+		try {
+			let payload = { user_type_id: userTypeID, permission_id: permissionID };
+
+			let resp = await http.post("/permission/update", payload);
+
+			if (resp.status === 200) {
+				this.getAllUserTypePermission();
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
 	render() {
 		let { lsUserTypePermission, lsPermission, lsUserType } = this.state;
 
@@ -77,9 +98,28 @@ class SetPermission extends React.Component {
 						<tbody>
 							{lsPermission.map((permission) => (
 								<tr>
-									<td>{permission.label}</td>
-									{lsUserTypePermission.map((userTypePermission) => (
-										<td></td>
+									<th>{permission.label}</th>
+									{lsUserType.map((userType) => (
+										<td>
+											<Input
+												type="checkbox"
+												checked={
+													lsUserTypePermission.find(
+														(userTypePermission) =>
+															userTypePermission.user_type_id === userType.id &&
+															userTypePermission.permission_id === permission.id
+													)
+														? true
+														: false
+												}
+												onClick={() =>
+													this.updateUserTypePermission(
+														userType.id,
+														permission.id
+													)
+												}
+											></Input>
+										</td>
 									))}
 								</tr>
 							))}

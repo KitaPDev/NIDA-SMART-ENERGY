@@ -12,4 +12,8 @@ router.get("/user-type", authenticateJWT, async function (req, res) {
 	permissionController.getAllUserTypePermission(req, res);
 });
 
+router.post("/update", authenticateJWT, async function (req, res) {
+	permissionController.updateUserTypePermission(req, res);
+});
+
 module.exports = router;
