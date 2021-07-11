@@ -61,3 +61,19 @@
 	cursor: pointer;
 	background-color: #b4d7ff;
 }
+
+.meter .row-input {
+	white-space: nowrap;
+}
+
+.meter .col-table-heading {
+	font-weight: bold;
+	font-size: 150%;
+	text-align: right;
+	margin-top: auto;
+	margin-right: 1rem;
+}
+
+.meter .col-excel-icon {
+	vertical-align: baseline;
+}

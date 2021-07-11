@@ -13,6 +13,7 @@ import {
 import { IoMdSearch } from "react-icons/io";
 import dateFormatter from "../../util/dateFormatter";
 import http from "../../util/httpService";
+import { RiFileExcel2Fill } from "react-icons/ri";
 
 class Meter extends React.Component {
 	constructor(props) {
@@ -219,6 +220,12 @@ class Meter extends React.Component {
 							<Row className="row-input">
 								<Form>
 									<FormGroup row className="fg-period">
+										<Col sm={1} className="col-table-heading">
+											General Info
+										</Col>
+										<Col sm={1} className="col-excel-icon">
+											<RiFileExcel2Fill className="excel-icon" size={25} />
+										</Col>
 										<Input
 											type="text"
 											name="searchText"
