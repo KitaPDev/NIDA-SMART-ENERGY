@@ -14,6 +14,7 @@ import {
 	DropdownItem,
 } from "reactstrap";
 import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
+import http from "../../util/httpService";
 
 class Building extends React.Component {
 	constructor(props) {
@@ -26,78 +27,42 @@ class Building extends React.Component {
 		);
 
 		this.state = {
+			lsBuilding: [],
 			dateFrom: dateFrom.toISOString().substring(0, 16),
 			dateTo: new Date(Date.now() - tzOffset).toISOString().substring(0, 16),
 			isElectricalSystemDropdownOpen: false,
 			electricalSystem: "Overall",
+			currentBuildingLabel: "",
+			amountPeople: 0,
 		};
 
-		this.state.lsBuilding = [
-			"Auditorium",
-			"Bunchana",
-			"Chup",
-			"Malai",
-			"Narathip",
-			"Navamin",
-			"Nida House",
-			"Nidasumpan",
-			"Ratchaphruek",
-			"Serithai",
-			"Siam",
-		];
+		let currentBuildingLabel = this.props.building;
 
-		let building = this.props.building;
-
-		building === undefined
-			? (this.state.building = "Auditorium")
-			: (this.state.building = building);
+		currentBuildingLabel === undefined
+			? (this.state.currentBuildingLabel = "Auditorium")
+			: (this.state.currentBuildingLabel = currentBuildingLabel);
 
 		this.state.amountPeople = 30;
 
-		this.getColorCode = this.getColorCode.bind(this);
 		this.handleChangeDateFrom = this.handleChangeDateFrom.bind(this);
 		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
 		this.toggleElectricalSystem = this.toggleElectricalSystem.bind(this);
 		this.changeElectricalSystem = this.changeElectricalSystem.bind(this);
+		this.getAllBuilding = this.getAllBuilding.bind(this);
 	}
 
-	getColorCode(building) {
-		switch (building.toUpperCase()) {
-			case "NAVAMIN":
-				return "#BFF0B5";
+	componentDidMount() {
+		this.getAllBuilding();
+	}
 
-			case "SIAM":
-				return "#FA999A";
+	async getAllBuilding() {
+		try {
+			let resp = await http.get("/building/all");
 
-			case "BUNCHANA":
-				return "#CCEBFF";
-
-			case "NIDA HOUSE":
-				return "#DCC87E";
-
-			case "MALAI":
-				return "#FFDFB3";
-
-			case "CHUP":
-				return "#FFBE7C";
-
-			case "NIDASUMPAN":
-				return "#FFECA0";
-
-			case "NARATHIP":
-				return "#9BCD95";
-
-			case "RATCHAPHRUEK":
-				return "#91C5C2";
-
-			case "SERITHAI":
-				return "#B9DFDB";
-
-			case "AUDITORIUM":
-				return "#95B2D1";
-
-			default:
-				return "#000000";
+			this.setState({ lsBuilding: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
 		}
 	}
 
@@ -126,7 +91,7 @@ class Building extends React.Component {
 	render() {
 		let {
 			lsBuilding,
-			building,
+			currentBuildingLabel,
 			amountPeople,
 			dateFrom,
 			dateTo,
@@ -170,7 +135,7 @@ class Building extends React.Component {
 		let lsLogPower = {};
 
 		for (let log of lsLogPower_Building) {
-			if (log.building === building) {
+			if (log.building === currentBuildingLabel) {
 				lsLogPower = log;
 				break;
 			}
@@ -187,18 +152,22 @@ class Building extends React.Component {
 									<div>
 										<Row
 											className="row-building"
-											style={{ opacity: bld === building ? 1 : 0.5 }}
-											onClick={() => this.setState({ building: bld })}
+											style={{
+												opacity: bld.label === currentBuildingLabel ? 1 : 0.5,
+											}}
+											onClick={() =>
+												this.setState({ currentBuildingLabel: bld.label })
+											}
 										>
 											<Col sm={2} className="col-square-building">
 												<div
 													className="square-building"
 													style={{
-														backgroundColor: this.getColorCode(bld),
+														backgroundColor: bld.color_code,
 													}}
 												></div>
 											</Col>
-											<Col sm={10}>{bld}</Col>
+											<Col sm={10}>{bld.label}</Col>
 										</Row>
 									</div>
 								))}
@@ -209,13 +178,29 @@ class Building extends React.Component {
 								<Col sm={5}>
 									<Row
 										className="row-title"
-										style={{ color: this.getColorCode(building) }}
+										style={{
+											color: lsBuilding.find(
+												(bld) => bld.label === currentBuildingLabel
+											)
+												? lsBuilding.find(
+														(bld) => bld.label === currentBuildingLabel
+												  ).color_code
+												: "black",
+										}}
 									>
-										{building}
+										{currentBuildingLabel}
 									</Row>
 									<Row
 										className="row-heading"
-										style={{ color: this.getColorCode(building) }}
+										style={{
+											color: lsBuilding.find(
+												(bld) => bld.label === currentBuildingLabel
+											)
+												? lsBuilding.find(
+														(bld) => bld.label === currentBuildingLabel
+												  ).color_code
+												: "black",
+										}}
 									>
 										<p>
 											Estimated{" "}

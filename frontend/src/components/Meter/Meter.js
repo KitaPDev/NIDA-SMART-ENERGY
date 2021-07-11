@@ -21,8 +21,11 @@ class Meter extends React.Component {
 			isMapMode: true,
 			isDiagramMode: false,
 			lsDevice: [],
+			lsBuilding: [],
 			building: "",
 			searchText: "",
+			currentBuildingLabel: "",
+			isOverall: true,
 		};
 
 		this.setMapMode = this.setMapMode.bind(this);
@@ -32,10 +35,12 @@ class Meter extends React.Component {
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.toggleSortByMeterID = this.toggleSortByMeterID.bind(this);
 		this.toggleSortByStatus = this.toggleSortByStatus.bind(this);
+		this.getAllBuilding = this.getAllBuilding.bind(this);
 	}
 
 	componentDidMount() {
 		this.getAllDevice();
+		this.getAllBuilding();
 	}
 
 	setMapMode() {
@@ -127,16 +132,30 @@ class Meter extends React.Component {
 		}
 	}
 
+	async getAllBuilding() {
+		try {
+			let resp = await http.get("/building/all");
+
+			this.setState({ lsBuilding: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	render() {
 		let {
 			isMapMode,
 			isDiagramMode,
 			searchText,
 			lsDevice,
+			lsBuilding,
 			isSortByMeterIDAsc,
 			isSortByMeterIDDesc,
 			isSortByStatusActive,
 			isSortByStatusInactive,
+			currentBuildingLabel,
+			isOverall,
 		} = this.state;
 
 		let lsDeviceDisplay = lsDevice.slice();
@@ -281,8 +300,49 @@ class Meter extends React.Component {
 						</Container>
 					</div>
 				) : (
-					<Row>
-						<Col sm={2}></Col>
+					<Row className="row-diagram">
+						<Col sm={2}>
+							<div className="building-list-pane">
+								<p id="heading-1">Building</p>
+								<Row
+									className="row-overall"
+									style={{ opacity: isOverall ? 1 : 0.5 }}
+									onClick={() => this.setState({ isOverall: true })}
+								>
+									Overall
+								</Row>
+								{lsBuilding.map((bld) => (
+									<div>
+										<Row
+											className="row-building"
+											style={{
+												opacity: isOverall
+													? 1
+													: bld.label === currentBuildingLabel
+													? 1
+													: 0.5,
+											}}
+											onClick={() =>
+												this.setState({
+													currentBuildingLabel: bld.label,
+													isOverall: false,
+												})
+											}
+										>
+											<Col sm={2} className="col-square-building">
+												<div
+													className="square-building"
+													style={{
+														backgroundColor: bld.color_code,
+													}}
+												></div>
+											</Col>
+											<Col sm={10}>{bld.label}</Col>
+										</Row>
+									</div>
+								))}
+							</div>
+						</Col>
 					</Row>
 				)}
 			</div>

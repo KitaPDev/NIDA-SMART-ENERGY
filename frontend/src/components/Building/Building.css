@@ -21,6 +21,8 @@
 
 .row-building {
 	margin-top: 1rem !important;
+	margin-left: auto !important;
+	margin-right: auto !important;
 	font-size: 125%;
 	font-weight: 600;
 	padding-left: 1rem;

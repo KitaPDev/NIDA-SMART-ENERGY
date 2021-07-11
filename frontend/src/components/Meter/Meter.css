@@ -44,3 +44,20 @@
 .meter button.active:focus {
 	box-shadow: none;
 }
+
+.meter .row-diagram {
+	padding: 1rem;
+}
+
+.meter .row-overall {
+	margin: auto;
+	font-size: 120%;
+	font-weight: bold;
+	text-transform: uppercase;
+	justify-content: center;
+}
+
+.meter .row-overall:hover {
+	cursor: pointer;
+	background-color: #b4d7ff;
+}
