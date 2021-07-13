@@ -3,6 +3,8 @@ const app = require("../app");
 const dotenv = require("dotenv");
 const db = require("../database");
 
+const api = require("../api");
+
 dotenv.config();
 
 port = process.env.PORT;
@@ -16,8 +18,8 @@ server.listen(port, async function () {
 		console.log("DATABASE CONNECTION SUCCESSFUL");
 	} else {
 		console.log("DATABASE CONNECTION FAILED");
-		process.exit(1);
 	}
 
+	api.getToken();
 	console.log("Server listening on port " + port + ".");
 });
