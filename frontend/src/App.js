@@ -19,7 +19,13 @@ import ActivityLog from "./components/User/ActivityLog/ActivityLog";
 import UserManagement from "./components/User/UserManagement/UserManagement";
 import SetPermission from "./components/User/SetPermission/SetPermission";
 
+const apiService = require("./services/api");
+
 class App extends React.Component {
+	componentDidMount() {
+		apiService.start();
+	}
+
 	render() {
 		return (
 			<div>

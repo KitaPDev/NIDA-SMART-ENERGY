@@ -1,7 +1,7 @@
 import React from "react";
 import "./SetPermission.css";
 import { Row, Col, Container, Table, Input } from "reactstrap";
-import http from "../../../util/httpService";
+import http from "../../../util/http";
 
 class SetPermission extends React.Component {
 	constructor(props) {

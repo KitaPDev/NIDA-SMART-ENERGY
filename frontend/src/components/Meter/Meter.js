@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import { IoMdSearch } from "react-icons/io";
 import dateFormatter from "../../util/dateFormatter";
-import http from "../../util/httpService";
+import http from "../../util/http";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
 class Meter extends React.Component {

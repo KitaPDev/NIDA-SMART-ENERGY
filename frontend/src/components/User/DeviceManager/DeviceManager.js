@@ -20,7 +20,7 @@ import { IoMdSearch, IoMdAddCircle } from "react-icons/io";
 import { MdModeEdit, MdDelete } from "react-icons/md";
 import { GiConfirmed, GiCancel } from "react-icons/gi";
 import dateFormatter from "../../../util/dateFormatter";
-import http from "../../../util/httpService";
+import http from "../../../util/http";
 
 const tzOffset = new Date().getTimezoneOffset() * 60000;
 

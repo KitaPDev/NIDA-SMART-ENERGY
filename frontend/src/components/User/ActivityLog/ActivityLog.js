@@ -11,7 +11,7 @@ import {
 	Table,
 } from "reactstrap";
 import { IoMdSearch } from "react-icons/io";
-import http from "../../../util/httpService";
+import http from "../../../util/http";
 import dateFormatter from "../../../util/dateFormatter";
 import { RiFileExcel2Fill } from "react-icons/ri";
 

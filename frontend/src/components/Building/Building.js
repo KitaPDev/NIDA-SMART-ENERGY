@@ -14,7 +14,7 @@ import {
 	DropdownItem,
 } from "reactstrap";
 import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
-import http from "../../util/httpService";
+import http from "../../util/http";
 
 class Building extends React.Component {
 	constructor(props) {

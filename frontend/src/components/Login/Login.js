@@ -11,7 +11,7 @@ import {
 	Input,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import http from "../../util/httpService";
+import http from "../../util/http";
 
 class Login extends React.Component {
 	constructor(props) {
