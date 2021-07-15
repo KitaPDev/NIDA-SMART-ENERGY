@@ -14,7 +14,7 @@ async function getAllDevice(req, res) {
 async function newDevice(req, res) {
 	try {
 		let body = req.body;
-		let meterID = body.meter_id;
+		let deviceID = body.id;
 		let building = body.building;
 		let floor = body.floor;
 		let location = body.location;
@@ -25,7 +25,7 @@ async function newDevice(req, res) {
 		let activatedDate = new Date(body.activated_date);
 
 		await deviceService.insertDevice(
-			meterID,
+			deviceID,
 			building,
 			floor,
 			location,
@@ -45,7 +45,7 @@ async function newDevice(req, res) {
 async function editDevice(req, res) {
 	try {
 		let body = req.body;
-		let meterID = body.meter_id;
+		let deviceID = body.id;
 		let building = body.building;
 		let floor = body.floor;
 		let location = body.location;
@@ -55,7 +55,7 @@ async function editDevice(req, res) {
 		let activatedDate = new Date(body.activated_date);
 
 		await deviceService.updateDevice(
-			meterID,
+			deviceID,
 			building,
 			floor,
 			location,

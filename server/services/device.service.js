@@ -10,7 +10,7 @@ async function getAllDevice(from, to) {
 			"electrical_system.id"
 		)
 		.select(
-			"device.meter_id",
+			"device.id",
 			"building.label as building",
 			"device.brand_model",
 			"device.floor",
@@ -25,7 +25,7 @@ async function getAllDevice(from, to) {
 }
 
 async function insertDevice(
-	meterID,
+	deviceID,
 	building,
 	floor,
 	location,
@@ -44,6 +44,7 @@ async function insertDevice(
 	let electricalSystemID = result[0].id;
 
 	await knex("device").insert({
+		id: deviceID,
 		building_id: buildingID,
 		electrical_system_id: electricalSystemID,
 		brand_model: brandModel,
@@ -54,13 +55,12 @@ async function insertDevice(
 			.slice(0, 19)
 			.replace("T", " "),
 		is_active: isActive,
-		meter_id: meterID,
 		floor: floor,
 	});
 }
 
 async function updateDevice(
-	meterID,
+	deviceID,
 	building,
 	floor,
 	location,
@@ -78,8 +78,9 @@ async function updateDevice(
 	let electricalSystemID = result[0].id;
 
 	await knex("device")
-		.where({ meter_id: meterID })
+		.where({ id: deviceID })
 		.update({
+			id: deviceID,
 			building_id: buildingID,
 			electrical_system_id: electricalSystemID,
 			brand_model: brandModel,
@@ -89,7 +90,6 @@ async function updateDevice(
 				.toISOString()
 				.slice(0, 19)
 				.replace("T", " "),
-			meter_id: meterID,
 			floor: floor,
 		});
 }

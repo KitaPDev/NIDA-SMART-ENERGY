@@ -31,16 +31,18 @@ class DeviceManager extends React.Component {
 			lsDevice: [],
 			lsBuilding: [],
 			lsElectricalSystem: [],
-			isSortByMeterIDAsc: false,
-			isSortByMeterIDDesc: false,
+			isSortByDeviceIDAsc: false,
+			isSortByDeviceIDDesc: false,
 			isSortByStatusActive: false,
 			isSortByStatusInactive: false,
+			isSortByDateActivatedAsc: false,
+			isSortByDateActivatedDesc: false,
 			searchText: "",
 			isModalAddMeterOpen: false,
 			isModalConfirmAddMeterOpen: false,
 			isModalConfirmEditMeterOpen: false,
 			isModalConfirmDeleteMeterOpen: false,
-			meterIDEdit: "",
+			deviceIDEdit: "",
 			building: "",
 			floor: 0,
 			location: "",
@@ -51,11 +53,11 @@ class DeviceManager extends React.Component {
 			activatedDate: new Date(Date.now() - tzOffset)
 				.toISOString()
 				.substring(0, 16),
-			meterIDEdit: -1,
 		};
 
-		this.toggleSortByMeterID = this.toggleSortByMeterID.bind(this);
+		this.toggleSortByDeviceID = this.toggleSortByDeviceID.bind(this);
 		this.toggleSortByStatus = this.toggleSortByStatus.bind(this);
+		this.toggleSortByDateActivated = this.toggleSortByDateActivated.bind(this);
 		this.toggleModalAddMeter = this.toggleModalAddMeter.bind(this);
 		this.toggleModalConfirmAddMeter =
 			this.toggleModalConfirmAddMeter.bind(this);
@@ -79,29 +81,35 @@ class DeviceManager extends React.Component {
 		this.getAllDevice();
 	}
 
-	toggleSortByMeterID() {
-		let { isSortByMeterIDAsc, isSortByMeterIDDesc } = this.state;
+	toggleSortByDeviceID() {
+		let { isSortByDeviceIDAsc, isSortByDeviceIDDesc } = this.state;
 
-		if (!(isSortByMeterIDAsc || isSortByMeterIDDesc)) {
+		if (!(isSortByDeviceIDAsc || isSortByDeviceIDDesc)) {
 			this.setState({
-				isSortByMeterIDAsc: true,
-				isSortByMeterIDDesc: false,
+				isSortByDeviceIDAsc: true,
+				isSortByDeviceIDDesc: false,
 				isSortByStatusActive: false,
 				isSortByStatusInactive: false,
+				isSortByDateActivatedAsc: false,
+				isSortByDateActivatedDesc: false,
 			});
-		} else if (isSortByMeterIDAsc) {
+		} else if (isSortByDeviceIDAsc) {
 			this.setState({
-				isSortByMeterIDAsc: false,
-				isSortByMeterIDDesc: true,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: true,
 				isSortByStatusActive: false,
 				isSortByStatusInactive: false,
+				isSortByDateActivatedAsc: false,
+				isSortByDateActivatedDesc: false,
 			});
-		} else if (isSortByMeterIDDesc) {
+		} else if (isSortByDeviceIDDesc) {
 			this.setState({
-				isSortByMeterIDAsc: true,
-				isSortByMeterIDDesc: false,
+				isSortByDeviceIDAsc: true,
+				isSortByDeviceIDDesc: false,
 				isSortByStatusActive: false,
 				isSortByStatusInactive: false,
+				isSortByDateActivatedAsc: false,
+				isSortByDateActivatedDesc: false,
 			});
 		}
 	}
@@ -113,22 +121,61 @@ class DeviceManager extends React.Component {
 			this.setState({
 				isSortByStatusActive: true,
 				isSortByStatusInactive: false,
-				isSortByMeterIDAsc: false,
-				isSortByMeterIDDesc: false,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: false,
+				isSortByDateActivatedAsc: false,
+				isSortByDateActivatedDesc: false,
 			});
 		} else if (isSortByStatusActive) {
 			this.setState({
 				isSortByStatusActive: false,
 				isSortByStatusInactive: true,
-				isSortByMeterIDAsc: false,
-				isSortByMeterIDDesc: false,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: false,
+				isSortByDateActivatedAsc: false,
+				isSortByDateActivatedDesc: false,
 			});
 		} else if (isSortByStatusInactive) {
 			this.setState({
 				isSortByStatusActive: true,
 				isSortByStatusInactive: false,
-				isSortByMeterIDAsc: false,
-				isSortByMeterIDDesc: false,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: false,
+				isSortByDateActivatedAsc: false,
+				isSortByDateActivatedDesc: false,
+			});
+		}
+	}
+
+	toggleSortByDateActivated() {
+		let { isSortByDateActivatedAsc, isSortByDateActivatedDesc } = this.state;
+
+		if (!(isSortByDateActivatedAsc || isSortByDateActivatedDesc)) {
+			this.setState({
+				isSortByDateActivatedAsc: true,
+				isSortByDateActivatedDesc: false,
+				isSortByStatusActive: false,
+				isSortByStatusInactive: false,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: false,
+			});
+		} else if (isSortByDateActivatedAsc) {
+			this.setState({
+				isSortByDateActivatedDesc: true,
+				isSortByDateActivatedAsc: false,
+				isSortByStatusActive: false,
+				isSortByStatusInactive: false,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: false,
+			});
+		} else if (isSortByDateActivatedDesc) {
+			this.setState({
+				isSortByDateActivatedAsc: true,
+				isSortByDateActivatedDesc: false,
+				isSortByStatusActive: false,
+				isSortByStatusInactive: false,
+				isSortByDeviceIDAsc: false,
+				isSortByDeviceIDDesc: false,
 			});
 		}
 	}
@@ -136,8 +183,8 @@ class DeviceManager extends React.Component {
 	toggleModalAddMeter() {
 		this.setState((prevState) => ({
 			isModalAddMeterOpen: !prevState.isModalAddMeterOpen,
-			meterIDEdit: -1,
-			meterID: "",
+			devicededit: -1,
+			deviceID: "",
 			building: "",
 			floor: 0,
 			location: "",
@@ -208,7 +255,7 @@ class DeviceManager extends React.Component {
 
 	async addMeter() {
 		let {
-			meterID,
+			deviceID,
 			building,
 			floor,
 			location,
@@ -219,7 +266,7 @@ class DeviceManager extends React.Component {
 		} = this.state;
 
 		try {
-			if (meterID.length === 0) {
+			if (deviceID.length === 0) {
 				alert("Meter ID is required.");
 			}
 
@@ -244,7 +291,7 @@ class DeviceManager extends React.Component {
 			}
 
 			let payload = {
-				meter_id: meterID,
+				id: deviceID,
 				building: building,
 				floor: floor,
 				location: location,
@@ -268,11 +315,11 @@ class DeviceManager extends React.Component {
 		}
 	}
 
-	setMeterEditMode(meterID) {
-		if (meterID !== -1) {
+	setMeterEditMode(deviceID) {
+		if (deviceID !== -1) {
 			let { lsDevice } = this.state;
 			let device = lsDevice.find((device) => {
-				return device.meter_id === meterID;
+				return device.id === deviceID;
 			});
 
 			this.setState({
@@ -286,12 +333,12 @@ class DeviceManager extends React.Component {
 			});
 		}
 
-		this.setState({ meterIDEdit: meterID });
+		this.setState({ deviceIDEdit: deviceID });
 	}
 
 	async editMeter() {
 		let {
-			meterIDEdit,
+			deviceIDEdit,
 			building,
 			floor,
 			location,
@@ -302,7 +349,7 @@ class DeviceManager extends React.Component {
 		} = this.state;
 
 		try {
-			if (meterIDEdit.length === 0) {
+			if (deviceIDEdit.length === 0) {
 				alert("Meter ID is required.");
 			}
 
@@ -327,7 +374,7 @@ class DeviceManager extends React.Component {
 			}
 
 			let payload = {
-				meter_id: meterIDEdit,
+				id: deviceIDEdit,
 				building: building,
 				floor: floor,
 				location: location,
@@ -341,7 +388,7 @@ class DeviceManager extends React.Component {
 
 			if (resp.status === 200) {
 				alert("Meter has been edited.");
-				this.setState({ meterIDEdit: -1 });
+				this.setState({ deviceIDEdit: -1 });
 			}
 		} catch (err) {
 			console.log(err);
@@ -352,9 +399,9 @@ class DeviceManager extends React.Component {
 
 	async deleteMeter() {
 		try {
-			let { meterIDEdit } = this.state;
+			let { deviceIDEdit } = this.state;
 
-			let payload = { meter_id: meterIDEdit };
+			let payload = { id: deviceIDEdit };
 
 			let resp = await http.post("/device/delete", payload);
 
@@ -371,10 +418,12 @@ class DeviceManager extends React.Component {
 	render() {
 		let {
 			lsDevice,
-			isSortByMeterIDAsc,
-			isSortByMeterIDDesc,
+			isSortByDeviceIDAsc,
+			isSortByDeviceIDDesc,
 			isSortByStatusActive,
 			isSortByStatusInactive,
+			isSortByDateActivatedAsc,
+			isSortByDateActivatedDesc,
 			searchText,
 			isModalAddMeterOpen,
 			isModalConfirmAddMeterOpen,
@@ -389,19 +438,15 @@ class DeviceManager extends React.Component {
 			activatedDate,
 			lsBuilding,
 			lsElectricalSystem,
-			meterIDEdit,
+			deviceIDEdit,
 		} = this.state;
 
 		let lsDeviceDisplay = lsDevice.slice();
 
-		if (isSortByMeterIDAsc) {
-			lsDeviceDisplay.sort((a, b) =>
-				a.meter_id > b.meter_id ? 1 : b.meter_id > a.meter_id ? -1 : 0
-			);
-		} else if (isSortByMeterIDDesc) {
-			lsDeviceDisplay.sort((a, b) =>
-				a.meter_id > b.meter_id ? -1 : b.meter_id > a.meter_id ? 1 : 0
-			);
+		if (isSortByDeviceIDAsc) {
+			lsDeviceDisplay.sort((a, b) => (a.id > b.id ? 1 : b.id > a.id ? -1 : 0));
+		} else if (isSortByDeviceIDDesc) {
+			lsDeviceDisplay.sort((a, b) => (a.id > b.id ? -1 : b.id > a.id ? 1 : 0));
 		} else if (isSortByStatusActive) {
 			lsDeviceDisplay.sort((a, b) =>
 				a.is_active === 1 ? -1 : a.is_active === 0 ? 1 : 0
@@ -410,12 +455,24 @@ class DeviceManager extends React.Component {
 			lsDeviceDisplay.sort((a, b) =>
 				a.is_active === 0 ? -1 : a.is_active === 1 ? 1 : 0
 			);
+		} else if (isSortByDateActivatedAsc) {
+			lsDeviceDisplay.sort(
+				(a, b) =>
+					new Date(a.activated_timestamp).getTime() -
+					new Date(b.activated_timestamp).getTime()
+			);
+		} else if (isSortByDateActivatedDesc) {
+			lsDeviceDisplay.sort(
+				(a, b) =>
+					new Date(b.activated_timestamp).getTime() -
+					new Date(a.activated_timestamp).getTime()
+			);
 		}
 
 		if (searchText.length > 0) {
 			lsDeviceDisplay = lsDeviceDisplay.filter((device, index) => {
 				return (
-					device.meter_id.includes(searchText) ||
+					device.id.includes(searchText) ||
 					device.building.includes(searchText) ||
 					device.location.includes(searchText) ||
 					device.site.includes(searchText) ||
@@ -461,13 +518,13 @@ class DeviceManager extends React.Component {
 							<tr>
 								<th
 									className={
-										isSortByMeterIDAsc
+										isSortByDeviceIDAsc
 											? "sort_asc"
-											: isSortByMeterIDDesc
+											: isSortByDeviceIDDesc
 											? "sort_desc"
 											: "sort"
 									}
-									onClick={this.toggleSortByMeterID}
+									onClick={this.toggleSortByDeviceID}
 								>
 									Meter ID
 								</th>
@@ -477,7 +534,7 @@ class DeviceManager extends React.Component {
 								<th>Site</th>
 								<th>Brand / Model</th>
 								<th>System</th>
-								{meterIDEdit !== -1 ? (
+								{deviceIDEdit !== -1 ? (
 									""
 								) : (
 									<th
@@ -494,7 +551,18 @@ class DeviceManager extends React.Component {
 									</th>
 								)}
 
-								<th>Activated Date</th>
+								<th
+									className={
+										isSortByDateActivatedAsc
+											? "sort_asc"
+											: isSortByDateActivatedDesc
+											? "sort_desc"
+											: "sort"
+									}
+									onClick={this.toggleSortByDateActivated}
+								>
+									Activated Date
+								</th>
 								<th></th>
 								<th></th>
 							</tr>
@@ -503,20 +571,20 @@ class DeviceManager extends React.Component {
 							{lsDeviceDisplay.map((device, index) => (
 								<tr>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="text"
-												name="meterID"
-												id="meterID"
-												value={meterIDEdit}
+												name="deviceID"
+												id="deviceID"
+												value={deviceIDEdit}
 												onChange={this.handleInputChange}
 											/>
 										) : (
-											device.meter_id
+											device.id
 										)}
 									</td>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="select"
 												name="building"
@@ -533,7 +601,7 @@ class DeviceManager extends React.Component {
 										)}
 									</td>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="number"
 												name="floor"
@@ -547,7 +615,7 @@ class DeviceManager extends React.Component {
 										)}
 									</td>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="text"
 												name="location"
@@ -560,7 +628,7 @@ class DeviceManager extends React.Component {
 										)}
 									</td>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="text"
 												name="location"
@@ -573,7 +641,7 @@ class DeviceManager extends React.Component {
 										)}
 									</td>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="text"
 												name="brandModel"
@@ -586,7 +654,7 @@ class DeviceManager extends React.Component {
 										)}
 									</td>
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="select"
 												name="system"
@@ -602,7 +670,7 @@ class DeviceManager extends React.Component {
 											device.system
 										)}
 									</td>
-									{meterIDEdit === device.meter_id ? (
+									{deviceIDEdit === device.id ? (
 										""
 									) : (
 										<td>
@@ -614,11 +682,12 @@ class DeviceManager extends React.Component {
 										</td>
 									)}
 									<td>
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<Input
 												type="datetime-local"
 												name="activatedDate"
 												id="activatedDate"
+												placeholder="datetime placeholder"
 												value={activatedDate}
 												onChange={this.handleInputChange}
 											/>
@@ -629,7 +698,7 @@ class DeviceManager extends React.Component {
 										)}
 									</td>
 									<td className="icon">
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<GiConfirmed
 												size={20}
 												onClick={() => this.toggleModalConfirmEditMeter()}
@@ -637,12 +706,12 @@ class DeviceManager extends React.Component {
 										) : (
 											<MdModeEdit
 												size={20}
-												onClick={() => this.setMeterEditMode(device.meter_id)}
+												onClick={() => this.setMeterEditMode(device.id)}
 											/>
 										)}
 									</td>
 									<td className="icon">
-										{meterIDEdit === device.meter_id ? (
+										{deviceIDEdit === device.id ? (
 											<GiCancel
 												size={20}
 												onClick={() => this.setMeterEditMode(-1)}
@@ -671,15 +740,15 @@ class DeviceManager extends React.Component {
 					<ModalBody>
 						<Form className="form-add-meter">
 							<FormGroup row>
-								<Label for="meterID" sm={2} className="label-meterID">
+								<Label for="deviceID" sm={2} className="label-deviceID">
 									Meter ID
 								</Label>
 								<Col sm={4}>
 									<Input
 										type="text"
-										name="meterID"
-										id="meterID"
-										value={meterIDEdit}
+										name="deviceID"
+										id="deviceID"
+										value={deviceIDEdit}
 										onChange={this.handleInputChange}
 									/>
 								</Col>

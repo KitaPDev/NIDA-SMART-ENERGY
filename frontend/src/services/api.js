@@ -1,9 +1,11 @@
 import axios from "axios";
+import dateFormatter from "../util/dateFormatter";
 
 const FormData = require("form-data");
 
 let accessToken = "";
 let dateZero = new Date(2021, 5, 22);
+let updateDataDelay = 3000;
 
 const username = process.env.REACT_APP_NIDA_API_USERNAME;
 const password = process.env.REACT_APP_NIDA_API_PASSWORD;
@@ -32,7 +34,7 @@ axiosInstance.interceptors.response.use(
 
 async function start() {
 	intervalGetToken = setInterval(getToken, 5000);
-	intervalUpdateData = setInterval(updateDataPower, 3000);
+	setTimeout(updateDataPower, updateDataDelay);
 }
 
 async function updateDataPower() {
@@ -40,10 +42,41 @@ async function updateDataPower() {
 		return;
 	}
 
+	updateDataDelay = 900000;
+
 	try {
+		let dataPower = localStorage.getItem("data_power");
+		let dateStart = dateFormatter.yyyymmddhhmmss(dateZero);
+		let dateEnd = dateFormatter.yyyymmddhhmmss(new Date());
+
+		if (dataPower !== undefined) {
+			if (dataPower.length > 0) {
+				dataPower.sort(
+					(a, b) =>
+						new Date(a.DataDateTime).getTime() -
+						new Date(b.DataDateTime).getTime()
+				);
+
+				dateStart = dateFormatter.yyyymmddhhmmss(
+					new Date(dataPower[0].DataDateTime)
+				);
+			}
+		}
+
+		let form = new FormData();
+		form.append("startdatetime", dateStart);
+		form.append("enddatetime", dateEnd);
+
+		let payload = {
+			data: form,
+		};
+
+		let resp = await axiosInstance.post("/api/powermeter/datetime", payload);
 	} catch (err) {
 		console.log(err);
 	}
+
+	setTimeout(updateDataPower, updateDataDelay);
 }
 
 async function getToken() {
