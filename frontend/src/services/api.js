@@ -1,17 +1,18 @@
 import axios from "axios";
-import dateFormatter from "../util/dateFormatter";
+import dateFormatter from "../utils/dateFormatter";
 
 const FormData = require("form-data");
 
 let accessToken = "";
-let dateZero = new Date(2021, 5, 22);
+let dateZero = new Date(
+	new Date(2021, 5, 22).getTime() + new Date().getTimezoneOffset() * 60000
+);
 let updateDataDelay = 3000;
 
 const username = process.env.REACT_APP_NIDA_API_USERNAME;
 const password = process.env.REACT_APP_NIDA_API_PASSWORD;
 
 let intervalGetToken;
-let intervalUpdateData;
 
 const axiosInstance = axios.create({
 	baseURL: process.env.REACT_APP_NIDA_API_BASE_URL,
@@ -39,6 +40,7 @@ async function start() {
 
 async function updateDataPower() {
 	if (accessToken.length === 0) {
+		setTimeout(updateDataPower, updateDataDelay);
 		return;
 	}
 
@@ -49,7 +51,7 @@ async function updateDataPower() {
 		let dateStart = dateFormatter.yyyymmddhhmmss(dateZero);
 		let dateEnd = dateFormatter.yyyymmddhhmmss(new Date());
 
-		if (dataPower !== undefined) {
+		if (dataPower !== undefined && dataPower !== null) {
 			if (dataPower.length > 0) {
 				dataPower.sort(
 					(a, b) =>
@@ -67,13 +69,26 @@ async function updateDataPower() {
 		form.append("startdatetime", dateStart);
 		form.append("enddatetime", dateEnd);
 
-		let payload = {
-			data: form,
+		let data = {
+			startdatetime: dateStart,
+			enddatetime: dateEnd,
 		};
 
-		let resp = await axiosInstance.post("/api/powermeter/datetime", payload);
+		let resp = await axios.post(
+			"http://api2energy.nida.ac.th/api/powermeter/datetime",
+			data,
+			{
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: "Bearer " + accessToken,
+				},
+			}
+		);
+
+		setTimeout(updateDataPower, updateDataDelay);
 	} catch (err) {
 		console.log(err);
+		updateDataDelay = 3000;
 	}
 
 	setTimeout(updateDataPower, updateDataDelay);
@@ -115,10 +130,13 @@ async function getDataPowerByDeviceID(deviceID) {
 		let form = new FormData();
 		form.append("deviceid", deviceID);
 
-		let resp = await axiosInstance.post("/api/powermeter/device/lastupdate", {
-			headers: { Authorization: "Bearer " + accessToken },
-			data: form,
-		});
+		let resp = await axiosInstance.post(
+			"/api/powermeter/device/lastupdate",
+			form,
+			{
+				headers: { Authorization: "Bearer " + accessToken },
+			}
+		);
 
 		return resp.data.data;
 	} catch (err) {
@@ -132,10 +150,13 @@ async function getAllDataPowerByDatetime(datetimeBegin, datetimeEnd) {
 		form.append("startdatetime", datetimeBegin);
 		form.append("enddatetime", datetimeEnd);
 
-		let resp = await axiosInstance.post("/api/powermeter/device/lastupdate", {
-			headers: { Authorization: "Bearer " + accessToken },
-			data: form,
-		});
+		let resp = await axiosInstance.post(
+			"/api/powermeter/device/lastupdate",
+			form,
+			{
+				headers: { Authorization: "Bearer " + accessToken },
+			}
+		);
 
 		return resp.data.data;
 	} catch (err) {

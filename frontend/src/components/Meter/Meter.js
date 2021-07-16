@@ -162,13 +162,9 @@ class Meter extends React.Component {
 		let lsDeviceDisplay = lsDevice.slice();
 
 		if (isSortByMeterIDAsc) {
-			lsDeviceDisplay.sort((a, b) =>
-				a.meter_id > b.meter_id ? 1 : b.meter_id > a.meter_id ? -1 : 0
-			);
+			lsDeviceDisplay.sort((a, b) => (a.id > b.id ? 1 : b.id > a.id ? -1 : 0));
 		} else if (isSortByMeterIDDesc) {
-			lsDeviceDisplay.sort((a, b) =>
-				a.meter_id > b.meter_id ? -1 : b.meter_id > a.meter_id ? 1 : 0
-			);
+			lsDeviceDisplay.sort((a, b) => (a.id > b.id ? -1 : b.id > a.id ? 1 : 0));
 		} else if (isSortByStatusActive) {
 			lsDeviceDisplay.sort((a, b) =>
 				a.is_active === 1 ? -1 : a.is_active === 0 ? 1 : 0
@@ -182,7 +178,7 @@ class Meter extends React.Component {
 		if (searchText.length > 0) {
 			lsDeviceDisplay = lsDeviceDisplay.filter((device, index) => {
 				return (
-					device.meter_id.includes(searchText) ||
+					device.id.includes(searchText) ||
 					device.building.includes(searchText) ||
 					device.location.includes(searchText) ||
 					device.site.includes(searchText) ||
@@ -281,7 +277,7 @@ class Meter extends React.Component {
 								<tbody>
 									{lsDeviceDisplay.map((device, index) => (
 										<tr>
-											<td>{device.meter_id}</td>
+											<td>{device.id}</td>
 											<td>{device.building}</td>
 											<td>{device.floor}</td>
 											<td>{device.location}</td>

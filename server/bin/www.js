@@ -2,6 +2,7 @@ const http = require("http");
 const app = require("../app");
 const dotenv = require("dotenv");
 const db = require("../database");
+const apiService = require("../api");
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ server.listen(port, async function () {
 	} else {
 		console.log("DATABASE CONNECTION FAILED");
 	}
+
+	apiService.start();
 
 	console.log("Server listening on port " + port + ".");
 });
