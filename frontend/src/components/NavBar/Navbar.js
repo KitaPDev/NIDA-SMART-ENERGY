@@ -24,7 +24,7 @@ import {
 } from "react-icons/fa";
 import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
-import http from "../../util/http";
+import http from "../../utils/http";
 
 const lsMonthName = [
 	"January",

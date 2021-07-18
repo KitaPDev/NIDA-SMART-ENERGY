@@ -9,8 +9,27 @@ async function getAll(req, res) {
 		);
 		return res.status(httpStatusCodes.OK).send(lsBuilding);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
 
-module.exports = { getAll };
+async function getBuildingPowerByDatetime(req, res) {
+	try {
+		let body = req.body;
+		let start = body.start;
+		let end = body.end;
+
+		let lsPowerData = await buildingService.getBuildingPowerByDatetime(
+			start,
+			end
+		);
+
+		return res.status(httpStatusCodes.OK).send(lsPowerData);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+module.exports = { getAll, getBuildingPowerByDatetime };

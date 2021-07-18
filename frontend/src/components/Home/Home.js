@@ -5,58 +5,181 @@ import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
 import PieChartElectricalSystem from "./PieChartElectricalSystem/PieChartElectricalSystem";
 import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
 import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
+import http from "../../utils/http";
 
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			lsSelectedBuilding: [],
+			lsBuilding: [],
+			lsLogPower_Building: [],
+			mea: 0,
+			solar: 0,
+			currentTime: new Date().toLocaleString([], {
+				hour: "2-digit",
+				minute: "2-digit",
+				hour12: false,
+			}),
+			buildingPath: window.location.origin + "/building/",
+			propsPath: window.location.origin + "/props/",
 		};
 
 		this.numberWithCommas = this.numberWithCommas.bind(this);
+		this.getAllBuilding = this.getAllBuilding.bind(this);
+		this.getPowerData = this.getPowerData.bind(this);
+		this.onClickBuilding = this.onClickBuilding.bind(this);
 	}
 
 	numberWithCommas(x) {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	}
 
+	componentDidMount() {
+		this.getAllBuilding();
+		this.getPowerData();
+
+		this.interval = setInterval(
+			() =>
+				this.setState({
+					currentTime: new Date().toLocaleString([], {
+						hour: "2-digit",
+						minute: "2-digit",
+						hour12: false,
+					}),
+				}),
+			500
+		);
+
+		this.interval = setInterval(() => this.getPowerData(), 900000);
+	}
+
+	async getAllBuilding() {
+		try {
+			let resp = await http.get("/building/all");
+
+			this.setState({ lsBuilding: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getPowerData() {
+		try {
+			let today = new Date();
+
+			let payload = {
+				start: new Date(
+					today.getFullYear(),
+					today.getMonth(),
+					today.getDate(),
+					0,
+					0,
+					0
+				),
+				end: new Date(),
+			};
+
+			let resp = await http.post("/building/power/datetime", payload);
+
+			let lsPowerData = resp.data;
+			let lsLogPower_Building = [];
+			let mea = 0;
+			let solar = 0;
+
+			for (let data of lsPowerData) {
+				if (lsLogPower_Building[data.building] === undefined) {
+					lsLogPower_Building[data.building] = [];
+				}
+
+				lsLogPower_Building[data.building].push({
+					data_datetime: data.data_datetime,
+					floor: data.floor,
+					system: data.system,
+					kw: data.kw,
+					kwh: data.kwh,
+				});
+
+				if (data.system !== "Solar") {
+					mea += data.kwh;
+				} else {
+					solar += data.kwh;
+				}
+			}
+
+			this.setState({
+				lsLogPower_Building: lsLogPower_Building,
+				mea: mea,
+				solar: solar,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	onClickBuilding(building) {
+		let { lsSelectedBuilding } = this.state;
+
+		if (lsSelectedBuilding.find((b) => b === building) === undefined) {
+			lsSelectedBuilding.push(building);
+			this.setState({ lsSelectedBuilding: lsSelectedBuilding });
+		} else {
+			this.setState({
+				lsSelectedBuilding: lsSelectedBuilding.filter((b) => b !== building),
+			});
+		}
+	}
+
 	render() {
+		let {
+			currentTime,
+			propsPath,
+			buildingPath,
+			lsBuilding,
+			lsSelectedBuilding,
+			lsLogPower_Building,
+			mea,
+			solar,
+		} = this.state;
+
 		let target = 600000;
 		let electricityBill = 350000;
 		let solarSavings = 10000;
 
-		let lsLogPower_Building = [
-			{
-				building: "Navamin",
-				data: [
-					{ log_timestamp: "2021-06-08T00:00:00Z", ac: 18, others: 12 },
-					{ log_timestamp: "2021-06-08T00:15:00Z", ac: 13, others: 11 },
-					{ log_timestamp: "2021-06-08T00:30:00Z", ac: 14, others: 14 },
-					{ log_timestamp: "2021-06-08T00:45:00Z", ac: 12, others: 15 },
-					{ log_timestamp: "2021-06-08T01:00:00Z", ac: 18, others: 14 },
-					{ log_timestamp: "2021-06-08T01:15:00Z", ac: 19, others: 13 },
-					{ log_timestamp: "2021-06-08T01:30:00Z", ac: 15, others: 12 },
-					{ log_timestamp: "2021-06-08T01:45:00Z", ac: 16, others: 11 },
-					{ log_timestamp: "2021-06-08T02:00:00Z", ac: 17, others: 12 },
-					{ log_timestamp: "2021-06-08T02:15:00Z", ac: 11, others: 10 },
-				],
-			},
-			{
-				building: "Auditorium",
-				data: [
-					{ log_timestamp: "2021-06-08T00:00:00Z", ac: 16, others: 1 },
-					{ log_timestamp: "2021-06-08T00:15:00Z", ac: 14, others: 3 },
-					{ log_timestamp: "2021-06-08T00:30:00Z", ac: 5, others: 2 },
-					{ log_timestamp: "2021-06-08T00:45:00Z", ac: 8, others: 6 },
-					{ log_timestamp: "2021-06-08T01:00:00Z", ac: 9, others: 7 },
-					{ log_timestamp: "2021-06-08T01:15:00Z", ac: 3, others: 9 },
-					{ log_timestamp: "2021-06-08T01:30:00Z", ac: 4, others: 5 },
-					{ log_timestamp: "2021-06-08T01:45:00Z", ac: 7, others: 3 },
-					{ log_timestamp: "2021-06-08T02:00:00Z", ac: 11, others: 1 },
-					{ log_timestamp: "2021-06-08T02:15:00Z", ac: 19, others: 5 },
-				],
-			},
-		];
+		// let lsLogPower_Building = [
+		// 	{
+		// 		building: "Navamin",
+		// 		data: [
+		// 			{ log_timestamp: "2021-06-08T00:00:00Z", ac: 18, others: 12 },
+		// 			{ log_timestamp: "2021-06-08T00:15:00Z", ac: 13, others: 11 },
+		// 			{ log_timestamp: "2021-06-08T00:30:00Z", ac: 14, others: 14 },
+		// 			{ log_timestamp: "2021-06-08T00:45:00Z", ac: 12, others: 15 },
+		// 			{ log_timestamp: "2021-06-08T01:00:00Z", ac: 18, others: 14 },
+		// 			{ log_timestamp: "2021-06-08T01:15:00Z", ac: 19, others: 13 },
+		// 			{ log_timestamp: "2021-06-08T01:30:00Z", ac: 15, others: 12 },
+		// 			{ log_timestamp: "2021-06-08T01:45:00Z", ac: 16, others: 11 },
+		// 			{ log_timestamp: "2021-06-08T02:00:00Z", ac: 17, others: 12 },
+		// 			{ log_timestamp: "2021-06-08T02:15:00Z", ac: 11, others: 10 },
+		// 		],
+		// 	},
+		// 	{
+		// 		building: "Auditorium",
+		// 		data: [
+		// 			{ log_timestamp: "2021-06-08T00:00:00Z", ac: 16, others: 1 },
+		// 			{ log_timestamp: "2021-06-08T00:15:00Z", ac: 14, others: 3 },
+		// 			{ log_timestamp: "2021-06-08T00:30:00Z", ac: 5, others: 2 },
+		// 			{ log_timestamp: "2021-06-08T00:45:00Z", ac: 8, others: 6 },
+		// 			{ log_timestamp: "2021-06-08T01:00:00Z", ac: 9, others: 7 },
+		// 			{ log_timestamp: "2021-06-08T01:15:00Z", ac: 3, others: 9 },
+		// 			{ log_timestamp: "2021-06-08T01:30:00Z", ac: 4, others: 5 },
+		// 			{ log_timestamp: "2021-06-08T01:45:00Z", ac: 7, others: 3 },
+		// 			{ log_timestamp: "2021-06-08T02:00:00Z", ac: 11, others: 1 },
+		// 			{ log_timestamp: "2021-06-08T02:15:00Z", ac: 19, others: 5 },
+		// 		],
+		// 	},
+		// ];
 
 		return (
 			<div>
@@ -101,12 +224,7 @@ class Home extends React.Component {
 											fontWeight: "500",
 										}}
 									>
-										00:00 -{" "}
-										{new Date().toLocaleString([], {
-											hour: "2-digit",
-											minute: "2-digit",
-											hour12: false,
-										})}
+										00:00 - {currentTime}
 									</span>
 									<span style={{ fontSize: "200%", fontWeight: "bold" }}>
 										{this.numberWithCommas(3330)}
@@ -164,13 +282,17 @@ class Home extends React.Component {
 
 								<Row className="row-pie-charts">
 									<Col sm="6">
-										<PieChartEnergySource mea={80} solar={20} />
+										<PieChartEnergySource mea={mea} solar={solar} />
 									</Col>
 									<Col sm="6">
 										<PieChartElectricalSystem
 											ac={710}
 											others={515}
-											building={"Navamin".toUpperCase()}
+											building={
+												lsSelectedBuilding.length === 1
+													? ""
+													: lsSelectedBuilding[0]
+											}
 										/>
 									</Col>
 								</Row>
@@ -308,7 +430,51 @@ class Home extends React.Component {
 
 						{/* ******************************** RIGHT COLUMN ******************************** */}
 						<Col sm="7" style={{ height: "100%" }}>
-							<div className="map-campus"></div>
+							<div className="map-campus">
+								<img
+									className="img-road-1"
+									src={propsPath + "road1.png"}
+									alt={"road.png"}
+								></img>
+								<img
+									className="img-road-2"
+									src={propsPath + "road2.png"}
+									alt={"road2.png"}
+								></img>
+								<img
+									className="img-road-campus"
+									src={propsPath + "road-campus.png"}
+									alt={"in-road.png"}
+								></img>
+								<img
+									className="img-field"
+									src={propsPath + "field.png"}
+									alt={"field.png"}
+								></img>
+								<img
+									className="img-pond"
+									src={propsPath + "pond.png"}
+									alt={"pond.png"}
+								></img>
+								{lsBuilding.map((building) => (
+									<img
+										className={
+											"img-" +
+											building.label.toLowerCase().replace(" ", "-") +
+											" img-building"
+										}
+										src={
+											buildingPath +
+											building.label +
+											"/" +
+											building.label +
+											".png"
+										}
+										alt={building.label + ".png"}
+										onClick={() => this.onClickBuilding(building.label)}
+									></img>
+								))}
+							</div>
 							<div className="footer">
 								<Row style={{ height: "100%" }}>
 									<Col sm="6" style={{ display: "flex" }}>

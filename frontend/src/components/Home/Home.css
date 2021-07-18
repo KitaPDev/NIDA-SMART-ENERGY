@@ -74,12 +74,6 @@
 	height: 200px;
 }
 
-.map-campus {
-	height: 750px;
-	width: 100%;
-	background-color: #bbb;
-}
-
 .footer {
 	height: 100%;
 }
@@ -123,4 +117,94 @@
 
 .legend-percentage {
 	width: fit-content !important;
+}
+
+.map-campus {
+	position: relative;
+	height: 77vh;
+	width: 100%;
+}
+
+.map-campus img {
+	filter: brightness(0.9);
+}
+
+.img-road-1,
+.img-road-2,
+.img-road-campus,
+.img-field,
+.img-pond {
+	position: absolute;
+	max-width: 100%;
+}
+
+.img-building {
+	position: absolute;
+	width: 23%;
+}
+
+.img-building:hover {
+	cursor: pointer;
+	opacity: 0.7;
+}
+
+.img-auditorium {
+	top: 225px;
+	left: 70px;
+	z-index: 1;
+}
+
+.img-serithai {
+	top: 250px;
+	left: -38px;
+}
+
+.img-ratchaphruek {
+	top: 122px;
+	left: 98px;
+	z-index: 2;
+}
+
+.img-naradhip {
+	top: 100px;
+	left: 213px;
+	z-index: 3;
+}
+
+.img-nidasumpun {
+	top: 100px;
+	left: 290px;
+}
+
+.img-choop {
+	top: 110px;
+	left: 390px;
+}
+
+.img-malai {
+	top: 122px;
+	left: 530px;
+	z-index: 1;
+}
+
+.img-nida-house {
+	top: 122px;
+	left: 695px;
+	z-index: 0;
+}
+
+.img-bunchana {
+	top: 208px;
+	left: 740px;
+	z-index: 1;
+}
+
+.img-siam {
+	top: 190px;
+	left: 370px;
+}
+
+.img-navamin {
+	top: 230px;
+	left: 280px;
 }

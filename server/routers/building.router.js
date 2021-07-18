@@ -8,4 +8,8 @@ router.get("/all", authenticateJWT, async function (req, res) {
 	buildingController.getAll(req, res);
 });
 
+router.post("/power/datetime", authenticateJWT, async function (req, res) {
+	buildingController.getBuildingPowerByDatetime(req, res);
+});
+
 module.exports = router;

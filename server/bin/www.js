@@ -2,7 +2,7 @@ const http = require("http");
 const app = require("../app");
 const dotenv = require("dotenv");
 const db = require("../database");
-const apiService = require("../api");
+const apiService = require("../api/api");
 
 dotenv.config();
 

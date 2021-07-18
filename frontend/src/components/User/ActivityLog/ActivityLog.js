@@ -11,8 +11,8 @@ import {
 	Table,
 } from "reactstrap";
 import { IoMdSearch } from "react-icons/io";
-import http from "../../../util/http";
-import dateFormatter from "../../../util/dateFormatter";
+import http from "../../../utils/http";
+import dateFormatter from "../../../utils/dateFormatter";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
 class ActivityLog extends React.Component {

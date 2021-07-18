@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import validator from "validator";
-import http from "../../util/http";
+import http from "../../utils/http";
 
 class Register extends React.Component {
 	constructor(props) {

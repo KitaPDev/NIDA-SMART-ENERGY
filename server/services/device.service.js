@@ -94,8 +94,20 @@ async function updateDevice(
 		});
 }
 
+async function getAllDeviceID() {
+	let result = await knex("device").select("id");
+
+	let lsDeviceID = [];
+	for (let row of result) {
+		lsDeviceID.push(row.id);
+	}
+
+	return lsDeviceID;
+}
+
 module.exports = {
 	getAllDevice,
 	insertDevice,
 	updateDevice,
+	getAllDeviceID,
 };

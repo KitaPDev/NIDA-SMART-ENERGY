@@ -19,8 +19,8 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import { IoMdSearch, IoMdAddCircle } from "react-icons/io";
 import { MdModeEdit, MdDelete } from "react-icons/md";
 import { GiConfirmed, GiCancel } from "react-icons/gi";
-import dateFormatter from "../../../util/dateFormatter";
-import http from "../../../util/http";
+import dateFormatter from "../../../utils/dateFormatter";
+import http from "../../../utils/http";
 
 const tzOffset = new Date().getTimezoneOffset() * 60000;
 

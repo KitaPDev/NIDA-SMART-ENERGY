@@ -11,6 +11,7 @@
 		"start:dev": "nodemon ./bin/www"
 	},
 	"dependencies": {
+		"axios": "^0.21.1",
 		"b64-to-blob": "^1.2.19",
 		"bcrypt": "^5.0.1",
 		"body-parser": "^1.19.0",
@@ -20,6 +21,7 @@
 		"dotenv": "^10.0.0",
 		"events": "^3.3.0",
 		"express": "^4.17.1",
+		"follow-redirects": "^1.14.1",
 		"form-data": "^4.0.0",
 		"fs": "^0.0.1-security",
 		"got": "^11.8.2",

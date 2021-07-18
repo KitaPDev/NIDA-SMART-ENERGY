@@ -11,7 +11,7 @@ import {
 	Input,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import http from "../../util/http";
+import http from "../../utils/http";
 
 class Login extends React.Component {
 	constructor(props) {
@@ -59,13 +59,6 @@ class Login extends React.Component {
 		}
 
 		let resp = await this.postLogin(username, password);
-
-		if (!resp) {
-			alert(
-				"Unable to connect to the server at this moment. Please try again later."
-			);
-			return;
-		}
 
 		if (resp.status === 200) {
 			localStorage.setItem("current_username", username);

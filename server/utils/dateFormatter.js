@@ -44,9 +44,6 @@ function ddmmyyyyhhmm(date) {
 
 function yyyymmddhhmmss(date) {
 	if (date instanceof Date) {
-		const offset = date.getTimezoneOffset();
-		date = new Date(date.getTime() - offset * 60 * 1000);
-
 		let dd = date.getDate();
 		let mm = date.getMonth() + 1;
 		let yyyy = date.getFullYear();
@@ -60,6 +57,14 @@ function yyyymmddhhmmss(date) {
 
 		if (mm < 10) {
 			mm = "0" + mm;
+		}
+
+		if (hh < 10) {
+			hh = "0" + hh;
+		}
+
+		if (min < 10) {
+			min = "0" + min;
 		}
 
 		if (ss < 10) {

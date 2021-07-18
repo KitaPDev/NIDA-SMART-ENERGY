@@ -15,7 +15,7 @@ import {
 import "./EditProfile.css";
 import { FaCamera, FaUserCircle } from "react-icons/fa";
 import { MdModeEdit } from "react-icons/md";
-import http from "../../../util/http";
+import http from "../../../utils/http";
 
 class EditProfile extends React.Component {
 	constructor(props) {

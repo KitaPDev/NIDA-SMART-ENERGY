@@ -2,8 +2,8 @@ import React from "react";
 import { Container, Row, Table, Form, FormGroup, Input } from "reactstrap";
 import "./UserManagement.css";
 import { RiFileExcel2Fill } from "react-icons/ri";
-import http from "../../../util/http";
-import dateFormatter from "../../../util/dateFormatter";
+import http from "../../../utils/http";
+import dateFormatter from "../../../utils/dateFormatter";
 import { FaEye } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 

@@ -20,11 +20,14 @@ instance.interceptors.response.use(
 	(err) => {
 		let resp = err.response;
 		if (!resp) {
-			window.location.pathname = "/login";
-			alert("Unable to connect to the server. Please try again.");
-		}
+			if (window.location.pathname !== "./login") {
+				window.location.pathname = "/login";
+			}
 
-		if (resp.status === 401 && window.location.pathname !== "/login") {
+			alert(
+				"Unable to connect to the server at this moment. Please try again."
+			);
+		} else if (resp.status === 401 && window.location.pathname !== "/login") {
 			window.location.pathname = "/login";
 		}
 

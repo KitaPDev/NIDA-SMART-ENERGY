@@ -13,6 +13,7 @@ const activityRouter = require("./routers/activity.router");
 const deviceRouter = require("./routers/device.router");
 const electricalSystemRouter = require("./routers/electricalSystem.router");
 const permissionRouter = require("./routers/permission.router");
+const powermeterRouter = require("./routers/powermeter.router");
 
 const app = express();
 
@@ -40,5 +41,6 @@ app.use("/activity", activityRouter);
 app.use("/device", deviceRouter);
 app.use("/electricalSystem", electricalSystemRouter);
 app.use("/permission", permissionRouter);
+app.use("/powermeter", powermeterRouter);
 
 module.exports = app;
