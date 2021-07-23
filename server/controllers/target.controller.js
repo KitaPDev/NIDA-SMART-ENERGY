@@ -11,6 +11,7 @@ async function inputTarget(req, res) {
 		let buildingID = body.building_id;
 		let electricityBill = body.electricity_bill;
 		let amountPeople = body.amount_people;
+		let coefficientElectricityCost = body.coefficient_electricity_cost;
 
 		if (!month && !year && !buildingID) {
 			return res
@@ -24,7 +25,8 @@ async function inputTarget(req, res) {
 				month,
 				year,
 				electricityBill,
-				amountPeople
+				amountPeople,
+				coefficientElectricityCost
 			);
 		} else {
 			await targetService.insertTarget(
@@ -32,7 +34,8 @@ async function inputTarget(req, res) {
 				month,
 				year,
 				electricityBill,
-				amountPeople
+				amountPeople,
+				coefficientElectricityCost
 			);
 		}
 
@@ -42,4 +45,42 @@ async function inputTarget(req, res) {
 	}
 }
 
-module.exports = { inputTarget };
+async function getAllTargetByMonthYear(req, res) {
+	try {
+		let body = req.body;
+		let month = body.month;
+		let year = body.year;
+
+		let lsTarget = await targetService.getAllTargetByMonthYear(month, year);
+
+		return res.status(httpStatusCodes.OK).send(lsTarget);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function getAllBuildingCostCoefficientByMonthYear(req, res) {
+	try {
+		let body = req.body;
+		let month = body.month;
+		let year = body.year;
+
+		let lsTarget = await targetService.getAllTargetByMonthYear(month, year);
+
+		let mapCostCoef_building = {};
+		for (let target of lsTarget) {
+			mapCostCoef_building[target.building] =
+				target.coefficient_electricity_cost;
+		}
+
+		return res.status(httpStatusCodes.OK).send(mapCostCoef_building);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+module.exports = {
+	inputTarget,
+	getAllTargetByMonthYear,
+	getAllBuildingCostCoefficientByMonthYear,
+};

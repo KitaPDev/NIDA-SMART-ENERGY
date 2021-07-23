@@ -44,7 +44,8 @@ async function updateTarget(
 	month,
 	year,
 	electricityBill,
-	amountPeople
+	amountPeople,
+	coefficientElectricityCost
 ) {
 	if (electricityBill !== undefined && amountPeople !== undefined) {
 		await knex(knex.ref("target"))
@@ -56,28 +57,24 @@ async function updateTarget(
 			.update({
 				electricity_bill: electricityBill,
 				amount_people: amountPeople,
-			});
-	} else if (electricityBill !== undefined) {
-		await knex(knex.ref("target"))
-			.where({
-				building_id: buildingID,
-				month: month,
-				year: year,
-			})
-			.update({
-				electricity_bill: electricityBill,
-			});
-	} else if (amountPeople !== undefined) {
-		await knex(knex.ref("target"))
-			.where({
-				building_id: buildingID,
-				month: month,
-				year: year,
-			})
-			.update({
-				amount_people: amountPeople,
+				coeefficient_electricity_cost: coefficientElectricityCost,
 			});
 	}
+}
+
+async function getAllTargetByMonthYear(month, year) {
+	let result = await knex("target")
+		.join("building", "target.building_id", "=", "building.id")
+		.select(
+			"target.id",
+			"building.label as building",
+			"target.electricity_bill",
+			"target.amount_people",
+			"target.coefficient_electricity_cost"
+		)
+		.where({ month: month, year: year });
+
+	return result;
 }
 
 module.exports = {
@@ -85,4 +82,5 @@ module.exports = {
 	targetExists,
 	insertTarget,
 	updateTarget,
+	getAllTargetByMonthYear,
 };

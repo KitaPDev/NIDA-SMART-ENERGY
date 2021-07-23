@@ -3,7 +3,7 @@ const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function getAll(req, res) {
 	try {
-		let lsBuilding = await buildingService.getAllBuildings();
+		let lsBuilding = await buildingService.getAllBuilding();
 		lsBuilding.sort((a, b) =>
 			a.label > b.label ? 1 : b.label > a.label ? -1 : 0
 		);
@@ -32,4 +32,7 @@ async function getBuildingPowerByDatetime(req, res) {
 	}
 }
 
-module.exports = { getAll, getBuildingPowerByDatetime };
+module.exports = {
+	getAll,
+	getBuildingPowerByDatetime,
+};

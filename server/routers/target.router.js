@@ -12,4 +12,12 @@ router.post("/", authenticateJWT, async function (req, res) {
 	targetController.inputTarget(req, res);
 });
 
+router.post("/monthyear", authenticateJWT, async function (req, res) {
+	targetController.getAllTargetByMonthYear(req, res);
+});
+
+router.post("/monthyear/coef", authenticateJWT, async function (req, res) {
+	targetController.getAllBuildingCostCoefficientByMonthYear(req, res);
+});
+
 module.exports = router;

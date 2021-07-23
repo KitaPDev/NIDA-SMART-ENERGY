@@ -1,7 +1,7 @@
 const knex = require("../database").knex;
 const dateFormatter = require("../utils/dateFormatter");
 
-async function getAllBuildings() {
+async function getAllBuilding() {
 	let result = await knex(knex.ref("building")).select();
 	return result;
 }
@@ -20,18 +20,19 @@ async function getBuildingPowerByDatetime(start, end) {
 			"log_power_meter.data_datetime",
 			"building.label as building",
 			"device.floor",
+			"device.id as device",
 			"electrical_system.label as system",
 			"log_power_meter.kw_total as kw",
 			"log_power_meter.kwh"
 		)
 		.where(
 			"log_power_meter.data_datetime",
-			">",
+			">=",
 			dateFormatter.yyyymmddhhmmss(new Date(start))
 		)
 		.andWhere(
 			"log_power_meter.data_datetime",
-			"<",
+			"<=",
 			dateFormatter.yyyymmddhhmmss(new Date(end))
 		)
 		.orderBy("log_power_meter.data_datetime", "asc");
@@ -39,4 +40,7 @@ async function getBuildingPowerByDatetime(start, end) {
 	return result;
 }
 
-module.exports = { getAllBuildings, getBuildingPowerByDatetime };
+module.exports = {
+	getAllBuilding,
+	getBuildingPowerByDatetime,
+};

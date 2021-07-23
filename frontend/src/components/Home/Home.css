@@ -133,9 +133,11 @@
 .img-road-2,
 .img-road-campus,
 .img-field,
-.img-pond {
+.img-pond,
+.img-trees {
 	position: absolute;
 	max-width: 100%;
+	z-index: -1;
 }
 
 .img-building {

@@ -59,11 +59,13 @@ class NavBar extends React.Component {
 			isLocaleDropdownOpen: false,
 			isUserDropdownOpen: false,
 			locale: "English",
-			currentTime: new Date().toLocaleString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-				hour12: false,
-			}),
+			currentTime: new Date()
+				.toLocaleString([], {
+					hour: "2-digit",
+					minute: "2-digit",
+					hour12: false,
+				})
+				.replace("24:", "00:"),
 			username: "",
 			unauthenticatedPathnames: ["/login", "/forgot-password", "/register"],
 		};
@@ -80,11 +82,13 @@ class NavBar extends React.Component {
 		this.interval = setInterval(
 			() =>
 				this.setState({
-					currentTime: new Date().toLocaleString([], {
-						hour: "2-digit",
-						minute: "2-digit",
-						hour12: false,
-					}),
+					currentTime: new Date()
+						.toLocaleString([], {
+							hour: "2-digit",
+							minute: "2-digit",
+							hour12: false,
+						})
+						.replace("24:", "00:"),
 				}),
 			500
 		);

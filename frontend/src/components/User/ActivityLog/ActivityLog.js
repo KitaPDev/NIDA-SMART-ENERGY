@@ -28,7 +28,6 @@ class ActivityLog extends React.Component {
 			lsActivity: [],
 			dateFrom: dateFrom.toISOString().substring(0, 16),
 			dateTo: new Date(Date.now() - tzOffset).toISOString().substring(0, 16),
-			searchText: "",
 			isSortByTimestampAsc: false,
 			searchText: this.props.location.username
 				? this.props.location.username

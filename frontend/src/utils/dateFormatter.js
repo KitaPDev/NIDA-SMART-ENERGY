@@ -70,4 +70,6 @@ function yyyymmddhhmmss(date) {
 	}
 }
 
-export default { ddmmyyyy, ddmmyyyyhhmm, yyyymmddhhmmss };
+const dateFormatter = { ddmmyyyy, ddmmyyyyhhmm, yyyymmddhhmmss };
+
+export default dateFormatter;

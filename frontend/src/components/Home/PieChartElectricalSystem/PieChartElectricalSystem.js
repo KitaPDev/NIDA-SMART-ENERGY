@@ -16,9 +16,8 @@ const renderCustomizedLabel = ({
 	innerRadius,
 	outerRadius,
 	percent,
-	index,
 }) => {
-	const radius = innerRadius + (outerRadius - innerRadius) * 0.3;
+	const radius = innerRadius + (outerRadius - innerRadius) * 0.2;
 	const x = cx + radius * Math.cos(-midAngle * RADIAN);
 	const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -50,19 +49,36 @@ const getLine1 = () => {
 const getLine2 = (building, ac, others) => {
 	let totalEnergyConsumption = ac + others;
 
-	return building + " " + numberWithCommas(totalEnergyConsumption) + " kWh";
+	return (
+		building +
+		" " +
+		numberWithCommas(Math.round(totalEnergyConsumption)) +
+		" kWh"
+	);
 };
 
 const getLine3 = (ac, others) => {
 	let percentAC = Math.round((ac / (ac + others)) * 100);
 
-	return "AHU " + percentAC + "% " + numberWithCommas(ac) + " kWh";
+	return (
+		"Air Conditioner " +
+		percentAC +
+		"% " +
+		numberWithCommas(Math.round(ac)) +
+		" kWh"
+	);
 };
 
 const getLine4 = (ac, others) => {
 	let percentOthers = Math.round((others / (ac + others)) * 100);
 
-	return "Others " + percentOthers + "% " + numberWithCommas(others) + " kWh";
+	return (
+		"Others " +
+		percentOthers +
+		"% " +
+		numberWithCommas(Math.round(others)) +
+		" kWh"
+	);
 };
 
 const CustomTooltip = ({ active, label, ...props }) => {
@@ -111,10 +127,27 @@ const CustomTooltip = ({ active, label, ...props }) => {
 };
 
 class PieChartElectricalSystem extends PureComponent {
+	constructor(props) {
+		super(props);
+		this.state = {
+			ac: 0,
+			others: 0,
+		};
+	}
+
+	componentWillReceiveProps(nextProps) {
+		this.setState({
+			ac: nextProps.ac,
+			others: nextProps.others,
+		});
+	}
+
 	render() {
+		let { ac, others } = this.state;
+
 		const data = [
-			{ name: "A/C", value: this.props.ac },
-			{ name: "Others", value: this.props.others },
+			{ name: "Air Conditioner", value: ac },
+			{ name: "Others", value: others },
 		];
 
 		return (

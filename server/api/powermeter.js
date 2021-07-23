@@ -103,10 +103,7 @@ async function updateDataPower() {
 		for (let [key, value] of Object.entries(data)) {
 			let logPowerMeter = {};
 
-			if (
-				lsDeviceID.find((deviceID) => deviceID === value["Device"]) ===
-				undefined
-			) {
+			if (!lsDeviceID.includes(value["Device"])) {
 				continue;
 			}
 

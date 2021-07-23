@@ -471,17 +471,15 @@ class DeviceManager extends React.Component {
 
 		if (searchText.length > 0) {
 			lsDeviceDisplay = lsDeviceDisplay.filter((device, index) => {
-				return (
-					device.id.includes(searchText) ||
-					device.building.includes(searchText) ||
-					device.location.includes(searchText) ||
-					device.site.includes(searchText) ||
-					device.brand_model.includes(searchText) ||
-					device.system.includes(searchText) ||
-					dateFormatter
-						.ddmmyyyy(new Date(device.activated_timestamp))
-						.includes(searchText)
-				);
+				for (let [key, value] of Object.entries(device)) {
+					if (value !== null) {
+						if (value.toString().includes(searchText)) {
+							return true;
+						}
+					}
+				}
+
+				return false;
 			});
 		}
 

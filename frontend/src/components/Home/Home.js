@@ -10,25 +10,33 @@ import http from "../../utils/http";
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
+
 		this.state = {
 			lsSelectedBuilding: [],
+			lsElectricalSystem: [],
+			mapCostCoef_building: {},
 			lsBuilding: [],
 			lsLogPower_Building: [],
-			mea: 0,
-			solar: 0,
-			currentTime: new Date().toLocaleString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-				hour12: false,
-			}),
+			currentTime: new Date()
+				.toLocaleString([], {
+					hour: "2-digit",
+					minute: "2-digit",
+					hour12: false,
+				})
+				.replace("24:", "00:"),
 			buildingPath: window.location.origin + "/building/",
 			propsPath: window.location.origin + "/props/",
 		};
 
 		this.numberWithCommas = this.numberWithCommas.bind(this);
+		this.getAllElectricalSystem = this.getAllElectricalSystem.bind(this);
+		this.getBuildingCostCoefficient =
+			this.getBuildingCostCoefficient.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getPowerData = this.getPowerData.bind(this);
 		this.onClickBuilding = this.onClickBuilding.bind(this);
+		this.calculateKwhMainAcSolarElectricityBill =
+			this.calculateKwhMainAcSolarElectricityBill.bind(this);
 	}
 
 	numberWithCommas(x) {
@@ -36,22 +44,54 @@ class Home extends React.Component {
 	}
 
 	componentDidMount() {
+		this.getAllElectricalSystem();
+		this.getBuildingCostCoefficient();
 		this.getAllBuilding();
 		this.getPowerData();
 
 		this.interval = setInterval(
 			() =>
 				this.setState({
-					currentTime: new Date().toLocaleString([], {
-						hour: "2-digit",
-						minute: "2-digit",
-						hour12: false,
-					}),
+					currentTime: new Date()
+						.toLocaleString([], {
+							hour: "2-digit",
+							minute: "2-digit",
+							hour12: false,
+						})
+						.replace("24:", "00:"),
 				}),
 			500
 		);
 
 		this.interval = setInterval(() => this.getPowerData(), 900000);
+	}
+
+	async getAllElectricalSystem() {
+		try {
+			let resp = await http.get("/electricalSystem/all");
+
+			this.setState({ lsElectricalSystem: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getBuildingCostCoefficient() {
+		try {
+			let today = new Date();
+			let payload = {
+				month: today.getMonth() + 1,
+				year: today.getFullYear(),
+			};
+
+			let resp = await http.post("/target/monthyear/coef", payload);
+
+			this.setState({ mapCostCoef_building: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
 	}
 
 	async getAllBuilding() {
@@ -85,8 +125,6 @@ class Home extends React.Component {
 
 			let lsPowerData = resp.data;
 			let lsLogPower_Building = [];
-			let mea = 0;
-			let solar = 0;
 
 			for (let data of lsPowerData) {
 				if (lsLogPower_Building[data.building] === undefined) {
@@ -96,22 +134,15 @@ class Home extends React.Component {
 				lsLogPower_Building[data.building].push({
 					data_datetime: data.data_datetime,
 					floor: data.floor,
+					device: data.device,
 					system: data.system,
 					kw: data.kw,
 					kwh: data.kwh,
 				});
-
-				if (data.system !== "Solar") {
-					mea += data.kwh;
-				} else {
-					solar += data.kwh;
-				}
 			}
 
 			this.setState({
 				lsLogPower_Building: lsLogPower_Building,
-				mea: mea,
-				solar: solar,
 			});
 		} catch (err) {
 			console.log(err);
@@ -122,7 +153,7 @@ class Home extends React.Component {
 	onClickBuilding(building) {
 		let { lsSelectedBuilding } = this.state;
 
-		if (lsSelectedBuilding.find((b) => b === building) === undefined) {
+		if (!lsSelectedBuilding.includes(building)) {
 			lsSelectedBuilding.push(building);
 			this.setState({ lsSelectedBuilding: lsSelectedBuilding });
 		} else {
@@ -130,6 +161,182 @@ class Home extends React.Component {
 				lsSelectedBuilding: lsSelectedBuilding.filter((b) => b !== building),
 			});
 		}
+	}
+
+	calculateKwhMainAcSolarElectricityBill() {
+		let {
+			lsSelectedBuilding,
+			lsElectricalSystem,
+			lsLogPower_Building,
+			mapCostCoef_building,
+		} = this.state;
+
+		// kwh has two attributes
+		// First and Last
+		// Why? Last - First = Total kwh within the time period
+		let kwh_building_system_device = {};
+
+		for (let [building, lsLogPower] of Object.entries(lsLogPower_Building)) {
+			if (lsSelectedBuilding.length > 0) {
+				if (!lsSelectedBuilding.includes(building)) continue;
+			}
+
+			for (let system of lsElectricalSystem) {
+				kwh_building_system_device[building] = {
+					[system]: {},
+				};
+			}
+
+			for (let log of lsLogPower) {
+				let system = log.system;
+				let device = log.device;
+				let kwh_device = kwh_building_system_device[building][system];
+
+				if (kwh_device[device] === undefined) {
+					kwh_device[device] = { first: log.kwh };
+				}
+			}
+
+			for (let i = lsLogPower.length - 1; i >= 0; i--) {
+				let log = lsLogPower[i];
+
+				let system = log.system;
+				let device = log.device;
+				let kwh_device = kwh_building_system_device[building][system];
+
+				if (kwh_device[device]["last"] === undefined) {
+					kwh_device[device]["last"] = log.kwh;
+				}
+			}
+		}
+
+		let kwhMain;
+		let kwhAc;
+		let kwhSolar;
+		let electricityBill = 0;
+
+		for (let [building, kwh_system_device] of Object.entries(
+			kwh_building_system_device
+		)) {
+			let kwhTotal_system = {};
+			for (let system of lsElectricalSystem) {
+				for (let kwh of Object.values(kwh_system_device[system])) {
+					if (kwhTotal_system[system] === undefined) {
+						kwhTotal_system[system] = 0;
+					}
+
+					kwhTotal_system[system] += kwh["last"] - kwh["first"];
+				}
+			}
+
+			for (let [system, kwhFirst_device] of Object.entries(kwh_system_device)) {
+				let kwhLast_device = kwhLast_system_device[system];
+
+				switch (system) {
+					case "Main":
+						for (let kwhFirst of Object.values(kwhFirst_device)) {
+							kwhMainFirst += kwhFirst;
+						}
+
+						for (let kwhLast of Object.values(kwhLast_device)) {
+							kwhMainFirst += kwhLast;
+						}
+						break;
+
+					case "Air Conditioner":
+				}
+			}
+
+			if (mapCostCoef_building[building] === undefined) {
+				electricityBill += lsBillFirst.push(value * 4);
+				lsBillLast.push(kwhMainLast_building[building] * 4);
+			} else {
+				lsBillFirst.push(value * mapCostCoef_building[building]);
+				lsBillLast.push(
+					kwhMainLast_building[building] * mapCostCoef_building[building]
+				);
+			}
+		}
+
+		if (kwhMainFirst_device !== undefined && kwhMainLast_device !== undefined) {
+			let kwhMainFirst = 0;
+			let kwhMainLast = 0;
+
+			for (let [, value] of Object.entries(kwhMainFirst_device)) {
+				kwhMainFirst += value;
+			}
+
+			for (let [, value] of Object.entries(kwhMainLast_device)) {
+				kwhMainLast += value;
+			}
+
+			kwhMain = kwhMainLast - kwhMainFirst;
+		} else {
+			kwhMain = 0;
+		}
+
+		if (kwhAcFirst_device !== undefined && kwhAcLast_device !== undefined) {
+			let kwhAcFirst = 0;
+			let kwhAcLast = 0;
+
+			for (let [, value] of Object.entries(kwhAcFirst_device)) {
+				kwhAcFirst += value;
+			}
+
+			for (let [, value] of Object.entries(kwhAcLast_device)) {
+				kwhAcLast += value;
+			}
+
+			kwhAc = kwhAcLast - kwhAcFirst;
+		} else {
+			kwhAc = 0;
+		}
+
+		if (
+			kwhSolarFirst_device !== undefined &&
+			kwhSolarLast_device !== undefined
+		) {
+			let kwhSolarFirst = 0;
+			let kwhSolarLast = 0;
+
+			for (let [, value] of Object.entries(kwhSolarFirst_device)) {
+				kwhSolarFirst += value;
+			}
+
+			for (let [, value] of Object.entries(kwhSolarLast_device)) {
+				kwhSolarLast += value;
+			}
+
+			kwhSolar = kwhSolarLast - kwhSolarFirst;
+		} else {
+			kwhSolar = 0;
+		}
+
+		if (
+			kwhMainFirst_building !== undefined &&
+			kwhMainLast_building !== undefined
+		) {
+			let lsBillFirst = [];
+			let lsBillLast = [];
+
+			for (let [key, value] of Object.entries(kwhMainFirst_building)) {
+				if (mapCostCoef_building[key] === undefined) {
+					lsBillFirst.push(value * 4);
+					lsBillLast.push(kwhMainLast_building[key] * 4);
+				} else {
+					lsBillFirst.push(value * mapCostCoef_building[key]);
+					lsBillLast.push(
+						kwhMainLast_building[key] * mapCostCoef_building[key]
+					);
+				}
+			}
+
+			for (const [index, billFirst] of lsBillFirst.entries()) {
+				electricityBill += lsBillLast[index] - billFirst;
+			}
+		}
+
+		return { kwhMain, kwhAc, kwhSolar, electricityBill };
 	}
 
 	render() {
@@ -140,12 +347,14 @@ class Home extends React.Component {
 			lsBuilding,
 			lsSelectedBuilding,
 			lsLogPower_Building,
-			mea,
-			solar,
 		} = this.state;
 
+		let { kwhMain, kwhAc, kwhSolar, electricityBill } =
+			this.calculateKwhMainAcSolarElectricityBill();
+
+		electricityBill = kwhMain * 4;
+
 		let target = 600000;
-		let electricityBill = 350000;
 		let solarSavings = 10000;
 
 		// let lsLogPower_Building = [
@@ -227,7 +436,7 @@ class Home extends React.Component {
 										00:00 - {currentTime}
 									</span>
 									<span style={{ fontSize: "200%", fontWeight: "bold" }}>
-										{this.numberWithCommas(3330)}
+										{this.numberWithCommas(Math.round(kwhMain))}
 									</span>
 									<span
 										style={{
@@ -265,14 +474,14 @@ class Home extends React.Component {
 										style={{
 											color: "#6B6666",
 											fontWeight: "600",
-											marginLeft: "15%",
+											marginLeft: "5%",
 										}}
 									>
 										Used in
 									</span>
 									<span className="dot-blue" />
 									<span style={{ color: "#757272", fontWeight: "500" }}>
-										A/C
+										Air Conditioner
 									</span>
 									<span className="dot-red" />
 									<span style={{ color: "#757272", fontWeight: "500" }}>
@@ -282,12 +491,12 @@ class Home extends React.Component {
 
 								<Row className="row-pie-charts">
 									<Col sm="6">
-										<PieChartEnergySource mea={mea} solar={solar} />
+										<PieChartEnergySource mea={kwhMain} solar={kwhSolar} />
 									</Col>
 									<Col sm="6">
 										<PieChartElectricalSystem
-											ac={710}
-											others={515}
+											ac={kwhAc}
+											others={kwhMain - kwhAc}
 											building={
 												lsSelectedBuilding.length === 1
 													? ""
@@ -343,7 +552,10 @@ class Home extends React.Component {
 												paddingLeft: "1rem",
 											}}
 										>
-											฿{this.numberWithCommas(electricityBill - solarSavings)}
+											฿
+											{this.numberWithCommas(
+												parseFloat((kwhMain - kwhSolar) * 4).toFixed(2)
+											)}
 										</span>
 									</Col>
 								</Row>
@@ -455,6 +667,11 @@ class Home extends React.Component {
 									className="img-pond"
 									src={propsPath + "pond.png"}
 									alt={"pond.png"}
+								></img>
+								<img
+									className="img-trees"
+									src={propsPath + "trees.png"}
+									alt={"trees.png"}
 								></img>
 								{lsBuilding.map((building) => (
 									<img

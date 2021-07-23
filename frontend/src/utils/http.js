@@ -22,11 +22,10 @@ instance.interceptors.response.use(
 		if (!resp) {
 			if (window.location.pathname !== "./login") {
 				window.location.pathname = "/login";
+				alert(
+					"Unable to connect to the server at this moment. Please try again."
+				);
 			}
-
-			alert(
-				"Unable to connect to the server at this moment. Please try again."
-			);
 		} else if (resp.status === 401 && window.location.pathname !== "/login") {
 			window.location.pathname = "/login";
 		}
@@ -35,7 +34,9 @@ instance.interceptors.response.use(
 	}
 );
 
-export default {
+const http = {
 	get: instance.get,
 	post: instance.post,
 };
+
+export default http;
