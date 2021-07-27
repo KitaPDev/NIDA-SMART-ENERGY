@@ -20,7 +20,7 @@ async function newDevice(req, res) {
 		let location = body.location;
 		let site = body.site;
 		let brandModel = body.brand_model;
-		let electricalSystem = body.system;
+		let system = body.system;
 		let isActive = body.is_active;
 		let activatedDate = new Date(body.activated_date);
 
@@ -31,7 +31,7 @@ async function newDevice(req, res) {
 			location,
 			site,
 			brandModel,
-			electricalSystem,
+			system,
 			isActive,
 			activatedDate
 		);
@@ -51,7 +51,7 @@ async function editDevice(req, res) {
 		let location = body.location;
 		let site = body.site;
 		let brandModel = body.brand_model;
-		let electricalSystem = body.system;
+		let system = body.system;
 		let activatedDate = new Date(body.activated_date);
 
 		await deviceService.updateDevice(
@@ -61,7 +61,7 @@ async function editDevice(req, res) {
 			location,
 			site,
 			brandModel,
-			electricalSystem,
+			system,
 			activatedDate
 		);
 
@@ -71,4 +71,8 @@ async function editDevice(req, res) {
 	}
 }
 
-module.exports = { getAllDevice, newDevice, editDevice };
+module.exports = {
+	getAllDevice,
+	newDevice,
+	editDevice,
+};

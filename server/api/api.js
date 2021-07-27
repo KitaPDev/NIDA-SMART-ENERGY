@@ -7,6 +7,7 @@ const dateFormatter = require("../utils/dateFormatter");
 
 const powermeterService = require("./powermeter");
 const iaqService = require("./iaq");
+const solarService = require("./solar");
 
 const baseUrl = process.env.NIDA_API_BASE_URL;
 const username = process.env.NIDA_API_USERNAME;
@@ -23,6 +24,8 @@ let intervalGetToken;
 async function start() {
 	intervalGetToken = setInterval(updateToken, 5000);
 	powermeterService.start();
+	iaqService.start();
+	solarService.start();
 }
 
 async function updateToken() {
@@ -38,6 +41,7 @@ async function updateToken() {
 
 		powermeterService.setAccessToken(accessToken);
 		iaqService.setAccessToken(accessToken);
+		solarService.setAccessToken(accessToken);
 	} catch (err) {
 		console.log("Error: Update Token; " + err.code);
 	}

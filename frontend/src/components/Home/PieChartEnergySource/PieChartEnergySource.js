@@ -35,7 +35,7 @@ export default class PieChartEnergySource extends PureComponent {
 	render() {
 		let data = [
 			{ name: "MEA", value: this.props.mea },
-			{ name: "Solar", value: this.props.solar },
+			{ name: "Solar Cells", value: this.props.solar },
 		];
 
 		return (

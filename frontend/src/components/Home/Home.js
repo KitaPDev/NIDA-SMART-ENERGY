@@ -2,10 +2,18 @@ import React from "react";
 import "./Home.css";
 import { Container, Row, Col, Progress } from "reactstrap";
 import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
-import PieChartElectricalSystem from "./PieChartElectricalSystem/PieChartElectricalSystem";
+import PieChartSystem from "./PieChartSystem/PieChartSystem";
 import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
-import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
+import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 import http from "../../utils/http";
+import {
+	subjectPowerMeterData,
+	subjectSolarData,
+	apiService,
+} from "../../apiService";
+
+let subscriberPowerMeterData;
+let subscriberSolarData;
 
 class Home extends React.Component {
 	constructor(props) {
@@ -13,10 +21,13 @@ class Home extends React.Component {
 
 		this.state = {
 			lsSelectedBuilding: [],
-			lsElectricalSystem: [],
-			mapCostCoef_building: {},
+			lsSystem: [],
+			costCoef_building: {},
+			kwh_system_building: {},
+			lsKw_system_building: {},
+			bill_building: 0,
+			kwhSolar: 0,
 			lsBuilding: [],
-			lsLogPower_Building: [],
 			currentTime: new Date()
 				.toLocaleString([], {
 					hour: "2-digit",
@@ -29,25 +40,130 @@ class Home extends React.Component {
 		};
 
 		this.numberWithCommas = this.numberWithCommas.bind(this);
-		this.getAllElectricalSystem = this.getAllElectricalSystem.bind(this);
+		this.getAllSystem = this.getAllSystem.bind(this);
 		this.getBuildingCostCoefficient =
 			this.getBuildingCostCoefficient.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
-		this.getPowerData = this.getPowerData.bind(this);
 		this.onClickBuilding = this.onClickBuilding.bind(this);
-		this.calculateKwhMainAcSolarElectricityBill =
-			this.calculateKwhMainAcSolarElectricityBill.bind(this);
+		this.calculateKwh_systemBuilding_electricityBill =
+			this.calculateKwh_systemBuilding_electricityBill.bind(this);
 	}
 
 	numberWithCommas(x) {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	}
 
-	componentDidMount() {
-		this.getAllElectricalSystem();
-		this.getBuildingCostCoefficient();
+	async componentDidMount() {
+		await this.getAllSystem();
+		await this.getBuildingCostCoefficient();
 		this.getAllBuilding();
-		this.getPowerData();
+
+		let { costCoef_building } = this.state;
+
+		let today = new Date();
+		let startDate = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate(),
+			0,
+			0,
+			0
+		);
+		let endDate = new Date();
+
+		apiService.updatePowerMeterData(startDate, endDate);
+		apiService.updateSolarData(startDate, endDate);
+
+		subscriberPowerMeterData = subjectPowerMeterData.subscribe((dataPower) => {
+			let kwh_system_building = {};
+			let lsKw_system_building = {};
+			let bill_building = {};
+
+			if (dataPower === undefined) {
+				return;
+			}
+
+			let lsDeviceFirst = [];
+			let lsDeviceLast = [];
+
+			for (let data of dataPower.slice().reverse()) {
+				let datetime = new Date(data.data_datetime);
+				let building = data.building;
+				let device = data.device;
+				let kw = Math.round((data.kw * 100) / 100);
+				let kwh = Math.round((data.kwh * 100) / 100);
+				let system = data.system;
+
+				if (lsKw_system_building[building] === undefined)
+					lsKw_system_building[building] = {};
+
+				if (lsKw_system_building[building][system] === undefined)
+					lsKw_system_building[building][system] = [];
+
+				lsKw_system_building[building][system].push({
+					datetime: datetime,
+					kw: kw,
+				});
+
+				if (!lsDeviceLast.find((d) => d === device)) {
+					lsDeviceLast.push(device);
+				} else {
+					continue;
+				}
+
+				if (kwh_system_building[building] === undefined)
+					kwh_system_building[building] = {};
+
+				if (kwh_system_building[building][system] === undefined)
+					kwh_system_building[building][system] = 0;
+
+				if (building === "Naradhip") console.log(device + ": " + kwh);
+
+				kwh_system_building[building][system] += kwh;
+			}
+
+			for (let data of dataPower) {
+				let building = data.building;
+				let device = data.device;
+				let kw = Math.round((data.kw * 100) / 100);
+				let kwh = Math.round((data.kwh * 100) / 100);
+				let system = data.system;
+
+				if (!lsDeviceFirst.find((d) => d === device)) {
+					lsDeviceFirst.push(device);
+				} else {
+					break;
+				}
+
+				kwh_system_building[building][system] -= kwh;
+			}
+
+			for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
+				let costCoef = 4;
+				if (costCoef_building[building] !== undefined) {
+					costCoef = costCoef_building[building];
+				}
+
+				if (bill_building[building] === undefined) bill_building[building] = 0;
+				for (let [, kwh] of Object.entries(kwh_system)) {
+					if (kwh > 0) bill_building[building] += kwh * costCoef;
+				}
+			}
+
+			this.setState({
+				kwh_system_building: kwh_system_building,
+				lsKw_system_building: lsKw_system_building,
+				bill_building: bill_building,
+			});
+		});
+
+		subscriberSolarData = subjectSolarData.subscribe((dataSolar) => {
+			let kwhSolar = 0;
+
+			if (dataSolar === undefined) {
+				return;
+			}
+		});
 
 		this.interval = setInterval(
 			() =>
@@ -63,14 +179,22 @@ class Home extends React.Component {
 			500
 		);
 
-		this.interval = setInterval(() => this.getPowerData(), 900000);
+		this.interval = setInterval(() => {
+			apiService.updatePowerMeterData();
+			apiService.updateSolarData();
+		}, 900000);
 	}
 
-	async getAllElectricalSystem() {
-		try {
-			let resp = await http.get("/electricalSystem/all");
+	componentWillUnmount() {
+		if (subscriberPowerMeterData) subscriberPowerMeterData.unsubscribe();
+		if (subscriberSolarData) subscriberSolarData.unsubscribe();
+	}
 
-			this.setState({ lsElectricalSystem: resp.data });
+	async getAllSystem() {
+		try {
+			let resp = await http.get("/system/all");
+
+			this.setState({ lsSystem: resp.data });
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -87,7 +211,7 @@ class Home extends React.Component {
 
 			let resp = await http.post("/target/monthyear/coef", payload);
 
-			this.setState({ mapCostCoef_building: resp.data });
+			this.setState({ costCoef_building: resp.data });
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -105,92 +229,42 @@ class Home extends React.Component {
 		}
 	}
 
-	async getPowerData() {
-		try {
-			let today = new Date();
-
-			let payload = {
-				start: new Date(
-					today.getFullYear(),
-					today.getMonth(),
-					today.getDate(),
-					0,
-					0,
-					0
-				),
-				end: new Date(),
-			};
-
-			let resp = await http.post("/building/power/datetime", payload);
-
-			let lsPowerData = resp.data;
-			let lsLogPower_Building = [];
-
-			for (let data of lsPowerData) {
-				if (lsLogPower_Building[data.building] === undefined) {
-					lsLogPower_Building[data.building] = [];
-				}
-
-				lsLogPower_Building[data.building].push({
-					data_datetime: data.data_datetime,
-					floor: data.floor,
-					device: data.device,
-					system: data.system,
-					kw: data.kw,
-					kwh: data.kwh,
-				});
-			}
-
-			this.setState({
-				lsLogPower_Building: lsLogPower_Building,
-			});
-		} catch (err) {
-			console.log(err);
-			return err.response;
-		}
-	}
-
 	onClickBuilding(building) {
-		let { lsSelectedBuilding } = this.state;
+		let { lsSelectedBuilding, lsBuilding } = this.state;
 
-		if (!lsSelectedBuilding.includes(building)) {
+		if (lsSelectedBuilding.length === lsBuilding.length) {
+			lsSelectedBuilding = [building];
+		} else if (!lsSelectedBuilding.includes(building)) {
 			lsSelectedBuilding.push(building);
 			this.setState({ lsSelectedBuilding: lsSelectedBuilding });
 		} else {
-			this.setState({
-				lsSelectedBuilding: lsSelectedBuilding.filter((b) => b !== building),
-			});
+			lsSelectedBuilding = lsSelectedBuilding.filter((b) => b !== building);
 		}
+
+		this.setState({ lsSelectedBuilding: lsSelectedBuilding });
 	}
 
-	calculateKwhMainAcSolarElectricityBill() {
-		let {
-			lsSelectedBuilding,
-			lsElectricalSystem,
-			lsLogPower_Building,
-			mapCostCoef_building,
-		} = this.state;
+	calculateKwh_systemBuilding_electricityBill() {
+		let { lsSystem, lsLogPower_Building, costCoef_building } = this.state;
 
 		// kwh has two attributes
 		// First and Last
 		// Why? Last - First = Total kwh within the time period
-		let kwh_building_system_device = {};
+		let kwh_device_system_building = {};
+		let kwh_system_building = {};
 
 		for (let [building, lsLogPower] of Object.entries(lsLogPower_Building)) {
-			if (lsSelectedBuilding.length > 0) {
-				if (!lsSelectedBuilding.includes(building)) continue;
-			}
+			kwh_device_system_building[building] = {};
+			kwh_system_building[building] = {};
 
-			for (let system of lsElectricalSystem) {
-				kwh_building_system_device[building] = {
-					[system]: {},
-				};
+			for (let system of lsSystem) {
+				kwh_device_system_building[building][system.label] = {};
 			}
 
 			for (let log of lsLogPower) {
 				let system = log.system;
 				let device = log.device;
-				let kwh_device = kwh_building_system_device[building][system];
+				let kwh_device = kwh_device_system_building[building][system];
 
 				if (kwh_device[device] === undefined) {
 					kwh_device[device] = { first: log.kwh };
@@ -202,7 +276,7 @@ class Home extends React.Component {
 
 				let system = log.system;
 				let device = log.device;
-				let kwh_device = kwh_building_system_device[building][system];
+				let kwh_device = kwh_device_system_building[building][system];
 
 				if (kwh_device[device]["last"] === undefined) {
 					kwh_device[device]["last"] = log.kwh;
@@ -210,133 +284,36 @@ class Home extends React.Component {
 			}
 		}
 
-		let kwhMain;
-		let kwhAc;
-		let kwhSolar;
 		let electricityBill = 0;
 
 		for (let [building, kwh_system_device] of Object.entries(
-			kwh_building_system_device
+			kwh_device_system_building
 		)) {
-			let kwhTotal_system = {};
-			for (let system of lsElectricalSystem) {
-				for (let kwh of Object.values(kwh_system_device[system])) {
-					if (kwhTotal_system[system] === undefined) {
-						kwhTotal_system[system] = 0;
+			let costCoef = 4;
+			if (costCoef_building[building] !== undefined) {
+				costCoef = costCoef_building[building];
+			}
+
+			let kwh_system = kwh_system_building[building];
+
+			for (let system of lsSystem) {
+				for (let kwh of Object.values(kwh_system_device[system.label])) {
+					if (kwh_system[system.label] === undefined) {
+						kwh_system[system.label] = 0;
 					}
 
-					kwhTotal_system[system] += kwh["last"] - kwh["first"];
+					let kwhDiff = kwh["last"] - kwh["first"];
+
+					kwh_system[system.label] += kwhDiff;
+
+					if (system.label === "Main") {
+						electricityBill += kwhDiff;
+					}
 				}
 			}
-
-			for (let [system, kwhFirst_device] of Object.entries(kwh_system_device)) {
-				let kwhLast_device = kwhLast_system_device[system];
-
-				switch (system) {
-					case "Main":
-						for (let kwhFirst of Object.values(kwhFirst_device)) {
-							kwhMainFirst += kwhFirst;
-						}
-
-						for (let kwhLast of Object.values(kwhLast_device)) {
-							kwhMainFirst += kwhLast;
-						}
-						break;
-
-					case "Air Conditioner":
-				}
-			}
-
-			if (mapCostCoef_building[building] === undefined) {
-				electricityBill += lsBillFirst.push(value * 4);
-				lsBillLast.push(kwhMainLast_building[building] * 4);
-			} else {
-				lsBillFirst.push(value * mapCostCoef_building[building]);
-				lsBillLast.push(
-					kwhMainLast_building[building] * mapCostCoef_building[building]
-				);
-			}
 		}
 
-		if (kwhMainFirst_device !== undefined && kwhMainLast_device !== undefined) {
-			let kwhMainFirst = 0;
-			let kwhMainLast = 0;
-
-			for (let [, value] of Object.entries(kwhMainFirst_device)) {
-				kwhMainFirst += value;
-			}
-
-			for (let [, value] of Object.entries(kwhMainLast_device)) {
-				kwhMainLast += value;
-			}
-
-			kwhMain = kwhMainLast - kwhMainFirst;
-		} else {
-			kwhMain = 0;
-		}
-
-		if (kwhAcFirst_device !== undefined && kwhAcLast_device !== undefined) {
-			let kwhAcFirst = 0;
-			let kwhAcLast = 0;
-
-			for (let [, value] of Object.entries(kwhAcFirst_device)) {
-				kwhAcFirst += value;
-			}
-
-			for (let [, value] of Object.entries(kwhAcLast_device)) {
-				kwhAcLast += value;
-			}
-
-			kwhAc = kwhAcLast - kwhAcFirst;
-		} else {
-			kwhAc = 0;
-		}
-
-		if (
-			kwhSolarFirst_device !== undefined &&
-			kwhSolarLast_device !== undefined
-		) {
-			let kwhSolarFirst = 0;
-			let kwhSolarLast = 0;
-
-			for (let [, value] of Object.entries(kwhSolarFirst_device)) {
-				kwhSolarFirst += value;
-			}
-
-			for (let [, value] of Object.entries(kwhSolarLast_device)) {
-				kwhSolarLast += value;
-			}
-
-			kwhSolar = kwhSolarLast - kwhSolarFirst;
-		} else {
-			kwhSolar = 0;
-		}
-
-		if (
-			kwhMainFirst_building !== undefined &&
-			kwhMainLast_building !== undefined
-		) {
-			let lsBillFirst = [];
-			let lsBillLast = [];
-
-			for (let [key, value] of Object.entries(kwhMainFirst_building)) {
-				if (mapCostCoef_building[key] === undefined) {
-					lsBillFirst.push(value * 4);
-					lsBillLast.push(kwhMainLast_building[key] * 4);
-				} else {
-					lsBillFirst.push(value * mapCostCoef_building[key]);
-					lsBillLast.push(
-						kwhMainLast_building[key] * mapCostCoef_building[key]
-					);
-				}
-			}
-
-			for (const [index, billFirst] of lsBillFirst.entries()) {
-				electricityBill += lsBillLast[index] - billFirst;
-			}
-		}
-
-		return { kwhMain, kwhAc, kwhSolar, electricityBill };
+		return { kwh_system_building, electricityBill };
 	}
 
 	render() {
@@ -346,49 +323,34 @@ class Home extends React.Component {
 			buildingPath,
 			lsBuilding,
 			lsSelectedBuilding,
-			lsLogPower_Building,
+			kwh_system_building,
+			lsKw_system_building,
+			kwhSolar,
+			electricityBill,
 		} = this.state;
 
-		let { kwhMain, kwhAc, kwhSolar, electricityBill } =
-			this.calculateKwhMainAcSolarElectricityBill();
+		let kwhMain = 0;
+		let kwhAc = 0;
 
-		electricityBill = kwhMain * 4;
+		if (lsSelectedBuilding.length === 0) {
+			lsSelectedBuilding = lsBuilding.map((building) => building.label);
+		}
+
+		for (let building of lsSelectedBuilding) {
+			if (kwh_system_building[building]) {
+				if (kwh_system_building[building]["Main"])
+					kwhMain += kwh_system_building[building]["Main"];
+
+				if (kwh_system_building[building]["Air Conditioner"])
+					kwhAc += kwh_system_building[building]["Air Conditioner"];
+			}
+		}
+
+		if (electricityBill === undefined) {
+			electricityBill = 0;
+		}
 
 		let target = 600000;
-		let solarSavings = 10000;
-
-		// let lsLogPower_Building = [
-		// 	{
-		// 		building: "Navamin",
-		// 		data: [
-		// 			{ log_timestamp: "2021-06-08T00:00:00Z", ac: 18, others: 12 },
-		// 			{ log_timestamp: "2021-06-08T00:15:00Z", ac: 13, others: 11 },
-		// 			{ log_timestamp: "2021-06-08T00:30:00Z", ac: 14, others: 14 },
-		// 			{ log_timestamp: "2021-06-08T00:45:00Z", ac: 12, others: 15 },
-		// 			{ log_timestamp: "2021-06-08T01:00:00Z", ac: 18, others: 14 },
-		// 			{ log_timestamp: "2021-06-08T01:15:00Z", ac: 19, others: 13 },
-		// 			{ log_timestamp: "2021-06-08T01:30:00Z", ac: 15, others: 12 },
-		// 			{ log_timestamp: "2021-06-08T01:45:00Z", ac: 16, others: 11 },
-		// 			{ log_timestamp: "2021-06-08T02:00:00Z", ac: 17, others: 12 },
-		// 			{ log_timestamp: "2021-06-08T02:15:00Z", ac: 11, others: 10 },
-		// 		],
-		// 	},
-		// 	{
-		// 		building: "Auditorium",
-		// 		data: [
-		// 			{ log_timestamp: "2021-06-08T00:00:00Z", ac: 16, others: 1 },
-		// 			{ log_timestamp: "2021-06-08T00:15:00Z", ac: 14, others: 3 },
-		// 			{ log_timestamp: "2021-06-08T00:30:00Z", ac: 5, others: 2 },
-		// 			{ log_timestamp: "2021-06-08T00:45:00Z", ac: 8, others: 6 },
-		// 			{ log_timestamp: "2021-06-08T01:00:00Z", ac: 9, others: 7 },
-		// 			{ log_timestamp: "2021-06-08T01:15:00Z", ac: 3, others: 9 },
-		// 			{ log_timestamp: "2021-06-08T01:30:00Z", ac: 4, others: 5 },
-		// 			{ log_timestamp: "2021-06-08T01:45:00Z", ac: 7, others: 3 },
-		// 			{ log_timestamp: "2021-06-08T02:00:00Z", ac: 11, others: 1 },
-		// 			{ log_timestamp: "2021-06-08T02:15:00Z", ac: 19, others: 5 },
-		// 		],
-		// 	},
-		// ];
 
 		return (
 			<div>
@@ -462,12 +424,24 @@ class Home extends React.Component {
 										From
 									</span>
 									<span className="dot-grey" />
-									<span style={{ color: "#757272", fontWeight: "500" }}>
+									<span
+										style={{
+											color: "#757272",
+											fontWeight: "500",
+											paddingLeft: "0.3rem",
+										}}
+									>
 										MEA
 									</span>
 									<span className="dot-orange" />
-									<span style={{ color: "#757272", fontWeight: "500" }}>
-										Solar
+									<span
+										style={{
+											color: "#757272",
+											fontWeight: "500",
+											paddingLeft: "0.3rem",
+										}}
+									>
+										Solar Cells
 									</span>
 
 									<span
@@ -480,11 +454,23 @@ class Home extends React.Component {
 										Used in
 									</span>
 									<span className="dot-blue" />
-									<span style={{ color: "#757272", fontWeight: "500" }}>
+									<span
+										style={{
+											color: "#757272",
+											fontWeight: "500",
+											paddingLeft: "0.3rem",
+										}}
+									>
 										Air Conditioner
 									</span>
 									<span className="dot-red" />
-									<span style={{ color: "#757272", fontWeight: "500" }}>
+									<span
+										style={{
+											color: "#757272",
+											fontWeight: "500",
+											paddingLeft: "0.3rem",
+										}}
+									>
 										Others
 									</span>
 								</Row>
@@ -494,7 +480,7 @@ class Home extends React.Component {
 										<PieChartEnergySource mea={kwhMain} solar={kwhSolar} />
 									</Col>
 									<Col sm="6">
-										<PieChartElectricalSystem
+										<PieChartSystem
 											ac={kwhAc}
 											others={kwhMain - kwhAc}
 											building={
@@ -572,7 +558,7 @@ class Home extends React.Component {
 								</Row>
 								<Row style={{ textAlign: "center", fontWeight: "bold" }}>
 									<Col sm="3" style={{ color: "#FFC121" }}>
-										<span>฿ {this.numberWithCommas(solarSavings)}</span>
+										<span>฿ {this.numberWithCommas(kwhSolar * 4)}</span>
 									</Col>
 									<Col sm="6" style={{ color: "#899CA2" }}>
 										<span>{Math.round((electricityBill / target) * 100)}%</span>
@@ -585,7 +571,7 @@ class Home extends React.Component {
 									<Col sm="3" style={{ paddingRight: 0 }}>
 										<Progress
 											color="warning"
-											value={(solarSavings / target) * 100}
+											value={((kwhSolar * 4) / target) * 100}
 											style={{
 												backgroundColor: "white",
 												borderRadius: "0",
@@ -621,7 +607,7 @@ class Home extends React.Component {
 								</Row>
 								<Row>
 									<LineChartBuildingPowerConsumption
-										lsLogPower_Building={lsLogPower_Building}
+										lsKw_system_building={lsKw_system_building}
 									/>
 								</Row>
 							</div>
@@ -633,9 +619,9 @@ class Home extends React.Component {
 									</span>
 								</Row>
 								<Row>
-									<BarChartElectricalSystemPowerConsumption
+									{/* <BarChartSystemPowerConsumption
 										lsLogPower_Building={lsLogPower_Building}
-									/>
+									/> */}
 								</Row>
 							</div>
 						</Col>

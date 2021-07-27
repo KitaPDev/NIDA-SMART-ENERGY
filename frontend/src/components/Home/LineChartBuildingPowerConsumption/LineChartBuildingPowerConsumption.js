@@ -166,7 +166,7 @@ export default class LineChartBuildingPowerConsumption extends PureComponent {
 			animation: true,
 		};
 
-		let lsLogPower_Building = this.props.lsLogPower_Building;
+		let lsKw_system_building = this.props.lsKw_system_building;
 
 		let series = [];
 		let powerMin = -1;

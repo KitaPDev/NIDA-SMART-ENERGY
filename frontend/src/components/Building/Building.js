@@ -13,7 +13,7 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "reactstrap";
-import BarChartElectricalSystemPowerConsumption from "./BarChartElectricalSystemPowerConsumption/BarChartElectricalSystemPowerConsumption";
+import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 import http from "../../utils/http";
 
 class Building extends React.Component {
@@ -30,8 +30,8 @@ class Building extends React.Component {
 			lsBuilding: [],
 			dateFrom: dateFrom.toISOString().substring(0, 16),
 			dateTo: new Date(Date.now() - tzOffset).toISOString().substring(0, 16),
-			isElectricalSystemDropdownOpen: false,
-			electricalSystem: "Overall",
+			isSystemDropdownOpen: false,
+			system: "Overall",
 			currentBuildingLabel: "",
 			amountPeople: 0,
 		};
@@ -46,8 +46,8 @@ class Building extends React.Component {
 
 		this.handleChangeDateFrom = this.handleChangeDateFrom.bind(this);
 		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
-		this.toggleElectricalSystem = this.toggleElectricalSystem.bind(this);
-		this.changeElectricalSystem = this.changeElectricalSystem.bind(this);
+		this.toggleSystem = this.toggleSystem.bind(this);
+		this.changeSystem = this.changeSystem.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 	}
 
@@ -76,15 +76,15 @@ class Building extends React.Component {
 		this.setState({ dateTo: event.target.value });
 	}
 
-	toggleElectricalSystem() {
+	toggleSystem() {
 		this.setState((prevState) => ({
-			isElectricalSystemDropdownOpen: !prevState.isElectricalSystemDropdownOpen,
+			isSystemDropdownOpen: !prevState.isSystemDropdownOpen,
 		}));
 	}
 
-	changeElectricalSystem(e) {
+	changeSystem(e) {
 		this.setState({
-			electricalSystem: e.currentTarget.textContent,
+			system: e.currentTarget.textContent,
 		});
 	}
 
@@ -95,8 +95,8 @@ class Building extends React.Component {
 			amountPeople,
 			dateFrom,
 			dateTo,
-			isElectricalSystemDropdownOpen,
-			electricalSystem,
+			isSystemDropdownOpen,
+			system,
 		} = this.state;
 
 		let lsLogPower_Building = [
@@ -269,20 +269,20 @@ class Building extends React.Component {
 											</Col>
 											<Col sm={2} style={{ textAlign: "right" }}>
 												<Dropdown
-													isOpen={isElectricalSystemDropdownOpen}
-													toggle={this.toggleElectricalSystem}
+													isOpen={isSystemDropdownOpen}
+													toggle={this.toggleSystem}
 												>
 													<DropdownToggle color="transparent" caret>
-														{electricalSystem}
+														{system}
 													</DropdownToggle>
 													<DropdownMenu>
-														<DropdownItem onClick={this.changeElectricalSystem}>
+														<DropdownItem onClick={this.changeSystem}>
 															Overall
 														</DropdownItem>
-														<DropdownItem onClick={this.changeElectricalSystem}>
+														<DropdownItem onClick={this.changeSystem}>
 															A/C
 														</DropdownItem>
-														<DropdownItem onClick={this.changeElectricalSystem}>
+														<DropdownItem onClick={this.changeSystem}>
 															Others
 														</DropdownItem>
 													</DropdownMenu>
@@ -301,9 +301,9 @@ class Building extends React.Component {
 											</Col>
 										</Row>
 										<Row>
-											<BarChartElectricalSystemPowerConsumption
+											<BarChartSystemPowerConsumption
 												lsLogPower={lsLogPower}
-												electricalSystem={electricalSystem}
+												system={system}
 											/>
 										</Row>
 									</Row>

@@ -10,7 +10,7 @@ import {
 	ResponsiveContainer,
 } from "recharts";
 import { Row, Col } from "reactstrap";
-import "./BarChartElectricalSystemPowerConsumption.css";
+import "./BarChartSystemPowerConsumption.css";
 
 const numberWithCommas = (x) => {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -72,7 +72,7 @@ const CustomTooltip = ({ payload, active, label, ...props }) => {
 	return null;
 };
 
-export default class BarChartElectricalSystemPowerConsumption extends PureComponent {
+export default class BarChartSystemPowerConsumption extends PureComponent {
 	constructor(props) {
 		super(props);
 		this.state = { animation: true };

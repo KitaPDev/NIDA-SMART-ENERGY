@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import "./PieChartElectricalSystem.css";
+import "./PieChartSystem.css";
 
 const COLORS = ["#3c67be", "#be4114"];
 
@@ -126,7 +126,7 @@ const CustomTooltip = ({ active, label, ...props }) => {
 	return null;
 };
 
-class PieChartElectricalSystem extends PureComponent {
+class PieChartSystem extends PureComponent {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -187,4 +187,4 @@ class PieChartElectricalSystem extends PureComponent {
 	}
 }
 
-export default PieChartElectricalSystem;
+export default PieChartSystem;

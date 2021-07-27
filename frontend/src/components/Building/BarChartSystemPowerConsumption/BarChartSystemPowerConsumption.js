@@ -10,7 +10,7 @@ import {
 	Brush,
 } from "recharts";
 import { Row, Col } from "reactstrap";
-import "./BarChartElectricalSystemPowerConsumption.css";
+import "./BarChartSystemPowerConsumption.css";
 
 const numberWithCommas = (x) => {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -72,7 +72,7 @@ const CustomTooltip = ({ payload, active, label, ...props }) => {
 	return null;
 };
 
-export default class BarChartElectricalSystemPowerConsumption extends PureComponent {
+export default class BarChartSystemPowerConsumption extends PureComponent {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -140,7 +140,7 @@ export default class BarChartElectricalSystemPowerConsumption extends PureCompon
 	}
 
 	render() {
-		let electricalSystem = this.props.electricalSystem;
+		let system = this.props.system;
 
 		let { data } = this.state;
 
@@ -175,12 +175,10 @@ export default class BarChartElectricalSystemPowerConsumption extends PureCompon
 							<Brush dataKey="hour" height={20} stroke="#D8CBB6" />
 							<Bar
 								dataKey={
-									electricalSystem.toLowerCase() === "a/c"
-										? "ac"
-										: electricalSystem.toLowerCase()
+									system.toLowerCase() === "a/c" ? "ac" : system.toLowerCase()
 								}
 								stackId="a"
-								fill={this.getColorCode(electricalSystem)}
+								fill={this.getColorCode(system)}
 							/>
 						</BarChart>
 					</ResponsiveContainer>

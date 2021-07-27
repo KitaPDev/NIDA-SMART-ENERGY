@@ -1,14 +1,12 @@
-const axios = require("axios");
 const dotenv = require("dotenv");
-const FormData = require("form-data");
-const knex = require("../database").knex;
+const axios = require("axios");
 const dateFormatter = require("../utils/dateFormatter");
+const apiService = require("../services/api.service");
 const deviceService = require("../services/device.service");
-const powermeterService = require("../services/powermeter.service");
 
 const baseUrl = process.env.NIDA_API_BASE_URL;
 const axiosInstance = axios.create({
-	baseURL: baseUrl,
+	baseURL: baseUrl + "/api/powermeter",
 });
 
 let accessToken = "";
@@ -25,37 +23,6 @@ function setAccessToken(token) {
 	accessToken = token;
 }
 
-async function getAllLatestData(accessToken) {
-	try {
-		let resp = await axiosInstance.get("/api/powermeter/lastupdate", {
-			headers: { Authorization: "Bearer " + accessToken },
-		});
-
-		let data = resp.data;
-	} catch (err) {
-		console.log(err);
-	}
-}
-
-async function getDataByDeviceID(deviceID) {
-	try {
-		let form = new FormData();
-		form.append("deviceid", deviceID);
-
-		let resp = await axiosInstance.post(
-			"/api/powermeter/device/lastupdate",
-			form,
-			{
-				headers: { Authorization: "Bearer " + accessToken },
-			}
-		);
-
-		let data = resp.data;
-	} catch (err) {
-		console.log(err);
-	}
-}
-
 async function updateDataPower() {
 	if (accessToken.length === 0) {
 		setTimeout(updateDataPower, updateDataDelay);
@@ -63,7 +30,7 @@ async function updateDataPower() {
 	}
 
 	try {
-		let dataPower = await powermeterService.getLatestLogPowerMeter();
+		let dataPower = await apiService.getLatestLogPowerMeter();
 
 		let dateStart = new Date(dateZero);
 
@@ -91,21 +58,19 @@ async function updateDataPower() {
 			enddatetime: dateFormatter.yyyymmddhhmmss(dateEnd),
 		};
 
-		let resp = await axiosInstance.post("/api/powermeter/datetime", postData, {
+		let resp = await axiosInstance.post("/datetime", postData, {
 			headers: headers,
 		});
 
 		let data = resp.data.data;
 
-		let lsDeviceID = await deviceService.getAllDeviceID();
+		let lsDeviceID = await deviceService.getAllPowerMeterDeviceID();
 
 		let lsLogPowerMeter = [];
 		for (let [key, value] of Object.entries(data)) {
-			let logPowerMeter = {};
+			if (!lsDeviceID.includes(value["Device"])) continue;
 
-			if (!lsDeviceID.includes(value["Device"])) {
-				continue;
-			}
+			let logPowerMeter = {};
 
 			logPowerMeter["data_datetime"] = value["DataDateTime"];
 			logPowerMeter["device_id"] = value["Device"];
@@ -153,7 +118,7 @@ async function updateDataPower() {
 		}
 
 		if (lsLogPowerMeter.length > 0) {
-			await powermeterService.insertLogPowerMeter(lsLogPowerMeter);
+			await apiService.insertLogPowerMeter(lsLogPowerMeter);
 		} else {
 			updateDataDelay = 900000;
 		}
@@ -167,7 +132,5 @@ async function updateDataPower() {
 module.exports = {
 	start,
 	setAccessToken,
-	getAllLatestData,
-	getDataByDeviceID,
 	updateDataPower,
 };

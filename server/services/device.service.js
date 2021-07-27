@@ -3,12 +3,7 @@ const knex = require("../database").knex;
 async function getAllDevice(from, to) {
 	let result = await knex("device")
 		.join("building", "device.building_id", "=", "building.id")
-		.join(
-			"electrical_system",
-			"device.electrical_system_id",
-			"=",
-			"electrical_system.id"
-		)
+		.join("system", "device.system_id", "=", "system.id")
 		.select(
 			"device.id",
 			"building.label as building",
@@ -16,7 +11,7 @@ async function getAllDevice(from, to) {
 			"device.floor",
 			"device.location",
 			"device.site",
-			"electrical_system.label as system",
+			"system.label as system",
 			"device.is_active",
 			"device.activated_timestamp"
 		);
@@ -31,22 +26,20 @@ async function insertDevice(
 	location,
 	site,
 	brandModel,
-	electricalSystem,
+	system,
 	isActive,
 	activatedDate
 ) {
 	let result = await knex("building").select("id").where("label", building);
 	let buildingID = result[0].id;
 
-	result = await knex("electrical_system")
-		.select("id")
-		.where("label", electricalSystem);
-	let electricalSystemID = result[0].id;
+	result = await knex("system").select("id").where("label", system);
+	let systemID = result[0].id;
 
 	await knex("device").insert({
 		id: deviceID,
 		building_id: buildingID,
-		electrical_system_id: electricalSystemID,
+		system_id: systemID,
 		brand_model: brandModel,
 		location: location,
 		site: site,
@@ -66,23 +59,21 @@ async function updateDevice(
 	location,
 	site,
 	brandModel,
-	electricalSystem,
+	system,
 	activatedDate
 ) {
 	let result = await knex("building").select("id").where("label", building);
 	let buildingID = result[0].id;
 
-	result = await knex("electrical_system")
-		.select("id")
-		.where("label", electricalSystem);
-	let electricalSystemID = result[0].id;
+	result = await knex("system").select("id").where("label", system);
+	let systemID = result[0].id;
 
 	await knex("device")
 		.where({ id: deviceID })
 		.update({
 			id: deviceID,
 			building_id: buildingID,
-			electrical_system_id: electricalSystemID,
+			system_id: systemID,
 			brand_model: brandModel,
 			location: location,
 			site: site,
@@ -105,9 +96,37 @@ async function getAllDeviceID() {
 	return lsDeviceID;
 }
 
+async function getAllPowerMeterDeviceID() {
+	let result = await knex("device")
+		.select("id")
+		.where(function () {
+			this.where("system_id", 1).orWhere("system_id", 2);
+		});
+
+	let lsDeviceID = [];
+	for (let row of result) {
+		lsDeviceID.push(row.id);
+	}
+
+	return lsDeviceID;
+}
+
+async function getAllIaqDeviceID() {
+	let result = await knex("device").select("id").where("system_id", 4);
+
+	let lsDeviceID = [];
+	for (let row of result) {
+		lsDeviceID.push(row.id);
+	}
+
+	return lsDeviceID;
+}
+
 module.exports = {
 	getAllDevice,
 	insertDevice,
 	updateDevice,
 	getAllDeviceID,
+	getAllPowerMeterDeviceID,
+	getAllIaqDeviceID,
 };

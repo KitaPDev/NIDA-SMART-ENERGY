@@ -30,7 +30,7 @@ class DeviceManager extends React.Component {
 		this.state = {
 			lsDevice: [],
 			lsBuilding: [],
-			lsElectricalSystem: [],
+			lsSystem: [],
 			isSortByDeviceIDAsc: false,
 			isSortByDeviceIDDesc: false,
 			isSortByStatusActive: false,
@@ -66,7 +66,7 @@ class DeviceManager extends React.Component {
 		this.toggleModalConfirmEditMeter =
 			this.toggleModalConfirmEditMeter.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
-		this.getAllElectricalSystem = this.getAllElectricalSystem.bind(this);
+		this.getAllSystem = this.getAllSystem.bind(this);
 		this.getAllDevice = this.getAllDevice.bind(this);
 		this.addMeter = this.addMeter.bind(this);
 		this.editMeter = this.editMeter.bind(this);
@@ -77,7 +77,7 @@ class DeviceManager extends React.Component {
 
 	componentDidMount() {
 		this.getAllBuilding();
-		this.getAllElectricalSystem();
+		this.getAllSystem();
 		this.getAllDevice();
 	}
 
@@ -231,11 +231,11 @@ class DeviceManager extends React.Component {
 		}
 	}
 
-	async getAllElectricalSystem() {
+	async getAllSystem() {
 		try {
-			let resp = await http.get("/electricalSystem/all");
+			let resp = await http.get("/system/all");
 
-			this.setState({ lsElectricalSystem: resp.data });
+			this.setState({ lsSystem: resp.data });
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -437,7 +437,7 @@ class DeviceManager extends React.Component {
 			system,
 			activatedDate,
 			lsBuilding,
-			lsElectricalSystem,
+			lsSystem,
 			deviceIDEdit,
 		} = this.state;
 
@@ -660,7 +660,7 @@ class DeviceManager extends React.Component {
 												value={system}
 												onChange={this.handleInputChange}
 											>
-												{lsElectricalSystem.map((system) => (
+												{lsSystem.map((system) => (
 													<option>{system.label}</option>
 												))}
 											</Input>
@@ -849,7 +849,7 @@ class DeviceManager extends React.Component {
 										value={system}
 										onChange={this.handleInputChange}
 									>
-										{lsElectricalSystem.map((system) => (
+										{lsSystem.map((system) => (
 											<option>{system.label}</option>
 										))}
 									</Input>

@@ -67,13 +67,12 @@ async function getAllBuildingCostCoefficientByMonthYear(req, res) {
 
 		let lsTarget = await targetService.getAllTargetByMonthYear(month, year);
 
-		let mapCostCoef_building = {};
+		let costCoef_building = {};
 		for (let target of lsTarget) {
-			mapCostCoef_building[target.building] =
-				target.coefficient_electricity_cost;
+			costCoef_building[target.building] = target.coefficient_electricity_cost;
 		}
 
-		return res.status(httpStatusCodes.OK).send(mapCostCoef_building);
+		return res.status(httpStatusCodes.OK).send(costCoef_building);
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
