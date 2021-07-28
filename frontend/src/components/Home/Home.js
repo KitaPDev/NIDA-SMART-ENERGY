@@ -3,7 +3,7 @@ import "./Home.css";
 import { Container, Row, Col, Progress } from "reactstrap";
 import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
 import PieChartSystem from "./PieChartSystem/PieChartSystem";
-import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
+import LineChart_BuildingPowerConsumption from "./LineChart_BuildingPowerConsumption/LineChart_BuildingPowerConsumption";
 import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 import http from "../../utils/http";
 import {
@@ -117,8 +117,6 @@ class Home extends React.Component {
 				if (kwh_system_building[building][system] === undefined)
 					kwh_system_building[building][system] = 0;
 
-				if (building === "Naradhip") console.log(device + ": " + kwh);
-
 				kwh_system_building[building][system] += kwh;
 			}
 
@@ -129,11 +127,9 @@ class Home extends React.Component {
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
 
-				if (!lsDeviceFirst.find((d) => d === device)) {
+				if (!lsDeviceFirst.find((d) => d === device))
 					lsDeviceFirst.push(device);
-				} else {
-					break;
-				}
+				else break;
 
 				kwh_system_building[building][system] -= kwh;
 			}
@@ -144,9 +140,10 @@ class Home extends React.Component {
 					costCoef = costCoef_building[building];
 				}
 
-				if (bill_building[building] === undefined) bill_building[building] = 0;
-				for (let [, kwh] of Object.entries(kwh_system)) {
-					if (kwh > 0) bill_building[building] += kwh * costCoef;
+				if (bill_building[building]) bill_building[building] = 0;
+
+				for (let kwh of Object.values(kwh_system)) {
+					if (kwh > 0) bill_building[building] = kwh * costCoef;
 				}
 			}
 
@@ -307,7 +304,7 @@ class Home extends React.Component {
 					kwh_system[system.label] += kwhDiff;
 
 					if (system.label === "Main") {
-						electricityBill += kwhDiff;
+						electricityBill += kwhDiff * costCoef;
 					}
 				}
 			}
@@ -326,7 +323,7 @@ class Home extends React.Component {
 			kwh_system_building,
 			lsKw_system_building,
 			kwhSolar,
-			electricityBill,
+			bill_building,
 		} = this.state;
 
 		let kwhMain = 0;
@@ -346,8 +343,11 @@ class Home extends React.Component {
 			}
 		}
 
-		if (electricityBill === undefined) {
-			electricityBill = 0;
+		let electricityBill = 0;
+		if (Object.values(bill_building).length > 0) {
+			for (let bill of Object.values(bill_building)) {
+				electricityBill += bill;
+			}
 		}
 
 		let target = 600000;
@@ -540,7 +540,7 @@ class Home extends React.Component {
 										>
 											฿
 											{this.numberWithCommas(
-												parseFloat((kwhMain - kwhSolar) * 4).toFixed(2)
+												parseFloat(electricityBill).toFixed(2)
 											)}
 										</span>
 									</Col>
@@ -600,16 +600,11 @@ class Home extends React.Component {
 							</div>
 							{/* ******************************** BUILDING POWER CONSUMPTION PANE ******************************** */}
 							<div className="building-power-consumption-pane">
-								<Row>
-									<span style={{ fontWeight: "bold" }}>
-										Power Consumption by Building (kW)
-									</span>
-								</Row>
-								<Row>
-									<LineChartBuildingPowerConsumption
-										lsKw_system_building={lsKw_system_building}
-									/>
-								</Row>
+								<LineChart_BuildingPowerConsumption
+									lsSelectedBuilding={lsSelectedBuilding}
+									lsKw_system_building={lsKw_system_building}
+									lsBuilding={lsBuilding}
+								/>
 							</div>
 							{/* ******************************** ELECTRICAL SYSTEM POWER CONSUMPTION PANE ******************************** */}
 							<div className="electrical-system-power-consumption-pane">
