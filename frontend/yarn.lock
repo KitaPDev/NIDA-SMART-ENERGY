@@ -3222,10 +3222,10 @@ chartjs-adapter-moment@^1.0.0:
   resolved "https://registry.yarnpkg.com/chartjs-adapter-moment/-/chartjs-adapter-moment-1.0.0.tgz#9174b1093c68bcfe285aff24f7388ad60d44e8f7"
   integrity sha512-PqlerEvQcc5hZLQ/NQWgBxgVQ4TRdvkW3c/t+SUEQSj78ia3hgLkf2VZ2yGJtltNbEEFyYGm+cA6XXevodYvWA==
 
-chartjs-plugin-zoom@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/chartjs-plugin-zoom/-/chartjs-plugin-zoom-1.0.1.tgz#b01dd3257dc795440b0ffdc61fbf225cf7e4a375"
-  integrity sha512-3G2Fjd1yhv+E54l0znz1zDOTA8KuUHNtPIP2s/aprNOwIQc5EQ0UVfvGuwiSXYuZuypIGQm4QOP55DPlv7wOXw==
+chartjs-plugin-zoom@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/chartjs-plugin-zoom/-/chartjs-plugin-zoom-1.1.1.tgz#8a28923a17fcb5eb57a0dc94c5113bf402677647"
+  integrity sha512-1q54WOzK7FtAjkbemQeqvmFUV0btNYIQny2HbQ6Awq9wUtCz7Zmj6vIgp3C1DYMQwN0nqgpC3vnApqiwI7cSdQ==
   dependencies:
     hammerjs "^2.0.8"
 

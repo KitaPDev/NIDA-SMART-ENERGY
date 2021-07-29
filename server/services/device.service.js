@@ -122,6 +122,10 @@ async function getAllIaqDeviceID() {
 	return lsDeviceID;
 }
 
+async function deleteDevice(deviceID) {
+	await knex("device").where("id", deviceID).delete();
+}
+
 module.exports = {
 	getAllDevice,
 	insertDevice,
@@ -129,4 +133,5 @@ module.exports = {
 	getAllDeviceID,
 	getAllPowerMeterDeviceID,
 	getAllIaqDeviceID,
+	deleteDevice,
 };

@@ -22,45 +22,55 @@ import SetPermission from "./components/User/SetPermission/SetPermission";
 class App extends React.Component {
 	render() {
 		return (
-			<div>
+			<div id="wrapper-root">
 				<Router>
 					<NavBar />
-					<ScrollToTop>
-						<Switch>
-							<Route path="/login" component={Login} />
-							<Route path="/forgot-password" component={ForgotPassword} />
-							<Route path="/register" component={Register} />
+					<div id="wrapper-content">
+						<ScrollToTop>
+							<Switch>
+								<Route path="/login" component={Login} />
+								<Route path="/forgot-password" component={ForgotPassword} />
+								<Route path="/register" component={Register} />
 
-							<Route path="/" component={Home} exact />
-							<Route path="/building" component={Building} exact />
-							<Route path="/dashboard" component={Dashboard} exact />
-							<Route path="/report" component={Report} exact />
-							<Route path="/meter" component={Meter} exact />
-							<Route path="/user/edit-profile" component={EditProfile} exact />
-							<Route
-								path="/user/edit-profile/:username"
-								component={EditProfile}
-								exact
-							/>
-							<Route path="/user/set-target" component={SetTarget} exact />
-							<Route
-								path="/user/device-manager"
-								component={DeviceManager}
-								exact
-							/>
-							<Route path="/user/activity-log" component={ActivityLog} exact />
-							<Route
-								path="/user/user-management"
-								component={UserManagement}
-								exact
-							/>
-							<Route
-								path="/user/set-permission"
-								component={SetPermission}
-								exact
-							/>
-						</Switch>
-					</ScrollToTop>
+								<Route path="/" component={Home} exact />
+								<Route path="/building" component={Building} exact />
+								<Route path="/dashboard" component={Dashboard} exact />
+								<Route path="/report" component={Report} exact />
+								<Route path="/meter" component={Meter} exact />
+								<Route
+									path="/user/edit-profile"
+									component={EditProfile}
+									exact
+								/>
+								<Route
+									path="/user/edit-profile/:username"
+									component={EditProfile}
+									exact
+								/>
+								<Route path="/user/set-target" component={SetTarget} exact />
+								<Route
+									path="/user/device-manager"
+									component={DeviceManager}
+									exact
+								/>
+								<Route
+									path="/user/activity-log"
+									component={ActivityLog}
+									exact
+								/>
+								<Route
+									path="/user/user-management"
+									component={UserManagement}
+									exact
+								/>
+								<Route
+									path="/user/set-permission"
+									component={SetPermission}
+									exact
+								/>
+							</Switch>
+						</ScrollToTop>
+					</div>
 				</Router>
 				<Footer />
 			</div>

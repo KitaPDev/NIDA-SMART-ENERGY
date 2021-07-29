@@ -84,7 +84,8 @@ async function getDataSolar(start, end) {
 			"data_datetime",
 			"<=",
 			dateFormatter.yyyymmddhhmmss(new Date(end))
-		);
+		)
+		.orderBy("data_datetime", "asc");
 
 	return result;
 }
@@ -97,7 +98,8 @@ async function getDataIaq(start, end) {
 			"data_datetime",
 			"<=",
 			dateFormatter.yyyymmddhhmmss(new Date(end))
-		);
+		)
+		.orderBy("data_datetime", "asc");
 
 	return result;
 }

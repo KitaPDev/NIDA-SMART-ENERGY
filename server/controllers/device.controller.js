@@ -71,8 +71,22 @@ async function editDevice(req, res) {
 	}
 }
 
+async function deleteDevice(req, res) {
+	try {
+		let body = req.body;
+		let deviceID = body.id;
+
+		await deviceService.deleteDevice(deviceID);
+
+		return res.sendStatus(httpStatusCodes.OK);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getAllDevice,
 	newDevice,
 	editDevice,
+	deleteDevice,
 };

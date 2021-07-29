@@ -25,6 +25,7 @@ import {
 import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
 import http from "../../utils/http";
+import { subjectIaqData, apiService } from "../../apiService";
 
 const lsMonthName = [
 	"January",
@@ -51,6 +52,8 @@ const lsDay = [
 	"Saturday",
 ];
 
+let subscriberIaqData;
+
 class NavBar extends React.Component {
 	constructor(props) {
 		super(props);
@@ -68,6 +71,8 @@ class NavBar extends React.Component {
 				.replace("24:", "00:"),
 			username: "",
 			unauthenticatedPathnames: ["/login", "/forgot-password", "/register"],
+			temperature: undefined,
+			humidity: undefined,
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
@@ -75,10 +80,9 @@ class NavBar extends React.Component {
 		this.toggleUserDropdown = this.toggleUserDropdown.bind(this);
 		this.changeLocale = this.changeLocale.bind(this);
 		this.logout = this.logout.bind(this);
-		this.getUsername = this.getUsername.bind(this);
 	}
 
-	componentDidMount() {
+	async componentDidMount() {
 		this.interval = setInterval(
 			() =>
 				this.setState({
@@ -93,30 +97,64 @@ class NavBar extends React.Component {
 			500
 		);
 
+		let username = localStorage.getItem("current_username");
+
+		if (username && username !== "") {
+			this.setState({ username: localStorage.getItem("current_username") });
+		}
+
 		this.unlisten = this.props.history.listen((location, action) => {
 			if (
-				this.state.username.length === 0 &&
+				this.state.username === "" &&
 				this.state.unauthenticatedPathnames.indexOf(location.pathname) === -1
 			) {
-				this.getUsername();
+				this.setState({ username: localStorage.getItem("current_username") });
 			}
+		});
+
+		let start = new Date(new Date().getTime() - 15 * 60 * 1000);
+		let end = new Date();
+
+		let dataIaq = subjectIaqData.value;
+
+		if (!dataIaq) {
+			await apiService.updateIaqData(start, end);
+		}
+
+		subscriberIaqData = subjectIaqData.subscribe(async (dataIaq) => {
+			let latestData = dataIaq[dataIaq.length - 1];
+			let latestDate = new Date(latestData.data_datetime);
+
+			if (new Date().getTime() - latestDate.getTime() > 900000) {
+				start = new Date(dataIaq[0].data_datetime);
+				end = new Date();
+
+				await apiService.updateIaqData(start, end);
+				return;
+			}
+
+			this.setState({
+				temperature: Math.round(latestData.temperature),
+				humidity: Math.round(latestData.humidity),
+			});
 		});
 	}
 
-	componentWillUnmount() {
-		clearInterval(this.interval);
-		this.unlisten();
-	}
-
-	async componentDidUpdate() {
+	componentDidUpdate() {
 		if (
-			this.state.username.length === 0 &&
+			this.state.username === "" &&
 			this.state.unauthenticatedPathnames.indexOf(
 				this.props.history.location.pathname
 			) === -1
 		) {
-			await this.getUsername();
+			this.setState({ username: localStorage.getItem("current_username") });
 		}
+	}
+
+	componentWillUnmount() {
+		subscriberIaqData.unsubscribe();
+		clearInterval(this.interval);
+		this.unlisten();
 	}
 
 	toggleCollapse() {
@@ -145,22 +183,13 @@ class NavBar extends React.Component {
 
 	logout() {
 		http.get("/auth/logout");
+
+		this.setState({ username: "" });
+		localStorage.clear();
+
 		this.props.history.push({
 			pathname: "/login",
 		});
-		this.setState({ username: "" });
-	}
-
-	async getUsername() {
-		try {
-			let resp = await http.get("/auth/username");
-
-			if (resp.status === 200) {
-				this.setState({ username: resp.data });
-			}
-		} catch (err) {
-			console.log(err);
-		}
 	}
 
 	render() {
@@ -170,13 +199,18 @@ class NavBar extends React.Component {
 			locale,
 			currentTime,
 			username,
+			temperature,
+			humidity,
 		} = this.state;
+
+		if (!username) username = "";
+
 		let { location } = this.props;
 
 		let today = new Date();
 
 		return (
-			<div>
+			<div style={{ height: username.length > 0 ? "10%" : 0 }}>
 				{location.pathname === "/login" ||
 				location.pathname === "/forgot-password" ||
 				location.pathname === "/register" ? (
@@ -426,7 +460,7 @@ class NavBar extends React.Component {
 							</Row>
 							<Row style={{ justifyContent: "center", alignItems: "center" }}>
 								<FaTemperatureLow />
-								37°C
+								{temperature ? temperature : "N/A "}°C
 							</Row>
 						</div>
 						<div style={{ width: "100px", fontWeight: "600" }}>
@@ -439,7 +473,7 @@ class NavBar extends React.Component {
 							</Row>
 							<Row style={{ justifyContent: "center", alignItems: "center" }}>
 								<IoIosWater />
-								48%
+								{humidity ? humidity : "N/A "}%
 							</Row>
 						</div>
 						<div

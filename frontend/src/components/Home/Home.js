@@ -11,6 +11,7 @@ import {
 	subjectSolarData,
 	apiService,
 } from "../../apiService";
+import colorConverter from "../../utils/colorConverter";
 
 let subscriberPowerMeterData;
 let subscriberSolarData;
@@ -485,8 +486,8 @@ class Home extends React.Component {
 											others={kwhMain - kwhAc}
 											building={
 												lsSelectedBuilding.length === 1
-													? ""
-													: lsSelectedBuilding[0]
+													? lsSelectedBuilding[0]
+													: ""
 											}
 										/>
 									</Col>
@@ -669,8 +670,11 @@ class Home extends React.Component {
 											".png"
 										}
 										alt={building.label + ".png"}
+										style={{
+											background: "none",
+										}}
 										onClick={() => this.onClickBuilding(building.label)}
-									></img>
+									/>
 								))}
 							</div>
 							<div className="footer">

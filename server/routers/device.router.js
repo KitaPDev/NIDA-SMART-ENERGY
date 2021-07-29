@@ -16,4 +16,8 @@ router.post("/edit", authenticateJWT, async function (req, res) {
 	deviceController.editDevice(req, res);
 });
 
+router.post("/delete", authenticateJWT, async function (req, res) {
+	deviceController.deleteDevice(req, res);
+});
+
 module.exports = router;

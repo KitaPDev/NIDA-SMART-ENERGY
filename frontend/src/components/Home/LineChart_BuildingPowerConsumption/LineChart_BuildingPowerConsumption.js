@@ -1,6 +1,7 @@
 import React from "react";
 import "./LineChart_BuildingPowerConsumption.css";
 import { Line } from "react-chartjs-2";
+import zoomPlugin from "chartjs-plugin-zoom";
 
 class LineChart_BuildingPowerConsumption extends React.Component {
 	constructor(props) {
@@ -14,6 +15,13 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 						text: "Power (kW)",
 					},
 					legend: false,
+					zoom: {
+						zoom: {
+							drag: {
+								enabled: true,
+							},
+						},
+					},
 				},
 				maintainAspectRatio: false,
 			},

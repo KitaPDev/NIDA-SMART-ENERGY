@@ -43,6 +43,7 @@ class DeviceManager extends React.Component {
 			isModalConfirmEditMeterOpen: false,
 			isModalConfirmDeleteMeterOpen: false,
 			deviceIDEdit: "",
+			deviceIDDelete: "",
 			building: "",
 			floor: 0,
 			location: "",
@@ -210,9 +211,10 @@ class DeviceManager extends React.Component {
 		}));
 	}
 
-	toggleModalConfirmDeleteMeter() {
+	toggleModalConfirmDeleteMeter(deviceID) {
 		this.setState((prevState) => ({
 			isModalConfirmDeleteMeterOpen: !prevState.isModalConfirmDeleteMeterOpen,
+			deviceIDDelete: deviceID,
 		}));
 	}
 
@@ -301,14 +303,12 @@ class DeviceManager extends React.Component {
 				activated_date: activatedDate,
 			};
 
-			let resp = await http.post("/device", payload);
-
-			if (resp.status === 200) {
-				alert("Meter has been created.");
-			}
+			await http.post("/device", payload);
 
 			this.toggleModalConfirmAddMeter();
 			this.toggleModalAddMeter();
+
+			this.getAllDevice();
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -384,12 +384,9 @@ class DeviceManager extends React.Component {
 				activated_date: activatedDate,
 			};
 
-			let resp = await http.post("/device/edit", payload);
+			await http.post("/device/edit", payload);
 
-			if (resp.status === 200) {
-				alert("Meter has been edited.");
-				this.setState({ deviceIDEdit: -1 });
-			}
+			this.setState({ deviceIDEdit: "", isModalConfirmEditMeter: false });
 		} catch (err) {
 			console.log(err);
 			alert("Failed to edit Meter. Please try again.");
@@ -399,15 +396,18 @@ class DeviceManager extends React.Component {
 
 	async deleteMeter() {
 		try {
-			let { deviceIDEdit } = this.state;
+			let { deviceIDDelete } = this.state;
 
-			let payload = { id: deviceIDEdit };
+			let payload = { id: deviceIDDelete };
 
-			let resp = await http.post("/device/delete", payload);
+			await http.post("/device/delete", payload);
 
-			if (resp.status === 200) {
-				alert("Meter has been deleted.");
-			}
+			this.setState({
+				deviceIDDelete: "",
+				isModalConfirmDeleteMeterOpen: false,
+			});
+
+			this.getAllDevice();
 		} catch (err) {
 			console.log(err);
 			alert("Failed to delete Meter. Please try again.");
@@ -471,7 +471,7 @@ class DeviceManager extends React.Component {
 
 		if (searchText.length > 0) {
 			lsDeviceDisplay = lsDeviceDisplay.filter((device, index) => {
-				for (let [key, value] of Object.entries(device)) {
+				for (let [, value] of Object.entries(device)) {
 					if (value !== null) {
 						if (value.toString().includes(searchText)) {
 							return true;
@@ -717,7 +717,9 @@ class DeviceManager extends React.Component {
 										) : (
 											<MdDelete
 												size={20}
-												onClick={() => this.toggleModalConfirmDeleteMeter()}
+												onClick={() =>
+													this.toggleModalConfirmDeleteMeter(device.id)
+												}
 											/>
 										)}
 									</td>
