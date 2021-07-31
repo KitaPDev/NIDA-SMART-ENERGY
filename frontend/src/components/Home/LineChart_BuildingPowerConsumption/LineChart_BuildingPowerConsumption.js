@@ -29,10 +29,13 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 		};
 	}
 
-	componentWillReceiveProps(nextProps) {
-		let lsKw_system_building = nextProps.lsKw_system_building;
-		let lsSelectedBuilding = nextProps.lsSelectedBuilding;
-		let lsBuilding = nextProps.lsBuilding;
+	componentDidUpdate(prevProps) {
+		if (this.props.lsKw_system_building === prevProps.lsKw_system_building)
+			return;
+
+		let lsKw_system_building = this.props.lsKw_system_building;
+		let lsSelectedBuilding = this.props.lsSelectedBuilding;
+		let lsBuilding = this.props.lsBuilding;
 
 		let { options } = this.state;
 

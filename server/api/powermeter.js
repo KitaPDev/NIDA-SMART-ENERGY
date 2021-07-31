@@ -120,7 +120,7 @@ async function updateDataPower() {
 		if (lsLogPowerMeter.length > 0) {
 			await apiService.insertLogPowerMeter(lsLogPowerMeter);
 		} else {
-			updateDataDelay = 900000;
+			updateDataDelay = 600000;
 		}
 	} catch (err) {
 		console.log(err);

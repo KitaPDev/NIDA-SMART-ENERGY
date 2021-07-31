@@ -87,7 +87,7 @@ async function updateDataIaq() {
 		if (lsLogIaq.length > 0) {
 			await apiService.insertLogIaq(lsLogIaq);
 		} else {
-			updateDataDelay = 900000;
+			updateDataDelay = 600000;
 		}
 	} catch (err) {
 		console.log(err);

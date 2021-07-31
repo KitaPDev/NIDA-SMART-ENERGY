@@ -83,7 +83,10 @@ class NavBar extends React.Component {
 	}
 
 	async componentDidMount() {
-		this.interval = setInterval(
+		let { unauthenticatedPathnames } = this.state;
+		let { pathname } = this.props.location;
+
+		this.intervalTime = setInterval(
 			() =>
 				this.setState({
 					currentTime: new Date()
@@ -117,11 +120,14 @@ class NavBar extends React.Component {
 
 		let dataIaq = subjectIaqData.value;
 
-		if (!dataIaq) {
+		if (!dataIaq && !unauthenticatedPathnames.includes(pathname)) {
 			await apiService.updateIaqData(start, end);
 		}
 
 		subscriberIaqData = subjectIaqData.subscribe(async (dataIaq) => {
+			if (!dataIaq) return;
+			if (dataIaq.length === 0) return;
+
 			let latestData = dataIaq[dataIaq.length - 1];
 			let latestDate = new Date(latestData.data_datetime);
 
@@ -134,26 +140,43 @@ class NavBar extends React.Component {
 			}
 
 			this.setState({
-				temperature: Math.round(latestData.temperature),
-				humidity: Math.round(latestData.humidity),
+				temperature: parseFloat(latestData.temperature).toFixed(1),
+				humidity: parseFloat(latestData.humidity).toFixed(1),
 			});
 		});
+
+		this.intervalIaq = setInterval(async () => {
+			dataIaq = subjectIaqData.value;
+
+			if (!dataIaq) return;
+			if (dataIaq.length === 0) return;
+
+			let latestData = dataIaq[dataIaq.length - 1];
+			let latestDate = new Date(latestData.data_datetime);
+
+			if (new Date().getTime() - latestDate.getTime() > 900000) {
+				start = new Date(dataIaq[0].data_datetime);
+				end = new Date();
+
+				await apiService.updateIaqData(start, end);
+				return;
+			}
+		}, 900000);
 	}
 
 	componentDidUpdate() {
-		if (
-			this.state.username === "" &&
-			this.state.unauthenticatedPathnames.indexOf(
-				this.props.history.location.pathname
-			) === -1
-		) {
+		let { username, unauthenticatedPathnames } = this.state;
+		let pathname = this.props.history.location.pathname;
+
+		if (username === "" && !unauthenticatedPathnames.includes(pathname)) {
 			this.setState({ username: localStorage.getItem("current_username") });
 		}
 	}
 
 	componentWillUnmount() {
 		subscriberIaqData.unsubscribe();
-		clearInterval(this.interval);
+		clearInterval(this.intervalTime);
+		clearInterval(this.intervalIaq);
 		this.unlisten();
 	}
 
@@ -203,9 +226,9 @@ class NavBar extends React.Component {
 			humidity,
 		} = this.state;
 
-		if (!username) username = "";
-
 		let { location } = this.props;
+
+		if (!username) username = "";
 
 		let today = new Date();
 

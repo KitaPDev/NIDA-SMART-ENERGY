@@ -20,6 +20,8 @@ instance.interceptors.response.use(
 	(err) => {
 		let resp = err.response;
 		if (!resp) {
+			localStorage.clear();
+
 			if (window.location.pathname !== "./login") {
 				window.location.pathname = "/login";
 				alert(

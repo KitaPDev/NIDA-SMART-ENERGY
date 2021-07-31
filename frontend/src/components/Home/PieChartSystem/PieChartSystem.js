@@ -135,10 +135,16 @@ class PieChartSystem extends PureComponent {
 		};
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentDidUpdate(prevProps) {
+		if (
+			this.props.ac === prevProps.ac &&
+			this.props.others === prevProps.others
+		)
+			return;
+
 		this.setState({
-			ac: nextProps.ac,
-			others: nextProps.others,
+			ac: this.props.ac,
+			others: this.props.others,
 		});
 	}
 

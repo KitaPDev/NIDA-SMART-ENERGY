@@ -1,7 +1,6 @@
 const targetService = require("../services/target.service");
 const buildingService = require("../services/building.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
-const { response } = require("express");
 
 async function inputTarget(req, res) {
 	try {

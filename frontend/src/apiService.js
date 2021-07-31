@@ -11,7 +11,14 @@ const apiService = {
 			let today = new Date();
 
 			if (!dateStart || !dateEnd) {
-				dateStart = new Date().setDate(today.getDate() - 1);
+				dateStart = new Date(
+					today.getFullYear(),
+					today.getMonth(),
+					today.getDate(),
+					0,
+					0,
+					0
+				);
 				dateEnd = today;
 			}
 

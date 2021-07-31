@@ -303,7 +303,7 @@ function hexToRgb(hex) {
 				parseInt(result[2], 16),
 				parseInt(result[3], 16),
 		  ]
-		: null;
+		: "";
 }
 
 function getFilterFromHex(hex) {
@@ -327,6 +327,28 @@ function getFilterFromHex(hex) {
 	return;
 }
 
-const colorConverter = { getFilterFromHex };
+function pickHex(color1, color2, ratio) {
+	let r = Math.ceil(
+		parseInt(color1.substring(0, 2), 16) * ratio +
+			parseInt(color2.substring(0, 2), 16) * (1 - ratio)
+	);
+	let g = Math.ceil(
+		parseInt(color1.substring(2, 4), 16) * ratio +
+			parseInt(color2.substring(2, 4), 16) * (1 - ratio)
+	);
+	let b = Math.ceil(
+		parseInt(color1.substring(4, 6), 16) * ratio +
+			parseInt(color2.substring(4, 6), 16) * (1 - ratio)
+	);
+
+	return hex(r) + hex(g) + hex(b);
+}
+
+function hex(x) {
+	x = x.toString(16);
+	return x.length === 1 ? "0" + x : x;
+}
+
+const colorConverter = { getFilterFromHex, pickHex };
 
 export default colorConverter;

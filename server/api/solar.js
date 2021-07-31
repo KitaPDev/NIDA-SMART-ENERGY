@@ -95,7 +95,7 @@ async function updateDataSolar() {
 		if (lsLogSolar.length > 0) {
 			await apiService.insertLogSolar(lsLogSolar);
 		} else {
-			updateDataDelay = 900000;
+			updateDataDelay = 600000;
 		}
 	} catch (err) {
 		console.log(err);
