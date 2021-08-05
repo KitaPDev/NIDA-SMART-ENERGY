@@ -688,26 +688,26 @@ class Home extends React.Component {
 											".png"
 										}
 										alt={building.label + ".png"}
-										style={{
-											filter:
-												Object.entries(kwh_system_building).length > 0 &&
-												lsSelectedBuilding.includes(building.label)
-													? "brightness(0) saturate(100%)" +
-													  colorConverter
-															.getFilterFromHex(
-																colorConverter.pickHex(
-																	"d1dbde",
-																	"d9a791",
-																	parseFloat(
-																		kwh_system_building[building.label][
-																			"Main"
-																		] / kwhMainTotal
-																	).toFixed(2)
-																)
-															)
-															.replace(/replace:|;/gi, "")
-													: "",
-										}}
+										// style={{
+										// 	filter:
+										// 		Object.entries(kwh_system_building).length > 0 &&
+										// 		lsSelectedBuilding.includes(building.label)
+										// 			? "brightness(0) saturate(100%)" +
+										// 			  colorConverter
+										// 					.getFilterFromHex(
+										// 						colorConverter.pickHex(
+										// 							"d1dbde",
+										// 							"d9a791",
+										// 							parseFloat(
+										// 								kwh_system_building[building.label][
+										// 									"Main"
+										// 								] / kwhMainTotal
+										// 							).toFixed(2)
+										// 						)
+										// 					)
+										// 					.replace(/replace:|;/gi, "")
+										// 			: "",
+										// }}
 										onClick={() => this.onClickBuilding(building.label)}
 									/>
 								))}

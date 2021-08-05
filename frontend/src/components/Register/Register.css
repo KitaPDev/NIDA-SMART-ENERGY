@@ -2,25 +2,6 @@
 	padding: 1rem;
 }
 
-.container-register .col-brand {
-	width: fit-content !important;
-}
-
-.container-register .col-title {
-	text-transform: uppercase;
-	font-size: 300%;
-	font-weight: 600;
-	color: #282541;
-}
-
-.container-register .container-form {
-	background-color: #ffffff;
-	border-radius: 1rem;
-	margin-top: 8vh;
-	padding: 3rem !important;
-	width: 50vw !important;
-}
-
 .container-register .row-heading {
 	padding-left: 1rem;
 	font-size: 200%;

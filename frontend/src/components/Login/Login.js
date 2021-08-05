@@ -105,14 +105,12 @@ class Login extends React.Component {
 		return (
 			<div style={{ backgroundColor: "#f2f3f7", height: "100vh" }}>
 				<Container fluid className="container-login">
-					<Row>
-						<Col sm={2} className="col-brand">
+					<div className="row-title">
+						<span className="col-brand">
 							<img className="navbar-logo" src="favicon.ico" alt="logo"></img>
-						</Col>
-						<Col sm={10} className="col-title">
-							NIDA SMART ENERGY
-						</Col>
-					</Row>
+						</span>
+						<span className="col-title">NIDA SMART ENERGY</span>
+					</div>
 
 					<Container className="container-form">
 						<Row className="row-heading">Login</Row>

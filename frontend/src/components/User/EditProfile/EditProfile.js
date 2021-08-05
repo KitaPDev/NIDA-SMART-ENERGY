@@ -450,21 +450,28 @@ class EditProfile extends React.Component {
 										) : (
 											<td>{username}</td>
 										)}
-										{isEditUsernameMode ? (
-											<td style={{ textAlign: "right" }}>
-												<Button
-													color="primary"
-													className="btn-submit"
-													onClick={this.toggleModalConfirmUsername}
-												>
-													Submit
-												</Button>
-											</td>
+										{userType === "Super Admin" ? (
+											""
 										) : (
-											<td className="td-edit">
-												<MdModeEdit onClick={this.toggleEditUsername} />
-											</td>
+											<>
+												{isEditUsernameMode ? (
+													<td style={{ textAlign: "right" }}>
+														<Button
+															color="primary"
+															className="btn-submit"
+															onClick={this.toggleModalConfirmUsername}
+														>
+															Submit
+														</Button>
+													</td>
+												) : (
+													<td className="td-edit">
+														<MdModeEdit onClick={this.toggleEditUsername} />
+													</td>
+												)}
+											</>
 										)}
+
 										{isEditUsernameMode ? (
 											<td>
 												<Button
@@ -496,20 +503,26 @@ class EditProfile extends React.Component {
 										) : (
 											<td>{email}</td>
 										)}
-										{isEditEmailMode ? (
-											<td style={{ textAlign: "right" }}>
-												<Button
-													color="primary"
-													className="btn-submit"
-													onClick={this.toggleModalConfirmEmail}
-												>
-													Submit
-												</Button>
-											</td>
+										{userType === "Super Admin" ? (
+											""
 										) : (
-											<td className="td-edit">
-												<MdModeEdit onClick={this.toggleEditEmail} />
-											</td>
+											<>
+												{isEditEmailMode ? (
+													<td style={{ textAlign: "right" }}>
+														<Button
+															color="primary"
+															className="btn-submit"
+															onClick={this.toggleModalConfirmEmail}
+														>
+															Submit
+														</Button>
+													</td>
+												) : (
+													<td className="td-edit">
+														<MdModeEdit onClick={this.toggleEditEmail} />
+													</td>
+												)}
+											</>
 										)}
 										{isEditEmailMode ? (
 											<td>
@@ -528,7 +541,6 @@ class EditProfile extends React.Component {
 									<tr>
 										<th scope="row">User Type</th>
 										<td className={isUserTypeApproved ? "" : "pending"}>
-											{userType}
 											{isUserTypeApproved ? "" : " (Pending)"}
 										</td>
 										{isUserTypeApproved ? (
@@ -580,9 +592,10 @@ class EditProfile extends React.Component {
 												Change Password
 											</Button>
 										</td>
-										{currentUsername === username ||
-										userType === "Super Admin" ||
-										userType === "Admin" ? (
+										{(currentUsername === username ||
+											currentUserType === "Super Admin" ||
+											currentUserType === "Admin") &&
+										userType !== "Super Admin" ? (
 											<td className="td-button">
 												{isDeactivated ? (
 													<Button
