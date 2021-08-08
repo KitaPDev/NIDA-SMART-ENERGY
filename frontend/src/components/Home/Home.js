@@ -4,7 +4,7 @@ import { Container, Row, Col, Progress } from "reactstrap";
 import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
 import PieChartSystem from "./PieChartSystem/PieChartSystem";
 import LineChart_BuildingPowerConsumption from "./LineChart_BuildingPowerConsumption/LineChart_BuildingPowerConsumption";
-import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
+import BarChart_SystemPowerConsumption from "./BarChart_SystemPowerConsumption/BarChart_SystemPowerConsumption";
 import http from "../../utils/http";
 import {
 	subjectPowerMeterData,
@@ -185,7 +185,7 @@ class Home extends React.Component {
 		this.intervalApi = setInterval(() => {
 			apiService.updatePowerMeterData();
 			apiService.updateSolarData();
-		}, 900000);
+		}, 300000);
 	}
 
 	componentWillUnmount() {
@@ -626,16 +626,11 @@ class Home extends React.Component {
 							</div>
 							{/* ******************************** ELECTRICAL SYSTEM POWER CONSUMPTION PANE ******************************** */}
 							<div className="electrical-system-power-consumption-pane">
-								<Row>
-									<span style={{ fontWeight: "bold" }}>
-										Power Consumption by Electrical System (kW)
-									</span>
-								</Row>
-								<Row>
-									{/* <BarChartSystemPowerConsumption
-										lsLogPower_Building={lsLogPower_Building}
-									/> */}
-								</Row>
+								<BarChart_SystemPowerConsumption
+									lsSelectedBuilding={lsSelectedBuilding}
+									lsKw_system_building={lsKw_system_building}
+									lsBuilding={lsBuilding}
+								/>
 							</div>
 						</Col>
 

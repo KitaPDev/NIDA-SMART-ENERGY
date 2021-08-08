@@ -160,8 +160,8 @@ class PieChartSystem extends PureComponent {
 			<ResponsiveContainer width="100%" height="100%">
 				<PieChart width={400} height={400}>
 					<Pie
+						isAnimationActive={false}
 						dataKey="value"
-						isAnimationActive={true}
 						data={data}
 						cx="50%"
 						cy="50%"

@@ -34,14 +34,15 @@ const renderCustomizedLabel = ({
 export default class PieChartEnergySource extends PureComponent {
 	render() {
 		let data = [
-			{ name: "MEA", value: this.props.mea },
-			{ name: "Solar Cells", value: this.props.solar },
+			{ name: "MEA", value: Math.abs(this.props.mea) },
+			{ name: "Solar Cells", value: Math.abs(this.props.solar) },
 		];
 
 		return (
 			<ResponsiveContainer width="100%" height="100%">
 				<PieChart width={400} height={400}>
 					<Pie
+						isAnimationActive={false}
 						data={data}
 						cx="50%"
 						cy="50%"
