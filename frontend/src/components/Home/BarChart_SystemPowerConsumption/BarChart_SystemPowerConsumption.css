@@ -3,11 +3,11 @@
 	height: 100%;
 }
 
-#lc-building-power {
+#bc-building-power {
 	height: 100%;
 	width: 100%;
 }
 
-#lc-building-power:hover {
+#bc-building-power:hover {
 	cursor: pointer;
 }

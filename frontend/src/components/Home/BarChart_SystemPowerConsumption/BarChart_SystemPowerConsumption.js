@@ -2,9 +2,10 @@ import React from "react";
 import "./BarChart_SystemPowerConsumption.css";
 
 import { Chart } from "chart.js";
-import { Bar } from "react-chartjs-2";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
+
+//Custom Tooltip
 
 const getOrCreateTooltip = (chart) => {
 	let tooltipEl = chart.canvas.parentNode.querySelector("div");
@@ -111,12 +112,17 @@ const externalTooltipHandler = (context) => {
 		tooltip.options.padding + "px " + tooltip.options.padding + "px";
 };
 
+let barChart;
+
 class BarChart_SystemPowerConsumption extends React.Component {
+	chartRef = React.createRef();
+
 	constructor(props) {
 		super(props);
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
-			displayed_lsKw_system_building: {},
+			lsSelectedBuildingPrev: [],
+			componentShouldUpdate: true,
 
 			// Chart details
 			data: {},
@@ -146,6 +152,7 @@ class BarChart_SystemPowerConsumption extends React.Component {
 					},
 					yAxis: {
 						min: 0,
+						max: 100,
 						display: true,
 						grid: {
 							display: false,
@@ -191,48 +198,61 @@ class BarChart_SystemPowerConsumption extends React.Component {
 			},
 		};
 
-		this.ref = { lineChart: React.createRef() };
-
 		this.handleDoubleClick = this.handleDoubleClick.bind(this);
 	}
 
-	componentDidMount() {
-		Chart.register(zoomPlugin);
-	}
-
-	componentDidUpdate(prevProps) {
+	buildChart = () => {
 		let { data, options } = this.state;
+
+		const myChartRef = this.chartRef.current.getContext("2d");
+
+		if (typeof barChart !== "undefined") {
+			barChart.destroy();
+		}
+
+		barChart = new Chart(myChartRef, {
+			type: "bar",
+			data: data,
+			options: options,
+		});
+	};
+
+	componentWillReceiveProps(nextProps) {
+		let { data, options, lsSelectedBuildingPrev } = this.state;
+
+		// console.log(this.props.lsSelectedBuilding, nextProps.lsSelectedBuilding);
 
 		if (
 			JSON.stringify(this.props.lsKw_system_building) ===
-				JSON.stringify(prevProps.lsKw_system_building) &&
+				JSON.stringify(nextProps.lsKw_system_building) &&
+			JSON.stringify(lsSelectedBuildingPrev) ===
+				JSON.stringify(nextProps.lsSelectedBuilding) &&
 			Object.values(data).length > 0
 		) {
 			return;
 		}
 
 		let lsKw_system_building = {};
-		let lsSelectedBuilding = this.props.lsSelectedBuilding;
-		let lsBuilding = this.props.lsBuilding;
+		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
+		let lsBuilding = nextProps.lsBuilding;
 
-		Object.assign(lsKw_system_building, this.props.lsKw_system_building);
+		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
 
 		let labels = [];
 		let datasets = [];
 
 		if (Object.keys(lsKw_system_building).length <= 1) return;
 
-		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
-			if (!lsSelectedBuilding.find((b) => b === building)) continue;
+		let yMax = 1;
 
+		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
 			let color = lsBuilding.find((b) => b.label === building).color_code;
 
 			let dataset = {
 				label: building,
 				fill: false,
 				borderColor: color,
-				borderWidth: 2,
-				tension: 0.1,
+				borderWidth: 1,
 				spanGaps: true,
 				pointRadius: 2,
 			};
@@ -255,16 +275,28 @@ class BarChart_SystemPowerConsumption extends React.Component {
 					labels.push(date);
 				}
 
+				if (!lsSelectedBuilding.includes(building)) {
+					prevDatetime = datetime;
+					continue;
+				}
+
 				if (prevDatetime) {
 					if (datetime.getTime() === prevDatetime.getTime()) {
 						data[data.length - 1] += kw;
+
+						if (data[data.length - 1] > yMax) yMax = data[data.length - 1];
 					} else data.push(kw);
 				} else data.push(kw);
+
+				if (kw > yMax) yMax = kw;
 
 				prevDatetime = datetime;
 			}
 
 			dataset.data = data;
+
+			if (!lsSelectedBuilding.includes(building)) dataset = {};
+
 			datasets.push(dataset);
 		}
 
@@ -273,33 +305,38 @@ class BarChart_SystemPowerConsumption extends React.Component {
 
 		options.scales.xAxis.min = labels[0];
 		options.scales.xAxis.max = labels[labels.length - 1];
+		options.scales.yAxis.max = yMax;
 
 		this.setState({
 			data: data,
 			options: options,
-			displayed_lsKw_system_building: lsKw_system_building,
+			componentShouldUpdate: true,
+			lsSelectedBuildingPrev: lsSelectedBuilding,
 		});
+
+		this.buildChart();
+	}
+
+	shouldComponentUpdate() {
+		return this.state.componentShouldUpdate;
+	}
+
+	componentDidUpdate() {
+		this.setState({ componentShouldUpdate: false });
 	}
 
 	handleDoubleClick() {
-		this.ref.lineChart.resetZoom();
+		if (typeof barChart !== "undefined") barChart.resetZoom();
+	}
+
+	handleDoubleClick() {
+		this.ref.barChart.resetZoom();
 	}
 
 	render() {
-		let { options, data } = this.state;
-
 		return (
 			<div className="wrapper" onDoubleClick={this.handleDoubleClick}>
-				{Object.entries(data).length > 0 ? (
-					<Bar
-						id="lc-building-power"
-						data={data}
-						options={options}
-						ref={(r) => (this.ref.lineChart = r)}
-					/>
-				) : (
-					""
-				)}
+				<canvas id="#bc-building-power" ref={this.chartRef} />
 			</div>
 		);
 	}
