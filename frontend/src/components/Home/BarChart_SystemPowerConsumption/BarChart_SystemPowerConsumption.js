@@ -1,7 +1,7 @@
 import React from "react";
 import "./BarChart_SystemPowerConsumption.css";
 
-import { Chart } from "chart.js";
+import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
@@ -19,6 +19,7 @@ const getOrCreateTooltip = (chart) => {
 		tooltipEl.style.position = "absolute";
 		tooltipEl.style.transform = "translate(20%, -50%)";
 		tooltipEl.style.transition = "all .1s ease";
+		tooltipEl.style.zIndex = "99999";
 
 		const table = document.createElement("table");
 		table.style.margin = "0px";
@@ -44,7 +45,20 @@ const externalTooltipHandler = (context) => {
 	// Set Text
 	if (tooltip.body) {
 		const titleLines = tooltip.title || [];
-		const bodyLines = tooltip.body.map((b) => b.lines);
+
+		let kwAc = 0;
+
+		const bodyLines = tooltip.body.map((b) => {
+			if (b.lines[0].includes("Air Conditioner")) {
+				kwAc = b.lines[0].split(": ")[1];
+			} else if (b.lines[0].includes("Others")) {
+				let kwOthers = b.lines[0].split(": ")[1];
+
+				b.lines[0] = b.lines[0].replace(kwOthers, Math.abs(kwOthers - kwAc));
+			}
+
+			return b.lines;
+		});
 
 		const tableHead = document.createElement("thead");
 
@@ -115,10 +129,20 @@ const externalTooltipHandler = (context) => {
 let barChart;
 
 class BarChart_SystemPowerConsumption extends React.Component {
-	chartRef = React.createRef();
-
 	constructor(props) {
 		super(props);
+
+		let today = new Date();
+		let xMin = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate(),
+			0,
+			0,
+			0,
+			0
+		);
+
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
@@ -149,6 +173,7 @@ class BarChart_SystemPowerConsumption extends React.Component {
 						grid: {
 							display: false,
 						},
+						stacked: true,
 					},
 					yAxis: {
 						min: 0,
@@ -157,6 +182,7 @@ class BarChart_SystemPowerConsumption extends React.Component {
 						grid: {
 							display: false,
 						},
+						stacked: true,
 					},
 				},
 				plugins: {
@@ -175,8 +201,8 @@ class BarChart_SystemPowerConsumption extends React.Component {
 						labels: { usePointStyle: true },
 					},
 					tooltip: {
-						enabled: false, // Use external instead
-						external: externalTooltipHandler,
+						enabled: false,
+						external: externalTooltipHandler, // Use external instead
 					},
 					zoom: {
 						pan: {
@@ -190,7 +216,7 @@ class BarChart_SystemPowerConsumption extends React.Component {
 							speed: 2,
 						},
 						limits: {
-							x: { min: "original", max: "original" },
+							x: { min: xMin, max: today },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -204,23 +230,27 @@ class BarChart_SystemPowerConsumption extends React.Component {
 	buildChart = () => {
 		let { data, options } = this.state;
 
-		const myChartRef = this.chartRef.current.getContext("2d");
+		document.getElementById("bc-system-power").remove();
+		document.getElementById(
+			"wrapper-bc-system-power"
+		).innerHTML = `<canvas id="bc-system-power" />`;
 
-		if (typeof barChart !== "undefined") {
-			barChart.destroy();
-		}
+		let ctx = document.getElementById("bc-system-power").getContext("2d");
 
-		barChart = new Chart(myChartRef, {
+		barChart = new Chart(ctx, {
 			type: "bar",
 			data: data,
 			options: options,
 		});
 	};
 
+	componentDidMount() {
+		Chart.register(...registerables);
+		Chart.register(zoomPlugin);
+	}
+
 	componentWillReceiveProps(nextProps) {
 		let { data, options, lsSelectedBuildingPrev } = this.state;
-
-		// console.log(this.props.lsSelectedBuilding, nextProps.lsSelectedBuilding);
 
 		if (
 			JSON.stringify(this.props.lsKw_system_building) ===
@@ -233,39 +263,35 @@ class BarChart_SystemPowerConsumption extends React.Component {
 		}
 
 		let lsKw_system_building = {};
-		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
-		let lsBuilding = nextProps.lsBuilding;
-
 		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
+
+		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
+
+		if (Object.keys(lsKw_system_building).length <= 1) return;
 
 		let labels = [];
 		let datasets = [];
 
-		if (Object.keys(lsKw_system_building).length <= 1) return;
-
-		let yMax = 1;
+		let building_lsKwMain = {};
+		let building_lsKwAc = {};
 
 		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
-			let color = lsBuilding.find((b) => b.label === building).color_code;
+			if (!lsSelectedBuilding.includes(building)) continue;
 
-			let dataset = {
-				label: building,
-				fill: false,
-				borderColor: color,
-				borderWidth: 1,
-				spanGaps: true,
-				pointRadius: 2,
-			};
+			if (!building_lsKwMain[building]) building_lsKwMain[building] = [];
+			if (!building_lsKwAc[building]) building_lsKwAc[building] = [];
 
-			let data = [];
+			let lsKwMain = building_lsKwMain[building];
+			let lsKwAc = building_lsKwAc[building];
+
 			let prevDatetime;
+			for (let logKwMain of lsKw_system["Main"].reverse()) {
+				let datetime = new Date(logKwMain.datetime);
+				let kw = logKwMain.kw;
 
-			for (let kwMain of lsKw_system["Main"].reverse()) {
-				let datetime = new Date(kwMain.datetime);
-				let kw = kwMain.kw;
-
-				if (datasets.length === 0) {
-					// let unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000);
+				if (
+					labels.findIndex((d) => d.getTime() === datetime.getTime()) === -1
+				) {
 					let date = new Date(datetime);
 
 					if (prevDatetime) {
@@ -282,23 +308,72 @@ class BarChart_SystemPowerConsumption extends React.Component {
 
 				if (prevDatetime) {
 					if (datetime.getTime() === prevDatetime.getTime()) {
-						data[data.length - 1] += kw;
-
-						if (data[data.length - 1] > yMax) yMax = data[data.length - 1];
-					} else data.push(kw);
-				} else data.push(kw);
-
-				if (kw > yMax) yMax = kw;
+						lsKwMain[lsKwMain.length - 1] += kw;
+					} else lsKwMain.push(kw);
+				} else lsKwMain.push(kw);
 
 				prevDatetime = datetime;
 			}
 
-			dataset.data = data;
+			// Fill AC array with zeroes of no AC kw readings
+			if (!lsKw_system["Air Conditioner"]) {
+				let lengthDiff = lsKwAc.length - lsKwAc.length;
+				lsKwAc = lsKwAc.concat(Array(lengthDiff).fill(0));
+				continue;
+			}
 
-			if (!lsSelectedBuilding.includes(building)) dataset = {};
+			for (let logKwAc of lsKw_system["Air Conditioner"].reverse()) {
+				let datetime = new Date(logKwAc.datetime);
+				let kw = logKwAc.kw;
 
-			datasets.push(dataset);
+				if (prevDatetime) {
+					if (datetime.getTime() === prevDatetime.getTime()) {
+						lsKwAc[lsKwAc.length - 1] += kw;
+					} else lsKwAc.push(kw);
+				} else lsKwAc.push(kw);
+
+				prevDatetime = datetime;
+			}
 		}
+
+		let lsKwOthers = [];
+		let lsKwAc = [];
+
+		let yMax = 0;
+
+		for (let [building, lsKwMain] of Object.entries(building_lsKwMain)) {
+			lsKwMain.forEach((kwMain, idx) => {
+				if (!lsKwOthers[idx]) lsKwOthers[idx] = 0;
+				lsKwOthers[idx] += kwMain;
+
+				if (lsKwOthers[idx] > yMax) yMax = lsKwOthers[idx];
+			});
+
+			building_lsKwAc[building].forEach((kwAc, idx) => {
+				if (!lsKwAc[idx]) lsKwAc[idx] = 0;
+				lsKwAc[idx] += kwAc;
+			});
+		}
+
+		lsKwAc.forEach(
+			(kwAc, idx) => (lsKwOthers[idx] = Math.abs(lsKwOthers[idx] - kwAc))
+		);
+
+		let datasetAc = {
+			label: "Air Conditioner",
+			backgroundColor: "#4469B8",
+			borderColor: "#4469B8",
+			data: lsKwAc,
+		};
+
+		let datasetOthers = {
+			label: "Others",
+			backgroundColor: "#B14926",
+			borderColor: "#B14926",
+			data: lsKwOthers,
+		};
+
+		datasets.push(datasetAc, datasetOthers);
 
 		data.labels = labels;
 		data.datasets = datasets;
@@ -326,17 +401,13 @@ class BarChart_SystemPowerConsumption extends React.Component {
 	}
 
 	handleDoubleClick() {
-		if (typeof barChart !== "undefined") barChart.resetZoom();
-	}
-
-	handleDoubleClick() {
-		this.ref.barChart.resetZoom();
+		if (barChart) barChart.resetZoom();
 	}
 
 	render() {
 		return (
-			<div className="wrapper" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="#bc-building-power" ref={this.chartRef} />
+			<div id="wrapper-bc-system-power" onDoubleClick={this.handleDoubleClick}>
+				<canvas id="bc-system-power" />
 			</div>
 		);
 	}

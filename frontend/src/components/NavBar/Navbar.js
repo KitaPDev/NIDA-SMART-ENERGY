@@ -232,11 +232,14 @@ class NavBar extends React.Component {
 
 		let today = new Date();
 
+		let isDisplayNavbar =
+			location.pathname !== "/login" &&
+			location.pathname !== "/forgot-password" &&
+			location.pathname !== "/register";
+
 		return (
-			<div style={{ height: username.length > 0 ? "10%" : 0 }}>
-				{location.pathname === "/login" ||
-				location.pathname === "/forgot-password" ||
-				location.pathname === "/register" ? (
+			<div style={{ height: isDisplayNavbar ? "10%" : 0 }}>
+				{!isDisplayNavbar ? (
 					<div></div>
 				) : (
 					<Navbar style={{ backgroundColor: "#F2F3F7" }} light expand="md">

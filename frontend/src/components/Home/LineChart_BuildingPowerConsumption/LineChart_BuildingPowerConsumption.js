@@ -1,8 +1,8 @@
 import React from "react";
 import "./LineChart_BuildingPowerConsumption.css";
 
-import { Chart } from "chart.js";
-import "chartjs-plugin-zoom";
+import { Chart, registerables } from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
 //Custom Tooltip
@@ -19,6 +19,7 @@ const getOrCreateTooltip = (chart) => {
 		tooltipEl.style.position = "absolute";
 		tooltipEl.style.transform = "translate(20%, -50%)";
 		tooltipEl.style.transition = "all .1s ease";
+		tooltipEl.style.zIndex = "99999";
 
 		const table = document.createElement("table");
 		table.style.margin = "0px";
@@ -115,10 +116,20 @@ const externalTooltipHandler = (context) => {
 let lineChart;
 
 class LineChart_BuildingPowerConsumption extends React.Component {
-	chartRef = React.createRef();
-
 	constructor(props) {
 		super(props);
+
+		let today = new Date();
+		let xMin = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate(),
+			0,
+			0,
+			0,
+			0
+		);
+
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
@@ -173,8 +184,8 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: false, // Use external instead
-						external: externalTooltipHandler,
+						enabled: false,
+						external: externalTooltipHandler, // Use external instead
 					},
 					zoom: {
 						pan: {
@@ -188,7 +199,7 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 							speed: 2,
 						},
 						limits: {
-							x: { min: "original", max: "original" },
+							x: { min: xMin, max: today },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -202,23 +213,27 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 	buildChart = () => {
 		let { data, options } = this.state;
 
-		const myChartRef = this.chartRef.current.getContext("2d");
+		document.getElementById("lc-building-power").remove();
+		document.getElementById(
+			"wrapper-lc-building-power"
+		).innerHTML = `<canvas id="lc-building-power" />`;
 
-		if (typeof lineChart !== "undefined") {
-			lineChart.destroy();
-		}
+		let ctx = document.getElementById("lc-building-power").getContext("2d");
 
-		lineChart = new Chart(myChartRef, {
+		lineChart = new Chart(ctx, {
 			type: "line",
 			data: data,
 			options: options,
 		});
 	};
 
+	componentDidMount() {
+		Chart.register(...registerables);
+		Chart.register(zoomPlugin);
+	}
+
 	componentWillReceiveProps(nextProps) {
 		let { data, options, lsSelectedBuildingPrev } = this.state;
-
-		// console.log(this.props.lsSelectedBuilding, nextProps.lsSelectedBuilding);
 
 		if (
 			JSON.stringify(this.props.lsKw_system_building) ===
@@ -231,15 +246,15 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 		}
 
 		let lsKw_system_building = {};
+		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
+
 		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
 		let lsBuilding = nextProps.lsBuilding;
 
-		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
+		if (Object.keys(lsKw_system_building).length <= 1) return;
 
 		let labels = [];
 		let datasets = [];
-
-		if (Object.keys(lsKw_system_building).length <= 1) return;
 
 		let yMax = 1;
 
@@ -258,12 +273,11 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 			let data = [];
 			let prevDatetime;
 
-			for (let kwMain of lsKw_system["Main"].reverse()) {
-				let datetime = new Date(kwMain.datetime);
-				let kw = kwMain.kw;
+			for (let logKwMain of lsKw_system["Main"].reverse()) {
+				let datetime = new Date(logKwMain.datetime);
+				let kw = logKwMain.kw;
 
 				if (datasets.length === 0) {
-					// let unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000);
 					let date = new Date(datetime);
 
 					if (prevDatetime) {
@@ -303,7 +317,7 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 
 		options.scales.xAxis.min = labels[0];
 		options.scales.xAxis.max = labels[labels.length - 1];
-		options.scales.yAxis.max = yMax;
+		options.scales.yAxis.max = yMax + 10;
 
 		this.setState({
 			data: data,
@@ -324,13 +338,16 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 	}
 
 	handleDoubleClick() {
-		if (typeof lineChart !== "undefined") lineChart.resetZoom();
+		if (lineChart) lineChart.resetZoom();
 	}
 
 	render() {
 		return (
-			<div className="wrapper" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="#lc-building-power" ref={this.chartRef} />
+			<div
+				id="wrapper-lc-building-power"
+				onDoubleClick={this.handleDoubleClick}
+			>
+				<canvas id="lc-building-power" />
 			</div>
 		);
 	}

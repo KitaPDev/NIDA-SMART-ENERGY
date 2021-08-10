@@ -12,6 +12,7 @@ import {
 	apiService,
 } from "../../apiService";
 import colorConverter from "../../utils/colorConverter";
+import { IoMdPeople } from "react-icons/io";
 
 let subscriberPowerMeterData;
 let subscriberSolarData;
@@ -41,6 +42,8 @@ class Home extends React.Component {
 				.replace("24:", "00:"),
 			buildingPath: window.location.origin + "/building/",
 			propsPath: window.location.origin + "/props/",
+			isDisplayBill: false,
+			visitors: 0,
 		};
 
 		this.numberWithCommas = this.numberWithCommas.bind(this);
@@ -51,6 +54,7 @@ class Home extends React.Component {
 		this.getPowerUsedCurrentMonthBuilding =
 			this.getPowerUsedCurrentMonthBuilding.bind(this);
 		this.getSolarCurrentMonth = this.getSolarCurrentMonth.bind(this);
+		this.toggleDisplayBill = this.toggleDisplayBill.bind(this);
 	}
 
 	numberWithCommas(x) {
@@ -298,6 +302,12 @@ class Home extends React.Component {
 		this.setState({ lsSelectedBuilding: lsSelectedBuilding });
 	}
 
+	toggleDisplayBill() {
+		this.setState((prevState) => ({
+			isDisplayBill: !prevState.isDisplayBill,
+		}));
+	}
+
 	render() {
 		let {
 			currentTime,
@@ -313,6 +323,8 @@ class Home extends React.Component {
 			targetBill_building,
 			kwhMonth_building,
 			costCoef_building,
+			isDisplayBill,
+			visitors,
 		} = this.state;
 
 		let kwhMainTotal = 0;
@@ -353,157 +365,39 @@ class Home extends React.Component {
 
 		return (
 			<div>
-				<Container style={{ padding: "1rem" }} fluid>
+				<Container id="container-home" fluid>
 					<Row>
 						{/* ******************************** LEFT COLUMN ******************************** */}
 						<Col sm="5">
-							{/* ******************************** ENERGY CONSUMPTION PANE ******************************** */}
-							<div className="total-energy-consumption-pane">
-								<Row
-									style={{
-										fontSize: "160%",
-									}}
-								>
-									<span>Total</span>
-									<span
-										style={{
-											textTransform: "uppercase",
-											fontWeight: "bold",
-										}}
-									>
-										Energy Consumption
-									</span>
-								</Row>
-
-								<Row>
-									<span
+							<div id="left-top-pane-group">
+								{/* ******************************** ENERGY CONSUMPTION PANE ******************************** */}
+								<div className="total-energy-consumption-pane">
+									<Row
 										style={{
 											fontSize: "160%",
-											fontWeight: "600",
-											display: "inline-flex",
-											alignItems: "center",
 										}}
 									>
-										Today
-									</span>
-									<span
-										style={{
-											fontSize: "125%",
-											display: "inline-flex",
-											alignItems: "center",
-											fontWeight: "500",
-										}}
-									>
-										00:00 - {currentTime}
-									</span>
-									<span style={{ fontSize: "200%", fontWeight: "bold" }}>
-										{this.numberWithCommas(Math.round(kwhMainTotal))}
-									</span>
-									<span
-										style={{
-											fontSize: "125%",
-											display: "inline-flex",
-											alignItems: "center",
-											fontWeight: "600",
-											paddingLeft: "0",
-										}}
-									>
-										kWh
-									</span>
-								</Row>
-
-								<Row>
-									<span
-										style={{
-											color: "#6B6666",
-											fontWeight: "600",
-											marginLeft: "5%",
-										}}
-									>
-										From
-									</span>
-									<span className="dot-grey" />
-									<span
-										style={{
-											color: "#757272",
-											fontWeight: "500",
-											paddingLeft: "0.3rem",
-										}}
-									>
-										MEA
-									</span>
-									<span className="dot-orange" />
-									<span
-										style={{
-											color: "#757272",
-											fontWeight: "500",
-											paddingLeft: "0.3rem",
-										}}
-									>
-										Solar Cells
-									</span>
-
-									<span
-										style={{
-											color: "#6B6666",
-											fontWeight: "600",
-											marginLeft: "5%",
-										}}
-									>
-										Used in
-									</span>
-									<span className="dot-blue" />
-									<span
-										style={{
-											color: "#757272",
-											fontWeight: "500",
-											paddingLeft: "0.3rem",
-										}}
-									>
-										Air Conditioner
-									</span>
-									<span className="dot-red" />
-									<span
-										style={{
-											color: "#757272",
-											fontWeight: "500",
-											paddingLeft: "0.3rem",
-										}}
-									>
-										Others
-									</span>
-								</Row>
-
-								<Row className="row-pie-charts">
-									<Col sm="6">
-										<PieChartEnergySource mea={kwhMainTotal} solar={kwhSolar} />
-									</Col>
-									<Col sm="6">
-										<PieChartSystem
-											ac={kwhAcTotal}
-											others={kwhMainTotal - kwhAcTotal}
-											building={
-												lsSelectedBuilding.length === 1
-													? lsSelectedBuilding[0]
-													: ""
-											}
-										/>
-									</Col>
-								</Row>
-							</div>
-							{/* ******************************** ELECTRICITY BILL PANE ******************************** */}
-							<div className="electricity-bill-pane">
-								<Row>
-									<Col sm="6">
+										<span>Total</span>
 										<span
 											style={{
-												fontSize: "150%",
+												textTransform: "uppercase",
+												fontWeight: "bold",
+											}}
+										>
+											Energy Consumption
+										</span>
+									</Row>
+
+									<Row>
+										<span
+											style={{
+												fontSize: "160%",
 												fontWeight: "600",
 												display: "inline-flex",
 												alignItems: "center",
 											}}
 										>
-											Electricity Bill
+											Today
 										</span>
 										<span
 											style={{
@@ -511,131 +405,282 @@ class Home extends React.Component {
 												display: "inline-flex",
 												alignItems: "center",
 												fontWeight: "500",
-												paddingLeft: "1rem",
 											}}
 										>
-											Month to Date
+											00:00 - {currentTime}
 										</span>
-									</Col>
-									<Col sm="6" style={{ textAlign: "right" }}>
-										<span
-											style={{
-												fontSize: "150%",
-												fontWeight: "600",
-												display: "inline-flex",
-												alignItems: "center",
-											}}
-										>
-											Total
+										<span style={{ fontSize: "200%", fontWeight: "bold" }}>
+											{this.numberWithCommas(Math.round(kwhMainTotal))}
 										</span>
 										<span
 											style={{
-												fontSize: "150%",
-												fontWeight: "600",
+												fontSize: "125%",
 												display: "inline-flex",
 												alignItems: "center",
-												paddingLeft: "1rem",
+												fontWeight: "600",
+												paddingLeft: "0",
 											}}
 										>
-											฿
-											{this.numberWithCommas(
-												parseFloat(billMonthTotal).toFixed(2)
-											)}
+											kWh
 										</span>
-									</Col>
-								</Row>
-								<Row style={{ textAlign: "center", fontWeight: "bold" }}>
-									<Col sm="3" style={{ color: "#DAA407" }}>
-										<span>Saved From Solar</span>
-									</Col>
-									<Col sm="6" style={{ color: "#899CA2" }}>
-										<span>% Electricity Used Month Target</span>
-									</Col>
-									<Col sm="3">
-										<span>Target</span>
-									</Col>
-								</Row>
-								<Row style={{ textAlign: "center", fontWeight: "bold" }}>
-									<Col sm="3" style={{ color: "#FFC121" }}>
-										<span>
-											฿ -{" "}
-											{this.numberWithCommas(
-												parseFloat(kwhSolarMonth * 4).toFixed(2)
-											)}
-										</span>
-									</Col>
-									<Col sm="6" style={{ color: "#899CA2" }}>
-										<span>
-											{target
-												? parseFloat((billMonthTotal / target) * 100).toFixed(2)
-												: "N/A"}
-											%
-										</span>
-									</Col>
-									<Col sm="3">
-										<span>
-											฿ {target ? this.numberWithCommas(target) : "N/A"}
-										</span>
-									</Col>
-								</Row>
-								<Row className="row-progress" style={{ paddingBottom: 0 }}>
-									<Col sm="3" style={{ paddingRight: 0 }}>
-										<Progress
-											color="warning"
-											value={
-												((kwhSolar * 4) / (target === 0 ? 1 : target)) * 100
-											}
+									</Row>
+
+									<Row>
+										<span
 											style={{
-												backgroundColor: "white",
-												borderRadius: "0",
-												direction: "rtl",
-												height: "20px",
-											}}
-										></Progress>
-									</Col>
-									<Col sm="8" style={{ paddingLeft: 0 }}>
-										<Progress
-											color={billMonthTotal > target ? "danger" : "success"}
-											value={
-												(billMonthTotal / (target === 0 ? 1 : target)) * 100
-											}
-											style={{
-												backgroundColor: "white",
-												border: "solid 1px",
-												borderRadius: "0",
-												height: "20px",
-												fontWeight: "bold",
+												color: "#6B6666",
+												fontWeight: "600",
+												marginLeft: "5%",
 											}}
 										>
-											฿{" "}
-											{this.numberWithCommas(
-												parseFloat(billMonthTotal).toFixed(2)
-											)}
-										</Progress>
-									</Col>
-									<Col sm="1"></Col>
-								</Row>
+											From
+										</span>
+										<span className="dot-grey" />
+										<span
+											style={{
+												color: "#757272",
+												fontWeight: "500",
+												paddingLeft: "0.3rem",
+											}}
+										>
+											MEA
+										</span>
+										<span className="dot-orange" />
+										<span
+											style={{
+												color: "#757272",
+												fontWeight: "500",
+												paddingLeft: "0.3rem",
+											}}
+										>
+											Solar Cells
+										</span>
+
+										<span
+											style={{
+												color: "#6B6666",
+												fontWeight: "600",
+												marginLeft: "5%",
+											}}
+										>
+											Used in
+										</span>
+										<span className="dot-blue" />
+										<span
+											style={{
+												color: "#757272",
+												fontWeight: "500",
+												paddingLeft: "0.3rem",
+											}}
+										>
+											Air Conditioner
+										</span>
+										<span className="dot-red" />
+										<span
+											style={{
+												color: "#757272",
+												fontWeight: "500",
+												paddingLeft: "0.3rem",
+											}}
+										>
+											Others
+										</span>
+									</Row>
+
+									<Row className="row-pie-charts">
+										<Col sm="6">
+											<PieChartEnergySource
+												mea={kwhMainTotal}
+												solar={kwhSolar}
+											/>
+										</Col>
+										<Col sm="6">
+											<PieChartSystem
+												ac={kwhAcTotal}
+												others={kwhMainTotal - kwhAcTotal}
+												building={
+													lsSelectedBuilding.length === 1
+														? lsSelectedBuilding[0]
+														: ""
+												}
+											/>
+										</Col>
+									</Row>
+								</div>
+								{/* ******************************** ELECTRICITY BILL PANE ******************************** */}
+								<div className="electricity-bill-pane">
+									<Row>
+										<Col sm="6">
+											<span
+												style={{
+													fontSize: "150%",
+													fontWeight: "600",
+													display: "inline-flex",
+													alignItems: "center",
+												}}
+											>
+												Electricity Bill
+											</span>
+											<span
+												style={{
+													fontSize: "125%",
+													display: "inline-flex",
+													alignItems: "center",
+													fontWeight: "500",
+													paddingLeft: "1rem",
+												}}
+											>
+												Month to Date
+											</span>
+										</Col>
+										<Col sm="6" style={{ textAlign: "right" }}>
+											<span
+												style={{
+													fontSize: "150%",
+													fontWeight: "600",
+													display: "inline-flex",
+													alignItems: "center",
+												}}
+											>
+												Total
+											</span>
+											<span
+												style={{
+													fontSize: "150%",
+													fontWeight: "600",
+													display: "inline-flex",
+													alignItems: "center",
+													paddingLeft: "1rem",
+												}}
+											>
+												฿
+												{this.numberWithCommas(
+													parseFloat(billMonthTotal).toFixed(2)
+												)}
+											</span>
+										</Col>
+									</Row>
+									<Row style={{ textAlign: "center", fontWeight: "bold" }}>
+										<Col sm="3" style={{ color: "#DAA407" }}>
+											<span>Saved From Solar</span>
+										</Col>
+										<Col sm="6" style={{ color: "#899CA2" }}>
+											<span>% Electricity Used Month Target</span>
+										</Col>
+										<Col sm="3">
+											<span>Target</span>
+										</Col>
+									</Row>
+									<Row style={{ textAlign: "center", fontWeight: "bold" }}>
+										<Col sm="3" style={{ color: "#FFC121" }}>
+											<span>
+												฿ -{" "}
+												{this.numberWithCommas(
+													parseFloat(kwhSolarMonth * 4).toFixed(2)
+												)}
+											</span>
+										</Col>
+										<Col sm="6" style={{ color: "#899CA2" }}>
+											<span>
+												{target
+													? parseFloat((billMonthTotal / target) * 100).toFixed(
+															2
+													  )
+													: "N/A"}
+												%
+											</span>
+										</Col>
+										<Col sm="3">
+											<span>
+												฿ {target ? this.numberWithCommas(target) : "N/A"}
+											</span>
+										</Col>
+									</Row>
+									<Row className="row-progress" style={{ paddingBottom: 0 }}>
+										<Col sm="3" style={{ paddingRight: 0 }}>
+											<Progress
+												color="warning"
+												value={
+													((kwhSolar * 4) / (target === 0 ? 1 : target)) * 100
+												}
+												style={{
+													backgroundColor: "white",
+													borderRadius: "0",
+													direction: "rtl",
+													height: "20px",
+												}}
+											></Progress>
+										</Col>
+										<Col sm="8" style={{ paddingLeft: 0 }}>
+											<Progress
+												color={billMonthTotal > target ? "danger" : "success"}
+												value={
+													(billMonthTotal / (target === 0 ? 1 : target)) * 100
+												}
+												style={{
+													backgroundColor: "white",
+													border: "solid 1px",
+													borderRadius: "0",
+													height: "20px",
+													fontWeight: "bold",
+												}}
+											>
+												฿{" "}
+												{this.numberWithCommas(
+													parseFloat(billMonthTotal).toFixed(2)
+												)}
+											</Progress>
+										</Col>
+										<Col sm="1"></Col>
+									</Row>
+								</div>
 							</div>
-							{/* ******************************** BUILDING POWER CONSUMPTION PANE ******************************** */}
-							<div className="building-power-consumption-pane">
-								<LineChart_BuildingPowerConsumption
-									lsSelectedBuilding={lsSelectedBuilding}
-									lsKw_system_building={lsKw_system_building}
-									lsBuilding={lsBuilding}
-								/>
-							</div>
-							{/* ******************************** ELECTRICAL SYSTEM POWER CONSUMPTION PANE ******************************** */}
-							<div className="electrical-system-power-consumption-pane">
-								<BarChart_SystemPowerConsumption
-									lsSelectedBuilding={lsSelectedBuilding}
-									lsKw_system_building={lsKw_system_building}
-									lsBuilding={lsBuilding}
-								/>
+
+							<div id="left-bottom-pane-group">
+								{/* ******************************** BUILDING POWER CONSUMPTION PANE ******************************** */}
+								<div className="building-power-consumption-pane">
+									<LineChart_BuildingPowerConsumption
+										lsSelectedBuilding={lsSelectedBuilding}
+										lsKw_system_building={lsKw_system_building}
+										lsBuilding={lsBuilding}
+									/>
+								</div>
+								{/* ******************************** ELECTRICAL SYSTEM POWER CONSUMPTION PANE ******************************** */}
+								<div className="electrical-system-power-consumption-pane">
+									<BarChart_SystemPowerConsumption
+										lsSelectedBuilding={lsSelectedBuilding}
+										lsKw_system_building={lsKw_system_building}
+										lsBuilding={lsBuilding}
+									/>
+								</div>
 							</div>
 						</Col>
 
 						{/* ******************************** RIGHT COLUMN ******************************** */}
-						<Col sm="7" style={{ height: "100%" }}>
+						<Col sm="7">
+							<Row>
+								<Col sm="6">
+									<input
+										type="checkbox"
+										id="chk-bill"
+										checked={isDisplayBill}
+										onChange={this.toggleDisplayBill}
+									/>
+									<label id="label-bill">Electricity Bill</label>
+								</Col>
+								<Col sm="6" style={{ textAlign: "right" }}>
+									<span id="num-vis">{visitors}</span>
+									<IoMdPeople size={"2rem"} />
+								</Col>
+							</Row>
+							<Row>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+							</Row>
 							<div className="map-campus">
 								<img
 									className="img-road-1"
@@ -683,30 +728,21 @@ class Home extends React.Component {
 											".png"
 										}
 										alt={building.label + ".png"}
-										// style={{
-										// 	filter:
-										// 		Object.entries(kwh_system_building).length > 0 &&
-										// 		lsSelectedBuilding.includes(building.label)
-										// 			? "brightness(0) saturate(100%)" +
-										// 			  colorConverter
-										// 					.getFilterFromHex(
-										// 						colorConverter.pickHex(
-										// 							"d1dbde",
-										// 							"d9a791",
-										// 							parseFloat(
-										// 								kwh_system_building[building.label][
-										// 									"Main"
-										// 								] / kwhMainTotal
-										// 							).toFixed(2)
-										// 						)
-										// 					)
-										// 					.replace(/replace:|;/gi, "")
-										// 			: "",
-										// }}
+										// style={{ }}
 										onClick={() => this.onClickBuilding(building.label)}
 									/>
 								))}
 							</div>
+
+							<Row>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+								<Col sm="2"></Col>
+							</Row>
+
+							{/* ******************************* Map Footer ******************************** */}
 							<div className="footer">
 								<Row style={{ height: "100%" }}>
 									<Col sm="6" style={{ display: "flex" }}>
