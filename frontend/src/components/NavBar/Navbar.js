@@ -244,7 +244,7 @@ class NavBar extends React.Component {
 				) : (
 					<Navbar style={{ backgroundColor: "#F2F3F7" }} light expand="md">
 						<NavbarBrand href="/">
-							<img className="navbar-logo" src="favicon.ico" alt="logo"></img>
+							<img className="navbar-logo" src="/favicon.ico" alt="logo"></img>
 						</NavbarBrand>
 						<NavbarToggler
 							className="pull-right"

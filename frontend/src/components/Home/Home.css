@@ -1,6 +1,8 @@
 #container-home {
 	height: 100%;
 	padding: 1rem;
+	padding-top: 1.75rem;
+	overflow: hidden !important;
 }
 
 #left-top-pane-group {
@@ -78,7 +80,7 @@
 .building-power-consumption-pane {
 	border: 1px solid #000000;
 	padding: 0.5rem;
-	margin-top: 1rem;
+	margin-top: 0.75rem;
 	height: 52.5%;
 }
 
@@ -89,55 +91,16 @@
 	height: 52.5%;
 }
 
-.legend {
-	height: 20px;
-	width: 80% !important;
-	margin: auto;
-}
-
-.gradient {
-	background-image: linear-gradient(to right, #d1dbde, #f9dccc, #d9a791);
-}
-
-.legend-dot-1 {
-	height: 20px;
-	width: 20px;
-	background-color: #d1dbde;
-	border-radius: 50%;
-}
-
-.legend-dot-2 {
-	height: 20px;
-	width: 20px;
-	background-color: #f9dccc;
-	border-radius: 50%;
-}
-
-.legend-dot-3 {
-	height: 20px;
-	width: 20px;
-	background-color: #d9a791;
-	border-radius: 50%;
-}
-
-.dot-container {
-	width: fit-content !important;
-	padding-top: 1rem;
-	padding-bottom: 0.2rem;
-}
-
-.legend-percentage {
-	width: fit-content !important;
+.right-column {
+	position: relative;
 }
 
 .map-campus {
 	position: relative;
-	height: 77vh;
-	width: 100%;
 }
 
 .map-campus img {
-	filter: brightness(0.9);
+	margin-top: -5rem;
 }
 
 .img-road-1,
@@ -154,88 +117,32 @@
 
 .img-building {
 	position: absolute;
-	width: 23%;
+	width: 100% !important;
+	margin-top: -5rem;
 }
 
-.img-building:hover {
-	cursor: pointer;
-	opacity: 0.7;
+#img-nida-house {
+	z-index: -1;
 }
 
-.img-auditorium {
-	/* top: 225px;
-	left: 70px; */
-
-	/* top: 52%;
-	left: 7%; */
-
-	top: 14rem;
-	left: 4rem;
-	z-index: 1;
-}
-
-.img-serithai {
-	/* top: 250px;
-	left: -38px; */
-
-	top: 15.7rem;
-	left: -2.4rem;
-}
-
-.img-ratchaphruek {
-	top: 122px;
-	left: 98px;
+#img-siam {
 	z-index: 2;
 }
 
-.img-naradhip {
-	top: 100px;
-	left: 213px;
-	z-index: 3;
-}
-
-.img-nidasumpun {
-	top: 100px;
-	left: 290px;
-}
-
-.img-choop {
-	top: 110px;
-	left: 390px;
-}
-
-.img-malai {
-	top: 122px;
-	left: 530px;
-	z-index: 1;
-}
-
-.img-nida-house {
-	top: 122px;
-	left: 695px;
-	z-index: 0;
-}
-
-.img-bunchana {
-	top: 208px;
-	left: 740px;
-	z-index: 1;
-}
-
-.img-siam {
-	top: 190px;
-	left: 370px;
-}
-
-.img-navamin {
-	top: 230px;
-	left: 280px;
-}
+/* #img-bunchana polygon[class^="st"],
+#img-bunchana path[class^="st"],
+#img-bunchana rect[class^="st"] {
+	fill: green !important;
+} */
 
 #chk-bill {
 	margin-right: 0.5rem;
 	width: 1rem;
 	height: 1rem;
+}
+
+#chk-bill:hover {
+	cursor: pointer;
 }
 
 #label-bill {
@@ -247,4 +154,105 @@
 	margin-right: 0.5rem;
 	font-size: 125%;
 	font-weight: bold;
+}
+
+.row-top-right {
+	margin-bottom: 1rem;
+}
+
+.row-building-block {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	text-align: center;
+}
+
+.col-building-block {
+	padding: 0.2rem;
+}
+
+.span-building-block {
+	width: fit-content;
+}
+
+.bill-building {
+	padding: 0.2rem;
+	font-size: 150%;
+	font-weight: bold;
+}
+
+.label-building {
+	font-weight: bold;
+	font-size: 130%;
+	border-radius: 1rem;
+	color: black;
+	padding: 0 1rem 0 1rem;
+	margin: 0 1rem 0 1rem;
+}
+
+.label-building:hover {
+	cursor: pointer;
+	opacity: 0.7;
+}
+
+.kwh-building {
+	font-weight: 600;
+	color: #7d7c8a;
+}
+
+.percentKwh-building {
+	font-size: 200%;
+	font-weight: 600;
+}
+
+.footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	padding: 0 1rem 0 1rem;
+}
+
+.legend {
+	height: 20px;
+	width: 80% !important;
+	margin: auto;
+}
+
+.gradient {
+	background-image: linear-gradient(to right, #d1dbde, #d10909);
+}
+
+.legend-dot-1 {
+	height: 20px;
+	width: 20px;
+	background-color: #d1dbde;
+	border-radius: 50%;
+}
+
+.legend-dot-2 {
+	height: 20px;
+	width: 20px;
+}
+
+.legend-dot-3 {
+	height: 20px;
+	width: 20px;
+	background-color: #d10909;
+	border-radius: 50%;
+}
+
+.dot-container {
+	width: fit-content !important;
+	padding-top: 1rem;
+	padding-bottom: 0.2rem;
+}
+
+.legend-percentage {
+	width: fit-content !important;
+}
+
+#col-visitors {
+	display: flex;
+	flex-flow: row-reverse;
+	align-items: center;
 }

@@ -30,6 +30,7 @@
     "react-icons": "^4.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-svg": "^14.0.8",
     "reactstrap": "^8.9.0",
     "recharts": "^2.0.9",
     "rxjs": "^7.2.0",

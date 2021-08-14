@@ -50,21 +50,23 @@ class SetTarget extends React.Component {
 			year: new Date().getFullYear(),
 			electricityBill: "",
 			amountPeople: "",
+			tariff: "",
 			isDisplayTarget: true,
 			isDisplayAverage: false,
 		};
 
-		this.getAllBuildings = this.getAllBuildings.bind(this);
+		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.setTarget = this.setTarget.bind(this);
 		this.handleRadioInputChange = this.handleRadioInputChange.bind(this);
+		this.getTarget_MonthYear = this.getTarget_MonthYear.bind(this);
 	}
 
 	componentDidMount() {
-		this.getAllBuildings();
+		this.getAllBuilding();
 	}
 
-	async getAllBuildings() {
+	async getAllBuilding() {
 		try {
 			let resp = await http.get("/building/all");
 
@@ -131,6 +133,32 @@ class SetTarget extends React.Component {
 		}
 	}
 
+	async getTarget_MonthYear() {
+		try {
+			let { month, year, building } = this.state;
+
+			let payload = {
+				month: month,
+				year: year,
+			};
+
+			let resp = await http.post("/target/monthyear", payload);
+
+			let lsTarget = resp.data;
+			let target = lsTarget.find((target) => target.building === building);
+			if (target) {
+				this.setState({});
+			}
+
+			this.setState({
+				lsTarget: lsTarget,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	render() {
 		let { lsMonth, lsBuilding, isDisplayTarget, isDisplayAverage } = this.state;
 
@@ -178,7 +206,11 @@ class SetTarget extends React.Component {
 													onChange={this.handleInputChange}
 												>
 													{lsMonth.map((month, index) => (
-														<option label={month} value={index + 1}></option>
+														<option
+															key={month}
+															label={month}
+															value={index + 1}
+														></option>
 													))}
 												</Input>
 											</Col>
@@ -211,7 +243,7 @@ class SetTarget extends React.Component {
 													onChange={this.handleInputChange}
 												>
 													{lsBuilding.map((building) => (
-														<option>{building.label}</option>
+														<option key={building}>{building.label}</option>
 													))}
 												</Input>
 											</Col>
@@ -308,7 +340,7 @@ class SetTarget extends React.Component {
 								{/* ****************************** HISTORICAL DATA PANE *****************************/}
 								<Container fluid className="container-historical-data">
 									{/* ****************************** CHART 1 **************************** */}
-									<Row fluid className="container-bill-chart">
+									<Row className="container-bill-chart">
 										<Row className="row-chart-title">
 											Electricity Bill (THB)
 										</Row>

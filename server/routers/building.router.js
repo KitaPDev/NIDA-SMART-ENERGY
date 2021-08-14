@@ -8,4 +8,8 @@ router.get("/all", authenticateJWT, async function (req, res) {
 	buildingController.getAll(req, res);
 });
 
+router.post("/data", authenticateJWT, async function (req, res) {
+	buildingController.getData(req, res);
+});
+
 module.exports = router;

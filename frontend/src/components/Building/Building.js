@@ -1,6 +1,11 @@
 import React from "react";
-import { Container, Row, Col } from "reactstrap";
+
+// Charts and Diagrams
+import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
+
+// Styling and Icons
 import "./Building.css";
+import { Container, Row, Col } from "reactstrap";
 import { MdPeople } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import {
@@ -13,46 +18,46 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "reactstrap";
-import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
+
+// Utils
 import http from "../../utils/http";
+import dateFormatter from "../../utils/dateFormatter";
+import numberFormatter from "../../utils/numberFormatter";
 
 class Building extends React.Component {
 	constructor(props) {
 		super(props);
 
-		let tzOffset = new Date().getTimezoneOffset() * 60000;
-
-		let dateFrom = new Date(
-			new Date(new Date(Date.now() - tzOffset).setHours(0, 0, 0, 0)) - tzOffset
-		);
-
 		this.state = {
 			lsBuilding: [],
-			dateFrom: dateFrom.toISOString().substring(0, 16),
-			dateTo: new Date(Date.now() - tzOffset).toISOString().substring(0, 16),
+			lsTarget: [],
+			dateFrom: new Date(new Date().setHours(0, 0, 0, 0)),
+			dateTo: new Date(),
 			isSystemDropdownOpen: false,
 			system: "Overall",
 			currentBuildingLabel: "",
-			amountPeople: 0,
+			kwh_system_floor: {},
 		};
 
-		let currentBuildingLabel = this.props.building;
+		let currentBuildingLabel = this.props.location.building;
 
 		currentBuildingLabel === undefined
 			? (this.state.currentBuildingLabel = "Auditorium")
 			: (this.state.currentBuildingLabel = currentBuildingLabel);
-
-		this.state.amountPeople = 30;
 
 		this.handleChangeDateFrom = this.handleChangeDateFrom.bind(this);
 		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
 		this.toggleSystem = this.toggleSystem.bind(this);
 		this.changeSystem = this.changeSystem.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
+		this.getTarget_MonthYear = this.getTarget_MonthYear.bind(this);
+		this.getData = this.getData.bind(this);
 	}
 
-	componentDidMount() {
-		this.getAllBuilding();
+	async componentDidMount() {
+		await this.getAllBuilding();
+		await this.getTarget_MonthYear();
+		await this.getData();
 	}
 
 	async getAllBuilding() {
@@ -60,6 +65,89 @@ class Building extends React.Component {
 			let resp = await http.get("/building/all");
 
 			this.setState({ lsBuilding: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getTarget_MonthYear() {
+		try {
+			let today = new Date();
+			let payload = {
+				month: today.getMonth() + 1,
+				year: today.getFullYear(),
+			};
+
+			let resp = await http.post("/target/monthyear", payload);
+
+			this.setState({
+				lsTarget: resp.data,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getData() {
+		try {
+			let { lsBuilding, currentBuildingLabel, dateFrom, dateTo } = this.state;
+
+			let buildingID = lsBuilding.find(
+				(bld) => bld.label === currentBuildingLabel
+			).id;
+
+			let payload = {
+				building_id: buildingID,
+				date_from: dateFrom,
+				date_to: dateTo,
+			};
+
+			let resp = await http.post("/building/data", payload);
+
+			console.log(resp.data);
+
+			let lsData = resp.data;
+
+			let lsDeviceFirst = [];
+			let lsDeviceLast = [];
+
+			let lsKwh_system_floor = {};
+			let kwh_system_floor = {};
+			for (let data of lsData) {
+				let floor = data.floor;
+				let device = data.device;
+				let datetime = data.data_datetime;
+				let kw = Math.round((data.kw * 100) / 100);
+				let kwh = Math.round((data.kwh * 100) / 100);
+				let system = data.system;
+
+				if (lsKwh_system_floor[floor] === undefined) {
+					lsKwh_system_floor[floor] = {};
+				}
+
+				if (lsKwh_system_floor[floor][system] === undefined) {
+					lsKwh_system_floor[floor][system] = [];
+				}
+
+				lsKwh_system_floor[floor][system].push({
+					datetime: datetime,
+					kw: kw,
+				});
+
+				if (!lsDeviceLast.find((d) => d === device)) {
+					lsDeviceLast.push(device);
+				} else continue;
+
+				if (kwh_system_floor[floor] === undefined) {
+					kwh_system_floor[floor] = {};
+				}
+
+				if (kwh_system_floor[floor][system] === undefined) {
+					kwh_system_floor[floor][system] = [];
+				}
+			}
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -91,13 +179,17 @@ class Building extends React.Component {
 	render() {
 		let {
 			lsBuilding,
+			lsTarget,
 			currentBuildingLabel,
-			amountPeople,
 			dateFrom,
 			dateTo,
 			isSystemDropdownOpen,
 			system,
 		} = this.state;
+
+		let estimatedPeople = "N/A";
+		let target = lsTarget.find((t) => t.building === currentBuildingLabel);
+		if (target) estimatedPeople = target.amount_people;
 
 		let lsLogPower_Building = [
 			{
@@ -141,10 +233,15 @@ class Building extends React.Component {
 			}
 		}
 
+		let color = lsBuilding.find((bld) => bld.label === currentBuildingLabel)
+			? lsBuilding.find((bld) => bld.label === currentBuildingLabel).color_code
+			: "black";
+
 		return (
 			<div>
 				<Container style={{ padding: "1rem" }} fluid>
 					<Row>
+						{/* ******************************** Left Pane ******************************** */}
 						<Col sm={2}>
 							<div className="building-list-pane">
 								<p id="heading-1">Building</p>
@@ -173,19 +270,16 @@ class Building extends React.Component {
 								))}
 							</div>
 						</Col>
+
+						{/* ******************************** Main Section ******************************** */}
 						<Col sm={10} style={{ paddingLeft: "1rem" }}>
 							<Row>
+								{/* ******************************** Left ******************************** */}
 								<Col sm={5}>
 									<Row
 										className="row-title"
 										style={{
-											color: lsBuilding.find(
-												(bld) => bld.label === currentBuildingLabel
-											)
-												? lsBuilding.find(
-														(bld) => bld.label === currentBuildingLabel
-												  ).color_code
-												: "black",
+											color: color,
 										}}
 									>
 										{currentBuildingLabel}
@@ -193,19 +287,13 @@ class Building extends React.Component {
 									<Row
 										className="row-heading"
 										style={{
-											color: lsBuilding.find(
-												(bld) => bld.label === currentBuildingLabel
-											)
-												? lsBuilding.find(
-														(bld) => bld.label === currentBuildingLabel
-												  ).color_code
-												: "black",
+											color: color,
 										}}
 									>
 										<p>
 											Estimated{" "}
 											<span style={{ fontSize: "150%", fontWeight: "bold" }}>
-												{amountPeople}
+												{numberFormatter.withCommas(estimatedPeople)}
 											</span>{" "}
 											people{" "}
 											<span>
@@ -213,7 +301,20 @@ class Building extends React.Component {
 											</span>
 										</p>
 									</Row>
+									<Row id="row-date">
+										{dateFormatter.ddmmmyyyy(dateFrom) +
+											" - " +
+											dateFormatter.ddmmmyyyy(dateTo)}
+									</Row>
+									<Row>
+										<Col sm={5} className="col-label-1">
+											Total Energy Consumption
+										</Col>
+										<Col sm={7} style={{ color: color }}></Col>
+									</Row>
 								</Col>
+
+								{/* ******************************** Right ******************************** */}
 								<Col sm={7} style={{ paddingRight: "1rem" }}>
 									<Row className="row-form">
 										<Form>
@@ -233,7 +334,7 @@ class Building extends React.Component {
 														name="datetime"
 														id="dateFrom"
 														placeholder="datetime placeholder"
-														value={dateFrom}
+														value={dateFormatter.toDateTimeString(dateFrom)}
 														onChange={this.handleChangeDateFrom}
 													/>
 												</Col>
@@ -247,7 +348,7 @@ class Building extends React.Component {
 														name="datetime"
 														id="dateTo"
 														placeholder="datetime placeholder"
-														value={dateTo}
+														value={dateFormatter.toDateTimeString(dateTo)}
 														onChange={this.handleChangeDateTo}
 													/>
 												</Col>
@@ -255,6 +356,8 @@ class Building extends React.Component {
 											</FormGroup>
 										</Form>
 									</Row>
+
+									{/* ******************************** Right Part ******************************** */}
 									<Row className="row-graph-power">
 										<Row style={{ padding: "0.5rem", margin: "auto" }}>
 											<Col sm={9} style={{ margin: "auto" }}>

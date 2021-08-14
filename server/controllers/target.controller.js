@@ -1,5 +1,4 @@
 const targetService = require("../services/target.service");
-const buildingService = require("../services/building.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function inputTarget(req, res) {
@@ -10,7 +9,7 @@ async function inputTarget(req, res) {
 		let buildingID = body.building_id;
 		let electricityBill = body.electricity_bill;
 		let amountPeople = body.amount_people;
-		let coefficientElectricityCost = body.coefficient_electricity_cost;
+		let tariff = body.tariff;
 
 		if (!month && !year && !buildingID) {
 			return res
@@ -18,14 +17,14 @@ async function inputTarget(req, res) {
 				.send("Please provide month and year.");
 		}
 
-		if (targetService.targetExists(buildingID, month, year)) {
+		if (await targetService.targetExists(buildingID, month, year)) {
 			await targetService.updateTarget(
 				buildingID,
 				month,
 				year,
 				electricityBill,
 				amountPeople,
-				coefficientElectricityCost
+				tariff
 			);
 		} else {
 			await targetService.insertTarget(
@@ -34,7 +33,7 @@ async function inputTarget(req, res) {
 				year,
 				electricityBill,
 				amountPeople,
-				coefficientElectricityCost
+				tariff
 			);
 		}
 
@@ -58,7 +57,7 @@ async function getAllTargetByMonthYear(req, res) {
 	}
 }
 
-async function getAllBuildingCostCoefficientByMonthYear(req, res) {
+async function getAllBuildingTariffByMonthYear(req, res) {
 	try {
 		let body = req.body;
 		let month = body.month;
@@ -66,12 +65,12 @@ async function getAllBuildingCostCoefficientByMonthYear(req, res) {
 
 		let lsTarget = await targetService.getAllTargetByMonthYear(month, year);
 
-		let costCoef_building = {};
+		let tariff_building = {};
 		for (let target of lsTarget) {
-			costCoef_building[target.building] = target.coefficient_electricity_cost;
+			tariff_building[target.building] = target.tariff;
 		}
 
-		return res.status(httpStatusCodes.OK).send(costCoef_building);
+		return res.status(httpStatusCodes.OK).send(tariff_building);
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
@@ -80,5 +79,5 @@ async function getAllBuildingCostCoefficientByMonthYear(req, res) {
 module.exports = {
 	inputTarget,
 	getAllTargetByMonthYear,
-	getAllBuildingCostCoefficientByMonthYear,
+	getAllBuildingTariffByMonthYear,
 };

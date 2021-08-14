@@ -45,7 +45,7 @@ async function updateTarget(
 	year,
 	electricityBill,
 	amountPeople,
-	coefficientElectricityCost
+	tariff
 ) {
 	if (electricityBill !== undefined && amountPeople !== undefined) {
 		await knex(knex.ref("target"))
@@ -57,7 +57,7 @@ async function updateTarget(
 			.update({
 				electricity_bill: electricityBill,
 				amount_people: amountPeople,
-				coeefficient_electricity_cost: coefficientElectricityCost,
+				tariff: tariff,
 			});
 	}
 }
@@ -70,7 +70,7 @@ async function getAllTargetByMonthYear(month, year) {
 			"building.label as building",
 			"target.electricity_bill",
 			"target.amount_people",
-			"target.coefficient_electricity_cost"
+			"target.tariff"
 		)
 		.where({ month: month, year: year });
 

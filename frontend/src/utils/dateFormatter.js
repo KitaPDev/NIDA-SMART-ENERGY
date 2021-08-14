@@ -1,3 +1,18 @@
+let lsMonth = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
+
 function ddmmyyyy(date) {
 	if (date instanceof Date) {
 		const offset = date.getTimezoneOffset();
@@ -70,6 +85,34 @@ function yyyymmddhhmmss(date) {
 	}
 }
 
-const dateFormatter = { ddmmyyyy, ddmmyyyyhhmm, yyyymmddhhmmss };
+function ddmmmyyyy(date) {
+	if (date instanceof Date) {
+		const offset = date.getTimezoneOffset();
+		date = new Date(date.getTime() - offset * 60 * 1000);
+
+		let dd = date.getDate();
+		let mmm = lsMonth[date.getMonth()].substring(0, 3);
+		let yyyy = date.getFullYear();
+
+		return dd + " " + mmm + " " + yyyy;
+	}
+}
+
+function toDateTimeString(date) {
+	if (date instanceof Date) {
+		const offset = date.getTimezoneOffset();
+		date = new Date(date.getTime() - offset * 60 * 1000);
+
+		return date.toISOString().substring(0, 16);
+	}
+}
+
+const dateFormatter = {
+	ddmmyyyy,
+	ddmmyyyyhhmm,
+	yyyymmddhhmmss,
+	ddmmmyyyy,
+	toDateTimeString,
+};
 
 export default dateFormatter;

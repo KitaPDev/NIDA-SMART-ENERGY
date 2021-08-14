@@ -1,5 +1,6 @@
 const userService = require("../services/user.service");
 const authService = require("../services/auth.service");
+const etcService = require("../services/etc.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function login(req, res) {
@@ -54,6 +55,7 @@ async function login(req, res) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 
+	etcService.incrementVisitors();
 	res.sendStatus(httpStatusCodes.OK);
 }
 

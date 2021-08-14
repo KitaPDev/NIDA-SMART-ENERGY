@@ -52,7 +52,7 @@ const externalTooltipHandler = (context) => {
 			if (b.lines[0].includes("Air Conditioner")) {
 				kwAc = b.lines[0].split(": ")[1];
 			} else if (b.lines[0].includes("Others")) {
-				let kwOthers = b.lines[0].split(": ")[1];
+				let kwOthers = b.lines[0].split(": ")[1].replace(",", "");
 
 				b.lines[0] = b.lines[0].replace(kwOthers, Math.abs(kwOthers - kwAc));
 			}
@@ -317,8 +317,8 @@ class BarChart_SystemPowerConsumption extends React.Component {
 
 			// Fill AC array with zeroes of no AC kw readings
 			if (!lsKw_system["Air Conditioner"]) {
-				let lengthDiff = lsKwAc.length - lsKwAc.length;
-				lsKwAc = lsKwAc.concat(Array(lengthDiff).fill(0));
+				let lengthDiff = lsKwMain.length - lsKwAc.length;
+				building_lsKwAc[building] = lsKwAc.concat(Array(lengthDiff).fill(0));
 				continue;
 			}
 

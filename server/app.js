@@ -14,6 +14,7 @@ const deviceRouter = require("./routers/device.router");
 const systemRouter = require("./routers/system.router");
 const permissionRouter = require("./routers/permission.router");
 const apiRouter = require("./routers/api.router");
+const etcRouter = require("./routers/etc.router");
 
 const app = express();
 
@@ -42,5 +43,6 @@ app.use("/device", deviceRouter);
 app.use("/system", systemRouter);
 app.use("/permission", permissionRouter);
 app.use("/api", apiRouter);
+app.use("/etc", etcRouter);
 
 module.exports = app;

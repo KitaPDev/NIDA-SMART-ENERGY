@@ -1,18 +1,28 @@
 import React from "react";
-import "./Home.css";
-import { Container, Row, Col, Progress } from "reactstrap";
-import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
-import PieChartSystem from "./PieChartSystem/PieChartSystem";
-import LineChart_BuildingPowerConsumption from "./LineChart_BuildingPowerConsumption/LineChart_BuildingPowerConsumption";
-import BarChart_SystemPowerConsumption from "./BarChart_SystemPowerConsumption/BarChart_SystemPowerConsumption";
-import http from "../../utils/http";
+
+// API Service
 import {
 	subjectPowerMeterData,
 	subjectSolarData,
 	apiService,
 } from "../../apiService";
-import colorConverter from "../../utils/colorConverter";
+
+// Charts and Diagrams
+import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
+import PieChartSystem from "./PieChartSystem/PieChartSystem";
+import LineChart_BuildingPowerConsumption from "./LineChart_BuildingPowerConsumption/LineChart_BuildingPowerConsumption";
+import BarChart_SystemPowerConsumption from "./BarChart_SystemPowerConsumption/BarChart_SystemPowerConsumption";
+
+// Styling and Media
+import "./Home.css";
+import { Container, Row, Col, Progress } from "reactstrap";
 import { IoMdPeople } from "react-icons/io";
+import { ReactSVG } from "react-svg";
+
+// Utils
+import http from "../../utils/http";
+import colorConverter from "../../utils/colorConverter";
+import numberFormatter from "../../utils/numberFormatter";
 
 let subscriberPowerMeterData;
 let subscriberSolarData;
@@ -24,7 +34,7 @@ class Home extends React.Component {
 		this.state = {
 			lsSelectedBuilding: [],
 			lsSystem: [],
-			costCoef_building: {},
+			tariff_building: {},
 			kwh_system_building: {},
 			lsKw_system_building: {},
 			bill_building: {},
@@ -40,13 +50,12 @@ class Home extends React.Component {
 					hour12: false,
 				})
 				.replace("24:", "00:"),
-			buildingPath: window.location.origin + "/building/",
-			propsPath: window.location.origin + "/props/",
+			buildingPath: window.location.origin + "/building/", // For Building Images
+			propsPath: window.location.origin + "/props/", // For Props Images
 			isDisplayBill: false,
 			visitors: 0,
 		};
 
-		this.numberWithCommas = this.numberWithCommas.bind(this);
 		this.getAllSystem = this.getAllSystem.bind(this);
 		this.getAllTargetByMonthYear = this.getAllTargetByMonthYear.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
@@ -55,10 +64,8 @@ class Home extends React.Component {
 			this.getPowerUsedCurrentMonthBuilding.bind(this);
 		this.getSolarCurrentMonth = this.getSolarCurrentMonth.bind(this);
 		this.toggleDisplayBill = this.toggleDisplayBill.bind(this);
-	}
-
-	numberWithCommas(x) {
-		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		this.onDoubleClickBuilding = this.onDoubleClickBuilding.bind(this);
+		this.getVisitors = this.getVisitors.bind(this);
 	}
 
 	async componentDidMount() {
@@ -67,6 +74,7 @@ class Home extends React.Component {
 		await this.getPowerUsedCurrentMonthBuilding();
 		await this.getAllBuilding();
 		await this.getSolarCurrentMonth();
+		await this.getVisitors();
 
 		let today = new Date();
 		let dateStart = new Date(
@@ -83,7 +91,7 @@ class Home extends React.Component {
 		apiService.updateSolarData(dateStart, dateEnd);
 
 		subscriberPowerMeterData = subjectPowerMeterData.subscribe((dataPower) => {
-			let { costCoef_building } = this.state;
+			let { tariff_building } = this.state;
 			let kwh_system_building = {};
 			let lsKw_system_building = {};
 			let bill_building = {};
@@ -104,8 +112,9 @@ class Home extends React.Component {
 				if (lsKw_system_building[building] === undefined)
 					lsKw_system_building[building] = {};
 
-				if (lsKw_system_building[building][system] === undefined)
+				if (lsKw_system_building[building][system] === undefined) {
 					lsKw_system_building[building][system] = [];
+				}
 
 				lsKw_system_building[building][system].push({
 					datetime: datetime,
@@ -114,9 +123,7 @@ class Home extends React.Component {
 
 				if (!lsDeviceLast.find((d) => d === device)) {
 					lsDeviceLast.push(device);
-				} else {
-					continue;
-				}
+				} else continue;
 
 				if (kwh_system_building[building] === undefined)
 					kwh_system_building[building] = {};
@@ -130,7 +137,6 @@ class Home extends React.Component {
 			for (let data of dataPower) {
 				let building = data.building;
 				let device = data.device;
-				let kw = Math.round((data.kw * 100) / 100);
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
 
@@ -142,15 +148,17 @@ class Home extends React.Component {
 			}
 
 			for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
-				let costCoef = 4;
-				if (costCoef_building[building] !== undefined) {
-					costCoef = costCoef_building[building];
+				let tariff = 4;
+				if (tariff_building[building] !== undefined) {
+					if (tariff_building[building] !== null) {
+						tariff = tariff_building[building];
+					}
 				}
 
 				if (bill_building[building]) bill_building[building] = 0;
 
 				for (let kwh of Object.values(kwh_system)) {
-					if (kwh > 0) bill_building[building] = kwh * costCoef;
+					if (kwh > 0) bill_building[building] = kwh * tariff;
 				}
 			}
 
@@ -221,19 +229,19 @@ class Home extends React.Component {
 			let resp = await http.post("/target/monthyear", payload);
 			let lsTarget = resp.data;
 
-			let costCoef_building = {};
+			let tariff_building = {};
 			let targetBill_building = {};
 			for (let target of lsTarget) {
 				let building = target.building;
-				let coef = target.coefficient_electricity_cost;
+				let tariff = target.tariff;
 				let bill = target.electricity_bill;
 
-				costCoef_building[building] = coef;
+				tariff_building[building] = tariff;
 				targetBill_building[building] = bill;
 			}
 
 			this.setState({
-				costCoef_building: costCoef_building,
+				tariff_building: tariff_building,
 				targetBill_building: targetBill_building,
 			});
 		} catch (err) {
@@ -287,6 +295,19 @@ class Home extends React.Component {
 		}
 	}
 
+	async getVisitors() {
+		try {
+			let resp = await http.get("/etc/visitors");
+
+			this.setState({
+				visitors: resp.data,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	onClickBuilding(building) {
 		let { lsSelectedBuilding, lsBuilding } = this.state;
 
@@ -300,6 +321,10 @@ class Home extends React.Component {
 		}
 
 		this.setState({ lsSelectedBuilding: lsSelectedBuilding });
+	}
+
+	onDoubleClickBuilding(building) {
+		this.props.history.push({ pathname: "building/", building: building });
 	}
 
 	toggleDisplayBill() {
@@ -322,7 +347,7 @@ class Home extends React.Component {
 			bill_building,
 			targetBill_building,
 			kwhMonth_building,
-			costCoef_building,
+			tariff_building,
 			isDisplayBill,
 			visitors,
 		} = this.state;
@@ -348,10 +373,10 @@ class Home extends React.Component {
 		for (let [building, kwhMonth] of Object.entries(kwhMonth_building)) {
 			if (!lsSelectedBuilding.includes(building)) continue;
 
-			let coef = 4;
-			if (costCoef_building[building]) coef = costCoef_building[building];
+			let tariff = 4;
+			if (tariff_building[building]) tariff = tariff_building[building];
 
-			let bill = kwhMonth * coef;
+			let bill = kwhMonth * tariff;
 
 			billMonthTotal += bill;
 		}
@@ -363,8 +388,60 @@ class Home extends React.Component {
 			target += targetBill;
 		}
 
+		let lsBuildingData = [];
+		if (Object.values(kwh_system_building).length > 0) {
+			let totalKwh = 0;
+			Object.values(kwh_system_building).forEach(
+				(kwh_system) => (totalKwh += kwh_system.Main)
+			);
+			for (let building of lsBuilding) {
+				let kwh = kwh_system_building[building.label].Main;
+				let kwhPercentage = parseFloat((kwh / totalKwh) * 100).toFixed(2);
+				let percentColor = "#000";
+				if (lsSelectedBuilding.includes(building.label)) {
+					percentColor =
+						"#" +
+						colorConverter.pickHex(
+							"d10909",
+							"d1dbde",
+							parseFloat(kwhPercentage / 100).toFixed(2)
+						);
+				}
+
+				lsBuildingData.push({
+					building: building.label,
+					color: building.color_code,
+					kwh: kwh,
+					kwhPercentage: kwhPercentage,
+					percentColor: percentColor,
+				});
+			}
+		}
+
 		return (
 			<div>
+				{/* ****************************** Building Map Styles ******************************** */}
+				{lsBuilding.map((building) => (
+					<style>
+						{`#img-${building.label
+							.toLowerCase()
+							.replace(" ", "-")} polygon[class^="st"],
+							#img-${building.label.toLowerCase().replace(" ", "-")} path[class^="st"],
+							#img-${building.label.toLowerCase().replace(" ", "-")} rect[class^="st"]{
+								fill: #${colorConverter.pickHex(
+									"d10909",
+									"d1dbde",
+									lsBuildingData.length > 0
+										? parseFloat(
+												lsBuildingData.find(
+													(data) => data.building === building.label
+												).kwhPercentage / 100
+										  ).toFixed(2)
+										: "d1dbde"
+								)}
+							}`}
+					</style>
+				))}
 				<Container id="container-home" fluid>
 					<Row>
 						{/* ******************************** LEFT COLUMN ******************************** */}
@@ -410,7 +487,7 @@ class Home extends React.Component {
 											00:00 - {currentTime}
 										</span>
 										<span style={{ fontSize: "200%", fontWeight: "bold" }}>
-											{this.numberWithCommas(Math.round(kwhMainTotal))}
+											{numberFormatter.withCommas(Math.round(kwhMainTotal))}
 										</span>
 										<span
 											style={{
@@ -554,7 +631,7 @@ class Home extends React.Component {
 												}}
 											>
 												฿
-												{this.numberWithCommas(
+												{numberFormatter.withCommas(
 													parseFloat(billMonthTotal).toFixed(2)
 												)}
 											</span>
@@ -575,8 +652,8 @@ class Home extends React.Component {
 										<Col sm="3" style={{ color: "#FFC121" }}>
 											<span>
 												฿ -{" "}
-												{this.numberWithCommas(
-													parseFloat(kwhSolarMonth * 4).toFixed(2)
+												{numberFormatter.withCommas(
+													Math.abs(parseFloat(kwhSolarMonth * 4).toFixed(2))
 												)}
 											</span>
 										</Col>
@@ -592,7 +669,7 @@ class Home extends React.Component {
 										</Col>
 										<Col sm="3">
 											<span>
-												฿ {target ? this.numberWithCommas(target) : "N/A"}
+												฿ {target ? numberFormatter.withCommas(target) : "N/A"}
 											</span>
 										</Col>
 									</Row>
@@ -626,7 +703,7 @@ class Home extends React.Component {
 												}}
 											>
 												฿{" "}
-												{this.numberWithCommas(
+												{numberFormatter.withCommas(
 													parseFloat(billMonthTotal).toFixed(2)
 												)}
 											</Progress>
@@ -657,8 +734,8 @@ class Home extends React.Component {
 						</Col>
 
 						{/* ******************************** RIGHT COLUMN ******************************** */}
-						<Col sm="7">
-							<Row>
+						<Col sm="7" className="right-column">
+							<Row className="row-top-right">
 								<Col sm="6">
 									<input
 										type="checkbox"
@@ -668,19 +745,101 @@ class Home extends React.Component {
 									/>
 									<label id="label-bill">Electricity Bill</label>
 								</Col>
-								<Col sm="6" style={{ textAlign: "right" }}>
-									<span id="num-vis">{visitors}</span>
+								<Col sm="6" id="col-visitors">
 									<IoMdPeople size={"2rem"} />
+									<span id="num-visitors">{visitors}</span>
 								</Col>
 							</Row>
-							<Row>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-							</Row>
+
+							<div className="row-building-block">
+								{lsBuilding.map((building) => (
+									<div className="col-building-block">
+										{lsBuildingData.length > 0 ? (
+											<span className="span-building-block">
+												{isDisplayBill ? (
+													<div className="bill-building">
+														฿{" "}
+														{numberFormatter.withCommas(
+															bill_building[building.label]
+														)}
+													</div>
+												) : (
+													""
+												)}
+												<div
+													className="label-building"
+													style={{
+														// backgroundColor: lsBuildingData.find(
+														// 	(data) => data.building === building.label
+														// ).color,
+														backgroundColor: lsSelectedBuilding.includes(
+															building.label
+														)
+															? "#" +
+															  colorConverter.pickHex(
+																	"d10909",
+																	"d1dbde",
+																	lsBuildingData.length > 0
+																		? parseFloat(
+																				lsBuildingData.find(
+																					(data) =>
+																						data.building === building.label
+																				).kwhPercentage / 100
+																		  ).toFixed(2)
+																		: "d1dbde"
+															  )
+															: lsBuildingData.find(
+																	(data) => data.building === building.label
+															  ).color,
+														color: lsSelectedBuilding.includes(building.label)
+															? "black"
+															: "white",
+													}}
+													onClick={() => this.onClickBuilding(building.label)}
+													onDoubleClick={() =>
+														this.onDoubleClickBuilding(building.label)
+													}
+												>
+													{building.label}
+												</div>
+												<div
+													className="kwh-building"
+													style={{
+														color: lsBuildingData.find(
+															(data) => data.building === building.label
+														).kwhColor,
+													}}
+												>
+													{
+														lsBuildingData.find(
+															(data) => data.building === building.label
+														).kwh
+													}{" "}
+													kWh
+												</div>
+												<div
+													className="percentKwh-building"
+													style={{
+														color: lsBuildingData.find(
+															(data) => data.building === building.label
+														).percentColor,
+													}}
+												>
+													{
+														lsBuildingData.find(
+															(data) => data.building === building.label
+														).kwhPercentage
+													}
+													%
+												</div>
+											</span>
+										) : (
+											""
+										)}
+									</div>
+								))}
+							</div>
+
 							<div className="map-campus">
 								<img
 									className="img-road-1"
@@ -713,34 +872,26 @@ class Home extends React.Component {
 									alt={"trees.png"}
 								></img>
 								{lsBuilding.map((building) => (
-									<img
-										key={building.label}
-										className={
-											"img-" +
-											building.label.toLowerCase().replace(" ", "-") +
-											" img-building"
-										}
+									<ReactSVG
+										afterInjection={(error) => {
+											if (error) {
+												console.log(error);
+												return;
+											}
+										}}
+										id={"img-" + building.label.toLowerCase().replace(" ", "-")}
+										className={"img-building"}
 										src={
 											buildingPath +
 											building.label +
 											"/" +
 											building.label +
-											".png"
+											".svg"
 										}
-										alt={building.label + ".png"}
-										// style={{ }}
-										onClick={() => this.onClickBuilding(building.label)}
+										wrapper="div"
 									/>
 								))}
 							</div>
-
-							<Row>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-								<Col sm="2"></Col>
-							</Row>
 
 							{/* ******************************* Map Footer ******************************** */}
 							<div className="footer">
@@ -812,8 +963,8 @@ class Home extends React.Component {
 											}}
 										>
 											<span className="legend-percentage">0%</span>
-											<span className="legend-percentage">10%</span>
-											<span className="legend-percentage">40%</span>
+											<span className="legend-percentage">30%</span>
+											<span className="legend-percentage">60%</span>
 											<span className="legend-percentage">100%</span>
 										</Row>
 									</Col>
