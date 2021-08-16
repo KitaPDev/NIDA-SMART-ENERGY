@@ -265,7 +265,7 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 				label: building,
 				fill: false,
 				borderColor: color,
-				borderWidth: 1,
+				borderWidth: 2,
 				spanGaps: true,
 				pointRadius: 2,
 			};
@@ -273,7 +273,7 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 			let data = [];
 			let prevDatetime;
 
-			for (let logKwMain of lsKw_system["Main"].reverse()) {
+			for (let logKwMain of lsKw_system["Main"]) {
 				let datetime = new Date(logKwMain.datetime);
 				let kw = logKwMain.kw;
 

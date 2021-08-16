@@ -76,8 +76,32 @@ async function getAllBuildingTariffByMonthYear(req, res) {
 	}
 }
 
+async function getBuildingTargetRange(req, res) {
+	try {
+		let body = req.body;
+		let yearFrom = body.year_from;
+		let monthFrom = body.month_from;
+		let yearTo = body.year_to;
+		let monthTo = body.month_to;
+		let buildingID = body.building_id;
+
+		let result = await targetService.getBuildingTargetRange(
+			buildingID,
+			yearFrom,
+			monthFrom,
+			yearTo,
+			monthTo
+		);
+
+		return res.status(httpStatusCodes.OK).send(result);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	inputTarget,
 	getAllTargetByMonthYear,
 	getAllBuildingTariffByMonthYear,
+	getBuildingTargetRange,
 };

@@ -1,22 +1,23 @@
 import React from "react";
 
 // Charts and Diagrams
-import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
+import BarChart_SystemPowerConsumption from "./BarChart_SystemPowerConsumption/BarChart_SystemPowerConsumption";
+import PieChartSystem from "./PieChartSystem/PieChartSystem";
 
 // Styling and Icons
 import "./Building.css";
 import { Container, Row, Col } from "reactstrap";
 import { MdPeople } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
+import { FaUser } from "react-icons/fa";
 import {
-	Form,
-	FormGroup,
 	Label,
 	Input,
 	Dropdown,
 	DropdownToggle,
 	DropdownMenu,
 	DropdownItem,
+	Button,
 } from "reactstrap";
 
 // Utils
@@ -28,11 +29,16 @@ class Building extends React.Component {
 	constructor(props) {
 		super(props);
 
+		let dateFrom = new Date(new Date().setHours(0, 0, 0, 0));
+		let dateTo = new Date();
+
 		this.state = {
 			lsBuilding: [],
 			lsTarget: [],
-			dateFrom: new Date(new Date().setHours(0, 0, 0, 0)),
-			dateTo: new Date(),
+			dateFrom: dateFrom,
+			dateTo: dateTo,
+			displayDateFrom: dateFrom,
+			displayDateTo: dateTo,
 			isSystemDropdownOpen: false,
 			system: "Overall",
 			currentBuildingLabel: "",
@@ -45,19 +51,31 @@ class Building extends React.Component {
 			? (this.state.currentBuildingLabel = "Auditorium")
 			: (this.state.currentBuildingLabel = currentBuildingLabel);
 
-		this.handleChangeDateFrom = this.handleChangeDateFrom.bind(this);
-		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
+		this.updateData = this.updateData.bind(this);
+		this.handleInputDateChange = this.handleInputDateChange.bind(this);
 		this.toggleSystem = this.toggleSystem.bind(this);
 		this.changeSystem = this.changeSystem.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
-		this.getTarget_MonthYear = this.getTarget_MonthYear.bind(this);
 		this.getData = this.getData.bind(this);
+		this.getBuildingTargetRange = this.getBuildingTargetRange.bind(this);
+		this.onClickApply = this.onClickApply.bind(this);
+	}
+
+	async updateData() {
+		await this.getData();
+		await this.getBuildingTargetRange();
+
+		let { dateFrom, dateTo } = this.state;
+
+		this.setState({
+			displayDateFrom: dateFrom,
+			displayDateTo: dateTo,
+		});
 	}
 
 	async componentDidMount() {
 		await this.getAllBuilding();
-		await this.getTarget_MonthYear();
-		await this.getData();
+		await this.updateData();
 	}
 
 	async getAllBuilding() {
@@ -65,25 +83,6 @@ class Building extends React.Component {
 			let resp = await http.get("/building/all");
 
 			this.setState({ lsBuilding: resp.data });
-		} catch (err) {
-			console.log(err);
-			return err.response;
-		}
-	}
-
-	async getTarget_MonthYear() {
-		try {
-			let today = new Date();
-			let payload = {
-				month: today.getMonth() + 1,
-				year: today.getFullYear(),
-			};
-
-			let resp = await http.post("/target/monthyear", payload);
-
-			this.setState({
-				lsTarget: resp.data,
-			});
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -106,16 +105,14 @@ class Building extends React.Component {
 
 			let resp = await http.post("/building/data", payload);
 
-			console.log(resp.data);
-
 			let lsData = resp.data;
 
 			let lsDeviceFirst = [];
 			let lsDeviceLast = [];
 
-			let lsKwh_system_floor = {};
+			let lsKw_system_floor = {};
 			let kwh_system_floor = {};
-			for (let data of lsData) {
+			for (let data of lsData.slice().reverse()) {
 				let floor = data.floor;
 				let device = data.device;
 				let datetime = data.data_datetime;
@@ -123,15 +120,15 @@ class Building extends React.Component {
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
 
-				if (lsKwh_system_floor[floor] === undefined) {
-					lsKwh_system_floor[floor] = {};
+				if (lsKw_system_floor[floor] === undefined) {
+					lsKw_system_floor[floor] = {};
 				}
 
-				if (lsKwh_system_floor[floor][system] === undefined) {
-					lsKwh_system_floor[floor][system] = [];
+				if (lsKw_system_floor[floor][system] === undefined) {
+					lsKw_system_floor[floor][system] = [];
 				}
 
-				lsKwh_system_floor[floor][system].push({
+				lsKw_system_floor[floor][system].push({
 					datetime: datetime,
 					kw: kw,
 				});
@@ -147,21 +144,64 @@ class Building extends React.Component {
 				if (kwh_system_floor[floor][system] === undefined) {
 					kwh_system_floor[floor][system] = [];
 				}
+
+				kwh_system_floor[floor][system] += kwh;
 			}
+
+			for (let data of lsData) {
+				let floor = data.floor;
+				let device = data.device;
+				let kwh = Math.round((data.kwh * 100) / 100);
+				let system = data.system;
+
+				if (!lsDeviceFirst.find((d) => d === device))
+					lsDeviceFirst.push(device);
+				else break;
+
+				kwh_system_floor[floor][system] -= kwh;
+			}
+
+			this.setState({
+				kwh_system_floor: kwh_system_floor,
+			});
 		} catch (err) {
 			console.log(err);
 			return err.response;
 		}
 	}
 
-	handleChangeDateFrom(event) {
-		this.setState({
-			dateFrom: event.target.value,
-		});
+	async getBuildingTargetRange() {
+		try {
+			let { dateFrom, dateTo, currentBuildingLabel, lsBuilding } = this.state;
+
+			if (dateFrom.length === 0 || dateTo.length === 0) {
+				alert("Please select a valid datetime range.");
+				return;
+			}
+
+			let payload = {
+				month_from: dateFrom.getMonth() + 1,
+				year_from: dateFrom.getFullYear(),
+				month_to: dateTo.getMonth() + 1,
+				year_to: dateTo.getFullYear(),
+				building_id: lsBuilding.find(
+					(building) => building.label === currentBuildingLabel
+				).id,
+			};
+
+			let resp = await http.post("/target/building", payload);
+
+			this.setState({
+				lsTarget: resp.data,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
 	}
 
-	handleChangeDateTo(event) {
-		this.setState({ dateTo: event.target.value });
+	handleInputDateChange(e) {
+		this.setState({ [e.target.name]: new Date(e.target.value) });
 	}
 
 	toggleSystem() {
@@ -176,6 +216,10 @@ class Building extends React.Component {
 		});
 	}
 
+	onClickApply() {
+		this.updateData();
+	}
+
 	render() {
 		let {
 			lsBuilding,
@@ -183,13 +227,40 @@ class Building extends React.Component {
 			currentBuildingLabel,
 			dateFrom,
 			dateTo,
+			displayDateFrom,
+			displayDateTo,
 			isSystemDropdownOpen,
 			system,
+			kwh_system_floor,
 		} = this.state;
 
 		let estimatedPeople = "N/A";
-		let target = lsTarget.find((t) => t.building === currentBuildingLabel);
-		if (target) estimatedPeople = target.amount_people;
+		for (let target of lsTarget) {
+			if (estimatedPeople === "N/A") estimatedPeople = 0;
+			estimatedPeople += target.amount_people;
+
+			let tariff = 4;
+			if (target.tariff !== null) tariff = target.tariff;
+		}
+
+		let kwhTotal = 0;
+		let kwhPerCapita = 0;
+		let kwhAc = 0;
+		let kwhOthers = 0;
+		for (let [floor, kwh_system] of Object.entries(kwh_system_floor)) {
+			for (let [system, kwh] of Object.entries(kwh_system)) {
+				kwhTotal += kwh;
+
+				if (system === "Main") kwhOthers += kwh;
+				else if (system === "Air Conditioner") kwhAc += kwh;
+			}
+		}
+		kwhOthers -= kwhAc;
+
+		let bill = 0;
+
+		if (estimatedPeople !== "N/A")
+			kwhPerCapita = parseFloat(kwhTotal / estimatedPeople).toFixed(2);
 
 		let lsLogPower_Building = [
 			{
@@ -275,7 +346,7 @@ class Building extends React.Component {
 						<Col sm={10} style={{ paddingLeft: "1rem" }}>
 							<Row>
 								{/* ******************************** Left ******************************** */}
-								<Col sm={5}>
+								<Col sm={4} style={{ paddingRight: "2rem" }}>
 									<Row
 										className="row-title"
 										style={{
@@ -302,59 +373,96 @@ class Building extends React.Component {
 										</p>
 									</Row>
 									<Row id="row-date">
-										{dateFormatter.ddmmmyyyy(dateFrom) +
+										{dateFormatter.ddmmmyyyy(displayDateFrom) +
 											" - " +
-											dateFormatter.ddmmmyyyy(dateTo)}
+											dateFormatter.ddmmmyyyy(displayDateTo)}
 									</Row>
-									<Row>
+									<Row id="row-tec">
 										<Col sm={5} className="col-label-1">
 											Total Energy Consumption
 										</Col>
-										<Col sm={7} style={{ color: color }}></Col>
+										<Col sm={5} className="col-data-1" style={{ color: color }}>
+											{kwhTotal}
+										</Col>
+										<Col sm={2} className="col-unit-1" style={{ color: color }}>
+											kWh
+										</Col>
+									</Row>
+
+									<Row id="row-eb">
+										<Col sm={5} className="col-label-1">
+											Electricity Bill
+										</Col>
+										<Col sm={5} className="col-data-2" style={{ color: color }}>
+											{bill}
+										</Col>
+										<Col sm={2} className="col-unit-1" style={{ color: color }}>
+											THB
+										</Col>
+									</Row>
+
+									<Row id="row-pie">
+										<Col sm={5} className="col-label-2">
+											Used in
+										</Col>
+										<Col sm={7} id="col-pie" style={{ color: color }}>
+											<PieChartSystem
+												ac={kwhAc}
+												others={kwhOthers}
+												building={currentBuildingLabel}
+											/>
+										</Col>
+									</Row>
+
+									<Row id="row-capita">
+										<Col sm={7} className="col-label-2">
+											Energy Use per Capita <FaUser size={15} id="icon-user" />
+										</Col>
+										<Col sm={3} className="col-data-2" style={{ color: color }}>
+											{kwhPerCapita}
+										</Col>
+										<Col sm={2} className="col-unit-1" style={{ color: color }}>
+											kWh
+										</Col>
 									</Row>
 								</Col>
 
 								{/* ******************************** Right ******************************** */}
-								<Col sm={7} style={{ paddingRight: "1rem" }}>
+								<Col sm={8} style={{ paddingRight: "1rem" }}>
 									<Row className="row-form">
-										<Form>
-											<FormGroup row>
-												<Col sm={1} />
-												<Label
-													for="dateFrom"
-													sm={1}
-													className="label-datepicker"
-												>
-													From
-												</Label>
-												<Col sm={4} className="col-datepicker">
-													<Input
-														className="datepicker"
-														type="datetime-local"
-														name="datetime"
-														id="dateFrom"
-														placeholder="datetime placeholder"
-														value={dateFormatter.toDateTimeString(dateFrom)}
-														onChange={this.handleChangeDateFrom}
-													/>
-												</Col>
-												<Label for="dateTo" sm={1} className="label-datepicker">
-													To
-												</Label>
-												<Col sm={4} className="col-datepicker">
-													<Input
-														className="datepicker"
-														type="datetime-local"
-														name="datetime"
-														id="dateTo"
-														placeholder="datetime placeholder"
-														value={dateFormatter.toDateTimeString(dateTo)}
-														onChange={this.handleChangeDateTo}
-													/>
-												</Col>
-												<Col sm={1} />
-											</FormGroup>
-										</Form>
+										<Label for="dateFrom" sm={1} className="label-datepicker">
+											From
+										</Label>
+										<Col sm={4} className="col-datepicker">
+											<Input
+												className="datepicker"
+												type="datetime-local"
+												name="dateFrom"
+												id="dateFrom"
+												placeholder="datetime placeholder"
+												value={dateFormatter.toDateTimeString(dateFrom)}
+												onChange={this.handleInputDateChange}
+											/>
+										</Col>
+										<Label for="dateTo" sm={1} className="label-datepicker">
+											To
+										</Label>
+										<Col sm={4} className="col-datepicker">
+											<Input
+												className="datepicker"
+												type="datetime-local"
+												name="dateTo"
+												id="dateTo"
+												placeholder="datetime placeholder"
+												value={dateFormatter.toDateTimeString(dateTo)}
+												onChange={this.handleInputDateChange}
+											/>
+										</Col>
+										<Col sm={2}>
+											<Button id="btn-apply-bld" onClick={this.onClickApply}>
+												Apply
+											</Button>
+										</Col>
 									</Row>
 
 									{/* ******************************** Right Part ******************************** */}
@@ -404,9 +512,10 @@ class Building extends React.Component {
 											</Col>
 										</Row>
 										<Row>
-											<BarChartSystemPowerConsumption
-												lsLogPower={lsLogPower}
-												system={system}
+											<BarChart_SystemPowerConsumption
+												lsSelectedBuilding={lsSelectedBuilding}
+												lsKw_system_building={lsKw_system_building}
+												lsBuilding={lsBuilding}
 											/>
 										</Row>
 									</Row>

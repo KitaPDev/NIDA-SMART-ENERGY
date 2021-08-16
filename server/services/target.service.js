@@ -67,6 +67,8 @@ async function getAllTargetByMonthYear(month, year) {
 		.join("building", "target.building_id", "=", "building.id")
 		.select(
 			"target.id",
+			"target.month",
+			"target.year",
 			"building.label as building",
 			"target.electricity_bill",
 			"target.amount_people",
@@ -77,10 +79,38 @@ async function getAllTargetByMonthYear(month, year) {
 	return result;
 }
 
+async function getBuildingTargetRange(
+	buildingID,
+	yearFrom,
+	monthFrom,
+	yearTo,
+	monthTo
+) {
+	let result = await knex("target")
+		.join("building", "target.building_id", "=", "building.id")
+		.select(
+			"target.id",
+			"target.month",
+			"target.year",
+			"building.label as building",
+			"target.electricity_bill",
+			"target.amount_people",
+			"target.tariff"
+		)
+		.where("building_id", "=", buildingID)
+		.andWhere("year", ">=", yearFrom)
+		.andWhere("month", ">=", monthFrom)
+		.andWhere("year", "<=", yearTo)
+		.andWhere("month", "<=", monthTo);
+
+	return result;
+}
+
 module.exports = {
 	getBuildingPeople,
 	targetExists,
 	insertTarget,
 	updateTarget,
 	getAllTargetByMonthYear,
+	getBuildingTargetRange,
 };

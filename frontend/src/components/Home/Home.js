@@ -102,24 +102,10 @@ class Home extends React.Component {
 			let lsDeviceLast = [];
 
 			for (let data of dataPower.slice().reverse()) {
-				let datetime = new Date(data.data_datetime);
 				let building = data.building;
 				let device = data.device;
-				let kw = Math.round((data.kw * 100) / 100);
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
-
-				if (lsKw_system_building[building] === undefined)
-					lsKw_system_building[building] = {};
-
-				if (lsKw_system_building[building][system] === undefined) {
-					lsKw_system_building[building][system] = [];
-				}
-
-				lsKw_system_building[building][system].push({
-					datetime: datetime,
-					kw: kw,
-				});
 
 				if (!lsDeviceLast.find((d) => d === device)) {
 					lsDeviceLast.push(device);
@@ -135,14 +121,28 @@ class Home extends React.Component {
 			}
 
 			for (let data of dataPower) {
+				let datetime = new Date(data.data_datetime);
 				let building = data.building;
 				let device = data.device;
 				let kwh = Math.round((data.kwh * 100) / 100);
+				let kw = Math.round((data.kw * 100) / 100);
 				let system = data.system;
+
+				if (lsKw_system_building[building] === undefined)
+					lsKw_system_building[building] = {};
+
+				if (lsKw_system_building[building][system] === undefined) {
+					lsKw_system_building[building][system] = [];
+				}
+
+				lsKw_system_building[building][system].push({
+					datetime: datetime,
+					kw: kw,
+				});
 
 				if (!lsDeviceFirst.find((d) => d === device))
 					lsDeviceFirst.push(device);
-				else break;
+				else continue;
 
 				kwh_system_building[building][system] -= kwh;
 			}
@@ -769,9 +769,6 @@ class Home extends React.Component {
 												<div
 													className="label-building"
 													style={{
-														// backgroundColor: lsBuildingData.find(
-														// 	(data) => data.building === building.label
-														// ).color,
 														backgroundColor: lsSelectedBuilding.includes(
 															building.label
 														)

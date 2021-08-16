@@ -20,4 +20,8 @@ router.post("/monthyear/tariff", authenticateJWT, async function (req, res) {
 	targetController.getAllBuildingTariffByMonthYear(req, res);
 });
 
+router.post("/building", authenticateJWT, async function (req, res) {
+	targetController.getBuildingTargetRange(req, res);
+});
+
 module.exports = router;
