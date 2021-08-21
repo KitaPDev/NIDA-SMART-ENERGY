@@ -1,12 +1,11 @@
 import React from "react";
-import "./LineChart_BuildingPowerConsumption.css";
+import "./BarChartSystemPowerConsumption.css";
 
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
 //Custom Tooltip
-
 const getOrCreateTooltip = (chart) => {
 	let tooltipEl = chart.canvas.parentNode.querySelector("div");
 
@@ -45,7 +44,10 @@ const externalTooltipHandler = (context) => {
 	// Set Text
 	if (tooltip.body) {
 		const titleLines = tooltip.title || [];
-		const bodyLines = tooltip.body.map((b) => b.lines);
+
+		const bodyLines = tooltip.body.map((b) => {
+			return b.lines;
+		});
 
 		const tableHead = document.createElement("thead");
 
@@ -113,9 +115,9 @@ const externalTooltipHandler = (context) => {
 		tooltip.options.padding + "px " + tooltip.options.padding + "px";
 };
 
-let lineChart;
+let barChart;
 
-class LineChart_BuildingPowerConsumption extends React.Component {
+class BarChartSystemPowerConsumption extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -160,6 +162,7 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 						grid: {
 							display: false,
 						},
+						stacked: true,
 					},
 					yAxis: {
 						min: 0,
@@ -168,6 +171,7 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 						grid: {
 							display: false,
 						},
+						stacked: true,
 					},
 				},
 				plugins: {
@@ -181,7 +185,9 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 						},
 					},
 					legend: {
-						display: false,
+						display: true,
+						position: "top",
+						labels: { usePointStyle: true },
 					},
 					tooltip: {
 						enabled: false,
@@ -213,15 +219,15 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 	buildChart = () => {
 		let { data, options } = this.state;
 
-		document.getElementById("lc-building-power").remove();
+		document.getElementById("bc-system-power").remove();
 		document.getElementById(
-			"wrapper-lc-building-power"
-		).innerHTML = `<canvas id="lc-building-power" />`;
+			"wrapper-bc-system-power"
+		).innerHTML = `<canvas id="bc-system-power" />`;
 
-		let ctx = document.getElementById("lc-building-power").getContext("2d");
+		let ctx = document.getElementById("bc-system-power").getContext("2d");
 
-		lineChart = new Chart(ctx, {
-			type: "line",
+		barChart = new Chart(ctx, {
+			type: "bar",
 			data: data,
 			options: options,
 		});
@@ -249,42 +255,31 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
 
 		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
-		let lsBuilding = nextProps.lsBuilding;
 
 		if (Object.keys(lsKw_system_building).length <= 1) return;
 
 		let labels = [];
 		let datasets = [];
 
-		let yMax = 1;
+		let building_lsKwMain = {};
+		let building_lsKwAc = {};
 
 		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
-			let color = lsBuilding.find((b) => b.label === building).color_code;
+			if (!lsSelectedBuilding.includes(building)) continue;
 
-			let dataset = {
-				label: building,
-				fill: false,
-				borderColor: color,
-				borderWidth: 2,
-				spanGaps: true,
-				pointRadius: 2,
-			};
+			if (!building_lsKwMain[building]) building_lsKwMain[building] = [];
+			if (!building_lsKwAc[building]) building_lsKwAc[building] = [];
 
-			let data = [];
+			let lsKwMain = building_lsKwMain[building];
+			let lsKwAc = building_lsKwAc[building];
+
 			let prevDatetime;
-
 			for (let logKwMain of lsKw_system["Main"]) {
 				let datetime = new Date(logKwMain.datetime);
 				let kw = logKwMain.kw;
 
-				if (datasets.length === 0) {
-					let date = new Date(datetime);
-
-					if (prevDatetime) {
-						if (datetime.getTime() === prevDatetime.getTime()) continue;
-					}
-
-					labels.push(date);
+				if (!labels.find((d) => d.getTime() === datetime.getTime())) {
+					labels.push(new Date(datetime));
 				}
 
 				if (!lsSelectedBuilding.includes(building)) {
@@ -294,30 +289,78 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 
 				if (prevDatetime) {
 					if (datetime.getTime() === prevDatetime.getTime()) {
-						data[data.length - 1] += kw;
-
-						if (data[data.length - 1] > yMax) yMax = data[data.length - 1];
-					} else data.push(kw);
-				} else data.push(kw);
-
-				if (kw > yMax) yMax = kw;
+						lsKwMain[lsKwMain.length - 1] += kw;
+					} else lsKwMain.push(kw);
+				} else lsKwMain.push(kw);
 
 				prevDatetime = datetime;
 			}
 
-			dataset.data = data;
+			// Fill AC array with zeroes if no AC kw readings
+			if (!lsKw_system["Air Conditioner"]) {
+				let lengthDiff = lsKwMain.length - lsKwAc.length;
+				building_lsKwAc[building] = lsKwAc.concat(Array(lengthDiff).fill(0));
+				continue;
+			}
 
-			if (!lsSelectedBuilding.includes(building)) dataset = {};
+			for (let logKwAc of lsKw_system["Air Conditioner"]) {
+				let datetime = new Date(logKwAc.datetime);
+				let kw = logKwAc.kw;
 
-			datasets.push(dataset);
+				if (prevDatetime) {
+					if (datetime.getTime() === prevDatetime.getTime()) {
+						lsKwAc[lsKwAc.length - 1] += kw;
+					} else lsKwAc.push(kw);
+				} else lsKwAc.push(kw);
+
+				prevDatetime = datetime;
+			}
 		}
+
+		let lsKwOthers = [];
+		let lsKwAc = [];
+
+		let yMax = 0;
+		for (let [building, lsKwMain] of Object.entries(building_lsKwMain)) {
+			lsKwMain.forEach((kwMain, idx) => {
+				if (!lsKwOthers[idx]) lsKwOthers[idx] = 0;
+				lsKwOthers[idx] += kwMain;
+
+				if (lsKwOthers[idx] > yMax) yMax = lsKwOthers[idx];
+			});
+
+			building_lsKwAc[building].forEach((kwAc, idx) => {
+				if (!lsKwAc[idx]) lsKwAc[idx] = 0;
+				lsKwAc[idx] += kwAc;
+			});
+		}
+
+		lsKwAc.forEach(
+			(kwAc, idx) => (lsKwOthers[idx] = Math.abs(lsKwOthers[idx] - kwAc))
+		);
+
+		let datasetAc = {
+			label: "Air Conditioner",
+			backgroundColor: "#4469B8",
+			borderColor: "#4469B8",
+			data: lsKwAc,
+		};
+
+		let datasetOthers = {
+			label: "Others",
+			backgroundColor: "#B14926",
+			borderColor: "#B14926",
+			data: lsKwOthers,
+		};
+
+		datasets.push(datasetAc, datasetOthers);
 
 		data.labels = labels;
 		data.datasets = datasets;
 
 		options.scales.xAxis.min = labels[0];
 		options.scales.xAxis.max = labels[labels.length - 1];
-		options.scales.yAxis.max = yMax + 10;
+		options.scales.yAxis.max = yMax;
 
 		this.setState({
 			data: data,
@@ -338,19 +381,16 @@ class LineChart_BuildingPowerConsumption extends React.Component {
 	}
 
 	handleDoubleClick() {
-		if (lineChart) lineChart.resetZoom();
+		if (barChart) barChart.resetZoom();
 	}
 
 	render() {
 		return (
-			<div
-				id="wrapper-lc-building-power"
-				onDoubleClick={this.handleDoubleClick}
-			>
-				<canvas id="lc-building-power" />
+			<div id="wrapper-bc-system-power" onDoubleClick={this.handleDoubleClick}>
+				<canvas id="bc-system-power" />
 			</div>
 		);
 	}
 }
 
-export default LineChart_BuildingPowerConsumption;
+export default BarChartSystemPowerConsumption;

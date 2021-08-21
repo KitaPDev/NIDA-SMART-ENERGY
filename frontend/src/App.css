@@ -44,3 +44,13 @@
 #wrapper-content {
 	height: 90%;
 }
+
+.icon-excel {
+	fill: #286d44;
+}
+
+.icon-excel:hover {
+	cursor: pointer;
+	fill: black;
+	transition-duration: 0.3s;
+}

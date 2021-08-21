@@ -1,5 +1,5 @@
 import React from "react";
-import "./BarChart_SystemPowerConsumption.css";
+import "./BarChartSystemPowerConsumption.css";
 
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -16,7 +16,7 @@ const getOrCreateTooltip = (chart) => {
 		tooltipEl.style.color = "white";
 		tooltipEl.style.opacity = 1;
 		tooltipEl.style.position = "absolute";
-		tooltipEl.style.transform = "translate(20%, -50%)";
+		tooltipEl.style.transform = "translate(-120%, -50%)";
 		tooltipEl.style.transition = "all .1s ease";
 		tooltipEl.style.zIndex = "99999";
 
@@ -44,8 +44,6 @@ const externalTooltipHandler = (context) => {
 	// Set Text
 	if (tooltip.body) {
 		const titleLines = tooltip.title || [];
-
-		let kwAc = 0;
 
 		const bodyLines = tooltip.body.map((b) => {
 			return b.lines;
@@ -119,7 +117,7 @@ const externalTooltipHandler = (context) => {
 
 let barChart;
 
-class BarChart_SystemPowerConsumption extends React.Component {
+class BarChartSystemPowerConsumption extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -135,10 +133,6 @@ class BarChart_SystemPowerConsumption extends React.Component {
 		);
 
 		this.state = {
-			lsBuilding: this.props.lsBuilding,
-			lsSelectedBuildingPrev: [],
-			componentShouldUpdate: true,
-
 			// Chart details
 			data: {},
 			options: {
@@ -164,32 +158,22 @@ class BarChart_SystemPowerConsumption extends React.Component {
 						grid: {
 							display: false,
 						},
-						stacked: true,
 					},
 					yAxis: {
 						min: 0,
 						max: 100,
 						display: true,
 						grid: {
-							display: false,
+							display: true,
 						},
-						stacked: true,
 					},
 				},
 				plugins: {
 					title: {
-						display: true,
-						text: "Power (kW)",
-						align: "start",
-						font: { weight: "bold", size: 14 },
-						padding: {
-							bottom: 10,
-						},
+						display: false,
 					},
 					legend: {
-						display: true,
-						positoin: "top",
-						labels: { usePointStyle: true },
+						display: false,
 					},
 					tooltip: {
 						enabled: false,
@@ -204,7 +188,7 @@ class BarChart_SystemPowerConsumption extends React.Component {
 							wheel: { enabled: true },
 							pinch: { enabled: true },
 							mode: "xy",
-							speed: 2,
+							speed: 100,
 						},
 						limits: {
 							x: { min: xMin, max: today },
@@ -241,130 +225,74 @@ class BarChart_SystemPowerConsumption extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, options, lsSelectedBuildingPrev } = this.state;
+		let { data, options } = this.state;
 
+		let lsLogKw_system = nextProps.lsLogKw_system;
+		if (lsLogKw_system === undefined) return;
 		if (
-			JSON.stringify(this.props.lsKw_system_building) ===
-				JSON.stringify(nextProps.lsKw_system_building) &&
-			JSON.stringify(lsSelectedBuildingPrev) ===
-				JSON.stringify(nextProps.lsSelectedBuilding) &&
-			Object.values(data).length > 0
-		) {
+			JSON.stringify(this.props.lsLogKw_system) ===
+				JSON.stringify(nextProps.lsLogKw_system) &&
+			this.props.system === nextProps.system
+		)
 			return;
-		}
 
-		let lsKw_system_building = {};
-		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
+		let system = nextProps.system;
+		let color = nextProps.color;
 
-		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
-
-		if (Object.keys(lsKw_system_building).length <= 1) return;
-
-		let labels = [];
 		let datasets = [];
 
-		let building_lsKwMain = {};
-		let building_lsKwAc = {};
+		let labels = [];
+		let lsKw_system = {};
+		let yMax = 0;
 
-		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
-			if (!lsSelectedBuilding.includes(building)) continue;
+		let prevDatetime;
+		for (let [sys, lsLog] of Object.entries(lsLogKw_system)) {
+			if (lsKw_system[sys] === undefined) lsKw_system[sys] = [];
+			let lsKw = lsKw_system[sys];
 
-			if (!building_lsKwMain[building]) building_lsKwMain[building] = [];
-			if (!building_lsKwAc[building]) building_lsKwAc[building] = [];
-
-			let lsKwMain = building_lsKwMain[building];
-			let lsKwAc = building_lsKwAc[building];
-
-			let prevDatetime;
-			for (let logKwMain of lsKw_system["Main"]) {
-				let datetime = new Date(logKwMain.datetime);
-				let kw = logKwMain.kw;
+			for (let log of lsLog) {
+				let datetime = new Date(log.datetime);
+				let kw = log.kw;
 
 				if (
 					labels.findIndex((d) => d.getTime() === datetime.getTime()) === -1
 				) {
-					let date = new Date(datetime);
-
-					if (prevDatetime) {
-						if (datetime.getTime() === prevDatetime.getTime()) continue;
-					}
-
-					labels.push(date);
-				}
-
-				if (!lsSelectedBuilding.includes(building)) {
-					prevDatetime = datetime;
-					continue;
+					labels.push(new Date(datetime));
 				}
 
 				if (prevDatetime) {
 					if (datetime.getTime() === prevDatetime.getTime()) {
-						lsKwMain[lsKwMain.length - 1] += kw;
-					} else lsKwMain.push(kw);
-				} else lsKwMain.push(kw);
+						lsKw[lsKw.length - 1] += kw;
 
-				prevDatetime = datetime;
-			}
+						if (lsKw[lsKw.length - 1] > yMax) yMax = lsKw[lsKw.length - 1];
+					} else lsKw.push(kw);
+				} else lsKw.push(kw);
 
-			// Fill AC array with zeroes if no AC kw readings
-			if (!lsKw_system["Air Conditioner"]) {
-				let lengthDiff = lsKwMain.length - lsKwAc.length;
-				building_lsKwAc[building] = lsKwAc.concat(Array(lengthDiff).fill(0));
-				continue;
-			}
-
-			for (let logKwAc of lsKw_system["Air Conditioner"]) {
-				let datetime = new Date(logKwAc.datetime);
-				let kw = logKwAc.kw;
-
-				if (prevDatetime) {
-					if (datetime.getTime() === prevDatetime.getTime()) {
-						lsKwAc[lsKwAc.length - 1] += kw;
-					} else lsKwAc.push(kw);
-				} else lsKwAc.push(kw);
+				if (kw > yMax) yMax = kw;
 
 				prevDatetime = datetime;
 			}
 		}
 
-		let lsKwOthers = [];
-		let lsKwAc = [];
-
-		let yMax = 0;
-
-		for (let [building, lsKwMain] of Object.entries(building_lsKwMain)) {
-			lsKwMain.forEach((kwMain, idx) => {
-				if (!lsKwOthers[idx]) lsKwOthers[idx] = 0;
-				lsKwOthers[idx] += kwMain;
-
-				if (lsKwOthers[idx] > yMax) yMax = lsKwOthers[idx];
-			});
-
-			building_lsKwAc[building].forEach((kwAc, idx) => {
-				if (!lsKwAc[idx]) lsKwAc[idx] = 0;
-				lsKwAc[idx] += kwAc;
-			});
+		let lsKw = [];
+		if (lsKw_system["Main"] !== undefined) lsKw = lsKw_system["Main"];
+		if (system === "Air Conditioner") lsKw = lsKw_system["Air Conditioner"];
+		else if (system === "Others") {
+			if (lsKw_system["Air Conditioner"] !== undefined) {
+				lsKw.forEach((_, idx) => {
+					lsKw[idx] -= lsKw_system["Air Conditioner"][idx];
+				});
+			}
 		}
 
-		lsKwAc.forEach(
-			(kwAc, idx) => (lsKwOthers[idx] = Math.abs(lsKwOthers[idx] - kwAc))
-		);
-
-		let datasetAc = {
-			label: "Air Conditioner",
-			backgroundColor: "#4469B8",
-			borderColor: "#4469B8",
-			data: lsKwAc,
+		let dataset = {
+			label: system,
+			backgroundColor: color,
+			borderColor: color,
+			data: lsKw,
 		};
 
-		let datasetOthers = {
-			label: "Others",
-			backgroundColor: "#B14926",
-			borderColor: "#B14926",
-			data: lsKwOthers,
-		};
-
-		datasets.push(datasetAc, datasetOthers);
+		datasets.push(dataset);
 
 		data.labels = labels;
 		data.datasets = datasets;
@@ -376,19 +304,9 @@ class BarChart_SystemPowerConsumption extends React.Component {
 		this.setState({
 			data: data,
 			options: options,
-			componentShouldUpdate: true,
-			lsSelectedBuildingPrev: lsSelectedBuilding,
 		});
 
 		this.buildChart();
-	}
-
-	shouldComponentUpdate() {
-		return this.state.componentShouldUpdate;
-	}
-
-	componentDidUpdate() {
-		this.setState({ componentShouldUpdate: false });
 	}
 
 	handleDoubleClick() {
@@ -404,4 +322,4 @@ class BarChart_SystemPowerConsumption extends React.Component {
 	}
 }
 
-export default BarChart_SystemPowerConsumption;
+export default BarChartSystemPowerConsumption;

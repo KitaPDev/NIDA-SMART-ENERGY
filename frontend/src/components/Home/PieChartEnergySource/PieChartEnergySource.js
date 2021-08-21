@@ -48,7 +48,7 @@ export default class PieChartEnergySource extends PureComponent {
 						cy="50%"
 						labelLine={false}
 						label={renderCustomizedLabel}
-						outerRadius={50}
+						outerRadius={49}
 						fill="#8884d8"
 						dataKey="value"
 					>

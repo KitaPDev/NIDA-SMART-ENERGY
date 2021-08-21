@@ -10,8 +10,8 @@ import {
 // Charts and Diagrams
 import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
 import PieChartSystem from "./PieChartSystem/PieChartSystem";
-import LineChart_BuildingPowerConsumption from "./LineChart_BuildingPowerConsumption/LineChart_BuildingPowerConsumption";
-import BarChart_SystemPowerConsumption from "./BarChart_SystemPowerConsumption/BarChart_SystemPowerConsumption";
+import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
+import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 
 // Styling and Media
 import "./Home.css";
@@ -419,7 +419,7 @@ class Home extends React.Component {
 		}
 
 		return (
-			<div>
+			<div style={{ height: "100%" }}>
 				{/* ****************************** Building Map Styles ******************************** */}
 				{lsBuilding.map((building) => (
 					<style>
@@ -442,7 +442,14 @@ class Home extends React.Component {
 							}`}
 					</style>
 				))}
-				<Container id="container-home" fluid>
+				<div
+					id="container-home"
+					style={{
+						display:
+							Object.values(lsKw_system_building).length > 0 ? "flex" : "",
+					}}
+					fluid
+				>
 					<Row>
 						{/* ******************************** LEFT COLUMN ******************************** */}
 						<Col sm="5">
@@ -452,6 +459,7 @@ class Home extends React.Component {
 									<Row
 										style={{
 											fontSize: "160%",
+											marginTop: "auto",
 										}}
 									>
 										<span>Total</span>
@@ -716,7 +724,7 @@ class Home extends React.Component {
 							<div id="left-bottom-pane-group">
 								{/* ******************************** BUILDING POWER CONSUMPTION PANE ******************************** */}
 								<div className="building-power-consumption-pane">
-									<LineChart_BuildingPowerConsumption
+									<LineChartBuildingPowerConsumption
 										lsSelectedBuilding={lsSelectedBuilding}
 										lsKw_system_building={lsKw_system_building}
 										lsBuilding={lsBuilding}
@@ -724,7 +732,7 @@ class Home extends React.Component {
 								</div>
 								{/* ******************************** ELECTRICAL SYSTEM POWER CONSUMPTION PANE ******************************** */}
 								<div className="electrical-system-power-consumption-pane">
-									<BarChart_SystemPowerConsumption
+									<BarChartSystemPowerConsumption
 										lsSelectedBuilding={lsSelectedBuilding}
 										lsKw_system_building={lsKw_system_building}
 										lsBuilding={lsBuilding}
@@ -969,7 +977,7 @@ class Home extends React.Component {
 							</div>
 						</Col>
 					</Row>
-				</Container>
+				</div>
 			</div>
 		);
 	}

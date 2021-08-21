@@ -53,6 +53,14 @@ function ddmmyyyyhhmm(date) {
 			mm = "0" + mm;
 		}
 
+		if (hh < 10) {
+			hh = "0" + hh;
+		}
+
+		if (min < 10) {
+			min = "0" + min;
+		}
+
 		return dd + "/" + mm + "/" + yyyy + " " + hh + ":" + min;
 	}
 }
@@ -75,6 +83,14 @@ function yyyymmddhhmmss(date) {
 
 		if (mm < 10) {
 			mm = "0" + mm;
+		}
+
+		if (hh < 10) {
+			hh = "0" + hh;
+		}
+
+		if (min < 10) {
+			min = "0" + min;
 		}
 
 		if (ss < 10) {
@@ -107,12 +123,46 @@ function toDateTimeString(date) {
 	}
 }
 
+function yyyymmddhhmmss_noOffset(date) {
+	if (date instanceof Date) {
+		let dd = date.getDate();
+		let mm = date.getMonth() + 1;
+		let yyyy = date.getFullYear();
+		let hh = date.getHours();
+		let min = date.getMinutes();
+		let ss = date.getSeconds();
+
+		if (dd < 10) {
+			dd = "0" + dd;
+		}
+
+		if (mm < 10) {
+			mm = "0" + mm;
+		}
+
+		if (hh < 10) {
+			hh = "0" + hh;
+		}
+
+		if (min < 10) {
+			min = "0" + min;
+		}
+
+		if (ss < 10) {
+			ss = "0" + ss;
+		}
+
+		return yyyy + "-" + mm + "-" + dd + " " + hh + ":" + min + ":" + ss;
+	}
+}
+
 const dateFormatter = {
 	ddmmyyyy,
 	ddmmyyyyhhmm,
 	yyyymmddhhmmss,
 	ddmmmyyyy,
 	toDateTimeString,
+	yyyymmddhhmmss_noOffset,
 };
 
 export default dateFormatter;

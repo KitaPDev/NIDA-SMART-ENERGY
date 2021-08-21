@@ -12,4 +12,8 @@ router.post("/data", authenticateJWT, async function (req, res) {
 	buildingController.getData(req, res);
 });
 
+router.post("/bill/compare", authenticateJWT, async function (req, res) {
+	buildingController.getBillCompare(req, res);
+});
+
 module.exports = router;

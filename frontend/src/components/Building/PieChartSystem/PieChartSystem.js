@@ -1,19 +1,9 @@
 import React, { PureComponent } from "react";
-import {
-	PieChart,
-	Pie,
-	Cell,
-	Tooltip,
-	ResponsiveContainer,
-	Legend,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import "./PieChartSystem.css";
+import numberFormatter from "../../../utils/numberFormatter";
 
 const COLORS = ["#3c67be", "#be4114"];
-
-const numberWithCommas = (x) => {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({
@@ -24,7 +14,7 @@ const renderCustomizedLabel = ({
 	outerRadius,
 	percent,
 }) => {
-	const radius = innerRadius + (outerRadius - innerRadius) * 0.1;
+	const radius = innerRadius + (outerRadius - innerRadius) * 0.2;
 	const x = cx + radius * Math.cos(-midAngle * RADIAN);
 	const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -59,7 +49,7 @@ const getLine2 = (building, ac, others) => {
 	return (
 		building +
 		" " +
-		numberWithCommas(Math.round(totalEnergyConsumption)) +
+		numberFormatter.withCommas(Math.round(totalEnergyConsumption)) +
 		" kWh"
 	);
 };
@@ -71,7 +61,7 @@ const getLine3 = (ac, others) => {
 		"Air Conditioner " +
 		percentAC +
 		"% " +
-		numberWithCommas(Math.round(ac)) +
+		numberFormatter.withCommas(Math.round(ac)) +
 		" kWh"
 	);
 };
@@ -83,7 +73,7 @@ const getLine4 = (ac, others) => {
 		"Others " +
 		percentOthers +
 		"% " +
-		numberWithCommas(Math.round(others)) +
+		numberFormatter.withCommas(Math.round(others)) +
 		" kWh"
 	);
 };
@@ -152,49 +142,57 @@ class PieChartSystem extends PureComponent {
 		this.setState({
 			ac: this.props.ac,
 			others: this.props.others,
+			disabled: this.props.disabled,
 		});
 	}
 
 	render() {
-		let { ac, others } = this.state;
+		let { ac, others, disabled } = this.state;
 
-		const data = [
+		let data = [
 			{ name: "Air Conditioner", value: ac },
 			{ name: "Others", value: others },
 		];
+
+		if (disabled) {
+			data = [{ name: "", value: 100 }];
+		}
 
 		return (
 			<ResponsiveContainer width="100%" height="100%">
 				<PieChart width={500} height={500}>
 					<Pie
-						isAnimationActive={false}
+						isAnimationActive={true}
 						dataKey="value"
 						data={data}
 						cx="50%"
 						cy="50%"
-						outerRadius={50}
+						outerRadius={60}
 						fill="#8884d8"
-						label={renderCustomizedLabel}
+						label={disabled ? "" : renderCustomizedLabel}
 						labelLine={false}
 					>
 						{data.map((entry, index) => (
 							<Cell
 								key={`cell-${index}`}
-								fill={COLORS[index % COLORS.length]}
+								fill={disabled ? "#D2D9DC" : COLORS[index % COLORS.length]}
 							/>
 						))}
 					</Pie>
-					<Tooltip
-						position={{ x: 210, y: 50 }}
-						content={
-							<CustomTooltip
-								building={this.props.building}
-								ac={this.props.ac}
-								others={this.props.others}
-							/>
-						}
-					/>
-					<Legend verticalAlign="top" />
+					{disabled ? (
+						""
+					) : (
+						<Tooltip
+							position={{ x: 210, y: 50 }}
+							content={
+								<CustomTooltip
+									building={this.props.building}
+									ac={this.props.ac}
+									others={this.props.others}
+								/>
+							}
+						/>
+					)}
 				</PieChart>
 			</ResponsiveContainer>
 		);

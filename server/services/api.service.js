@@ -104,12 +104,12 @@ async function getDataIaq(start, end) {
 	return result;
 }
 
-async function getDataPowerMonthBuilding(month) {
+async function getDataPowerMonth(month) {
 	let today = new Date();
 
-	let dateStart_after = new Date(today.getFullYear(), month, 1, 12, 0);
 	let dateStart_before = new Date(today.getFullYear(), month, 1, 0, 0);
-	let dateEnd_before = new Date(today.getTime() - 1800000);
+	let dateStart_after = new Date(today.getFullYear(), month, 1, 12, 0);
+	let dateEnd_before = new Date(today.getTime() - 43200000); // 12 Hours before end of month
 
 	let result = await knex("log_power_meter")
 		.join("device", "log_power_meter.device_id", "=", "device.id")
@@ -122,12 +122,10 @@ async function getDataPowerMonthBuilding(month) {
 			"log_power_meter.kwh",
 			"system.label as system"
 		)
-		.where((builder) =>
-			builder.whereBetween("log_power_meter.data_datetime", [
-				dateFormatter.yyyymmddhhmmss(dateStart_before),
-				dateFormatter.yyyymmddhhmmss(dateStart_after),
-			])
-		)
+		.whereBetween("log_power_meter.data_datetime", [
+			dateFormatter.yyyymmddhhmmss(dateStart_before),
+			dateFormatter.yyyymmddhhmmss(dateStart_after),
+		])
 		.orWhere(
 			"log_power_meter.data_datetime",
 			">",
@@ -173,6 +171,6 @@ module.exports = {
 	getDataPowerMeter,
 	getDataSolar,
 	getDataIaq,
-	getDataPowerMonthBuilding,
+	getDataPowerMonth,
 	getDataSolarMonth,
 };

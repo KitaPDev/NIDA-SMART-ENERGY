@@ -1,10 +1,26 @@
-.building-list-pane {
-	height: fit-content;
-	border: 1px solid #f2f3f7;
-	border-radius: 0.5rem;
+#container-building {
+	height: 100%;
+	padding: 1rem;
+	overflow: hidden !important;
 }
 
-.building-list-pane #heading-1 {
+#container-building-top {
+	padding: 1rem;
+	height: fit-content;
+	max-height: 65%;
+}
+
+#row-building-top {
+	height: 100%;
+}
+
+#building-list-pane {
+	border: 1px solid #f2f3f7;
+	border-radius: 0.5rem;
+	padding-bottom: 1rem;
+}
+
+#building-list-pane #heading-1 {
 	font-size: 125%;
 	font-weight: 600;
 	background-color: #f2f3f7;
@@ -97,6 +113,16 @@
 	padding: 1rem 0 1rem 0;
 }
 
+#row-pie .dot-blue {
+	height: 15px;
+	width: 15px;
+}
+
+#row-pie .dot-red {
+	height: 15px;
+	width: 15px;
+}
+
 #col-pie {
 	height: 150px;
 }
@@ -109,6 +135,7 @@
 	background-color: #f2f3f7;
 	border-radius: 0.5rem;
 	padding: 0.5rem;
+	height: fit-content;
 }
 
 .label-datepicker {
@@ -127,11 +154,13 @@
 	margin: auto !important;
 }
 
-.row-graph-power {
+#row-graph-power {
 	border: 1px solid #000000;
-	margin-top: 1rem !important;
 	border-radius: 0.5rem;
-	height: 300px;
+	margin-top: 1rem !important;
+	padding: 0.5rem;
+	height: 50%;
+	justify-content: center;
 }
 
 #btn-apply-bld {
@@ -144,4 +173,176 @@
 #btn-apply-bld:hover {
 	background-color: black;
 	color: #f2f3f7;
+}
+
+#row-graph-compare {
+	margin-top: 1rem;
+	padding: 0.5rem;
+	border: 1px solid #000000;
+	border-radius: 0.5rem;
+	height: 35%;
+}
+
+#col-compare {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-right: 1px solid black;
+	padding: 1rem;
+}
+
+#col-graph-bill {
+	margin-top: auto;
+	margin-bottom: auto;
+	position: relative;
+}
+
+#col-graph-bill .icon-excel {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+#form-compare legend {
+	font-weight: 600;
+}
+
+#form-compare .form-check {
+	margin-top: 0.5rem;
+}
+
+#form-compare .form-check-input {
+	padding: 0.5rem;
+}
+
+#form-compare .form-check-input:checked {
+	background-color: black;
+	border-color: black;
+}
+
+#form-compare .form-check-label {
+	font-weight: 600;
+}
+
+#container-floor-plan {
+	border: 1px solid #000000;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-top: 1rem;
+	height: 33%;
+	overflow: scroll;
+}
+
+#floor-plan-row-top {
+	height: 20%;
+}
+
+#floor-plan-title {
+	font-size: 150%;
+	font-weight: bold;
+	padding-left: 1rem;
+	max-width: 20%;
+}
+
+#floors {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	height: 85%;
+	justify-content: space-evenly;
+}
+
+.floor {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	width: 25%;
+	padding: 1rem;
+}
+
+.img-floor {
+	height: 100%;
+	width: 50%;
+}
+
+.img-floor > span {
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.data-floor {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 50%;
+}
+
+.row-floor {
+	margin-bottom: 1rem;
+	width: 100%;
+}
+
+.floor-title {
+	font-size: 125%;
+	font-weight: 600;
+	padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+	border-radius: 0.5rem;
+	background: #d8dfe2;
+}
+
+.floor-percent {
+	font-size: 120%;
+	font-weight: 600;
+	color: #a4b6be;
+	margin-left: 0.5rem;
+}
+
+.floor-kwh-total {
+	font-size: 125%;
+	font-weight: 600;
+	color: #c04e4e;
+}
+
+.row-floor-1 {
+	width: 100%;
+}
+
+.floor-kwh {
+	color: #c04e4e;
+}
+
+#wrapper-legend {
+	float: right;
+	max-width: 80%;
+	display: flex;
+	flex-direction: row;
+}
+
+.legend-desc {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	font-weight: bold;
+}
+
+.legend-graphics {
+	display: flex;
+	flex-direction: column;
+	width: 200px;
+}
+
+.legend-dots {
+	padding: 0 1rem 0 1rem;
+}
+
+#container-floor-plan .legend-dot-1,
+#container-floor-plan .legend-dot-3 {
+	display: inline-block;
+}
+
+#container-floor-plan .legend-dot-3 {
+	float: right;
 }

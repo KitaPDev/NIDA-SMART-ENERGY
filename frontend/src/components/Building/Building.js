@@ -1,16 +1,19 @@
 import React from "react";
 
 // Charts and Diagrams
-import BarChart_SystemPowerConsumption from "./BarChart_SystemPowerConsumption/BarChart_SystemPowerConsumption";
+import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 import PieChartSystem from "./PieChartSystem/PieChartSystem";
+import MixedChartBillCompare from "./MixedChartBillCompare/MixedChartBillCompare";
 
 // Styling and Icons
 import "./Building.css";
-import { Container, Row, Col } from "reactstrap";
 import { MdPeople } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { FaUser } from "react-icons/fa";
 import {
+	Container,
+	Row,
+	Col,
 	Label,
 	Input,
 	Dropdown,
@@ -18,12 +21,18 @@ import {
 	DropdownMenu,
 	DropdownItem,
 	Button,
+	Form,
+	FormGroup,
+	Progress,
 } from "reactstrap";
+import { ReactSVG } from "react-svg";
 
 // Utils
 import http from "../../utils/http";
 import dateFormatter from "../../utils/dateFormatter";
 import numberFormatter from "../../utils/numberFormatter";
+import colorConverter from "../../utils/colorConverter";
+import csv from "../../utils/csv";
 
 class Building extends React.Component {
 	constructor(props) {
@@ -43,6 +52,10 @@ class Building extends React.Component {
 			system: "Overall",
 			currentBuildingLabel: "",
 			kwh_system_floor: {},
+			kwh_month: {},
+			lsLogKw_system: {},
+			compareTo: "Target",
+			buildingPath: window.location.origin + "/building/", // For Building Images
 		};
 
 		let currentBuildingLabel = this.props.location.building;
@@ -58,7 +71,11 @@ class Building extends React.Component {
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getData = this.getData.bind(this);
 		this.getBuildingTargetRange = this.getBuildingTargetRange.bind(this);
+		this.onClickBuilding = this.onClickBuilding.bind(this);
 		this.onClickApply = this.onClickApply.bind(this);
+		this.onClickCompareTo = this.onClickCompareTo.bind(this);
+		this.exportBarChartSystemPowerConsumption =
+			this.exportBarChartSystemPowerConsumption.bind(this);
 	}
 
 	async updateData() {
@@ -110,25 +127,20 @@ class Building extends React.Component {
 			let lsDeviceFirst = [];
 			let lsDeviceLast = [];
 
-			let lsKw_system_floor = {};
+			let lsLogKw_system = {};
 			let kwh_system_floor = {};
+			let kwh_month = {};
 			for (let data of lsData.slice().reverse()) {
 				let floor = data.floor;
 				let device = data.device;
-				let datetime = data.data_datetime;
+				let datetime = new Date(data.data_datetime);
 				let kw = Math.round((data.kw * 100) / 100);
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
 
-				if (lsKw_system_floor[floor] === undefined) {
-					lsKw_system_floor[floor] = {};
-				}
+				if (lsLogKw_system[system] === undefined) lsLogKw_system[system] = [];
 
-				if (lsKw_system_floor[floor][system] === undefined) {
-					lsKw_system_floor[floor][system] = [];
-				}
-
-				lsKw_system_floor[floor][system].push({
+				lsLogKw_system[system].push({
 					datetime: datetime,
 					kw: kw,
 				});
@@ -142,10 +154,14 @@ class Building extends React.Component {
 				}
 
 				if (kwh_system_floor[floor][system] === undefined) {
-					kwh_system_floor[floor][system] = [];
+					kwh_system_floor[floor][system] = 0;
 				}
 
 				kwh_system_floor[floor][system] += kwh;
+
+				let month = datetime.getMonth() + 1;
+				if (kwh_month[month] === undefined) kwh_month[month] = 0;
+				kwh_month[month] += kwh;
 			}
 
 			for (let data of lsData) {
@@ -159,10 +175,16 @@ class Building extends React.Component {
 				else break;
 
 				kwh_system_floor[floor][system] -= kwh;
+
+				let datetime = new Date(data.data_datetime);
+				let month = datetime.getMonth() + 1;
+				kwh_month[month] -= kwh;
 			}
 
 			this.setState({
 				kwh_system_floor: kwh_system_floor,
+				kwh_month: kwh_month,
+				lsLogKw_system: lsLogKw_system,
 			});
 		} catch (err) {
 			console.log(err);
@@ -220,6 +242,90 @@ class Building extends React.Component {
 		this.updateData();
 	}
 
+	onClickBuilding(buildingLabel) {
+		this.setState({ currentBuildingLabel: buildingLabel }, () => {
+			this.updateData();
+		});
+	}
+
+	onClickCompareTo(compareTo) {
+		this.setState({
+			compareTo: compareTo,
+		});
+	}
+
+	exportBarChartSystemPowerConsumption() {
+		let { lsLogKw_system, system } = this.state;
+
+		console.log(lsLogKw_system);
+
+		let lsLogKwMain = [];
+		let lsLogKwAc = [];
+		let lsLogKwOthers = [];
+
+		if (lsLogKw_system["Main"]) {
+			lsLogKw_system["Main"].slice().forEach(function (log) {
+				if (!this[log.datetime]) {
+					this[log.datetime] = { datetime: log.datetime, kw: 0 };
+					lsLogKwMain.push(this[log.datetime]);
+				}
+				this[log.datetime].kw += log.kw;
+			}, Object.create(null));
+		}
+
+		if (lsLogKw_system["Air Conditioner"]) {
+			lsLogKw_system["Air Conditioner"].slice().forEach(function (log) {
+				if (!this[log.datetime]) {
+					this[log.datetime] = { datetime: log.datetime, kw: 0 };
+					lsLogKwAc.push(this[log.datetime]);
+				}
+				this[log.datetime].kw += log.kw;
+			}, Object.create(null));
+		}
+
+		if (system === "Others") {
+			lsLogKwMain.forEach((logKwMain, idx) => {
+				if (lsLogKwAc[idx]) {
+					lsLogKwOthers.push({
+						datetime: logKwMain.datetime,
+						kw: logKwMain.kw - lsLogKwAc[idx].kw,
+					});
+				} else lsLogKwOthers.push(logKwMain);
+			});
+		}
+
+		let rows = [[]];
+		rows[0].push("datetime", "kw");
+
+		if (system === "Overall") {
+			lsLogKwMain.forEach((logKwMain, idx) => {
+				if (!rows[idx + 1]) rows[idx + 1] = [];
+				rows[idx + 1].push(
+					dateFormatter.yyyymmddhhmmss_noOffset(logKwMain.datetime),
+					logKwMain.kw
+				);
+			});
+		} else if (system === "Air Conditioner") {
+			lsLogKwAc.forEach((logKwAc, idx) => {
+				if (!rows[idx + 1]) rows[idx + 1] = [];
+				rows[idx + 1].push(
+					dateFormatter.yyyymmddhhmmss_noOffset(logKwAc.datetime),
+					logKwAc.kw
+				);
+			});
+		} else if (system === "Others") {
+			lsLogKwOthers.forEach((logKwOthers, idx) => {
+				if (!rows[idx + 1]) rows[idx + 1] = [];
+				rows[idx + 1].push(
+					dateFormatter.yyyymmddhhmmss_noOffset(logKwOthers.datetime),
+					logKwOthers.kw
+				);
+			});
+		}
+
+		csv.exportFile(`Power - ${system}`, rows);
+	}
+
 	render() {
 		let {
 			lsBuilding,
@@ -232,19 +338,36 @@ class Building extends React.Component {
 			isSystemDropdownOpen,
 			system,
 			kwh_system_floor,
+			kwh_month,
+			lsLogKw_system,
+			compareTo,
+			buildingPath,
 		} = this.state;
 
+		// Calculate Estimated People
 		let estimatedPeople = "N/A";
 		for (let target of lsTarget) {
 			if (estimatedPeople === "N/A") estimatedPeople = 0;
 			estimatedPeople += target.amount_people;
-
-			let tariff = 4;
-			if (target.tariff !== null) tariff = target.tariff;
 		}
 
+		// Calculate Bill
+		let bill = 0;
+		for (let [month, kwh] of Object.entries(kwh_month)) {
+			let tariff = 4;
+
+			let target = lsTarget.find((target) => target.month === month);
+			if (target !== undefined) {
+				if (target.tariff !== null) tariff = target.tariff;
+			}
+
+			bill += kwh * tariff;
+		}
+
+		// Check Pie Chart disabled
+		let isPieChartDisabled = true;
+		// Calculate Total Energy Consumption, Pie Chart data
 		let kwhTotal = 0;
-		let kwhPerCapita = 0;
 		let kwhAc = 0;
 		let kwhOthers = 0;
 		for (let [floor, kwh_system] of Object.entries(kwh_system_floor)) {
@@ -253,68 +376,33 @@ class Building extends React.Component {
 
 				if (system === "Main") kwhOthers += kwh;
 				else if (system === "Air Conditioner") kwhAc += kwh;
+
+				if (floor !== null && system === "Air Conditioner") {
+					isPieChartDisabled = false;
+				}
 			}
 		}
 		kwhOthers -= kwhAc;
 
-		let bill = 0;
-
+		// Calculate Electricity Use per Capita
+		let kwhPerCapita = 0;
 		if (estimatedPeople !== "N/A")
 			kwhPerCapita = parseFloat(kwhTotal / estimatedPeople).toFixed(2);
-
-		let lsLogPower_Building = [
-			{
-				building: "Navamin",
-				data: [
-					{ log_timestamp: "2021-06-08T00:00:00Z", ac: 18, others: 12 },
-					{ log_timestamp: "2021-06-08T00:15:00Z", ac: 13, others: 11 },
-					{ log_timestamp: "2021-06-08T00:30:00Z", ac: 14, others: 14 },
-					{ log_timestamp: "2021-06-08T00:45:00Z", ac: 12, others: 15 },
-					{ log_timestamp: "2021-06-08T01:00:00Z", ac: 18, others: 14 },
-					{ log_timestamp: "2021-06-08T01:15:00Z", ac: 19, others: 13 },
-					{ log_timestamp: "2021-06-08T01:30:00Z", ac: 15, others: 12 },
-					{ log_timestamp: "2021-06-08T01:45:00Z", ac: 16, others: 11 },
-					{ log_timestamp: "2021-06-08T02:00:00Z", ac: 17, others: 12 },
-					{ log_timestamp: "2021-06-08T02:15:00Z", ac: 11, others: 10 },
-				],
-			},
-			{
-				building: "Auditorium",
-				data: [
-					{ log_timestamp: "2021-06-08T00:00:00Z", ac: 16, others: 1 },
-					{ log_timestamp: "2021-06-08T00:15:00Z", ac: 14, others: 3 },
-					{ log_timestamp: "2021-06-08T00:30:00Z", ac: 5, others: 2 },
-					{ log_timestamp: "2021-06-08T00:45:00Z", ac: 8, others: 6 },
-					{ log_timestamp: "2021-06-08T01:00:00Z", ac: 9, others: 7 },
-					{ log_timestamp: "2021-06-08T01:15:00Z", ac: 3, others: 9 },
-					{ log_timestamp: "2021-06-08T01:30:00Z", ac: 4, others: 5 },
-					{ log_timestamp: "2021-06-08T01:45:00Z", ac: 7, others: 3 },
-					{ log_timestamp: "2021-06-08T02:00:00Z", ac: 11, others: 1 },
-					{ log_timestamp: "2021-06-08T02:15:00Z", ac: 19, others: 5 },
-				],
-			},
-		];
-
-		let lsLogPower = {};
-
-		for (let log of lsLogPower_Building) {
-			if (log.building === currentBuildingLabel) {
-				lsLogPower = log;
-				break;
-			}
-		}
 
 		let color = lsBuilding.find((bld) => bld.label === currentBuildingLabel)
 			? lsBuilding.find((bld) => bld.label === currentBuildingLabel).color_code
 			: "black";
 
+		let floor = 1; // Some buildings have basement levels
+		if (currentBuildingLabel === "Navamin") floor = -2;
+
 		return (
-			<div>
-				<Container style={{ padding: "1rem" }} fluid>
-					<Row>
+			<div id="container-building">
+				<Container id="container-building-top" fluid>
+					<Row id="row-building-top">
 						{/* ******************************** Left Pane ******************************** */}
-						<Col sm={2}>
-							<div className="building-list-pane">
+						<Col id="col-building-list" sm={2}>
+							<div id="building-list-pane">
 								<p id="heading-1">Building</p>
 								{lsBuilding.map((bld) => (
 									<div>
@@ -323,9 +411,7 @@ class Building extends React.Component {
 											style={{
 												opacity: bld.label === currentBuildingLabel ? 1 : 0.5,
 											}}
-											onClick={() =>
-												this.setState({ currentBuildingLabel: bld.label })
-											}
+											onClick={() => this.onClickBuilding(bld.label)}
 										>
 											<Col sm={2} className="col-square-building">
 												<div
@@ -343,8 +429,8 @@ class Building extends React.Component {
 						</Col>
 
 						{/* ******************************** Main Section ******************************** */}
-						<Col sm={10} style={{ paddingLeft: "1rem" }}>
-							<Row>
+						<Col sm={10}>
+							<Row style={{ height: "100%" }}>
 								{/* ******************************** Left ******************************** */}
 								<Col sm={4} style={{ paddingRight: "2rem" }}>
 									<Row
@@ -382,7 +468,7 @@ class Building extends React.Component {
 											Total Energy Consumption
 										</Col>
 										<Col sm={5} className="col-data-1" style={{ color: color }}>
-											{kwhTotal}
+											{numberFormatter.withCommas(kwhTotal)}
 										</Col>
 										<Col sm={2} className="col-unit-1" style={{ color: color }}>
 											kWh
@@ -394,7 +480,7 @@ class Building extends React.Component {
 											Electricity Bill
 										</Col>
 										<Col sm={5} className="col-data-2" style={{ color: color }}>
-											{bill}
+											{numberFormatter.withCommas(bill)}
 										</Col>
 										<Col sm={2} className="col-unit-1" style={{ color: color }}>
 											THB
@@ -402,11 +488,38 @@ class Building extends React.Component {
 									</Row>
 
 									<Row id="row-pie">
-										<Col sm={5} className="col-label-2">
+										<Col sm={3} className="col-label-2">
 											Used in
 										</Col>
-										<Col sm={7} id="col-pie" style={{ color: color }}>
+										<Col sm={4} style={{ paddingRight: 0, margin: "auto" }}>
+											<div>
+												<span className="dot-blue" />
+												<span
+													style={{
+														color: "#757272",
+														fontWeight: "500",
+														paddingLeft: "0.3rem",
+													}}
+												>
+													Air Conditioner
+												</span>
+											</div>
+											<div>
+												<span className="dot-red" />
+												<span
+													style={{
+														color: "#757272",
+														fontWeight: "500",
+														paddingLeft: "0.3rem",
+													}}
+												>
+													Others
+												</span>
+											</div>
+										</Col>
+										<Col sm={5} id="col-pie" style={{ color: color }}>
 											<PieChartSystem
+												disabled={isPieChartDisabled}
 												ac={kwhAc}
 												others={kwhOthers}
 												building={currentBuildingLabel}
@@ -428,7 +541,7 @@ class Building extends React.Component {
 								</Col>
 
 								{/* ******************************** Right ******************************** */}
-								<Col sm={8} style={{ paddingRight: "1rem" }}>
+								<Col sm={8}>
 									<Row className="row-form">
 										<Label for="dateFrom" sm={1} className="label-datepicker">
 											From
@@ -458,7 +571,7 @@ class Building extends React.Component {
 												onChange={this.handleInputDateChange}
 											/>
 										</Col>
-										<Col sm={2}>
+										<Col sm={2} style={{ textAlign: "center" }}>
 											<Button id="btn-apply-bld" onClick={this.onClickApply}>
 												Apply
 											</Button>
@@ -466,9 +579,9 @@ class Building extends React.Component {
 									</Row>
 
 									{/* ******************************** Right Part ******************************** */}
-									<Row className="row-graph-power">
-										<Row style={{ padding: "0.5rem", margin: "auto" }}>
-											<Col sm={9} style={{ margin: "auto" }}>
+									<Row id="row-graph-power">
+										<Row style={{ padding: "0.5rem" }}>
+											<Col sm={9}>
 												<span
 													style={{
 														fontWeight: 600,
@@ -491,7 +604,7 @@ class Building extends React.Component {
 															Overall
 														</DropdownItem>
 														<DropdownItem onClick={this.changeSystem}>
-															A/C
+															Air Conditioner
 														</DropdownItem>
 														<DropdownItem onClick={this.changeSystem}>
 															Others
@@ -504,18 +617,70 @@ class Building extends React.Component {
 												style={{ margin: "auto", textAlign: "right" }}
 											>
 												<RiFileExcel2Fill
-													style={{
-														width: "60%",
-														height: "auto",
-													}}
+													className="icon-excel"
+													size={25}
+													onClick={this.exportBarChartSystemPowerConsumption}
 												/>
 											</Col>
 										</Row>
 										<Row>
-											<BarChart_SystemPowerConsumption
-												lsSelectedBuilding={lsSelectedBuilding}
-												lsKw_system_building={lsKw_system_building}
-												lsBuilding={lsBuilding}
+											<BarChartSystemPowerConsumption
+												system={system}
+												color={color}
+												lsLogKw_system={lsLogKw_system}
+											/>
+										</Row>
+									</Row>
+									<Row id="row-graph-compare">
+										<Row>
+											<Col sm={3} id="col-compare">
+												<Form id="form-compare">
+													<legend>Compare to</legend>
+													<FormGroup check>
+														<Label check>
+															<Input
+																id="radio-target"
+																type="radio"
+																name="compareTo"
+																checked={compareTo === "Target"}
+																onClick={() => this.onClickCompareTo("Target")}
+															/>
+															Target
+														</Label>
+													</FormGroup>
+													<FormGroup check>
+														<Label check>
+															<Input
+																id="radio-average"
+																type="radio"
+																name="compareTo"
+																checked={compareTo === "Average"}
+																onClick={() => this.onClickCompareTo("Average")}
+															/>
+															Average
+														</Label>
+													</FormGroup>
+													<FormGroup check>
+														<Label check>
+															<Input
+																id="radio-lastyear"
+																type="radio"
+																name="compareTo"
+																checked={compareTo === "Last Year"}
+																onClick={() =>
+																	this.onClickCompareTo("Last Year")
+																}
+															/>
+															Last Year
+														</Label>
+													</FormGroup>
+												</Form>
+											</Col>
+											<MixedChartBillCompare
+												building={lsBuilding.find(
+													(bld) => bld.label === currentBuildingLabel
+												)}
+												compareTo={compareTo}
 											/>
 										</Row>
 									</Row>
@@ -523,6 +688,217 @@ class Building extends React.Component {
 							</Row>
 						</Col>
 					</Row>
+				</Container>
+
+				{/* ****************************** Floor Plan ******************************** */}
+				<Container id="container-floor-plan" fluid>
+					<div id="floor-plan-row-top">
+						<span id="floor-plan-title">Floor Plan</span>
+						<span id="wrapper-legend">
+							<span className="legend-desc">
+								<div>Color Legend</div>
+								<div>#From Total Energy</div>
+							</span>
+							<span className="legend-graphics">
+								<div className="legend-dots">
+									<span className="legend-dot-1"></span>
+									<span className="legend-dot-3"></span>
+								</div>
+								<div className="legend gradient"></div>
+							</span>
+						</span>
+					</div>
+					{lsBuilding.length > 0 ? (
+						<div id="floors">
+							{new Array(
+								lsBuilding.find(
+									(bld) => bld.label === currentBuildingLabel
+								).floors
+							)
+								.fill(0)
+								.map((_, idx) => {
+									if (idx > 0) floor++; // Skip first round
+									if (floor === 0) floor++; // No Floor 0
+
+									// Check Progress Bar disabled
+									let isProgressBarDisabled = false;
+									// Every floor must contain both Main and Air Conditioner kWh values
+									if (kwh_system_floor[floor] === undefined) {
+										isProgressBarDisabled = true;
+									} else if (
+										!(
+											Object.keys(kwh_system_floor[floor]).includes("Main") &&
+											Object.keys(kwh_system_floor[floor]).includes(
+												"Air Conditioner"
+											)
+										)
+									) {
+										isProgressBarDisabled = true;
+									}
+
+									let kwhFloorMain = 0;
+									let kwhFloorAc = 0;
+									if (kwh_system_floor[floor]) {
+										if (kwh_system_floor[floor]["Main"]) {
+											kwhFloorMain = kwh_system_floor[floor]["Main"];
+										}
+										if (kwh_system_floor[floor]["Air Conditioner"]) {
+											kwhFloorAc = kwh_system_floor[floor]["Air Conditioner"];
+										}
+									}
+
+									let kwhFloorOthers = kwhFloorMain - kwhFloorAc;
+
+									return (
+										<div className="floor">
+											<style>
+												{`#img-floor-${floor} path[class^="st"], #img-floor-${floor} polygon[class^="st"], #img-floor-${floor} rect[class^="st"] {
+														stroke: transparent;
+														fill: #${colorConverter.pickHex(
+															"d10909",
+															"d1dbde",
+															parseFloat(kwhFloorMain / kwhTotal).toFixed(2)
+														)};
+													}
+													#floor-title-${floor}{
+														background: #${colorConverter.pickHex(
+															"d10909",
+															"d1dbde",
+															parseFloat(kwhFloorMain / kwhTotal).toFixed(2)
+														)};
+													}
+													`}
+											</style>
+											<ReactSVG
+												afterInjection={(error) => {
+													if (error) {
+														console.log(error);
+														return;
+													}
+												}}
+												id={`img-floor-${floor}`}
+												className={"img-floor"}
+												src={
+													buildingPath +
+													lsBuilding.find(
+														(bld) => bld.label === currentBuildingLabel
+													).label +
+													"/" +
+													`${floor}` +
+													".svg"
+												}
+												wrapper="span"
+											/>
+
+											<span className="data-floor">
+												<div className="row-floor">
+													<span
+														id={"floor-title-" + floor}
+														className="floor-title"
+													>
+														FLOOR{" "}
+														{floor < 0
+															? floor.toString().slice().replace("-", "B")
+															: floor === 13
+															? currentBuildingLabel === "Navamin"
+																? "12A"
+																: floor
+															: floor}
+													</span>
+													<span className="floor-percent">
+														{kwh_system_floor[floor]
+															? kwh_system_floor[floor]["Main"]
+																? parseFloat(kwhFloorMain / kwhTotal).toFixed(2)
+																: "-"
+															: "-"}
+														%
+													</span>
+												</div>
+
+												<div
+													className="row-floor"
+													style={{ textAlign: "center" }}
+												>
+													<span className="floor-kwh-total">
+														{kwh_system_floor[floor]
+															? kwh_system_floor[floor]["Main"]
+																? numberFormatter.withCommas(
+																		parseFloat(kwhFloorMain).toFixed(2)
+																  )
+																: "-"
+															: "-"}{" "}
+														kWh
+													</span>
+												</div>
+
+												<div className="row-floor-1">
+													<Progress multi>
+														{isProgressBarDisabled ? (
+															<Progress bar value={0}></Progress>
+														) : (
+															<>
+																<Progress
+																	bar
+																	color="#3c67be"
+																	value={(kwhFloorAc / kwhFloorMain) * 100}
+																></Progress>
+																<Progress
+																	bar
+																	color="#be4114"
+																	value={(kwhFloorOthers / kwhFloorMain) * 100}
+																></Progress>
+															</>
+														)}
+													</Progress>
+													<div className="prg-legend">
+														<span>Air Con.</span>
+														<span style={{ float: "right" }}>Others</span>
+													</div>
+												</div>
+
+												<div className="row-floor-1">
+													<div>
+														<div>
+															<span>
+																{isProgressBarDisabled
+																	? "-"
+																	: (kwhFloorAc / kwhFloorMain) * 100}
+																%
+															</span>
+															<span style={{ float: "right" }}>
+																{isProgressBarDisabled
+																	? "-"
+																	: (kwhFloorOthers / kwhFloorMain) * 100}
+																%
+															</span>
+														</div>
+													</div>
+												</div>
+
+												<div className="row-floor-1">
+													<div>
+														<div>
+															<span className="floor-kwh">
+																{isProgressBarDisabled ? "-" : kwhFloorAc} kWh
+															</span>
+															<span
+																className="floor-kwh"
+																style={{ float: "right" }}
+															>
+																{isProgressBarDisabled ? "-" : kwhFloorOthers}{" "}
+																kWh
+															</span>
+														</div>
+													</div>
+												</div>
+											</span>
+										</div>
+									);
+								})}
+						</div>
+					) : (
+						""
+					)}
 				</Container>
 			</div>
 		);

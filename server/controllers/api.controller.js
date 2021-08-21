@@ -70,7 +70,7 @@ async function getDataPowerMonthBuilding(req, res) {
 			return res.status(httpStatusCodes.FORBIDDEN).send("Month is required.");
 		}
 
-		let lsData = await apiService.getDataPowerMonthBuilding(month);
+		let lsData = await apiService.getDataPowerMonth(month);
 
 		let monthKwh_building = {};
 		let lsPrevDevice = [];
