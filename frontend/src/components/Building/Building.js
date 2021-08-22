@@ -5,7 +5,7 @@ import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/Bar
 import PieChartSystem from "./PieChartSystem/PieChartSystem";
 import MixedChartBillCompare from "./MixedChartBillCompare/MixedChartBillCompare";
 
-// Styling and Icons
+// Styling and Graphics
 import "./Building.css";
 import { MdPeople } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
@@ -402,8 +402,8 @@ class Building extends React.Component {
 					<Row id="row-building-top">
 						{/* ******************************** Left Pane ******************************** */}
 						<Col id="col-building-list" sm={2}>
-							<div id="building-list-pane">
-								<p id="heading-1">Building</p>
+							<div class="building-list-pane">
+								<p class="heading-1">Building</p>
 								{lsBuilding.map((bld) => (
 									<div>
 										<Row
@@ -458,10 +458,10 @@ class Building extends React.Component {
 											</span>
 										</p>
 									</Row>
-									<Row id="row-date">
-										{dateFormatter.ddmmmyyyy(displayDateFrom) +
+									<Row className="row-date">
+										{dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateFrom) +
 											" - " +
-											dateFormatter.ddmmmyyyy(displayDateTo)}
+											dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateTo)}
 									</Row>
 									<Row id="row-tec">
 										<Col sm={5} className="col-label-1">
@@ -643,7 +643,7 @@ class Building extends React.Component {
 																type="radio"
 																name="compareTo"
 																checked={compareTo === "Target"}
-																onClick={() => this.onClickCompareTo("Target")}
+																onChange={() => this.onClickCompareTo("Target")}
 															/>
 															Target
 														</Label>
@@ -655,7 +655,9 @@ class Building extends React.Component {
 																type="radio"
 																name="compareTo"
 																checked={compareTo === "Average"}
-																onClick={() => this.onClickCompareTo("Average")}
+																onChange={() =>
+																	this.onClickCompareTo("Average")
+																}
 															/>
 															Average
 														</Label>
@@ -667,7 +669,7 @@ class Building extends React.Component {
 																type="radio"
 																name="compareTo"
 																checked={compareTo === "Last Year"}
-																onClick={() =>
+																onChange={() =>
 																	this.onClickCompareTo("Last Year")
 																}
 															/>

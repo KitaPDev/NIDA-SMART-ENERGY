@@ -1,0 +1,112 @@
+#container-dashboard {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+}
+
+#dashboard-filter {
+	width: 18%;
+	height: 100%;
+	padding: 1rem 0 1rem 0;
+	margin-left: 1rem;
+}
+
+#dashboard-center {
+	width: 47%;
+	height: 100%;
+	display: flex;
+	padding: 1rem 0.5rem 1rem 0.5rem;
+}
+
+#dashboard-right {
+	width: 35%;
+	height: 100%;
+	display: flex;
+	padding: 1rem 1rem 1rem 0.5rem;
+}
+
+#filter-container {
+	background-color: #f4f5f9;
+	padding: 1rem;
+	margin-right: 1rem;
+	border-radius: 0.5rem;
+	height: fit-content;
+}
+
+#filter-container .row-form {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+#filter-container .row-form .form-control {
+	font-size: 0.95rem;
+}
+
+#filter-container .apply {
+	padding-top: 0;
+	border-bottom: 3px solid #aaa;
+	border-radius: 0;
+	margin-bottom: 1rem;
+}
+
+#filter-container .building-list-pane .heading-1 {
+	background: white;
+}
+
+#filter-container .row-building {
+	margin-top: 0.5rem !important;
+}
+
+#filter-container .row-building:hover {
+	cursor: default;
+	background: none;
+}
+
+#filter-container .form-check-input {
+	border: 1px solid #000;
+}
+
+#filter-container .form-check-input:hover {
+	cursor: pointer;
+	opacity: 0.8;
+}
+
+.footer-note {
+	position: absolute;
+	bottom: 0;
+	margin-bottom: 1rem;
+	width: 100%;
+}
+
+#dashboard-center {
+	display: flex;
+	flex-direction: column;
+}
+
+#dashboard-center .row-date {
+	width: 100%;
+	font-size: 130%;
+	font-weight: bold;
+}
+
+#dashboard-center .row-pie-charts {
+	height: 25%;
+	width: 100%;
+	border: 1px solid #000;
+	border-radius: 0.5rem;
+}
+
+#dashboard-center .row-pie-charts-title {
+	padding: 0 1rem 0.5rem 1rem;
+}
+
+#dashboard-center .pie-charts-title-1 {
+	font-size: 150%;
+	font-weight: bold;
+}
+
+#dashboard-center .pie-charts-title-2 {
+	font-size: 200%;
+	font-weight: bold;
+}

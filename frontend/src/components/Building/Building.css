@@ -14,13 +14,18 @@
 	height: 100%;
 }
 
-#building-list-pane {
+#row-building-top .row-date {
+	font-size: 110%;
+	font-weight: 500;
+}
+
+.building-list-pane {
 	border: 1px solid #f2f3f7;
 	border-radius: 0.5rem;
 	padding-bottom: 1rem;
 }
 
-#building-list-pane #heading-1 {
+.building-list-pane .heading-1 {
 	font-size: 125%;
 	font-weight: 600;
 	background-color: #f2f3f7;

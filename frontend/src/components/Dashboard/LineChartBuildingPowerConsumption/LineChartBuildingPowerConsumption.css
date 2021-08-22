@@ -1,0 +1,13 @@
+#wrapper-lc-building-power {
+	width: 100%;
+	height: 100%;
+}
+
+#lc-building-power {
+	height: 100%;
+	width: 100%;
+}
+
+#lc-building-power:hover {
+	cursor: pointer;
+}
