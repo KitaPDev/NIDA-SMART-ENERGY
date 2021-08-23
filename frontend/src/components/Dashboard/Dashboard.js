@@ -3,6 +3,7 @@ import React from "react";
 // Styling and Graphics
 import "./Dashboard.css";
 import { Row, Col, Label, Input, Button } from "reactstrap";
+import { RiFileExcel2Fill } from "react-icons/ri";
 
 // Charts and Diagrams
 import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
@@ -20,8 +21,13 @@ import colorConverter from "../../utils/colorConverter";
 import {
 	subjectPowerMeterData,
 	subjectSolarData,
+	subjectIaqData,
 	apiService,
 } from "../../apiService";
+import csv from "../../utils/csv";
+
+let subscriberPowerMeterData;
+let subscriberSolarData;
 
 class Dashboard extends React.Component {
 	constructor(props) {
@@ -37,38 +43,138 @@ class Dashboard extends React.Component {
 			displayDateTo: dateTo,
 			lsBuilding: [],
 			lsSelectedBuilding: [],
-			tariff_building: {},
 			kwh_system_building: {},
 			lsKw_system_building: {},
 			bill_building: {},
+			tariff_building: {},
+			targetBill_building: {},
+			kwhSolar: 0,
 		};
 
 		this.updateData = this.updateData.bind(this);
 
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getAllSystem = this.getAllSystem.bind(this);
+		this.getAllTargetByMonthYear = this.getAllTargetByMonthYear.bind(this);
+		this.getSolarCurrentMonth = this.getSolarCurrentMonth.bind(this);
 
 		this.handleInputDateChange = this.handleInputDateChange.bind(this);
 		this.onClickApply = this.onClickApply.bind(this);
 		this.onClickBuilding = this.onClickBuilding.bind(this);
 		this.onClickAllBuilding = this.onClickAllBuilding.bind(this);
+
+		this.exportPieCharts = this.exportPieCharts.bind(this);
+		this.exportLineChart = this.exportLineChart.bind(this);
+		this.exportBarChart = this.exportBarChart.bind(this);
 	}
 
 	async componentDidMount() {
 		await this.getAllBuilding();
 		await this.updateData();
+
+		subscriberPowerMeterData = subjectPowerMeterData.subscribe((dataPower) => {
+			let { tariff_building } = this.state;
+			let kwh_system_building = {};
+			let lsKw_system_building = {};
+			let bill_building = {};
+
+			if (!dataPower) return;
+
+			let lsDeviceFirst = [];
+			let lsDeviceLast = [];
+
+			for (let data of dataPower.slice().reverse()) {
+				let building = data.building;
+				let device = data.device;
+				let kwh = Math.round((data.kwh * 100) / 100);
+				let system = data.system;
+
+				if (!lsDeviceLast.find((d) => d === device)) {
+					lsDeviceLast.push(device);
+				} else continue;
+
+				if (kwh_system_building[building] === undefined)
+					kwh_system_building[building] = {};
+
+				if (kwh_system_building[building][system] === undefined)
+					kwh_system_building[building][system] = 0;
+
+				kwh_system_building[building][system] += kwh;
+			}
+
+			for (let data of dataPower) {
+				let datetime = new Date(data.data_datetime);
+				let building = data.building;
+				let device = data.device;
+				let kwh = Math.round((data.kwh * 100) / 100);
+				let kw = Math.round((data.kw * 100) / 100);
+				let system = data.system;
+
+				if (lsKw_system_building[building] === undefined)
+					lsKw_system_building[building] = {};
+
+				if (lsKw_system_building[building][system] === undefined) {
+					lsKw_system_building[building][system] = [];
+				}
+
+				lsKw_system_building[building][system].push({
+					datetime: datetime,
+					kw: kw,
+				});
+
+				if (!lsDeviceFirst.find((d) => d === device))
+					lsDeviceFirst.push(device);
+				else continue;
+
+				kwh_system_building[building][system] -= kwh;
+			}
+
+			for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
+				let tariff = 4;
+				if (tariff_building[building] !== undefined) {
+					if (tariff_building[building] !== null) {
+						tariff = tariff_building[building];
+					}
+				}
+
+				if (bill_building[building]) bill_building[building] = 0;
+
+				for (let kwh of Object.values(kwh_system)) {
+					if (kwh > 0) bill_building[building] = kwh * tariff;
+				}
+			}
+
+			this.setState({
+				kwh_system_building: kwh_system_building,
+				lsKw_system_building: lsKw_system_building,
+				bill_building: bill_building,
+			});
+		});
+
+		subscriberSolarData = subjectSolarData.subscribe((dataSolar) => {
+			if (!dataSolar) return;
+			if (dataSolar.length === 0) return;
+
+			let kwhSolar = dataSolar[dataSolar.length - 1].kwh - dataSolar[0].kwh;
+
+			this.setState({
+				kwhSolar: kwhSolar,
+			});
+		});
+	}
+
+	componentWillUnmount() {
+		if (subscriberPowerMeterData) subscriberPowerMeterData.unsubscribe();
+		if (subscriberSolarData) subscriberSolarData.unsubscribe();
+		clearInterval(this.intervalTime);
+		clearInterval(this.intervalApi);
 	}
 
 	async updateData() {
-		// await this.getData();
-		// await this.getBuildingTargetRange();
-		// let { dateFrom, dateTo } = this.state;
-		// this.setState({
-		// 	displayDateFrom: dateFrom,
-		// 	displayDateTo: dateTo,
-		// });
-
 		let { dateFrom, dateTo } = this.state;
+
+		apiService.updatePowerMeterData(dateFrom, dateTo);
+		apiService.updateSolarData(dateFrom, dateTo);
 
 		this.setState({
 			displayDateFrom: dateFrom,
@@ -92,6 +198,55 @@ class Dashboard extends React.Component {
 			let resp = await http.get("/system/all");
 
 			this.setState({ lsSystem: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getAllTargetByMonthYear() {
+		try {
+			let today = new Date();
+			let payload = {
+				month: today.getMonth() + 1,
+				year: today.getFullYear(),
+			};
+
+			let resp = await http.post("/target/monthyear", payload);
+			let lsTarget = resp.data;
+
+			let tariff_building = {};
+			let targetBill_building = {};
+			for (let target of lsTarget) {
+				let building = target.building;
+				let tariff = target.tariff;
+				let bill = target.electricity_bill;
+
+				tariff_building[building] = tariff;
+				targetBill_building[building] = bill;
+			}
+
+			this.setState({
+				tariff_building: tariff_building,
+				targetBill_building: targetBill_building,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getSolarCurrentMonth() {
+		try {
+			let month = new Date().getMonth();
+
+			let payload = {
+				month: month,
+			};
+
+			let resp = await http.post("/api/solar/month", payload);
+
+			this.setState({ kwhSolarMonth: resp.data.kwhSolar });
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -124,22 +279,170 @@ class Dashboard extends React.Component {
 	onClickAllBuilding() {
 		let { lsSelectedBuilding, lsBuilding } = this.state;
 
-		if (lsSelectedBuilding.length < lsBuilding.length) {
-			lsBuilding.forEach((b) => lsSelectedBuilding.push(b.label));
-		} else lsSelectedBuilding = [];
+		lsSelectedBuilding = lsBuilding.map((building) => building.label);
 
 		this.setState({ lsSelectedBuilding: lsSelectedBuilding });
+	}
+
+	exportPieCharts() {
+		let { lsBuilding, lsSelectedBuilding, kwh_system_building, kwhSolar } =
+			this.state;
+
+		let kwhMainTotal = 0;
+		let kwhAcTotal = 0;
+
+		if (lsSelectedBuilding.length === 0) {
+			lsSelectedBuilding = lsBuilding.map((building) => building.label);
+		}
+
+		for (let building of lsSelectedBuilding) {
+			if (kwh_system_building[building]) {
+				if (kwh_system_building[building]["Main"])
+					kwhMainTotal += kwh_system_building[building]["Main"];
+
+				if (kwh_system_building[building]["Air Conditioner"])
+					kwhAcTotal += kwh_system_building[building]["Air Conditioner"];
+			}
+		}
+
+		let rows = [[]];
+
+		rows[0].push("MEA", "Solar Cells");
+		rows[1] = [kwhMainTotal, kwhSolar];
+		rows[2] = ["", ""];
+		rows[3] = ["Air Conditioner", "Others"];
+		rows[4] = [kwhAcTotal, kwhMainTotal - kwhAcTotal];
+
+		csv.exportFile(`Dashboard Pie Charts`, rows);
+	}
+
+	exportLineChart() {
+		let { lsKw_system_building } = this.state;
+
+		let rows = [[]];
+		rows[0].push("Datetime");
+
+		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
+			rows[0].push(building);
+
+			let lsLogKwMain = [];
+			if (lsKw_system["Main"]) {
+				lsKw_system["Main"].forEach((log) => lsLogKwMain.push(log));
+			}
+
+			let lsLogKwMain_clean = [];
+			lsLogKwMain.forEach(function (log) {
+				if (!this[log.datetime]) {
+					this[log.datetime] = { datetime: log.datetime, kw: 0 };
+					lsLogKwMain_clean.push(this[log.datetime]);
+				}
+				this[log.datetime].kw += log.kw;
+			}, Object.create(null));
+
+			lsLogKwMain_clean.forEach((log, idx) => {
+				if (!rows[idx + 1]) {
+					rows[idx + 1] = [];
+					rows[idx + 1].push(log.datetime);
+				}
+				rows[idx + 1].push(log.kw);
+			});
+		}
+
+		csv.exportFile(`Buildings Power Consumption`, rows);
+	}
+
+	exportBarChart() {
+		let { lsKw_system_building } = this.state;
+
+		let lsLogKwMain = [];
+		let lsLogKwAc = [];
+
+		let lsLogKwMain_clean = [];
+		let lsLogKwAc_clean = [];
+		let lsLogKwOthers_clean = [];
+
+		for (let [_, lsKw_system] of Object.entries(lsKw_system_building)) {
+			if (lsKw_system["Main"]) {
+				lsKw_system["Main"].forEach((log) => lsLogKwMain.push(log));
+			}
+
+			if (lsKw_system["Air Conditioner"]) {
+				lsKw_system["Air Conditioner"].forEach((log) => lsLogKwAc.push(log));
+			}
+		}
+
+		lsLogKwMain.slice().forEach(function (log) {
+			if (!this[log.datetime]) {
+				this[log.datetime] = { datetime: log.datetime, kw: 0 };
+				lsLogKwMain_clean.push(this[log.datetime]);
+			}
+			this[log.datetime].kw += log.kw;
+		}, Object.create(null));
+
+		lsLogKwAc.slice().forEach(function (log) {
+			if (!this[log.datetime]) {
+				this[log.datetime] = { datetime: log.datetime, kw: 0 };
+				lsLogKwAc_clean.push(this[log.datetime]);
+			}
+			this[log.datetime].kw += log.kw;
+		}, Object.create(null));
+
+		lsLogKwMain_clean.forEach((logKwMain, idx) => {
+			if (lsLogKwAc[idx]) {
+				lsLogKwOthers_clean.push({
+					datetime: logKwMain.datetime,
+					kw: logKwMain.kw - lsLogKwAc[idx].kw,
+				});
+			} else lsLogKwOthers_clean.push(logKwMain);
+		});
+
+		let rows = [[]];
+		rows[0].push("Datetime", "kW - Air Conditioner", "kW - Others");
+
+		lsLogKwAc_clean.forEach((logKwAc, idx) => {
+			if (!rows[idx + 1]) rows[idx + 1] = [];
+			rows[idx + 1].push(
+				dateFormatter.yyyymmddhhmmss_noOffset(logKwAc.datetime),
+				logKwAc.kw,
+				lsLogKwOthers_clean[idx].kw
+			);
+		});
+
+		csv.exportFile(`Systems Power Consumption`, rows);
 	}
 
 	render() {
 		let {
 			dateFrom,
 			dateTo,
-			lsBuilding,
-			lsSelectedBuilding,
 			displayDateFrom,
 			displayDateTo,
+			lsBuilding,
+			lsSelectedBuilding,
+			kwh_system_building,
+			lsKw_system_building,
+			bill_building,
+			tariff_building,
+			targetBill_building,
+			kwhSolar,
 		} = this.state;
+
+		let kwhMainTotal = 0;
+		let kwhAcTotal = 0;
+
+		if (lsSelectedBuilding.length === 0) {
+			lsSelectedBuilding = lsBuilding.map((building) => building.label);
+		}
+
+		for (let building of lsSelectedBuilding) {
+			if (kwh_system_building[building]) {
+				if (kwh_system_building[building]["Main"])
+					kwhMainTotal += kwh_system_building[building]["Main"];
+
+				if (kwh_system_building[building]["Air Conditioner"])
+					kwhAcTotal += kwh_system_building[building]["Air Conditioner"];
+			}
+		}
 
 		return (
 			<div id="container-dashboard">
@@ -237,22 +540,118 @@ class Dashboard extends React.Component {
 				</div>
 				{/* ******************************** Center Section *****************************/}
 				<div id="dashboard-center">
+					{/* ****************************** Date Row *****************************/}
 					<div className="row-date">
 						{dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateFrom) +
 							" - " +
 							dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateTo)}
 					</div>
-					<div className="row-pie-charts">
+
+					{/* ****************************** Total Energy Consumption Pane *****************************/}
+					<div className="container-pie-charts">
+						<div>
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={25}
+								onClick={this.exportPieCharts}
+							/>
+						</div>
 						<div className="row-pie-charts-title">
 							<span className="pie-charts-title-1">
 								Total Energy Consumption
 							</span>
-							<span className="pie-charts-title-2">{` `}</span>
+							<span className="pie-charts-title-2">
+								{numberFormatter.withCommas(Math.round(kwhMainTotal))}
+							</span>
 							<span className="pie-charts-title-1">kWh</span>
+						</div>
+						<div className="row-pie-charts">
+							<div className="legend">
+								<div className="legend-title">From</div>
+								<div className="legend-row">
+									<span className="dot-grey" /> <span>MEA</span>
+								</div>
+								<div className="legend-row">
+									<span className="dot-orange" /> <span>Solar Cells</span>
+								</div>
+							</div>
+							<div className="pie-chart">
+								<PieChartEnergySource mea={kwhMainTotal} solar={kwhSolar} />
+							</div>
+							<div className="legend">
+								<div className="legend-title">Used in</div>
+								<div className="legend-row">
+									<span className="dot-blue" /> <span>Air Conditioner</span>
+								</div>
+								<div className="legend-row">
+									<span className="dot-red" /> <span>Others</span>
+								</div>
+							</div>
+							<div className="pie-chart">
+								<PieChartSystem
+									ac={kwhAcTotal}
+									others={kwhMainTotal - kwhAcTotal}
+									building={
+										lsSelectedBuilding.length === 1 ? lsSelectedBuilding[0] : ""
+									}
+								/>
+							</div>
+						</div>
+					</div>
+
+					{/* ****************************** Power (kW) Charts *****************************/}
+					<div className="container-kw-charts">
+						<div className="row-chart">
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={25}
+								onClick={this.exportLineChart}
+							/>
+							<LineChartBuildingPowerConsumption
+								lsSelectedBuilding={lsSelectedBuilding}
+								lsKw_system_building={lsKw_system_building}
+								lsBuilding={lsBuilding}
+							/>
+						</div>
+						<div className="row-chart">
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={25}
+								onClick={this.exportBarChart}
+							/>
+							<BarChartSystemPowerConsumption
+								lsSelectedBuilding={lsSelectedBuilding}
+								lsKw_system_building={lsKw_system_building}
+								lsBuilding={lsBuilding}
+							/>
 						</div>
 					</div>
 				</div>
-				<div id="dashboard-right"></div>
+
+				{/* ******************************** Right Section *****************************/}
+				<div id="dashboard-right">
+					<div className="container-bill-1">
+						<RiFileExcel2Fill
+							className="icon-excel"
+							size={25}
+							onClick={this.exportBarChart}
+						/>
+					</div>
+					<div className="container-bill-2">
+						<RiFileExcel2Fill
+							className="icon-excel"
+							size={25}
+							onClick={this.exportBarChart}
+						/>
+					</div>
+					<div className="container-bill-3">
+						<RiFileExcel2Fill
+							className="icon-excel"
+							size={25}
+							onClick={this.exportBarChart}
+						/>
+					</div>
+				</div>
 			</div>
 		);
 	}

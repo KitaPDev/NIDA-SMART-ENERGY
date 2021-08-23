@@ -175,15 +175,6 @@ class BarChartSystemPowerConsumption extends React.Component {
 					},
 				},
 				plugins: {
-					title: {
-						display: true,
-						text: "Power (kW)",
-						align: "start",
-						font: { weight: "bold", size: 14 },
-						padding: {
-							bottom: 10,
-						},
-					},
 					legend: {
 						display: true,
 						position: "top",

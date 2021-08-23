@@ -6,7 +6,6 @@ import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
 //Custom Tooltip
-
 const getOrCreateTooltip = (chart) => {
 	let tooltipEl = chart.canvas.parentNode.querySelector("div");
 
@@ -175,7 +174,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
 						display: true,
 						text: "Power (kW)",
 						align: "start",
-						font: { weight: "bold", size: 14 },
+						font: { weight: "bold", size: 20 },
 						padding: {
 							bottom: 10,
 						},

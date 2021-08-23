@@ -24,6 +24,7 @@
 	width: 25px !important;
 	background-color: #696665;
 	border-radius: 50%;
+	display: inline-block;
 }
 
 .dot-orange {

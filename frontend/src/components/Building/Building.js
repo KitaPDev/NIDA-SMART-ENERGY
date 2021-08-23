@@ -257,8 +257,6 @@ class Building extends React.Component {
 	exportBarChartSystemPowerConsumption() {
 		let { lsLogKw_system, system } = this.state;
 
-		console.log(lsLogKw_system);
-
 		let lsLogKwMain = [];
 		let lsLogKwAc = [];
 		let lsLogKwOthers = [];
@@ -295,7 +293,7 @@ class Building extends React.Component {
 		}
 
 		let rows = [[]];
-		rows[0].push("datetime", "kw");
+		rows[0].push("Datetime", "kW");
 
 		if (system === "Overall") {
 			lsLogKwMain.forEach((logKwMain, idx) => {
