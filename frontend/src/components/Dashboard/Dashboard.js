@@ -10,12 +10,12 @@ import PieChartEnergySource from "./PieChartEnergySource/PieChartEnergySource";
 import PieChartSystem from "./PieChartSystem/PieChartSystem";
 import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
 import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
+import BarChartElectricityBill from "./BarChartElectricityBill/BarChartElectricityBill";
 
 // Utils
 import http from "../../utils/http";
 import dateFormatter from "../../utils/dateFormatter";
 import numberFormatter from "../../utils/numberFormatter";
-import colorConverter from "../../utils/colorConverter";
 
 // API Service
 import {
@@ -66,6 +66,8 @@ class Dashboard extends React.Component {
 		this.exportPieCharts = this.exportPieCharts.bind(this);
 		this.exportLineChart = this.exportLineChart.bind(this);
 		this.exportBarChart = this.exportBarChart.bind(this);
+		this.exportBarChartElectricityBill =
+			this.exportBarChartElectricityBill.bind(this);
 	}
 
 	async componentDidMount() {
@@ -411,6 +413,18 @@ class Dashboard extends React.Component {
 		csv.exportFile(`Systems Power Consumption`, rows);
 	}
 
+	exportBarChartElectricityBill() {
+		let { bill_building } = this.state;
+		let rows = [[]];
+		rows[0].push("Building", "Bill (THB)");
+
+		Object.entries(bill_building).forEach(([building, bill]) => {
+			rows.push([building, bill]);
+		});
+
+		csv.exportFile(`Electricity Bill`, rows);
+	}
+
 	render() {
 		let {
 			dateFrom,
@@ -634,7 +648,12 @@ class Dashboard extends React.Component {
 						<RiFileExcel2Fill
 							className="icon-excel"
 							size={25}
-							onClick={this.exportBarChart}
+							onClick={this.exportBarChartElectricityBill}
+						/>
+						<BarChartElectricityBill
+							lsSelectedBuilding={lsSelectedBuilding}
+							bill_building={bill_building}
+							lsBuilding={lsBuilding}
 						/>
 					</div>
 					<div className="container-bill-2">
