@@ -88,7 +88,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 							speed: 2,
 						},
 						limits: {
-							x: { min: xMin, max: today },
+							x: { min: this.props.dateFrom, max: this.props.dateTo },
 							y: { min: "original", max: "original" },
 						},
 					},

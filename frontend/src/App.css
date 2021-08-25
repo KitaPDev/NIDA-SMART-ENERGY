@@ -54,3 +54,7 @@
 	fill: black;
 	transition-duration: 0.3s;
 }
+
+.recharts-tooltip-wrapper {
+	z-index: 100;
+}

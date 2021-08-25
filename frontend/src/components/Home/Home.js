@@ -106,6 +106,9 @@ class Home extends React.Component {
 				let device = data.device;
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
+				let floor = data.floor;
+
+				if (system === "Main" && floor !== null) continue;
 
 				if (!lsDeviceLast.find((d) => d === device)) {
 					lsDeviceLast.push(device);
@@ -127,6 +130,9 @@ class Home extends React.Component {
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let kw = Math.round((data.kw * 100) / 100);
 				let system = data.system;
+				let floor = data.floor;
+
+				if (system === "Main" && floor !== null) continue;
 
 				if (lsKw_system_building[building] === undefined)
 					lsKw_system_building[building] = {};

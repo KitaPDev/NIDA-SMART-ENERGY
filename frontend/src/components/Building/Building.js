@@ -626,6 +626,8 @@ class Building extends React.Component {
 												system={system}
 												color={color}
 												lsLogKw_system={lsLogKw_system}
+												dateFrom={dateFrom}
+												dateTo={dateTo}
 											/>
 										</Row>
 									</Row>

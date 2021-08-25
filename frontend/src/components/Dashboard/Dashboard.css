@@ -20,7 +20,7 @@
 }
 
 #dashboard-center {
-	width: 47%;
+	width: 45%;
 	height: 100%;
 	display: flex;
 	padding: 1rem 0.5rem 1rem 0.5rem;
@@ -29,7 +29,7 @@
 }
 
 #dashboard-right {
-	width: 35%;
+	width: 37%;
 	height: 100%;
 	display: flex;
 	padding: 1rem 1rem 1rem 0.5rem;
@@ -189,7 +189,15 @@
 	border: 1px solid #000;
 	border-radius: 0.5rem;
 	margin-bottom: 1rem;
-	position: relative;
+	padding: 1rem 1rem 1rem 1rem;
+}
+
+#dashboard-right .container-bill-2 .row {
+	height: 100%;
+}
+
+#dashboard-right .container-bill-2 #form-compare legend {
+	font-size: 130%;
 }
 
 #dashboard-right .container-bill-3 {

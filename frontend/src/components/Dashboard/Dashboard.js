@@ -2,7 +2,7 @@ import React from "react";
 
 // Styling and Graphics
 import "./Dashboard.css";
-import { Row, Col, Label, Input, Button } from "reactstrap";
+import { Row, Col, Label, Input, Button, Form, FormGroup } from "reactstrap";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
 // Charts and Diagrams
@@ -11,6 +11,7 @@ import PieChartSystem from "./PieChartSystem/PieChartSystem";
 import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
 import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 import BarChartElectricityBill from "./BarChartElectricityBill/BarChartElectricityBill";
+import MixedChartBillCompare from "./MixedChartBillCompare/MixedChartBillCompare";
 
 // Utils
 import http from "../../utils/http";
@@ -49,6 +50,7 @@ class Dashboard extends React.Component {
 			tariff_building: {},
 			targetBill_building: {},
 			kwhSolar: 0,
+			compareTo: "Target",
 		};
 
 		this.updateData = this.updateData.bind(this);
@@ -62,6 +64,7 @@ class Dashboard extends React.Component {
 		this.onClickApply = this.onClickApply.bind(this);
 		this.onClickBuilding = this.onClickBuilding.bind(this);
 		this.onClickAllBuilding = this.onClickAllBuilding.bind(this);
+		this.onClickCompareTo = this.onClickCompareTo.bind(this);
 
 		this.exportPieCharts = this.exportPieCharts.bind(this);
 		this.exportLineChart = this.exportLineChart.bind(this);
@@ -90,6 +93,9 @@ class Dashboard extends React.Component {
 				let device = data.device;
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let system = data.system;
+				let floor = data.floor;
+
+				if (system === "Main" && floor !== null) continue;
 
 				if (!lsDeviceLast.find((d) => d === device)) {
 					lsDeviceLast.push(device);
@@ -111,6 +117,9 @@ class Dashboard extends React.Component {
 				let kwh = Math.round((data.kwh * 100) / 100);
 				let kw = Math.round((data.kw * 100) / 100);
 				let system = data.system;
+				let floor = data.floor;
+
+				if (system === "Main" && floor !== null) continue;
 
 				if (lsKw_system_building[building] === undefined)
 					lsKw_system_building[building] = {};
@@ -286,6 +295,12 @@ class Dashboard extends React.Component {
 		this.setState({ lsSelectedBuilding: lsSelectedBuilding });
 	}
 
+	onClickCompareTo(compareTo) {
+		this.setState({
+			compareTo: compareTo,
+		});
+	}
+
 	exportPieCharts() {
 		let { lsBuilding, lsSelectedBuilding, kwh_system_building, kwhSolar } =
 			this.state;
@@ -439,6 +454,7 @@ class Dashboard extends React.Component {
 			tariff_building,
 			targetBill_building,
 			kwhSolar,
+			compareTo,
 		} = this.state;
 
 		let kwhMainTotal = 0;
@@ -625,6 +641,8 @@ class Dashboard extends React.Component {
 								lsSelectedBuilding={lsSelectedBuilding}
 								lsKw_system_building={lsKw_system_building}
 								lsBuilding={lsBuilding}
+								dateFrom={dateFrom}
+								dateTo={dateTo}
 							/>
 						</div>
 						<div className="row-chart">
@@ -637,6 +655,8 @@ class Dashboard extends React.Component {
 								lsSelectedBuilding={lsSelectedBuilding}
 								lsKw_system_building={lsKw_system_building}
 								lsBuilding={lsBuilding}
+								dateFrom={dateFrom}
+								dateTo={dateTo}
 							/>
 						</div>
 					</div>
@@ -657,11 +677,50 @@ class Dashboard extends React.Component {
 						/>
 					</div>
 					<div className="container-bill-2">
-						<RiFileExcel2Fill
-							className="icon-excel"
-							size={25}
-							onClick={this.exportBarChart}
-						/>
+						<Row>
+							<Col sm={3} id="col-compare">
+								<Form id="form-compare">
+									<legend>Compare to</legend>
+									<FormGroup check>
+										<Label check>
+											<Input
+												id="radio-target"
+												type="radio"
+												name="compareTo"
+												checked={compareTo === "Target"}
+												onChange={() => this.onClickCompareTo("Target")}
+											/>
+											Target
+										</Label>
+									</FormGroup>
+									<FormGroup check>
+										<Label check>
+											<Input
+												id="radio-average"
+												type="radio"
+												name="compareTo"
+												checked={compareTo === "Average"}
+												onChange={() => this.onClickCompareTo("Average")}
+											/>
+											Average
+										</Label>
+									</FormGroup>
+									<FormGroup check>
+										<Label check>
+											<Input
+												id="radio-lastyear"
+												type="radio"
+												name="compareTo"
+												checked={compareTo === "Last Year"}
+												onChange={() => this.onClickCompareTo("Last Year")}
+											/>
+											Last Year
+										</Label>
+									</FormGroup>
+								</Form>
+							</Col>
+							<MixedChartBillCompare compareTo={compareTo} />
+						</Row>
 					</div>
 					<div className="container-bill-3">
 						<RiFileExcel2Fill

@@ -13,17 +13,6 @@ class LineChartBuildingPowerConsumption extends React.Component {
 	constructor(props) {
 		super(props);
 
-		let today = new Date();
-		let xMin = new Date(
-			today.getFullYear(),
-			today.getMonth(),
-			today.getDate(),
-			0,
-			0,
-			0,
-			0
-		);
-
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
@@ -93,7 +82,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
 							speed: 2,
 						},
 						limits: {
-							x: { min: xMin, max: today },
+							x: { min: this.props.dateFrom, max: this.props.dateTo },
 							y: { min: "original", max: "original" },
 						},
 					},

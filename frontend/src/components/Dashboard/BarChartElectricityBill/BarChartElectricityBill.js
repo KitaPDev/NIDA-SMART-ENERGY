@@ -31,7 +31,7 @@ class BarChartElectricityBill extends React.Component {
 				},
 				scales: {
 					xAxis: {
-						display: true,
+						display: false,
 						grid: {
 							display: true,
 						},

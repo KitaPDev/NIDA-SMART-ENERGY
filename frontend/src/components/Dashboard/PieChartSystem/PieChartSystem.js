@@ -2,11 +2,9 @@ import React, { PureComponent } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import "./PieChartSystem.css";
 
-const COLORS = ["#3c67be", "#be4114"];
+import numberFormatter from "../../../utils/numberFormatter";
 
-const numberWithCommas = (x) => {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
+const COLORS = ["#3c67be", "#be4114"];
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({
@@ -35,48 +33,37 @@ const renderCustomizedLabel = ({
 	);
 };
 
-const getLine1 = () => {
-	return (
-		"TODAY 00:00 - " +
-		new Date().toLocaleString([], {
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: false,
-		})
-	);
-};
-
-const getLine2 = (building, ac, others) => {
+const getLine1 = (building, ac, others) => {
 	let totalEnergyConsumption = ac + others;
 
 	return (
 		building +
 		" " +
-		numberWithCommas(Math.round(totalEnergyConsumption)) +
+		numberFormatter.withCommas(Math.round(totalEnergyConsumption)) +
 		" kWh"
 	);
 };
 
-const getLine3 = (ac, others) => {
+const getLine2 = (ac, others) => {
 	let percentAC = Math.round((ac / (ac + others)) * 100);
 
 	return (
 		"Air Conditioner " +
 		percentAC +
 		"% " +
-		numberWithCommas(Math.round(ac)) +
+		numberFormatter.withCommas(Math.round(ac)) +
 		" kWh"
 	);
 };
 
-const getLine4 = (ac, others) => {
+const getLine3 = (ac, others) => {
 	let percentOthers = Math.round((others / (ac + others)) * 100);
 
 	return (
 		"Others " +
 		percentOthers +
 		"% " +
-		numberWithCommas(Math.round(others)) +
+		numberFormatter.withCommas(Math.round(others)) +
 		" kWh"
 	);
 };
@@ -95,9 +82,8 @@ const CustomTooltip = ({ active, label, ...props }) => {
 					padding: "1rem",
 				}}
 			>
-				<p style={{ marginBottom: 0, fontWeight: "bold" }}>{getLine1()}</p>
 				<p style={{ marginBottom: 0, fontWeight: "bold" }}>
-					{getLine2(building, ac, others)}
+					{getLine1(building, ac, others)}
 				</p>
 				<p
 					style={{
@@ -107,7 +93,7 @@ const CustomTooltip = ({ active, label, ...props }) => {
 						fontWeight: "600",
 					}}
 				>
-					{getLine3(ac, others)}
+					{getLine2(ac, others)}
 				</p>
 				<p
 					style={{
@@ -117,7 +103,7 @@ const CustomTooltip = ({ active, label, ...props }) => {
 						fontWeight: "600",
 					}}
 				>
-					{getLine4(ac, others)}
+					{getLine3(ac, others)}
 				</p>
 			</div>
 		);
