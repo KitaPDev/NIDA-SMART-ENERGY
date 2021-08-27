@@ -11,6 +11,7 @@ import PieChartSystem from "./PieChartSystem/PieChartSystem";
 import LineChartBuildingPowerConsumption from "./LineChartBuildingPowerConsumption/LineChartBuildingPowerConsumption";
 import BarChartSystemPowerConsumption from "./BarChartSystemPowerConsumption/BarChartSystemPowerConsumption";
 import BarChartElectricityBill from "./BarChartElectricityBill/BarChartElectricityBill";
+import MixedChartBillCompareDate from "./MixedChartBillCompareDate/MixedChartBillCompareDate";
 import MixedChartBillCompare from "./MixedChartBillCompare/MixedChartBillCompare";
 
 // Utils
@@ -67,8 +68,8 @@ class Dashboard extends React.Component {
 		this.onClickCompareTo = this.onClickCompareTo.bind(this);
 
 		this.exportPieCharts = this.exportPieCharts.bind(this);
-		this.exportLineChart = this.exportLineChart.bind(this);
-		this.exportBarChart = this.exportBarChart.bind(this);
+		this.exportLineChart = this.exportLineChartPower.bind(this);
+		this.exportBarChart = this.exportBarChartPower.bind(this);
 		this.exportBarChartElectricityBill =
 			this.exportBarChartElectricityBill.bind(this);
 	}
@@ -97,7 +98,7 @@ class Dashboard extends React.Component {
 
 				if (system === "Main" && floor !== null) continue;
 
-				if (!lsDeviceLast.find((d) => d === device)) {
+				if (!lsDeviceLast.find((d) => d === device) && kwh !== 0) {
 					lsDeviceLast.push(device);
 				} else continue;
 
@@ -133,7 +134,7 @@ class Dashboard extends React.Component {
 					kw: kw,
 				});
 
-				if (!lsDeviceFirst.find((d) => d === device))
+				if (!lsDeviceFirst.find((d) => d === device) && kwh !== 0)
 					lsDeviceFirst.push(device);
 				else continue;
 
@@ -149,10 +150,7 @@ class Dashboard extends React.Component {
 				}
 
 				if (bill_building[building]) bill_building[building] = 0;
-
-				for (let kwh of Object.values(kwh_system)) {
-					if (kwh > 0) bill_building[building] = kwh * tariff;
-				}
+				bill_building[building] = kwh_system.Main * tariff;
 			}
 
 			this.setState({
@@ -333,7 +331,7 @@ class Dashboard extends React.Component {
 		csv.exportFile(`Dashboard Pie Charts`, rows);
 	}
 
-	exportLineChart() {
+	exportLineChartPower() {
 		let { lsKw_system_building } = this.state;
 
 		let rows = [[]];
@@ -368,7 +366,7 @@ class Dashboard extends React.Component {
 		csv.exportFile(`Buildings Power Consumption`, rows);
 	}
 
-	exportBarChart() {
+	exportBarChartPower() {
 		let { lsKw_system_building } = this.state;
 
 		let lsLogKwMain = [];
@@ -635,7 +633,7 @@ class Dashboard extends React.Component {
 							<RiFileExcel2Fill
 								className="icon-excel"
 								size={25}
-								onClick={this.exportLineChart}
+								onClick={this.exportLineChartPower}
 							/>
 							<LineChartBuildingPowerConsumption
 								lsSelectedBuilding={lsSelectedBuilding}
@@ -649,7 +647,7 @@ class Dashboard extends React.Component {
 							<RiFileExcel2Fill
 								className="icon-excel"
 								size={25}
-								onClick={this.exportBarChart}
+								onClick={this.exportBarChartPower}
 							/>
 							<BarChartSystemPowerConsumption
 								lsSelectedBuilding={lsSelectedBuilding}
@@ -719,14 +717,26 @@ class Dashboard extends React.Component {
 									</FormGroup>
 								</Form>
 							</Col>
-							<MixedChartBillCompare compareTo={compareTo} />
+							{displayDateFrom.getDate() === displayDateTo.getDate() ? (
+								<MixedChartBillCompare
+									compareTo={compareTo}
+									lsBuilding={lsBuilding}
+								/>
+							) : (
+								<MixedChartBillCompareDate
+									compareTo={compareTo}
+									lsSelectedBuilding={lsSelectedBuilding}
+									dateFrom={displayDateFrom}
+									dateTo={displayDateTo}
+								/>
+							)}
 						</Row>
 					</div>
 					<div className="container-bill-3">
 						<RiFileExcel2Fill
 							className="icon-excel"
 							size={25}
-							onClick={this.exportBarChart}
+							onClick={this.exportBarChartPower}
 						/>
 					</div>
 				</div>

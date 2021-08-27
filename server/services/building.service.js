@@ -77,7 +77,7 @@ async function getBillCompareData(buildingID) {
 			let de_after = new Date(dateEnd_after);
 			de_after.setFullYear(dateEnd_after.getFullYear() - j);
 
-			result = await knex("log_power_meter")
+			let result = await knex("log_power_meter")
 				.join("device", "log_power_meter.device_id", "=", "device.id")
 				.join("building", "device.building_id", "=", "building.id")
 				.join("system", "device.system_id", "=", "system.id")
@@ -88,7 +88,13 @@ async function getBillCompareData(buildingID) {
 					"log_power_meter.kwh",
 					"system.label as system"
 				)
-				.where("building.id", "=", buildingID)
+				.where(function () {
+					if (Array.isArray(buildingID)) {
+						this.whereIn("building.id", buildingID);
+					} else {
+						this.where("building.id", "=", buildingID);
+					}
+				})
 				.andWhere(function () {
 					this.whereBetween("log_power_meter.data_datetime", [
 						dateFormatter.yyyymmddhhmmss(ds_before),
@@ -105,12 +111,18 @@ async function getBillCompareData(buildingID) {
 			result = await knex("target")
 				.select()
 				.where({
-					building_id: buildingID,
 					month: month,
 					year: year - j,
+				})
+				.andWhere(function () {
+					if (Array.isArray(buildingID)) {
+						this.whereIn("building_id", buildingID);
+					} else {
+						this.where("building_id", "=", buildingID);
+					}
 				});
 
-			data.lsTarget.push(result[0]);
+			if (result[0] !== undefined) data.lsTarget.push(result[0]);
 		}
 
 		month--;

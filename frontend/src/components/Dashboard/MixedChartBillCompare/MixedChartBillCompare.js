@@ -12,20 +12,31 @@ import http from "../../../utils/http";
 import csv from "../../../utils/csv";
 import tooltipHandler from "../../../utils/tooltipHandler";
 
+const lsMonth = [
+	"JAN",
+	"FEB",
+	"MAR",
+	"APR",
+	"MAY",
+	"JUN",
+	"JUL",
+	"AUG",
+	"SEP",
+	"OCT",
+	"NOV",
+	"DEC",
+];
+
 let mixedChart;
 
 class MixedChartBillCompare extends React.Component {
 	constructor(props) {
 		super(props);
 
-		let dateFrom = this.props.dateFrom;
-		let dateTo = this.props.dateTo;
-
 		let labels = [];
-		let dateCurrent = new Date(dateFrom);
-		while (dateCurrent < dateTo) {
-			labels.push(new Date(dateCurrent));
-			dateCurrent = dateCurrent.addDays(1);
+		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
+			if (monthIdx < 0) monthIdx += 12;
+			labels.unshift(lsMonth[monthIdx % 12]);
 		}
 
 		this.state = {
@@ -84,7 +95,7 @@ class MixedChartBillCompare extends React.Component {
 							speed: 100,
 						},
 						limits: {
-							x: { min: dateFrom, max: dateTo },
+							x: { min: labels[0], max: labels[labels.length - 1] },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -169,21 +180,22 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let building = nextProps.building;
+		let lsBuilding = nextProps.lsBuilding;
 		let compareTo = nextProps.compareTo;
 
 		if (
-			(building === undefined || this.props.building === nextProps.building) &&
-			this.props.compareTo === nextProps.compareTo
+			(lsBuilding === undefined ||
+				this.props.lsBuilding.length === lsBuilding.length) &&
+			this.props.compareTo === compareTo
 		) {
 			return;
 		} else if (
-			building !== undefined &&
-			this.props.building !== nextProps.building
+			lsBuilding !== undefined &&
+			this.props.lsBuilding.length !== nextProps.lsBuilding.length
 		) {
 			this.setState(
 				{
-					building: building,
+					lsBuilding: lsBuilding,
 				},
 				() => this.getBillDataMonth()
 			);
@@ -199,10 +211,12 @@ class MixedChartBillCompare extends React.Component {
 
 	async getBillDataMonth() {
 		try {
-			let { building } = this.state;
+			let { lsBuilding } = this.state;
 
 			let payload = {
-				building_id: building.id,
+				building_id: lsBuilding.map(function (building) {
+					return building.id;
+				}),
 			};
 
 			let resp = await http.post("/building/bill/compare", payload);

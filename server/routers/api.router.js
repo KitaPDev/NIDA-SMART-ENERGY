@@ -24,4 +24,8 @@ router.post("/solar/month", authenticateJWT, async function (req, res) {
 	apiController.getDataSolarMonth(req, res);
 });
 
+router.post("/bill/compare", authenticateJWT, async function (req, res) {
+	apiController.getBillCompare(req, res);
+});
+
 module.exports = router;

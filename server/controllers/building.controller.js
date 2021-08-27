@@ -57,11 +57,15 @@ async function getBillCompare(req, res) {
 
 				let lsPrevDevice = [];
 				for (let log of lsLog.slice().reverse()) {
-					if (log.system !== "Main" || lsPrevDevice.includes(log.device)) {
+					let kwh = log.kwh;
+
+					if (
+						log.system !== "Main" ||
+						lsPrevDevice.includes(log.device) ||
+						kwh === null
+					) {
 						continue;
 					}
-
-					let kwh = log.kwh;
 
 					if (!bill_year[year]) bill_year[year] = 0;
 					bill_year[year] += kwh;
@@ -71,13 +75,17 @@ async function getBillCompare(req, res) {
 
 				lsPrevDevice = [];
 				for (let log of lsLog) {
-					if (log.system !== "Main" || lsPrevDevice.includes(log.device)) {
+					let kwh = log.kwh;
+
+					if (
+						log.system !== "Main" ||
+						lsPrevDevice.includes(log.device) ||
+						kwh === null
+					) {
 						continue;
 					}
 
-					let kwh = log.kwh;
 					bill_year[year] -= kwh;
-
 					lsPrevDevice.push(log.device);
 				}
 
@@ -127,7 +135,7 @@ async function getBillCompare(req, res) {
 				if (bill_month[month].average === undefined) {
 					bill_month[month].average = 0;
 				}
-				bill_month[month].average += bill_year_month[month][year - 1];
+				bill_month[month].average += bill_year_month[month][year - j];
 			}
 
 			bill_month[month].average /= 3;

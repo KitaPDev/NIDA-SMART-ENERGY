@@ -159,6 +159,103 @@ async function getDataSolarMonth(month) {
 	return result;
 }
 
+async function getBillCompareData(dateFrom, dateTo) {
+	let data = {};
+
+	let from = new Date(dateFrom);
+	let to = new Date(dateTo);
+
+	data.lsTarget = [];
+	data.lsLog_date_month_year = {};
+
+	for (let i = 0; i <= 3; i++) {
+		from.setFullYear(dateFrom.getFullYear() - i);
+		to.setFullYear(dateTo.getFullYear() - i);
+
+		let start = new Date(
+			from.getFullYear(),
+			from.getMonth(),
+			from.getDate(),
+			0,
+			0
+		);
+		let end = new Date(
+			to.getFullYear(),
+			to.getMonth(),
+			to.getDate(),
+			23,
+			59,
+			59
+		);
+
+		let result = await knex("log_power_meter")
+			.join("device", "log_power_meter.device_id", "=", "device.id")
+			.join("building", "device.building_id", "=", "building.id")
+			.join("system", "device.system_id", "=", "system.id")
+			.select(
+				"log_power_meter.data_datetime",
+				"building.label as building",
+				"device.id as device",
+				"log_power_meter.kwh",
+				"system.label as system"
+			)
+			.whereBetween("log_power_meter.data_datetime", [
+				dateFormatter.yyyymmddhhmmss(start),
+				dateFormatter.yyyymmddhhmmss(end),
+			]);
+
+		let dateCurrent = new Date(start);
+		while (dateCurrent.getTime() < end.getTime()) {
+			let year = dateCurrent.getFullYear();
+			let month = dateCurrent.getMonth();
+			let date = dateCurrent.getDate();
+
+			if (data.lsLog_date_month_year[year] === undefined)
+				data.lsLog_date_month_year[year] = {};
+			let lsLog_date_month = data.lsLog_date_month_year[year];
+
+			if (lsLog_date_month[month] === undefined) lsLog_date_month[month] = {};
+			let lsLog_date = lsLog_date_month[month];
+
+			if (lsLog_date[date] === undefined) lsLog_date[date] = [];
+			let lsLog = lsLog_date[date];
+
+			for (let row of result) {
+				let datetime = new Date(row.data_datetime);
+
+				if (
+					datetime.getFullYear() === year &&
+					datetime.getMonth() === month &&
+					datetime.getDate() === date
+				) {
+					lsLog.push(row);
+				}
+			}
+
+			dateCurrent = new Date(dateCurrent.getTime() + 86400000);
+		}
+
+		result = await knex("target")
+			.join("building", "target.building_id", "=", "building.id")
+			.select(
+				"building.label as building",
+				"month",
+				"year",
+				"electricity_bill",
+				"amount_people",
+				"tariff"
+			)
+			.where({
+				month: from.getMonth() + 1,
+				year: from.getFullYear() - i,
+			});
+
+		data.lsTarget.push(result[0]);
+	}
+
+	return data;
+}
+
 module.exports = {
 	getLogPowerMeterByDatetime,
 	getAllLogPowerMeterDesc,
@@ -173,4 +270,5 @@ module.exports = {
 	getDataIaq,
 	getDataPowerMonth,
 	getDataSolarMonth,
+	getBillCompareData,
 };

@@ -110,7 +110,7 @@ class Home extends React.Component {
 
 				if (system === "Main" && floor !== null) continue;
 
-				if (!lsDeviceLast.find((d) => d === device)) {
+				if (!lsDeviceLast.find((d) => d === device) && kwh !== 0) {
 					lsDeviceLast.push(device);
 				} else continue;
 
@@ -146,7 +146,7 @@ class Home extends React.Component {
 					kw: kw,
 				});
 
-				if (!lsDeviceFirst.find((d) => d === device))
+				if (!lsDeviceFirst.find((d) => d === device) && kwh !== 0)
 					lsDeviceFirst.push(device);
 				else continue;
 
@@ -162,10 +162,7 @@ class Home extends React.Component {
 				}
 
 				if (bill_building[building]) bill_building[building] = 0;
-
-				for (let kwh of Object.values(kwh_system)) {
-					if (kwh > 0) bill_building[building] = kwh * tariff;
-				}
+				bill_building[building] = kwh_system.Main * tariff;
 			}
 
 			this.setState({
