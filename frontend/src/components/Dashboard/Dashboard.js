@@ -308,9 +308,7 @@ class Dashboard extends React.Component {
 
 	onClickAllBuilding() {
 		let { lsSelectedBuilding, lsBuilding } = this.state;
-
 		lsSelectedBuilding = lsBuilding.map((building) => building.label);
-
 		this.setState({ lsSelectedBuilding: lsSelectedBuilding });
 	}
 

@@ -95,37 +95,37 @@
 	position: relative;
 }
 
-.map-campus {
+#container-home .map-campus {
 	position: relative;
 }
 
-.map-campus img {
+#container-home .map-campus img {
 	margin-top: -5rem;
 }
 
-.img-road-1,
-.img-road-2,
-.img-road-campus,
-.img-field,
-.img-pond,
-.img-trees {
+#container-home .img-road-1,
+#container-home .img-road-2,
+#container-home .img-road-campus,
+#container-home .img-field,
+#container-home .img-pond,
+#container-home .img-trees {
 	position: absolute;
 	width: 100%;
 	z-index: -1;
 	object-fit: contain;
 }
 
-.img-building {
+#container-home .img-building {
 	position: absolute;
 	width: 100% !important;
 	margin-top: -5rem;
 }
 
-#img-nida-house {
+#container-home #img-nida-house {
 	z-index: -1;
 }
 
-#img-siam {
+#container-home #img-siam {
 	z-index: 2;
 }
 
