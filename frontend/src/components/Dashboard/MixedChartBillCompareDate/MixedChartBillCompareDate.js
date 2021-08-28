@@ -11,6 +11,7 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import http from "../../../utils/http";
 import csv from "../../../utils/csv";
 import tooltipHandler from "../../../utils/tooltipHandler";
+import dateFormatter from "../../../utils/dateFormatter";
 
 let mixedChart;
 
@@ -21,29 +22,20 @@ class MixedChartBillCompareDate extends React.Component {
 		let dateFrom = this.props.dateFrom;
 		let dateTo = this.props.dateTo;
 
-		let labels = [];
-		let dateCurrent = new Date(dateFrom);
-		while (dateCurrent < dateTo) {
-			labels.push(new Date(dateCurrent));
-			dateCurrent = new Date(dateCurrent.getTime() + 86400000);
-		}
-
 		this.state = {
 			lsSelectedBuilding: {},
 			compareTo: "Target",
 			billData_date: {},
 			compareData: [],
 			// Chart details
-			data: {
-				labels: labels,
-			},
+			data: {},
 			options: {
 				responsive: true,
 				animation: false,
 				maintainAspectRatio: false,
 				interaction: {
 					intersect: false,
-					axis: "xy",
+					axis: "x",
 					mode: "index",
 				},
 				scales: {
@@ -70,7 +62,7 @@ class MixedChartBillCompareDate extends React.Component {
 					},
 					tooltip: {
 						enabled: false,
-						external: tooltipHandler.tooltipHandlerRightDec,
+						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
 					},
 					zoom: {
 						pan: {
@@ -98,57 +90,128 @@ class MixedChartBillCompareDate extends React.Component {
 	}
 
 	buildChart = () => {
-		// let { data, options, billData_date, compareTo } = this.state;
-		// let datasets = [
-		// 	{
-		// 		label: "Latest",
-		// 		backgroundColor: "#FFB800",
-		// 		borderColor: "#FFB800",
-		// 		data: [],
-		// 		type: "bar",
-		// 	},
-		// 	{
-		// 		label: compareTo,
-		// 		backgroundColor: "#E2E2E2",
-		// 		borderColor: "#E2E2E2",
-		// 		fill: "origin",
-		// 		borderWidth: 2,
-		// 		pointRadius: 2,
-		// 		data: [],
-		// 		type: "line",
-		// 	},
-		// ];
-		// let yMax = 0;
-		// let month = new Date().getMonth() + 1;
-		// for (let i = 0; i < 12; i++) {
-		// 	if (month < 1) month += 12;
-		// 	let dataMonth = billData_date[month];
-		// 	datasets[0].data.unshift(dataMonth.latest);
-		// 	let compareData = datasets[1].data;
-		// 	if (compareTo === "Target") compareData.unshift(dataMonth.target);
-		// 	else if (compareTo === "Average") compareData.unshift(dataMonth.average);
-		// 	else if (compareTo === "Last Year")
-		// 		compareData.unshift(dataMonth.lastYear);
-		// 	for (let bill of Object.values(billData_date[month])) {
-		// 		if (bill > yMax) yMax = bill;
-		// 	}
-		// 	month--;
-		// }
-		// data.datasets = datasets;
-		// options.scales.yAxis.max = yMax;
-		// document.getElementById("mc-bill-compare").remove();
-		// document.getElementById(
-		// 	"wrapper-mc-bill-compare"
-		// ).innerHTML = `<canvas id="mc-bill-compare" />`;
-		// let ctx = document.getElementById("mc-bill-compare").getContext("2d");
-		// mixedChart = new Chart(ctx, {
-		// 	type: "bar",
-		// 	data: data,
-		// 	options: options,
-		// });
-		// this.setState({
-		// 	data: data,
-		// });
+		let {
+			data,
+			options,
+			bill_building_strDate,
+			compareTo,
+			lsSelectedBuilding,
+			lsTarget,
+		} = this.state;
+
+		let datasets = [
+			{
+				label: "Latest",
+				backgroundColor: "#FFB800",
+				borderColor: "#FFB800",
+				data: [],
+				type: "bar",
+			},
+			{
+				label: compareTo,
+				backgroundColor: "#E2E2E2",
+				borderColor: "#E2E2E2",
+				fill: "origin",
+				borderWidth: 2,
+				pointRadius: 2,
+				data: [],
+				type: "line",
+			},
+		];
+
+		let labels = Object.keys(bill_building_strDate).sort(
+			(a, b) => new Date(a).getTime() - new Date(b).getTime()
+		);
+
+		let latest = [];
+		let compareData = [];
+
+		let yMax = 0;
+		let idx = 0;
+		for (let date of labels) {
+			let currDate = new Date(date);
+			let currYear = currDate.getFullYear();
+			let currMonth = currDate.getMonth();
+			let currDay = currDate.getDate();
+
+			for (let [strDate, bill_building] of Object.entries(
+				bill_building_strDate
+			)) {
+				let date = new Date(strDate);
+				let year = date.getFullYear();
+				let month = date.getMonth();
+				let day = date.getDate();
+
+				if (currMonth !== month || currDay !== day) continue;
+
+				for (let [building, bill] of Object.entries(bill_building)) {
+					if (!lsSelectedBuilding.includes(building)) continue;
+
+					if (year === currYear) {
+						if (latest[idx] === undefined) latest[idx] = 0;
+						latest[idx] += Math.round(bill);
+
+						if (latest[idx] > yMax) yMax = latest[idx];
+					}
+
+					if (compareData[idx] === undefined) compareData[idx] = 0;
+
+					if (compareTo === "Target") {
+						let target = lsTarget.find(
+							(target) =>
+								target.month === month + 1 &&
+								target.year === year &&
+								target.building === building
+						);
+
+						if (target !== undefined) {
+							if (target.electricity_bill !== null) {
+								compareData[idx] += Math.round(target.electricity_bill / 30);
+							}
+						}
+					} else if (compareTo === "Average") {
+						if (year < currYear) compareData[idx] += bill;
+					} else if (compareTo === "Last Year") {
+						if (year === currYear - 1) compareData[idx] += bill;
+					}
+
+					if (compareData[idx] > yMax) yMax = compareData[idx];
+				}
+			}
+
+			idx++;
+		}
+
+		if (compareTo === "Average") {
+			compareData.forEach((_, idx) => compareData[(idx /= 3)]);
+		}
+
+		datasets[0].data = latest;
+		datasets[1].data = compareData;
+
+		data.labels = labels.map((strDate) => {
+			return dateFormatter.ddmmyyyy(new Date(strDate));
+		});
+		data.datasets = datasets;
+
+		options.scales.yAxis.max = Math.ceil(yMax);
+		options.plugins.zoom.limits.x.min = labels[0];
+		options.plugins.zoom.limits.x.max = labels[labels.length - 1];
+
+		document.getElementById("mc-bill-compare").remove();
+		document.getElementById(
+			"wrapper-mc-bill-compare"
+		).innerHTML = `<canvas id="mc-bill-compare" />`;
+
+		let ctx = document.getElementById("mc-bill-compare").getContext("2d");
+		mixedChart = new Chart(ctx, {
+			type: "bar",
+			data: data,
+			options: options,
+		});
+		this.setState({
+			data: data,
+		});
 	};
 
 	componentDidMount() {
@@ -157,38 +220,47 @@ class MixedChartBillCompareDate extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let lsSelectedBuilding = nextProps.lsSelectedBuilding;
-		let dateFrom = nextProps.dateFrom;
-		let dateTo = nextProps.dateTo;
-		let compareTo = nextProps.compareTo;
+		let { lsSelectedBuilding, dateTo, dateFrom, compareTo } = this.state;
 
-		if (
+		if (dateTo === undefined || dateFrom === undefined) {
+			this.setState(
+				{
+					lsSelectedBuilding: nextProps.lsSelectedBuilding,
+					dateFrom: nextProps.dateFrom,
+					dateTo: nextProps.dateTo,
+					compareTo: nextProps.compareTo,
+				},
+				() => this.getBillDataDate()
+			);
+		} else if (
 			(lsSelectedBuilding === undefined ||
-				this.props.lsSelectedBuilding.length === lsSelectedBuilding.length) &&
-			this.props.compareTo === compareTo &&
-			this.props.dateFrom.getTime() === dateFrom.getTime() &&
-			this.props.dateTo.getTime() === dateTo.getTime()
+				nextProps.lsSelectedBuilding.length === lsSelectedBuilding.length) &&
+			nextProps.compareTo === compareTo &&
+			nextProps.dateFrom.getTime() === dateFrom.getTime() &&
+			nextProps.dateTo.getTime() === dateTo.getTime() &&
+			nextProps.compareTo === compareTo
 		) {
 			return;
 		} else if (
 			(lsSelectedBuilding !== undefined &&
-				this.props.lsSelectedBuilding.length !==
+				nextProps.lsSelectedBuilding.length !==
 					nextProps.lsSelectedBuilding.length) ||
-			this.props.dateFrom.getTime() !== dateFrom.getTime() ||
-			this.props.dateTo.getTime() !== dateTo.getTime()
+			nextProps.dateFrom.getTime() !== dateFrom.getTime() ||
+			nextProps.dateTo.getTime() !== dateTo.getTime()
 		) {
 			this.setState(
 				{
-					lsSelectedBuilding: lsSelectedBuilding,
-					dateFrom: dateFrom,
-					dateTo: dateTo,
+					lsSelectedBuilding: nextProps.lsSelectedBuilding,
+					dateFrom: nextProps.dateFrom,
+					dateTo: nextProps.dateTo,
+					compareTo: nextProps.compareTo,
 				},
 				() => this.getBillDataDate()
 			);
 		} else {
 			this.setState(
 				{
-					compareTo: compareTo,
+					compareTo: nextProps.compareTo,
 				},
 				() => this.buildChart()
 			);
@@ -208,7 +280,8 @@ class MixedChartBillCompareDate extends React.Component {
 
 			this.setState(
 				{
-					billData_date: resp.data,
+					bill_building_strDate: resp.data.bill_building_date,
+					lsTarget: resp.data.lsTarget,
 				},
 				() => this.buildChart()
 			);
@@ -222,15 +295,19 @@ class MixedChartBillCompareDate extends React.Component {
 		let { data, compareTo } = this.state;
 
 		let labels = data.labels;
-		let dataMonth = data.datasets[0].data;
-		let dataMonthCompare = data.datasets[1].data;
+		let dataLatest = data.datasets[0].data;
+		let dataCompare = data.datasets[1].data;
 
 		let rows = [[]];
-		rows[0].push("Month", "Bill", compareTo);
+		rows[0].push("Date", "Bill", compareTo);
 
-		dataMonth.forEach((d, idx) => {
+		labels.forEach((d, idx) => {
 			if (!rows[idx + 1]) rows[idx + 1] = [];
-			rows[idx + 1].push(labels[idx], d, dataMonthCompare[idx]);
+			rows[idx + 1].push(
+				dateFormatter.yyyymmddhhmmss_noOffset(d),
+				dataLatest[idx],
+				dataCompare[idx]
+			);
 		});
 
 		csv.exportFile(`Bill Compare to ${compareTo}`, rows);

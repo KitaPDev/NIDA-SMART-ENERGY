@@ -83,7 +83,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 					},
 					tooltip: {
 						enabled: false,
-						external: tooltipHandler.tooltipHandlerRight,
+						external: tooltipHandler.tooltipHandlerRight_20_top_100,
 					},
 					zoom: {
 						pan: {

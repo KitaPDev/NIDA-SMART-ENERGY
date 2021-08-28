@@ -225,14 +225,9 @@ async function getBillCompare(req, res) {
 			}
 		}
 
-		// for (let [strDate, bill_building] of Object.entries(bill_building_date)) {
-		// 	bill_building_date[strDate] = {};
-		// 	bill_building_date[strDate].latest = Object.values(bill_building).reduce(
-		// 		(accum, curr) => accum + curr
-		// 	);
-		// }
-
-		return res.status(httpStatusCodes.OK).send(bill_building_date);
+		return res
+			.status(httpStatusCodes.OK)
+			.send({ bill_building_date, lsTarget });
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);

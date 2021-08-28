@@ -81,7 +81,7 @@ class MixedChartBillCompare extends React.Component {
 					},
 					tooltip: {
 						enabled: false,
-						external: tooltipHandler.tooltipHandlerRightDec,
+						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
 					},
 					zoom: {
 						pan: {
@@ -154,7 +154,7 @@ class MixedChartBillCompare extends React.Component {
 		}
 
 		data.datasets = datasets;
-		options.scales.yAxis.max = yMax;
+		options.scales.yAxis.max = Math.ceil(yMax);
 
 		document.getElementById("mc-bill-compare").remove();
 		document.getElementById(

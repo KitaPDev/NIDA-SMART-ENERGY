@@ -31,6 +31,7 @@ async function getData(buildingID, dateFrom, dateTo) {
 			dateFormatter.yyyymmddhhmmss(new Date(dateTo))
 		)
 		.andWhere("building.id", "=", buildingID)
+		.andWhere(knex.raw(`MINUTE(data_datetime) % 15 = 0`))
 		.orderBy("log_power_meter.data_datetime", "asc");
 
 	return result;

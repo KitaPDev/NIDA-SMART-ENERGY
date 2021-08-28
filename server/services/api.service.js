@@ -4,13 +4,15 @@ const dateFormatter = require("../utils/dateFormatter");
 async function getLogPowerMeterByDatetime(start, end) {
 	let result = await knex("log_power_meter")
 		.select()
-		.whereBetween("data_datetime", [start, end]);
-
+		.whereBetween("data_datetime", [start, end])
+		.andWhere(knex.raw(`MINUTE(data_datetime) % 15 = 0`));
 	return result;
 }
 
 async function getAllLogPowerMeterDesc() {
-	let result = await knex("log_power_meter").orderBy("data_datetime", "desc");
+	let result = await knex("log_power_meter")
+		.orderBy("data_datetime", "desc")
+		.where(knex.raw(`MINUTE(data_datetime) % 15 = 0`));
 
 	return result;
 }
@@ -71,6 +73,7 @@ async function getDataPowerMeter(start, end) {
 			"<=",
 			dateFormatter.yyyymmddhhmmss(new Date(end))
 		)
+		.andWhere(knex.raw(`MINUTE(data_datetime) % 15 = 0`))
 		.orderBy("log_power_meter.data_datetime", "asc");
 
 	return result;
@@ -85,6 +88,7 @@ async function getDataSolar(start, end) {
 			"<=",
 			dateFormatter.yyyymmddhhmmss(new Date(end))
 		)
+		.andWhere(knex.raw(`MINUTE(data_datetime) % 15 = 0`))
 		.orderBy("data_datetime", "asc");
 
 	return result;
@@ -99,6 +103,7 @@ async function getDataIaq(start, end) {
 			"<=",
 			dateFormatter.yyyymmddhhmmss(new Date(end))
 		)
+		.andWhere(knex.raw(`MINUTE(data_datetime) % 15 = 0`))
 		.orderBy("data_datetime", "asc");
 
 	return result;
@@ -250,7 +255,7 @@ async function getBillCompareData(dateFrom, dateTo) {
 				year: from.getFullYear() - i,
 			});
 
-		data.lsTarget.push(result[0]);
+		if (result.length > 0) result.forEach((row) => data.lsTarget.push(row));
 	}
 
 	return data;

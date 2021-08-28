@@ -37,7 +37,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
 				maintainAspectRatio: false,
 				interaction: {
 					intersect: false,
-					axis: "xy",
+					axis: "x",
 					mode: "index",
 				},
 				scales: {
@@ -79,7 +79,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
 					},
 					tooltip: {
 						enabled: false,
-						external: tooltipHandler.tooltipHandlerRight,
+						external: tooltipHandler.tooltipHandlerRight_100_top_100,
 					},
 					zoom: {
 						pan: {

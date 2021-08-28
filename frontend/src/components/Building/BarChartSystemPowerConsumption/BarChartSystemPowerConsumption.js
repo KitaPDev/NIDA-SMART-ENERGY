@@ -58,7 +58,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 					},
 					tooltip: {
 						enabled: false,
-						external: tooltipHandler.tooltipHandlerRightDec,
+						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
 					},
 					zoom: {
 						pan: {
@@ -178,9 +178,12 @@ class BarChartSystemPowerConsumption extends React.Component {
 		data.labels = labels;
 		data.datasets = datasets;
 
-		options.scales.xAxis.min = labels[0];
-		options.scales.xAxis.max = labels[labels.length - 1];
+		options.scales.xAxis.min = labels[labels.length - 1];
+		options.scales.xAxis.max = labels[0];
 		options.scales.yAxis.max = yMax;
+
+		options.plugins.zoom.limits.x.min = labels[labels.length - 1];
+		options.plugins.zoom.limits.x.max = labels[0];
 
 		this.setState({
 			data: data,

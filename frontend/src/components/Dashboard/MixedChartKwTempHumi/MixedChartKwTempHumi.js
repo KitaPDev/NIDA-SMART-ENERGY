@@ -1,22 +1,25 @@
 import React from "react";
-import "./BarChartSystemPowerConsumption.css";
+import "./MixedChartKwTempHumi.css";
 
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
+import { RiFileExcel2Fill } from "react-icons/ri";
+
+import csv from "../../../utils/csv";
 import tooltipHandler from "../../../utils/tooltipHandler";
+import dateFormatter from "../../../utils/dateFormatter";
 
-let barChart;
+let mixedChart;
 
-class BarChartSystemPowerConsumption extends React.Component {
+class MixedChartKwTempHumi extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
-			componentShouldUpdate: true,
 
 			// Chart details
 			data: {},
@@ -43,19 +46,50 @@ class BarChartSystemPowerConsumption extends React.Component {
 						grid: {
 							display: false,
 						},
-						stacked: true,
 					},
-					yAxis: {
-						min: 0,
-						max: 100,
+					yTemp: {
 						display: true,
-						grid: {
-							display: false,
+						position: "left",
+						grid: { display: false },
+						title: {
+							display: true,
+							text: "Temperature",
+							font: {
+								size: 16,
+								weight: "600",
+							},
 						},
-						stacked: true,
+					},
+					yHumi: {
+						display: true,
+						position: "right",
+						grid: { display: false },
+						title: {
+							display: true,
+							text: "Humidity",
+							font: {
+								size: 16,
+								weight: "600",
+							},
+						},
+					},
+					yKw: {
+						display: true,
+						position: "left",
+						grid: { display: false },
+						title: {
+							display: true,
+							text: "kW",
+							font: {
+								weight: "600",
+							},
+						},
 					},
 				},
 				plugins: {
+					title: {
+						display: false,
+					},
 					legend: {
 						display: true,
 						position: "top",
@@ -74,7 +108,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 							wheel: { enabled: true },
 							pinch: { enabled: true },
 							mode: "xy",
-							speed: 2,
+							speed: 100,
 						},
 						limits: {
 							x: { min: this.props.dateFrom, max: this.props.dateTo },
@@ -86,19 +120,20 @@ class BarChartSystemPowerConsumption extends React.Component {
 		};
 
 		this.handleDoubleClick = this.handleDoubleClick.bind(this);
+		this.exportData = this.exportData.bind(this);
 	}
 
 	buildChart = () => {
 		let { data, options } = this.state;
 
-		document.getElementById("bc-system-power").remove();
+		document.getElementById("mc-kw-temp-humi").remove();
 		document.getElementById(
-			"wrapper-bc-system-power"
-		).innerHTML = `<canvas id="bc-system-power" />`;
+			"wrapper-mc-kw-temp-humi"
+		).innerHTML = `<canvas id="mc-kw-temp-humi" />`;
 
-		let ctx = document.getElementById("bc-system-power").getContext("2d");
+		let ctx = document.getElementById("mc-kw-temp-humi").getContext("2d");
 
-		barChart = new Chart(ctx, {
+		mixedChart = new Chart(ctx, {
 			type: "bar",
 			data: data,
 			options: options,
@@ -118,6 +153,8 @@ class BarChartSystemPowerConsumption extends React.Component {
 				JSON.stringify(nextProps.lsKw_system_building) &&
 			JSON.stringify(lsSelectedBuildingPrev) ===
 				JSON.stringify(nextProps.lsSelectedBuilding) &&
+			JSON.stringify(this.props.lsTempHumi) ===
+				JSON.stringify(nextProps.lsTempHumi) &&
 			Object.values(data).length > 0
 		) {
 			return;
@@ -125,6 +162,9 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 		let lsKw_system_building = {};
 		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
+
+		let lsTempHumi = [];
+		Object.assign(lsTempHumi, nextProps.lsTempHumi);
 
 		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
 
@@ -134,16 +174,13 @@ class BarChartSystemPowerConsumption extends React.Component {
 		let datasets = [];
 
 		let building_lsKwMain = {};
-		let building_lsKwAc = {};
 
 		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
 			if (!lsSelectedBuilding.includes(building)) continue;
 
 			if (!building_lsKwMain[building]) building_lsKwMain[building] = [];
-			if (!building_lsKwAc[building]) building_lsKwAc[building] = [];
 
 			let lsKwMain = building_lsKwMain[building];
-			let lsKwAc = building_lsKwAc[building];
 
 			let prevDatetime;
 			for (let logKwMain of lsKw_system["Main"]) {
@@ -167,72 +204,77 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 				prevDatetime = datetime;
 			}
+		}
 
-			// Fill AC array with zeroes if no AC kw readings
-			if (!lsKw_system["Air Conditioner"]) {
-				let lengthDiff = lsKwMain.length - lsKwAc.length;
-				building_lsKwAc[building] = lsKwAc.concat(Array(lengthDiff).fill(0));
+		let lsKwMain = [];
+
+		for (let lsKw of Object.values(building_lsKwMain)) {
+			lsKw.forEach((kwMain, idx) => {
+				if (!lsKwMain[idx]) lsKwMain[idx] = 0;
+				lsKwMain[idx] += kwMain;
+			});
+		}
+
+		let lsTemp = [];
+		let lsHumi = [];
+		for (let date of labels) {
+			let log = lsTempHumi.find(
+				(d) =>
+					Math.abs(new Date(d.data_datetime).getTime() - date.getTime()) <= 1000
+			);
+			if (log === undefined) {
+				lsTemp.push(0);
+				lsHumi.push(0);
 				continue;
 			}
 
-			for (let logKwAc of lsKw_system["Air Conditioner"]) {
-				let datetime = new Date(logKwAc.datetime);
-				let kw = logKwAc.kw;
+			let humidity = parseFloat(log.humidity).toFixed(2);
+			let temperature = parseFloat(log.temperature).toFixed(2);
 
-				if (prevDatetime) {
-					if (datetime.getTime() === prevDatetime.getTime()) {
-						lsKwAc[lsKwAc.length - 1] += kw;
-					} else lsKwAc.push(kw);
-				} else lsKwAc.push(kw);
-
-				prevDatetime = datetime;
-			}
+			lsTemp.push(temperature);
+			lsHumi.push(humidity);
 		}
 
-		let lsKwOthers = [];
-		let lsKwAc = [];
-
-		let yMax = 0;
-		for (let [building, lsKwMain] of Object.entries(building_lsKwMain)) {
-			lsKwMain.forEach((kwMain, idx) => {
-				if (!lsKwOthers[idx]) lsKwOthers[idx] = 0;
-				lsKwOthers[idx] += kwMain;
-
-				if (lsKwOthers[idx] > yMax) yMax = lsKwOthers[idx];
-			});
-
-			building_lsKwAc[building].forEach((kwAc, idx) => {
-				if (!lsKwAc[idx]) lsKwAc[idx] = 0;
-				lsKwAc[idx] += kwAc;
-			});
-		}
-
-		lsKwAc.forEach(
-			(kwAc, idx) => (lsKwOthers[idx] = Math.abs(lsKwOthers[idx] - kwAc))
-		);
-
-		let datasetAc = {
-			label: "Air Conditioner",
-			backgroundColor: "#4469B8",
-			borderColor: "#4469B8",
-			data: lsKwAc,
+		let datasetMain = {
+			label: "kW",
+			backgroundColor: "#FFB800",
+			borderColor: "#FFB800",
+			data: lsKwMain,
+			type: "bar",
+			yAxisID: "yKw",
 		};
 
-		let datasetOthers = {
-			label: "Others",
-			backgroundColor: "#B14926",
-			borderColor: "#B14926",
-			data: lsKwOthers,
+		let datasetTemp = {
+			label: "Temperature",
+			backgroundColor: "rgb(251, 233, 221, 0.5)",
+			borderColor: "#FBE9DD",
+			fill: "origin",
+			borderWidth: 2,
+			pointRadius: 1,
+			data: lsTemp,
+			type: "line",
+			yAxisID: "yTemp",
 		};
 
-		datasets.push(datasetAc, datasetOthers);
+		let datasetHumi = {
+			label: "Humidity",
+			backgroundColor: "rgb(212, 222, 231, 0.5)",
+			borderColor: "#D4DEE7",
+			fill: "origin",
+			borderWidth: 2,
+			pointRadius: 1,
+			data: lsHumi,
+			type: "line",
+			yAxisID: "yHumi",
+		};
+
+		datasets.push(datasetTemp, datasetHumi, datasetMain);
 
 		data.labels = labels;
 		data.datasets = datasets;
 
 		options.scales.xAxis.min = labels[0];
 		options.scales.xAxis.max = labels[labels.length - 1];
-		options.scales.yAxis.max = yMax;
 
 		options.plugins.zoom.limits.x.min = labels[0];
 		options.plugins.zoom.limits.x.max = labels[labels.length - 1];
@@ -247,25 +289,51 @@ class BarChartSystemPowerConsumption extends React.Component {
 		this.buildChart();
 	}
 
-	shouldComponentUpdate() {
-		return this.state.componentShouldUpdate;
-	}
+	exportData() {
+		let { data, compareTo } = this.state;
 
-	componentDidUpdate() {
-		this.setState({ componentShouldUpdate: false });
+		let labels = data.labels;
+		let dataTemp = data.datasets[0].data;
+		let dataHumi = data.datasets[1].data;
+		let dataKw = data.datasets[2].data;
+
+		let rows = [[]];
+		rows[0].push("Date", "kW", "Temperature", "Humidity", compareTo);
+
+		labels.forEach((d, idx) => {
+			if (!rows[idx + 1]) rows[idx + 1] = [];
+			rows[idx + 1].push(
+				dateFormatter.yyyymmddhhmmss_noOffset(d),
+				dataKw[idx],
+				dataTemp[idx],
+				dataHumi[idx]
+			);
+		});
+
+		csv.exportFile(`Energy (kW) Air Conditioner`, rows);
 	}
 
 	handleDoubleClick() {
-		if (barChart) barChart.resetZoom();
+		if (mixedChart) mixedChart.resetZoom();
 	}
 
 	render() {
 		return (
-			<div id="wrapper-bc-system-power" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="bc-system-power" />
-			</div>
+			<>
+				<RiFileExcel2Fill
+					className="icon-excel"
+					size={25}
+					onClick={this.exportData}
+				/>
+				<div
+					id="wrapper-mc-kw-temp-humi"
+					onDoubleClick={this.handleDoubleClick}
+				>
+					<canvas id="mc-kw-temp-humi" />
+				</div>
+			</>
 		);
 	}
 }
 
-export default BarChartSystemPowerConsumption;
+export default MixedChartKwTempHumi;

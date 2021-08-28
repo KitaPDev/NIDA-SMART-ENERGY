@@ -23,10 +23,10 @@ import numberFormatter from "../../utils/numberFormatter";
 import {
 	subjectPowerMeterData,
 	subjectSolarData,
-	subjectIaqData,
 	apiService,
 } from "../../apiService";
 import csv from "../../utils/csv";
+import MixedChartKwTempHumi from "./MixedChartKwTempHumi/MixedChartKwTempHumi";
 
 let subscriberPowerMeterData;
 let subscriberSolarData;
@@ -52,6 +52,7 @@ class Dashboard extends React.Component {
 			targetBill_building: {},
 			kwhSolar: 0,
 			compareTo: "Target",
+			lsTempHumi: [],
 		};
 
 		this.updateData = this.updateData.bind(this);
@@ -60,6 +61,7 @@ class Dashboard extends React.Component {
 		this.getAllSystem = this.getAllSystem.bind(this);
 		this.getAllTargetByMonthYear = this.getAllTargetByMonthYear.bind(this);
 		this.getSolarCurrentMonth = this.getSolarCurrentMonth.bind(this);
+		this.getDataIaqByDatetime = this.getDataIaqByDatetime.bind(this);
 
 		this.handleInputDateChange = this.handleInputDateChange.bind(this);
 		this.onClickApply = this.onClickApply.bind(this);
@@ -68,8 +70,8 @@ class Dashboard extends React.Component {
 		this.onClickCompareTo = this.onClickCompareTo.bind(this);
 
 		this.exportPieCharts = this.exportPieCharts.bind(this);
-		this.exportLineChart = this.exportLineChartPower.bind(this);
-		this.exportBarChart = this.exportBarChartPower.bind(this);
+		this.exportLineChartPower = this.exportLineChartPower.bind(this);
+		this.exportBarChartPower = this.exportBarChartPower.bind(this);
 		this.exportBarChartElectricityBill =
 			this.exportBarChartElectricityBill.bind(this);
 	}
@@ -184,6 +186,7 @@ class Dashboard extends React.Component {
 
 		apiService.updatePowerMeterData(dateFrom, dateTo);
 		apiService.updateSolarData(dateFrom, dateTo);
+		this.getDataIaqByDatetime(dateFrom, dateTo);
 
 		this.setState({
 			displayDateFrom: dateFrom,
@@ -256,6 +259,24 @@ class Dashboard extends React.Component {
 			let resp = await http.post("/api/solar/month", payload);
 
 			this.setState({ kwhSolarMonth: resp.data.kwhSolar });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getDataIaqByDatetime(dateStart, dateEnd) {
+		try {
+			let payload = {
+				start: dateStart,
+				end: dateEnd,
+			};
+
+			let resp = await http.post("/api/iaq/datetime", payload);
+
+			this.setState({
+				lsTempHumi: resp.data,
+			});
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -357,7 +378,9 @@ class Dashboard extends React.Component {
 			lsLogKwMain_clean.forEach((log, idx) => {
 				if (!rows[idx + 1]) {
 					rows[idx + 1] = [];
-					rows[idx + 1].push(log.datetime);
+					rows[idx + 1].push(
+						dateFormatter.ddmmmyyyyhhmm_noOffset(log.datetime)
+					);
 				}
 				rows[idx + 1].push(log.kw);
 			});
@@ -449,10 +472,9 @@ class Dashboard extends React.Component {
 			kwh_system_building,
 			lsKw_system_building,
 			bill_building,
-			tariff_building,
-			targetBill_building,
 			kwhSolar,
 			compareTo,
+			lsTempHumi,
 		} = this.state;
 
 		let kwhMainTotal = 0;
@@ -733,10 +755,13 @@ class Dashboard extends React.Component {
 						</Row>
 					</div>
 					<div className="container-bill-3">
-						<RiFileExcel2Fill
-							className="icon-excel"
-							size={25}
-							onClick={this.exportBarChartPower}
+						<MixedChartKwTempHumi
+							lsSelectedBuilding={lsSelectedBuilding}
+							lsKw_system_building={lsKw_system_building}
+							lsBuilding={lsBuilding}
+							dateFrom={dateFrom}
+							dateTo={dateTo}
+							lsTempHumi={lsTempHumi}
 						/>
 					</div>
 				</div>

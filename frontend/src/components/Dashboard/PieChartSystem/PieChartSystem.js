@@ -80,6 +80,7 @@ const CustomTooltip = ({ active, label, ...props }) => {
 					backgroundColor: "#F0F0F0",
 					borderRadius: "1rem",
 					padding: "1rem",
+					width: "250px",
 				}}
 			>
 				<p style={{ marginBottom: 0, fontWeight: "bold" }}>
