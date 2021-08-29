@@ -11,6 +11,10 @@ import {
 	FormGroup,
 	Input,
 	Table,
+	Modal,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
 } from "reactstrap";
 import { IoMdSearch } from "react-icons/io";
 import { ReactSVG } from "react-svg";
@@ -30,10 +34,13 @@ class Meter extends React.Component {
 			lsDevice: [],
 			lsBuilding: [],
 			lsSelectedBuilding: [],
+			lsLog: [],
 			building: "",
 			searchText: "",
 			currentBuildingLabel: "",
 			isOverall: true,
+			isModalOpen: false,
+			modalDeviceID: "",
 			buildingPath: window.location.origin + "/building/", // For Building Images
 			propsPath: window.location.origin + "/props/", // For Props Images
 		};
@@ -48,9 +55,11 @@ class Meter extends React.Component {
 		this.onClickAllBuilding = this.onClickAllBuilding.bind(this);
 		this.toggleSortByMeterID = this.toggleSortByMeterID.bind(this);
 		this.toggleSortByStatus = this.toggleSortByStatus.bind(this);
+		this.toggleModalOpen = this.toggleModalOpen.bind(this);
 
 		this.getAllDevice = this.getAllDevice.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
+		this.getAllDeviceLatestLog = this.getAllDeviceLatestLog.bind(this);
 
 		this.exportTable = this.exportTable.bind(this);
 	}
@@ -58,6 +67,15 @@ class Meter extends React.Component {
 	componentDidMount() {
 		this.getAllDevice();
 		this.getAllBuilding();
+		this.getAllDeviceLatestLog();
+
+		this.intervalDeviceLog = setInterval(
+			() => this.getAllDeviceLatestLog(),
+			300000
+		);
+	}
+	componentWillUnmount() {
+		clearInterval(this.intervalDeviceLog);
 	}
 
 	setMapMode() {
@@ -68,6 +86,9 @@ class Meter extends React.Component {
 	}
 
 	setDiagramMode() {
+		let { lsSelectedBuilding } = this.state;
+		if (lsSelectedBuilding.length > 1) this.onClickAllBuilding();
+
 		this.setState({
 			isDiagramMode: true,
 			isMapMode: false,
@@ -85,9 +106,9 @@ class Meter extends React.Component {
 	}
 
 	onClickBuilding(building) {
-		let { lsSelectedBuilding, lsBuilding } = this.state;
+		let { lsSelectedBuilding, lsBuilding, isDiagramMode } = this.state;
 
-		if (lsSelectedBuilding.length === lsBuilding.length) {
+		if (lsSelectedBuilding.length === lsBuilding.length || isDiagramMode) {
 			lsSelectedBuilding = [building];
 		} else if (!lsSelectedBuilding.includes(building)) {
 			lsSelectedBuilding.push(building);
@@ -167,6 +188,13 @@ class Meter extends React.Component {
 		}
 	}
 
+	toggleModalOpen(deviceID) {
+		this.setState((prevState) => ({
+			isModalOpen: !prevState.isModalOpen,
+			modalDeviceID: deviceID,
+		}));
+	}
+
 	async getAllDevice() {
 		try {
 			let resp = await http.get("/device/all");
@@ -183,6 +211,17 @@ class Meter extends React.Component {
 			let resp = await http.get("/building/all");
 
 			this.setState({ lsBuilding: resp.data });
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getAllDeviceLatestLog() {
+		try {
+			let resp = await http.get("/device/all/latest");
+
+			this.setState({ lsLog: resp.data });
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -215,14 +254,15 @@ class Meter extends React.Component {
 			lsDevice,
 			lsBuilding,
 			lsSelectedBuilding,
+			lsLog,
 			isSortByMeterIDAsc,
 			isSortByMeterIDDesc,
 			isSortByStatusActive,
 			isSortByStatusInactive,
-			currentBuildingLabel,
-			isOverall,
 			propsPath,
 			buildingPath,
+			isModalOpen,
+			modalDeviceID,
 		} = this.state;
 
 		if (lsSelectedBuilding.length === 0) {
@@ -236,13 +276,9 @@ class Meter extends React.Component {
 		} else if (isSortByMeterIDDesc) {
 			lsDeviceDisplay.sort((a, b) => (a.id > b.id ? -1 : b.id > a.id ? 1 : 0));
 		} else if (isSortByStatusActive) {
-			lsDeviceDisplay.sort((a, b) =>
-				a.is_active === 1 ? -1 : a.is_active === 0 ? 1 : 0
-			);
+			lsDeviceDisplay.sort((a, b) => (a.is_active ? -1 : !a.is_active ? 1 : 0));
 		} else if (isSortByStatusInactive) {
-			lsDeviceDisplay.sort((a, b) =>
-				a.is_active === 0 ? -1 : a.is_active === 1 ? 1 : 0
-			);
+			lsDeviceDisplay.sort((a, b) => (!a.is_active ? -1 : a.is_active ? 1 : 0));
 		}
 
 		if (searchText.length > 0) {
@@ -268,9 +304,38 @@ class Meter extends React.Component {
 			});
 		}
 
-		lsDeviceDisplay = lsDeviceDisplay.filter((device, _) =>
-			lsSelectedBuilding.includes(device.building)
+		lsDeviceDisplay = lsDeviceDisplay.filter(
+			(device, _) =>
+				lsSelectedBuilding.includes(device.building) &&
+				(device.system === "Main" || device.system === "Air Conditioner")
 		);
+
+		let latestTime = new Date(0);
+		let kw_building = {};
+		let kwTotal = 0;
+		for (let log of lsLog) {
+			let datetime = new Date(log.data_datetime);
+			if (datetime.getTime() > latestTime.getTime()) latestTime = datetime;
+
+			if (log.system === "Main" && log.floor === null) {
+				let building = log.building;
+				let kw = log.kw_total === null ? 0 : log.kw_total;
+
+				if (!kw_building[building]) kw_building[building] = 0;
+				kw_building[building] += kw;
+
+				kwTotal += kw;
+			}
+		}
+
+		lsLog.sort((a, b) => a.floor - b.floor);
+
+		let modalDevice = lsDeviceDisplay.find(
+			(device) => device.id === modalDeviceID
+		);
+		let modalLog = lsLog.find((log) => log.device_id === modalDeviceID);
+
+		console.log(lsLog, lsDeviceDisplay);
 
 		return (
 			<div id="container-meter">
@@ -460,9 +525,7 @@ class Meter extends React.Component {
 											<td>{device.system}</td>
 											<td>
 												<span
-													className={
-														device.is_active === 1 ? "green-dot" : "red-dot"
-													}
+													className={device.is_active ? "green-dot" : "red-dot"}
 												></span>
 											</td>
 											<td>
@@ -513,14 +576,564 @@ class Meter extends React.Component {
 								))}
 							</div>
 						</Col>
-						<Col sm={10}>
-							<Row className="row-title" style={{ textTransform: "none" }}>
-								Time
-							</Row>
-							<Row className="row-title">NIDA</Row>
+						<Col sm={10} className="col-right">
+							{lsSelectedBuilding.length === lsBuilding.length ? (
+								<>
+									<Row className="row-title" style={{ textTransform: "none" }}>
+										time{" "}
+										<span className="latest-time">
+											{latestTime.toTimeString().split(" ")[0].substring(0, 5)}
+										</span>
+									</Row>
+									<Row className="row-title">
+										NIDA{" "}
+										<span className="kw-total">
+											{parseFloat(kwTotal).toFixed(2) + " kW"}
+										</span>
+									</Row>
+									<div className="meter-buildings">
+										{lsBuilding.map((bld) => (
+											<div className="meter-building">
+												<div className="meter">
+													<img src={window.location.origin + "/meter.png"} />
+												</div>
+												<div className="info">
+													<div
+														className="label"
+														style={{ backgroundColor: bld.color_code }}
+														onClick={() => this.onClickBuilding(bld.label)}
+													>
+														{bld.label}
+													</div>
+													<div className="kw">
+														{kw_building[bld.label] === undefined
+															? "N/A"
+															: parseFloat(kw_building[bld.label]).toFixed(2) +
+															  " kW"}
+													</div>
+												</div>
+											</div>
+										))}
+									</div>
+								</>
+							) : (
+								<>
+									<div className="row-meter-main">
+										{lsLog.map((log) => (
+											<>
+												{lsDeviceDisplay.find(
+													(device) => device.id === log.device_id
+												) === undefined ||
+												log.system !== "Main" ||
+												log.floor !== null ? (
+													<></>
+												) : (
+													<div
+														className="meter-main"
+														onClick={() => this.toggleModalOpen(log.device_id)}
+													>
+														<div className="meter">
+															<img
+																src={window.location.origin + "/meter.png"}
+															/>
+														</div>
+
+														<div className="info">
+															<div className="label">{log.device_id}</div>
+															<div className="kw">({log.kw_total + " kW"})</div>
+														</div>
+														<div className="status">
+															<div
+																className={
+																	lsDeviceDisplay.filter(
+																		(device) => device.id === log.device_id
+																	)[0]
+																		? lsDeviceDisplay.filter(
+																				(device) => device.id === log.device_id
+																		  )[0].is_active
+																			? "green-dot"
+																			: "red-dot"
+																		: "red-dot"
+																}
+															></div>
+														</div>
+													</div>
+												)}
+											</>
+										))}
+									</div>
+
+									<div className="container-table">
+										<table className="table-ac">
+											<thead>
+												<tr>
+													<th>Air Handling Unit</th>
+												</tr>
+											</thead>
+											<div className="tbody">
+												<tbody>
+													{lsLog.map((log) => (
+														<>
+															{lsDeviceDisplay.find(
+																(device) => device.id === log.device_id
+															) === undefined ||
+															log.system !== "Air Conditioner" ||
+															log.floor === null ? (
+																<></>
+															) : (
+																<tr key={log.device_id}>
+																	<td>
+																		<div
+																			className="meter-system"
+																			onClick={() =>
+																				this.toggleModalOpen(log.device_id)
+																			}
+																		>
+																			<div className="meter">
+																				<img
+																					src={
+																						window.location.origin +
+																						"/meter.png"
+																					}
+																				/>
+																			</div>
+
+																			<div className="info">
+																				<div className="label-top">
+																					{log.device_id}
+																				</div>
+																				<div className="label-bottom">
+																					(
+																					{log.kw_total === null
+																						? "N/A"
+																						: parseFloat(log.kw_total).toFixed(
+																								2
+																						  ) + " kW"}
+																					){" - Floor "}
+																					{log.floor === null
+																						? "N/A"
+																						: log.floor < 0
+																						? log.floor
+																								.toString()
+																								.replace("-", "B")
+																						: log.floor}
+																				</div>
+																			</div>
+
+																			<div className="status">
+																				<div
+																					className={
+																						lsDeviceDisplay.filter(
+																							(device) =>
+																								device.id === log.device_id
+																						)[0]
+																							? lsDeviceDisplay.filter(
+																									(device) =>
+																										device.id === log.device_id
+																							  )[0].is_active
+																								? "green-dot"
+																								: "red-dot"
+																							: "red-dot"
+																					}
+																				></div>
+																			</div>
+																		</div>
+																	</td>
+																</tr>
+															)}
+														</>
+													))}
+												</tbody>
+											</div>
+										</table>
+
+										<table className="table-others">
+											<thead>
+												<tr>
+													<th>Others</th>
+												</tr>
+											</thead>
+											<div className="tbody">
+												<tbody>
+													{lsLog.map((log) => (
+														<>
+															{lsDeviceDisplay.find(
+																(device) => device.id === log.device_id
+															) === undefined ||
+															log.system !== "Main" ||
+															log.floor === null ? (
+																<></>
+															) : (
+																<tr key={log.device_id}>
+																	<td>
+																		<div
+																			className="meter-system"
+																			onClick={() =>
+																				this.toggleModalOpen(log.device_id)
+																			}
+																		>
+																			<div className="meter">
+																				<img
+																					src={
+																						window.location.origin +
+																						"/meter.png"
+																					}
+																				/>
+																			</div>
+
+																			<div className="info">
+																				<div className="label-top">
+																					{log.device_id}
+																				</div>
+																				<div className="label-bottom">
+																					(
+																					{log.kw_total === null
+																						? "N/A"
+																						: parseFloat(log.kw_total).toFixed(
+																								2
+																						  ) + " kW"}
+																					){" - Floor "}
+																					{log.floor === null
+																						? "N/A"
+																						: log.floor < 0
+																						? log.floor
+																								.toString()
+																								.replace("-", "B")
+																						: log.floor}
+																				</div>
+																			</div>
+
+																			<div className="status">
+																				<div
+																					className={
+																						lsDeviceDisplay.filter(
+																							(device) =>
+																								device.id === log.device_id
+																						)[0]
+																							? lsDeviceDisplay.filter(
+																									(device) =>
+																										device.id === log.device_id
+																							  )[0].is_active
+																								? "green-dot"
+																								: "red-dot"
+																							: "red-dot"
+																					}
+																				></div>
+																			</div>
+																		</div>
+																	</td>
+																</tr>
+															)}
+														</>
+													))}
+												</tbody>
+											</div>
+										</table>
+									</div>
+								</>
+							)}
 						</Col>
 					</Row>
 				)}
+				<Modal
+					size="lg"
+					isOpen={isModalOpen}
+					toggle={() => this.toggleModalOpen("")}
+					className="modal-meter"
+				>
+					<ModalHeader toggle={() => this.toggleModalOpen("")}>
+						<div className="modal-title-content">
+							<div className="status">
+								{modalDevice ? (
+									modalDevice.is_active ? (
+										<div className="green-dot" />
+									) : (
+										<div className="red-dot" />
+									)
+								) : (
+									<div className="red-dot" />
+								)}
+							</div>
+							{modalDeviceID + " "}
+							<span className="brand-model">
+								{modalDevice
+									? modalDevice.brand_model !== null
+										? modalDevice.brand_model
+										: "N/A"
+									: "N/A"}
+							</span>
+						</div>
+					</ModalHeader>
+					<ModalBody>
+						<div className="body-row-1">
+							<div className="meter-img">
+								<img src={window.location.origin + "/meter.png"} />
+							</div>
+							<table>
+								<tr>
+									<td>Energy (kWh)</td>
+									<td>
+										{modalLog
+											? modalLog.kwh !== null
+												? modalLog.kwh
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+								<tr>
+									<td>Total Power (kW)</td>
+									<td>
+										{modalLog
+											? modalLog.kw_total !== null
+												? modalLog.kw_total
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+								<tr>
+									<td>Total Apparent (kVA)</td>
+									<td>
+										{modalLog
+											? modalLog.kva_total !== null
+												? modalLog.kva_total
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+								<tr>
+									<td>Power Factor: PF</td>
+									<td>
+										{modalLog
+											? modalLog.pf !== null
+												? modalLog.pf
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div className="body-row-2">
+							<table>
+								<tr>
+									<td>Phase Voltage L1: V1 (V)</td>
+									<td>
+										{modalLog
+											? modalLog.voltage_l1_N !== null
+												? modalLog.voltage_l1_N
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Current L1: I1 (A)</td>
+									<td>
+										{modalLog
+											? modalLog.current_l1 !== null
+												? modalLog.current_l1
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Phase Voltage L2: V2 (V)</td>
+									<td>
+										{modalLog
+											? modalLog.voltage_l2_N !== null
+												? modalLog.voltage_l2_N
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Current L2: I2 (A)</td>
+									<td>
+										{modalLog
+											? modalLog.current_l2 !== null
+												? modalLog.current_l2
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Phase Voltage L3: V3 (V)</td>
+									<td>
+										{modalLog
+											? modalLog.voltage_l3_N !== null
+												? modalLog.voltage_l3_N
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Current L3: I3 (A)</td>
+									<td>
+										{modalLog
+											? modalLog.current_l3 !== null
+												? modalLog.current_l3
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td></td>
+									<td></td>
+									<td>Current N: In (A)</td>
+									<td>
+										{modalLog
+											? modalLog.current_l3 !== null
+												? modalLog.current_l3
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Line Voltage L1-L2 (V)</td>
+									<td>
+										{modalLog
+											? modalLog.voltage_l1_l2 !== null
+												? modalLog.voltage_l1_l2
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td></td>
+									<td></td>
+								</tr>
+
+								<tr>
+									<td>Line Voltage L2-L3 (V)</td>
+									<td>
+										{modalLog
+											? modalLog.voltage_l2_l3 !== null
+												? modalLog.voltage_l2_l3
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Power L1 (kW)</td>
+									<td>
+										{modalLog
+											? modalLog.kw_l1 !== null
+												? modalLog.kw_l1
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Line Voltage L3-L1 (V)</td>
+									<td>
+										{modalLog
+											? modalLog.voltage_l3_l1 !== null
+												? modalLog.voltage_l3_l1
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Power L2 (kW)</td>
+									<td>
+										{modalLog
+											? modalLog.kw_l2 !== null
+												? modalLog.kw_l2
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td></td>
+									<td></td>
+									<td>Power L3 (kW)</td>
+									<td>
+										{modalLog
+											? modalLog.kw_l3 !== null
+												? modalLog.kw_l3
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Reactive L1 (KVar)</td>
+									<td>
+										{modalLog
+											? modalLog.kvar_l1 !== null
+												? modalLog.kvar_l1
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td></td>
+									<td></td>
+								</tr>
+
+								<tr>
+									<td>Reactive L2 (KVar)</td>
+									<td>
+										{modalLog
+											? modalLog.kvar_l2 !== null
+												? modalLog.kvar_l2
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Apparent L1 (kVA)</td>
+									<td>
+										{modalLog
+											? modalLog.kva_l1 !== null
+												? modalLog.kva_l1
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Reactive L3 (KVar)</td>
+									<td>
+										{modalLog
+											? modalLog.kvar_l3 !== null
+												? modalLog.kvar_l3
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td>Apparent L2 (kVA)</td>
+									<td>
+										{modalLog
+											? modalLog.kva_l2 !== null
+												? modalLog.kva_l2
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td></td>
+									<td></td>
+									<td>Apparent L3 (kVA)</td>
+									<td>
+										{modalLog
+											? modalLog.kva_l3 !== null
+												? modalLog.kva_l3
+												: "N/A"
+											: "N/A"}
+									</td>
+								</tr>
+
+								<tr>
+									<td>Frequency (Hz)</td>
+									<td>
+										{modalLog
+											? modalLog.hz !== null
+												? modalLog.hz
+												: "N/A"
+											: "N/A"}
+									</td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+						</div>
+					</ModalBody>
+					<ModalFooter>
+						<div className="footer-row-1">
+							Select date to export <RiFileExcel2Fill />
+						</div>
+					</ModalFooter>
+				</Modal>
 			</div>
 		);
 	}

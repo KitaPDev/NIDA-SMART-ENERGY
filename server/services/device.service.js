@@ -1,9 +1,12 @@
 const knex = require("../database").knex;
+const dateFormatter = require("../utils/dateFormatter");
 
-async function getAllDevice(from, to) {
+async function getAllDevice() {
+	let data = [];
+
 	let result = await knex("device")
-		.join("building", "device.building_id", "=", "building.id")
-		.join("system", "device.system_id", "=", "system.id")
+		.leftJoin("building", "device.building_id", "=", "building.id")
+		.leftJoin("system", "device.system_id", "=", "system.id")
 		.select(
 			"device.id",
 			"building.label as building",
@@ -12,11 +15,47 @@ async function getAllDevice(from, to) {
 			"device.location",
 			"device.site",
 			"system.label as system",
-			"device.is_active",
 			"device.activated_timestamp"
 		);
 
-	return result;
+	data = result.slice();
+
+	result = await knex("log_power_meter")
+		.join(
+			"log_iaq",
+			"log_iaq.data_datetime",
+			"=",
+			"log_power_meter.data_datetime"
+		)
+		.join(
+			"log_solar",
+			"log_solar.data_datetime",
+			"=",
+			"log_power_meter.data_datetime"
+		)
+		.distinct(
+			"log_power_meter.device_id as meter_id",
+			"log_iaq.device_id as iaq_id",
+			"log_solar.device_id as solar_id"
+		)
+		.where(
+			"log_power_meter.data_datetime",
+			"<",
+			dateFormatter.yyyymmddhhmmss(new Date(new Date().getTime() - 900000))
+		);
+
+	data.forEach(function (d) {
+		d.is_active = false;
+
+		for (let row of result) {
+			if (Object.values(row).includes(d.id)) {
+				d.is_active = true;
+				break;
+			}
+		}
+	});
+
+	return data;
 }
 
 async function insertDevice(
@@ -126,6 +165,34 @@ async function deleteDevice(deviceID) {
 	await knex("device").where("id", deviceID).delete();
 }
 
+async function getAllDeviceLatestLog() {
+	let now = new Date();
+	let result = await knex.raw(
+		`SELECT lpm.*, device.brand_model, device.location, device.site, 
+		device.activated_timestamp, device.floor, building.label as building, 
+		system.label as system 
+		FROM log_power_meter lpm
+		INNER JOIN device ON device.id = lpm.device_id
+		INNER JOIN system ON system.id = device.system_id
+		INNER JOIN building ON building.id = device.building_id
+		WHERE lpm.data_datetime >= '${dateFormatter.yyyymmddhhmmss(
+			new Date(now.getTime() - 1800000)
+		)}'
+		ORDER BY lpm.data_datetime DESC;`
+	);
+
+	let data = [];
+	let lsPrevDevice = [];
+	for (let row of result[0]) {
+		if (lsPrevDevice.includes(row.device_id)) continue;
+
+		data.push(row);
+		lsPrevDevice.push(row.device_id);
+	}
+
+	return data;
+}
+
 module.exports = {
 	getAllDevice,
 	insertDevice,
@@ -134,4 +201,5 @@ module.exports = {
 	getAllPowerMeterDeviceID,
 	getAllIaqDeviceID,
 	deleteDevice,
+	getAllDeviceLatestLog,
 };

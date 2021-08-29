@@ -20,4 +20,8 @@ router.post("/delete", authenticateJWT, async function (req, res) {
 	deviceController.deleteDevice(req, res);
 });
 
+router.get("/all/latest", authenticateJWT, async function (req, res) {
+	deviceController.getAllDeviceLatestLog(req, res);
+});
+
 module.exports = router;

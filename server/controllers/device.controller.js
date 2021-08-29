@@ -7,6 +7,7 @@ async function getAllDevice(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(result);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -38,6 +39,7 @@ async function newDevice(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(result);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -67,6 +69,7 @@ async function editDevice(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(result);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -80,6 +83,18 @@ async function deleteDevice(req, res) {
 
 		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function getAllDeviceLatestLog(req, res) {
+	try {
+		let result = await deviceService.getAllDeviceLatestLog();
+
+		return res.status(httpStatusCodes.OK).send(result);
+	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -89,4 +104,5 @@ module.exports = {
 	newDevice,
 	editDevice,
 	deleteDevice,
+	getAllDeviceLatestLog,
 };
