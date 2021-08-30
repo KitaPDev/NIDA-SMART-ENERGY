@@ -44,7 +44,7 @@ async function getBillCompare(req, res) {
 		let lsTarget = data.lsTarget;
 		let today = new Date();
 
-		for (let month = 1; month <= 12; month++) {
+		for (let month = 0; month <= 11; month++) {
 			bill_month[month] = {};
 
 			bill_year_month[month] = {};
@@ -105,10 +105,10 @@ async function getBillCompare(req, res) {
 		}
 
 		// Calculate data from bill
-		let month = today.getMonth() + 1;
+		let month = today.getMonth();
 		let year = today.getFullYear();
 		for (let i = 0; i < 12; i++) {
-			if (month < 1) {
+			if (month < 0) {
 				month += 12;
 				year--;
 			}

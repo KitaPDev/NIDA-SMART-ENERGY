@@ -45,17 +45,17 @@ async function getBillCompareData(buildingID) {
 	data.lsTarget = [];
 	data.lsLog_year_month = {};
 
-	let month = today.getMonth() + 1;
+	let month = today.getMonth();
 	let year = today.getFullYear();
 	for (let i = 0; i < 12; i++) {
-		if (month < 1) {
+		if (month < 0) {
 			month += 12;
 			year--;
 		}
 
 		data.lsLog_year_month[month] = {};
 
-		let firstDay = new Date(year, month - 1, 1, 0, 0);
+		let firstDay = new Date(year, month, 1, 0, 0);
 		let lastDay = new Date(year, month, 0, 24);
 
 		// For current month when now is not last day of month.

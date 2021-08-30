@@ -193,6 +193,33 @@ async function getAllDeviceLatestLog() {
 	return data;
 }
 
+async function getDeviceExportData(deviceID, dateFrom, dateTo, interval) {
+	interval = interval.split(" ");
+	let amount = interval[0];
+	let unit = interval[1];
+
+	unit === "min"
+		? (unit = "MINUTE")
+		: unit === "hour"
+		? (unit = "HOUR")
+		: unit === "day"
+		? (unit = "DAY")
+		: "MINUTE";
+
+	let result = await knex.raw(
+		`SELECT * FROM log_power_meter
+		WHERE device_id = '${deviceID}'
+		AND ${unit}(data_datetime) % ${amount} = 0
+		${unit !== "MINUTE" ? `AND MINUTE(data_datetime) = 0` : ""}
+		${unit === "DAY" ? `AND HOUR(data_datetime) = 0` : ""}
+		AND data_datetime 
+			BETWEEN '${dateFormatter.yyyymmddhhmmss(new Date(dateFrom))}' 
+			AND '${dateFormatter.yyyymmddhhmmss(new Date(dateTo))}';`
+	);
+
+	return result[0];
+}
+
 module.exports = {
 	getAllDevice,
 	insertDevice,
@@ -202,4 +229,5 @@ module.exports = {
 	getAllIaqDeviceID,
 	deleteDevice,
 	getAllDeviceLatestLog,
+	getDeviceExportData,
 };

@@ -99,10 +99,33 @@ async function getAllDeviceLatestLog(req, res) {
 	}
 }
 
+async function getExportData(req, res) {
+	try {
+		let body = req.body;
+		let dateFrom = body.date_from;
+		let dateTo = body.date_to;
+		let interval = body.interval;
+		let deviceID = body.device_id;
+
+		let result = await deviceService.getDeviceExportData(
+			deviceID,
+			dateFrom,
+			dateTo,
+			interval
+		);
+
+		return res.status(httpStatusCodes.OK).send(result);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getAllDevice,
 	newDevice,
 	editDevice,
 	deleteDevice,
 	getAllDeviceLatestLog,
+	getExportData,
 };

@@ -44,6 +44,7 @@ class MixedChartBillCompare extends React.Component {
 			compareTo: "Target",
 			billData_month: {},
 			compareData: [],
+			lsBuilding: [],
 			// Chart details
 			data: {
 				labels: labels,
@@ -111,6 +112,8 @@ class MixedChartBillCompare extends React.Component {
 	buildChart = () => {
 		let { data, options, billData_month, compareTo } = this.state;
 
+		if (Object.keys(billData_month).length === 0) return;
+
 		let datasets = [
 			{
 				label: "Latest",
@@ -132,9 +135,9 @@ class MixedChartBillCompare extends React.Component {
 		];
 
 		let yMax = 0;
-		let month = new Date().getMonth() + 1;
+		let month = new Date().getMonth();
 		for (let i = 0; i < 12; i++) {
-			if (month < 1) month += 12;
+			if (month < 0) month += 12;
 
 			let dataMonth = billData_month[month];
 
@@ -188,7 +191,12 @@ class MixedChartBillCompare extends React.Component {
 				this.props.lsBuilding.length === lsBuilding.length) &&
 			this.props.compareTo === compareTo
 		) {
-			return;
+			this.setState(
+				{
+					lsBuilding: lsBuilding,
+				},
+				() => this.getBillDataMonth()
+			);
 		} else if (
 			lsBuilding !== undefined &&
 			this.props.lsBuilding.length !== nextProps.lsBuilding.length

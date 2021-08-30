@@ -225,7 +225,7 @@ class Home extends React.Component {
 		try {
 			let today = new Date();
 			let payload = {
-				month: today.getMonth() + 1,
+				month: today.getMonth(),
 				year: today.getFullYear(),
 			};
 

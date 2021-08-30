@@ -159,7 +159,7 @@ class Building extends React.Component {
 
 				kwh_system_floor[floor][system] += kwh;
 
-				let month = datetime.getMonth() + 1;
+				let month = datetime.getMonth();
 				if (kwh_month[month] === undefined) kwh_month[month] = 0;
 				kwh_month[month] += kwh;
 			}
@@ -177,7 +177,7 @@ class Building extends React.Component {
 				kwh_system_floor[floor][system] -= kwh;
 
 				let datetime = new Date(data.data_datetime);
-				let month = datetime.getMonth() + 1;
+				let month = datetime.getMonth();
 				kwh_month[month] -= kwh;
 			}
 
@@ -202,9 +202,9 @@ class Building extends React.Component {
 			}
 
 			let payload = {
-				month_from: dateFrom.getMonth() + 1,
+				month_from: dateFrom.getMonth(),
 				year_from: dateFrom.getFullYear(),
-				month_to: dateTo.getMonth() + 1,
+				month_to: dateTo.getMonth(),
 				year_to: dateTo.getFullYear(),
 				building_id: lsBuilding.find(
 					(building) => building.label === currentBuildingLabel
@@ -553,6 +553,7 @@ class Building extends React.Component {
 												placeholder="datetime placeholder"
 												value={dateFormatter.toDateTimeString(dateFrom)}
 												onChange={this.handleInputDateChange}
+												max={dateFormatter.toDateTimeString(dateTo)}
 											/>
 										</Col>
 										<Label for="dateTo" sm={1} className="label-datepicker">
@@ -567,6 +568,7 @@ class Building extends React.Component {
 												placeholder="datetime placeholder"
 												value={dateFormatter.toDateTimeString(dateTo)}
 												onChange={this.handleInputDateChange}
+												min={dateFormatter.toDateTimeString(dateFrom)}
 											/>
 										</Col>
 										<Col sm={2} style={{ textAlign: "center" }}>

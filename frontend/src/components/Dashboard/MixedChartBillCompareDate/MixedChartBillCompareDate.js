@@ -159,7 +159,7 @@ class MixedChartBillCompareDate extends React.Component {
 					if (compareTo === "Target") {
 						let target = lsTarget.find(
 							(target) =>
-								target.month === month + 1 &&
+								target.month === month &&
 								target.year === year &&
 								target.building === building
 						);

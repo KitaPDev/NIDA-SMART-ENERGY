@@ -67,7 +67,7 @@ async function updateDataPower() {
 		let lsDeviceID = await deviceService.getAllPowerMeterDeviceID();
 
 		let lsLogPowerMeter = [];
-		for (let [key, value] of Object.entries(data)) {
+		for (let [_, value] of Object.entries(data)) {
 			if (!lsDeviceID.includes(value["Device"])) continue;
 
 			let logPowerMeter = {};

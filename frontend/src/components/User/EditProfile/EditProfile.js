@@ -136,7 +136,7 @@ class EditProfile extends React.Component {
 			date = new Date(date.getTime() - offset * 60 * 1000);
 
 			let dd = date.getDate();
-			let mm = date.getMonth() + 1;
+			let mm = date.getMonth();
 			let yyyy = date.getFullYear();
 
 			if (dd < 10) {

@@ -220,7 +220,7 @@ class Dashboard extends React.Component {
 		try {
 			let today = new Date();
 			let payload = {
-				month: today.getMonth() + 1,
+				month: today.getMonth(),
 				year: today.getFullYear(),
 			};
 
@@ -513,6 +513,7 @@ class Dashboard extends React.Component {
 									placeholder="datetime placeholder"
 									value={dateFormatter.toDateTimeString(dateFrom)}
 									onChange={this.handleInputDateChange}
+									max={dateFormatter.toDateTimeString(dateTo)}
 								/>
 							</Col>
 						</Row>
@@ -529,6 +530,7 @@ class Dashboard extends React.Component {
 									placeholder="datetime placeholder"
 									value={dateFormatter.toDateTimeString(dateTo)}
 									onChange={this.handleInputDateChange}
+									min={dateFormatter.toDateTimeString(dateFrom)}
 								/>
 							</Col>
 						</Row>

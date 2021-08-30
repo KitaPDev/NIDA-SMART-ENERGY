@@ -24,4 +24,8 @@ router.post("/building", authenticateJWT, async function (req, res) {
 	targetController.getBuildingTargetRange(req, res);
 });
 
+router.post("/presets", authenticateJWT, async function (req, res) {
+	targetController.getTargetPresets(req, res);
+});
+
 module.exports = router;

@@ -447,7 +447,7 @@
 }
 
 .modal-meter .modal-content {
-	max-height: 80vh;
+	transform: translate(0, -5%);
 }
 
 .modal-meter .modal-title {
@@ -487,6 +487,7 @@
 
 .modal-meter .body-row-1 img {
 	width: 80%;
+	filter: brightness(2.5);
 }
 
 .modal-meter .body-row-1 table {
@@ -522,4 +523,33 @@
 
 .modal-meter .modal-footer {
 	justify-content: flex-start;
+	align-items: center;
+}
+
+.modal-meter .footer-row-1 span {
+	font-size: 125%;
+	font-weight: 600;
+	background-color: #f4f5f9;
+	padding: 0.5rem 1rem 0.5rem 1rem;
+	margin-right: 0.5rem;
+	border-radius: 0.5rem;
+}
+
+.modal-meter form {
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.modal-meter label {
+	margin-right: 1rem;
+	margin-left: 1.5rem;
+}
+
+.modal-meter .col-input-interval {
+	width: 100%;
+}
+
+.modal-meter #interval {
+	text-align-last: center;
 }

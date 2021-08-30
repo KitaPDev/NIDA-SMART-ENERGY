@@ -28,7 +28,9 @@ async function insertTarget(
 	month,
 	year,
 	electricityBill,
-	amountPeople
+	amountPeople,
+	tariff,
+	energyUsage
 ) {
 	await knex(knex.ref("target")).insert({
 		building_id: buildingID,
@@ -36,6 +38,8 @@ async function insertTarget(
 		year: year,
 		electricity_bill: electricityBill,
 		amount_people: amountPeople,
+		tariff: tariff,
+		energyUsage: energyUsage,
 	});
 }
 
@@ -45,7 +49,8 @@ async function updateTarget(
 	year,
 	electricityBill,
 	amountPeople,
-	tariff
+	tariff,
+	energyUsage
 ) {
 	if (electricityBill !== undefined && amountPeople !== undefined) {
 		await knex(knex.ref("target"))
@@ -58,6 +63,7 @@ async function updateTarget(
 				electricity_bill: electricityBill,
 				amount_people: amountPeople,
 				tariff: tariff,
+				energyUsage: energyUsage,
 			});
 	}
 }
@@ -95,7 +101,8 @@ async function getBuildingTargetRange(
 			"building.label as building",
 			"target.electricity_bill",
 			"target.amount_people",
-			"target.tariff"
+			"target.tariff",
+			"target.energy_usage"
 		)
 		.where("building_id", "=", buildingID)
 		.andWhere("year", ">=", yearFrom)
@@ -106,6 +113,33 @@ async function getBuildingTargetRange(
 	return result;
 }
 
+async function getTargetPresetData(buildingID, month, year) {
+	let data = {
+		lsTarget: [],
+		lsLog: [],
+	};
+
+	data.lsTarget = await knex("target")
+		.join("building", "target.building_id", "=", "building.id")
+		.select(
+			"target.id",
+			"target.month",
+			"target.year",
+			"building.label as building",
+			"target.electricity_bill",
+			"target.amount_people",
+			"target.tariff",
+			"target.energy_usage"
+		)
+		.where("building_id", "=", buildingID)
+		.andWhere("month", "=", month)
+		.andWhereBetween("year", [year, year - 3]);
+
+	data.lsLog = await knex("log_power_meter").join();
+
+	return data;
+}
+
 module.exports = {
 	getBuildingPeople,
 	targetExists,
@@ -113,4 +147,5 @@ module.exports = {
 	updateTarget,
 	getAllTargetByMonthYear,
 	getBuildingTargetRange,
+	getTargetPresetData,
 };

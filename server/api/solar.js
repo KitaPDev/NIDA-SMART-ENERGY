@@ -64,7 +64,7 @@ async function updateDataSolar() {
 		let data = resp.data.data;
 
 		let lsLogSolar = [];
-		for (let [key, value] of Object.entries(data)) {
+		for (let [_, value] of Object.entries(data)) {
 			let logSolar = {};
 
 			logSolar["data_datetime"] = value["DataDateTime"];

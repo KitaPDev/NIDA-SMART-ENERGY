@@ -132,9 +132,9 @@ class MixedChartBillCompare extends React.Component {
 		];
 
 		let yMax = 0;
-		let month = new Date().getMonth() + 1;
+		let month = new Date().getMonth();
 		for (let i = 0; i < 12; i++) {
-			if (month < 1) month += 12;
+			if (month < 0) month += 12;
 
 			let dataMonth = billData_month[month];
 

@@ -208,6 +208,24 @@ function yyyymmddhhmmss_noOffset(date) {
 	}
 }
 
+function yyyymmdd_noOffset(date) {
+	if (date instanceof Date) {
+		let dd = date.getDate();
+		let mm = date.getMonth() + 1;
+		let yyyy = date.getFullYear();
+
+		if (dd < 10) {
+			dd = "0" + dd;
+		}
+
+		if (mm < 10) {
+			mm = "0" + mm;
+		}
+
+		return yyyy + "-" + mm + "-" + dd;
+	}
+}
+
 const dateFormatter = {
 	ddmmyyyy,
 	ddmmyyyyhhmm,
@@ -217,6 +235,7 @@ const dateFormatter = {
 	ddmmyyyyhhmm_noOffset,
 	ddmmmyyyyhhmm_noOffset,
 	yyyymmddhhmmss_noOffset,
+	yyyymmdd_noOffset,
 };
 
 export default dateFormatter;

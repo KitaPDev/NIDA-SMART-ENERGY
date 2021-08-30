@@ -14,21 +14,11 @@
 	border: 1px solid #000000;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	padding-left: 0;
 	padding-right: 0;
-}
-
-.col-label {
-	color: black;
-	width: fit-content !important;
 }
 
 .fg-config-1 {
 	margin-top: 0 !important;
-}
-
-.fg-config-building {
-	margin-left: auto !important;
 }
 
 .form-target {

@@ -212,7 +212,7 @@ async function getBillCompare(req, res) {
 				let target = lsTarget.find((target) => {
 					if (target !== undefined) {
 						return (
-							target.month === date.getMonth() + 1 &&
+							target.month === date.getMonth() &&
 							target.year === date.getFullYear() &&
 							target.building === building
 						);

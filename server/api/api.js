@@ -1,9 +1,5 @@
 const axios = require("axios");
-const got = require("got");
 const dotenv = require("dotenv");
-const FormData = require("form-data");
-const knex = require("../database").knex;
-const dateFormatter = require("../utils/dateFormatter");
 
 const powermeterService = require("./powermeter");
 const iaqService = require("./iaq");

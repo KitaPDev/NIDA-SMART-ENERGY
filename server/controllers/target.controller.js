@@ -10,6 +10,7 @@ async function inputTarget(req, res) {
 		let electricityBill = body.electricity_bill;
 		let amountPeople = body.amount_people;
 		let tariff = body.tariff;
+		let energyUsage = body.energy_usage;
 
 		if (!month && !year && !buildingID) {
 			return res
@@ -24,7 +25,8 @@ async function inputTarget(req, res) {
 				year,
 				electricityBill,
 				amountPeople,
-				tariff
+				tariff,
+				energyUsage
 			);
 		} else {
 			await targetService.insertTarget(
@@ -33,7 +35,8 @@ async function inputTarget(req, res) {
 				year,
 				electricityBill,
 				amountPeople,
-				tariff
+				tariff,
+				energyUsage
 			);
 		}
 
@@ -99,9 +102,43 @@ async function getBuildingTargetRange(req, res) {
 	}
 }
 
+async function getTargetPresets(req, res) {
+	try {
+		let body = req.body;
+		let month = body.month;
+		let year = body.year;
+		let buildingID = body.building_id;
+
+		let data = await targetService.getTargetPresetData(buildingID, month, year);
+
+		let presets = {
+			lastMonthTarget_bill: 0,
+			lastMonthActual_bill: 0,
+			lastYearTarget_bill: 0,
+			lastYearActual_bill: 0,
+			monthAverage_bill: 0,
+			yearAverage_bill: 0,
+			lastMonthTarget_usage: 0,
+			lastMonthActual_usage: 0,
+			lastYearTarget_usage: 0,
+			lastYearActual_usage: 0,
+			monthAverage_usage: 0,
+			yearAverage_usage: 0,
+		};
+
+		for (let row of result) {
+		}
+
+		return res.status(httpStatusCodes.OK).send(presets);
+	} catch (err) {
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	inputTarget,
 	getAllTargetByMonthYear,
 	getAllBuildingTariffByMonthYear,
 	getBuildingTargetRange,
+	getTargetPresets,
 };

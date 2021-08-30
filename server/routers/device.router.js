@@ -24,4 +24,8 @@ router.get("/all/latest", authenticateJWT, async function (req, res) {
 	deviceController.getAllDeviceLatestLog(req, res);
 });
 
+router.post("/export", authenticateJWT, async function (req, res) {
+	deviceController.getExportData(req, res);
+});
+
 module.exports = router;

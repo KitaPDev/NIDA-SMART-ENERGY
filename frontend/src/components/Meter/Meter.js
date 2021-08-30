@@ -10,6 +10,7 @@ import {
 	Form,
 	FormGroup,
 	Input,
+	Label,
 	Table,
 	Modal,
 	ModalHeader,
@@ -28,6 +29,10 @@ import csv from "../../utils/csv";
 class Meter extends React.Component {
 	constructor(props) {
 		super(props);
+
+		let dateFrom = new Date(new Date().setHours(0, 0, 0, 0));
+		let dateTo = new Date();
+
 		this.state = {
 			isMapMode: true,
 			isDiagramMode: false,
@@ -41,6 +46,9 @@ class Meter extends React.Component {
 			isOverall: true,
 			isModalOpen: false,
 			modalDeviceID: "",
+			dateFrom: dateFrom,
+			dateTo: dateTo,
+			interval: "15 min",
 			buildingPath: window.location.origin + "/building/", // For Building Images
 			propsPath: window.location.origin + "/props/", // For Props Images
 		};
@@ -50,6 +58,7 @@ class Meter extends React.Component {
 		this.setBuilding = this.setBuilding.bind(this);
 
 		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleInputDateChange = this.handleInputDateChange.bind(this);
 		this.onClickBuilding = this.onClickBuilding.bind(this);
 		this.onDoubleClickBuilding = this.onDoubleClickBuilding.bind(this);
 		this.onClickAllBuilding = this.onClickAllBuilding.bind(this);
@@ -60,8 +69,10 @@ class Meter extends React.Component {
 		this.getAllDevice = this.getAllDevice.bind(this);
 		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getAllDeviceLatestLog = this.getAllDeviceLatestLog.bind(this);
+		this.getExportData = this.getExportData.bind(this);
 
 		this.exportTable = this.exportTable.bind(this);
+		this.exportMeter = this.exportMeter.bind(this);
 	}
 
 	componentDidMount() {
@@ -103,6 +114,10 @@ class Meter extends React.Component {
 
 	handleInputChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
+	}
+
+	handleInputDateChange(e) {
+		this.setState({ [e.target.name]: new Date(e.target.value) });
 	}
 
 	onClickBuilding(building) {
@@ -228,6 +243,34 @@ class Meter extends React.Component {
 		}
 	}
 
+	async getExportData() {
+		let { dateFrom, dateTo, interval, modalDeviceID } = this.state;
+
+		dateFrom.setHours(0);
+		dateFrom.setMinutes(0);
+		dateFrom.setSeconds(0);
+
+		dateTo.setHours(23);
+		dateTo.setMinutes(59);
+		dateTo.setSeconds(59);
+
+		try {
+			let payload = {
+				date_from: dateFrom,
+				date_to: dateTo,
+				interval: interval,
+				device_id: modalDeviceID,
+			};
+
+			let resp = await http.post("/device/export", payload);
+
+			return resp.data;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	exportTable() {
 		let rows = [];
 		let tableRows = document.querySelectorAll("table tr");
@@ -244,6 +287,75 @@ class Meter extends React.Component {
 		}
 
 		csv.exportFile("Meter Table", rows);
+	}
+
+	async exportMeter() {
+		let lsLog = await this.getExportData();
+
+		console.log(lsLog);
+
+		let rows = [[]];
+		rows[0].push(
+			"Datetime",
+			"Energy (kWh)",
+			"Total Power (kW)",
+			"Total Apparent (kVA)",
+			"Power Factor: PF",
+			"Phase Voltage L1: V1 (V)",
+			"Phase Voltage L2: V2 (V)",
+			"Phase Voltage L3: V3 (V)",
+			"Line Voltage L1-L2 (V)",
+			"Line Voltage L2-L3 (V)",
+			"Line Voltage L3-L1 (V)",
+			"Reactive L1 (KVar)",
+			"Reactive L2 (KVar)",
+			"Reactive L3 (KVar)",
+			"Current L1: I1 (A)",
+			"Current L2: I2 (A)",
+			"Current L3: I3 (A)",
+			"Current N: In (A)",
+			"Power L1 (kW)",
+			"Power L2 (kW)",
+			"Power L3 (kW)",
+			"Apparent L1 (kVA)",
+			"Apparent L2 (kVA)",
+			"Apparent L3 (kVA)",
+			"Frequency (Hz)"
+		);
+
+		for (let [idx, log] of lsLog.entries()) {
+			if (rows[idx + 1] === undefined) rows[idx + 1] = [];
+
+			rows[idx + 1].push(
+				dateFormatter.yyyymmddhhmmss_noOffset(new Date(log.data_datetime)),
+				log.kwh,
+				log.kw_total,
+				log.kva_total,
+				log.pf,
+				log.voltage_l1_N,
+				log.voltage_l2_N,
+				log.voltage_l3_N,
+				log.voltage_l1_l2,
+				log.voltage_l2_l3,
+				log.voltage_l3_l1,
+				log.kvar_l1,
+				log.kvar_l2,
+				log.kvar_l3,
+				log.current_l1,
+				log.current_l2,
+				log.current_l3,
+				0,
+				log.kw_l1,
+				log.kw_l2,
+				log.k2_l3,
+				log.kva_l1,
+				log.kva_l2,
+				log.kva_l3,
+				log.hz
+			);
+		}
+
+		csv.exportFile(`${this.state.modalDeviceID}`, rows);
 	}
 
 	render() {
@@ -263,6 +375,9 @@ class Meter extends React.Component {
 			buildingPath,
 			isModalOpen,
 			modalDeviceID,
+			dateTo,
+			dateFrom,
+			interval,
 		} = this.state;
 
 		if (lsSelectedBuilding.length === 0) {
@@ -334,8 +449,6 @@ class Meter extends React.Component {
 			(device) => device.id === modalDeviceID
 		);
 		let modalLog = lsLog.find((log) => log.device_id === modalDeviceID);
-
-		console.log(lsLog, lsDeviceDisplay);
 
 		return (
 			<div id="container-meter">
@@ -449,7 +562,7 @@ class Meter extends React.Component {
 						</div>
 						<Row className="row-input">
 							<Form>
-								<FormGroup row className="fg-period">
+								<FormGroup row>
 									<Col sm={1} className="col-table-heading">
 										General Info
 									</Col>
@@ -870,268 +983,320 @@ class Meter extends React.Component {
 								<img src={window.location.origin + "/meter.png"} />
 							</div>
 							<table>
-								<tr>
-									<td>Energy (kWh)</td>
-									<td>
-										{modalLog
-											? modalLog.kwh !== null
-												? modalLog.kwh
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
-								<tr>
-									<td>Total Power (kW)</td>
-									<td>
-										{modalLog
-											? modalLog.kw_total !== null
-												? modalLog.kw_total
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
-								<tr>
-									<td>Total Apparent (kVA)</td>
-									<td>
-										{modalLog
-											? modalLog.kva_total !== null
-												? modalLog.kva_total
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
-								<tr>
-									<td>Power Factor: PF</td>
-									<td>
-										{modalLog
-											? modalLog.pf !== null
-												? modalLog.pf
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+								<tbody>
+									<tr>
+										<td>Energy (kWh)</td>
+										<td>
+											{modalLog
+												? modalLog.kwh !== null
+													? modalLog.kwh
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
+									<tr>
+										<td>Total Power (kW)</td>
+										<td>
+											{modalLog
+												? modalLog.kw_total !== null
+													? modalLog.kw_total
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
+									<tr>
+										<td>Total Apparent (kVA)</td>
+										<td>
+											{modalLog
+												? modalLog.kva_total !== null
+													? modalLog.kva_total
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
+									<tr>
+										<td>Power Factor: PF</td>
+										<td>
+											{modalLog
+												? modalLog.pf !== null
+													? modalLog.pf
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
+								</tbody>
 							</table>
 						</div>
 
 						<div className="body-row-2">
 							<table>
-								<tr>
-									<td>Phase Voltage L1: V1 (V)</td>
-									<td>
-										{modalLog
-											? modalLog.voltage_l1_N !== null
-												? modalLog.voltage_l1_N
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Current L1: I1 (A)</td>
-									<td>
-										{modalLog
-											? modalLog.current_l1 !== null
-												? modalLog.current_l1
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+								<tbody>
+									<tr>
+										<td>Phase Voltage L1: V1 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l1_N !== null
+													? modalLog.voltage_l1_N
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Current L1: I1 (A)</td>
+										<td>
+											{modalLog
+												? modalLog.current_l1 !== null
+													? modalLog.current_l1
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Phase Voltage L2: V2 (V)</td>
-									<td>
-										{modalLog
-											? modalLog.voltage_l2_N !== null
-												? modalLog.voltage_l2_N
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Current L2: I2 (A)</td>
-									<td>
-										{modalLog
-											? modalLog.current_l2 !== null
-												? modalLog.current_l2
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td>Phase Voltage L2: V2 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l2_N !== null
+													? modalLog.voltage_l2_N
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Current L2: I2 (A)</td>
+										<td>
+											{modalLog
+												? modalLog.current_l2 !== null
+													? modalLog.current_l2
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Phase Voltage L3: V3 (V)</td>
-									<td>
-										{modalLog
-											? modalLog.voltage_l3_N !== null
-												? modalLog.voltage_l3_N
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Current L3: I3 (A)</td>
-									<td>
-										{modalLog
-											? modalLog.current_l3 !== null
-												? modalLog.current_l3
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td>Phase Voltage L3: V3 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l3_N !== null
+													? modalLog.voltage_l3_N
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Current L3: I3 (A)</td>
+										<td>
+											{modalLog
+												? modalLog.current_l3 !== null
+													? modalLog.current_l3
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td></td>
-									<td></td>
-									<td>Current N: In (A)</td>
-									<td>
-										{modalLog
-											? modalLog.current_l3 !== null
-												? modalLog.current_l3
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td></td>
+										<td></td>
+										<td>Current N: In (A)</td>
+										<td>
+											{modalLog
+												? modalLog.current_l3 !== null
+													? modalLog.current_l3
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Line Voltage L1-L2 (V)</td>
-									<td>
-										{modalLog
-											? modalLog.voltage_l1_l2 !== null
-												? modalLog.voltage_l1_l2
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td></td>
-									<td></td>
-								</tr>
+									<tr>
+										<td>Line Voltage L1-L2 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l1_l2 !== null
+													? modalLog.voltage_l1_l2
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td></td>
+										<td></td>
+									</tr>
 
-								<tr>
-									<td>Line Voltage L2-L3 (V)</td>
-									<td>
-										{modalLog
-											? modalLog.voltage_l2_l3 !== null
-												? modalLog.voltage_l2_l3
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Power L1 (kW)</td>
-									<td>
-										{modalLog
-											? modalLog.kw_l1 !== null
-												? modalLog.kw_l1
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td>Line Voltage L2-L3 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l2_l3 !== null
+													? modalLog.voltage_l2_l3
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Power L1 (kW)</td>
+										<td>
+											{modalLog
+												? modalLog.kw_l1 !== null
+													? modalLog.kw_l1
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Line Voltage L3-L1 (V)</td>
-									<td>
-										{modalLog
-											? modalLog.voltage_l3_l1 !== null
-												? modalLog.voltage_l3_l1
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Power L2 (kW)</td>
-									<td>
-										{modalLog
-											? modalLog.kw_l2 !== null
-												? modalLog.kw_l2
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td>Line Voltage L3-L1 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l3_l1 !== null
+													? modalLog.voltage_l3_l1
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Power L2 (kW)</td>
+										<td>
+											{modalLog
+												? modalLog.kw_l2 !== null
+													? modalLog.kw_l2
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td></td>
-									<td></td>
-									<td>Power L3 (kW)</td>
-									<td>
-										{modalLog
-											? modalLog.kw_l3 !== null
-												? modalLog.kw_l3
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td></td>
+										<td></td>
+										<td>Power L3 (kW)</td>
+										<td>
+											{modalLog
+												? modalLog.kw_l3 !== null
+													? modalLog.kw_l3
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Reactive L1 (KVar)</td>
-									<td>
-										{modalLog
-											? modalLog.kvar_l1 !== null
-												? modalLog.kvar_l1
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td></td>
-									<td></td>
-								</tr>
+									<tr>
+										<td>Reactive L1 (KVar)</td>
+										<td>
+											{modalLog
+												? modalLog.kvar_l1 !== null
+													? modalLog.kvar_l1
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td></td>
+										<td></td>
+									</tr>
 
-								<tr>
-									<td>Reactive L2 (KVar)</td>
-									<td>
-										{modalLog
-											? modalLog.kvar_l2 !== null
-												? modalLog.kvar_l2
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Apparent L1 (kVA)</td>
-									<td>
-										{modalLog
-											? modalLog.kva_l1 !== null
-												? modalLog.kva_l1
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td>Reactive L2 (KVar)</td>
+										<td>
+											{modalLog
+												? modalLog.kvar_l2 !== null
+													? modalLog.kvar_l2
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Apparent L1 (kVA)</td>
+										<td>
+											{modalLog
+												? modalLog.kva_l1 !== null
+													? modalLog.kva_l1
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Reactive L3 (KVar)</td>
-									<td>
-										{modalLog
-											? modalLog.kvar_l3 !== null
-												? modalLog.kvar_l3
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td>Apparent L2 (kVA)</td>
-									<td>
-										{modalLog
-											? modalLog.kva_l2 !== null
-												? modalLog.kva_l2
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td>Reactive L3 (KVar)</td>
+										<td>
+											{modalLog
+												? modalLog.kvar_l3 !== null
+													? modalLog.kvar_l3
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td>Apparent L2 (kVA)</td>
+										<td>
+											{modalLog
+												? modalLog.kva_l2 !== null
+													? modalLog.kva_l2
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td></td>
-									<td></td>
-									<td>Apparent L3 (kVA)</td>
-									<td>
-										{modalLog
-											? modalLog.kva_l3 !== null
-												? modalLog.kva_l3
-												: "N/A"
-											: "N/A"}
-									</td>
-								</tr>
+									<tr>
+										<td></td>
+										<td></td>
+										<td>Apparent L3 (kVA)</td>
+										<td>
+											{modalLog
+												? modalLog.kva_l3 !== null
+													? modalLog.kva_l3
+													: "N/A"
+												: "N/A"}
+										</td>
+									</tr>
 
-								<tr>
-									<td>Frequency (Hz)</td>
-									<td>
-										{modalLog
-											? modalLog.hz !== null
-												? modalLog.hz
-												: "N/A"
-											: "N/A"}
-									</td>
-									<td></td>
-									<td></td>
-								</tr>
+									<tr>
+										<td>Frequency (Hz)</td>
+										<td>
+											{modalLog
+												? modalLog.hz !== null
+													? modalLog.hz
+													: "N/A"
+												: "N/A"}
+										</td>
+										<td></td>
+										<td></td>
+									</tr>
+								</tbody>
 							</table>
 						</div>
 					</ModalBody>
 					<ModalFooter>
 						<div className="footer-row-1">
-							Select date to export <RiFileExcel2Fill />
+							<span>Select date to export</span>{" "}
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={30}
+								onClick={this.exportMeter}
+							/>
 						</div>
+						<form>
+							<Label for="dateFrom">From</Label>
+							<div>
+								<Input
+									className="datepicker"
+									type="date"
+									name="dateFrom"
+									id="dateFrom"
+									placeholder="datetime placeholder"
+									value={dateFormatter.yyyymmdd_noOffset(dateFrom)}
+									onChange={this.handleInputDateChange}
+									max={dateFormatter.yyyymmdd_noOffset(dateTo)}
+								/>
+							</div>
+							<Label for="dateTo">To</Label>
+							<div>
+								<Input
+									className="datepicker"
+									type="date"
+									name="dateTo"
+									id="dateTo"
+									placeholder="datetime placeholder"
+									value={dateFormatter.yyyymmdd_noOffset(dateTo)}
+									onChange={this.handleInputDateChange}
+									min={dateFormatter.yyyymmdd_noOffset(dateFrom)}
+								/>
+							</div>
+							<Label for="interval">Interval</Label>
+							<div className="col-input-interval">
+								<Input
+									type="select"
+									name="interval"
+									id="interval"
+									value={interval}
+									onChange={this.handleInputChange}
+								>
+									<option>15 min</option>
+									<option>30 min</option>
+									<option>1 hour</option>
+									<option>1 day</option>
+								</Input>
+							</div>
+						</form>
 					</ModalFooter>
 				</Modal>
 			</div>

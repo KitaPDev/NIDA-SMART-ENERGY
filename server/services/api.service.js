@@ -251,7 +251,7 @@ async function getBillCompareData(dateFrom, dateTo) {
 				"tariff"
 			)
 			.where({
-				month: from.getMonth() + 1,
+				month: from.getMonth(),
 				year: from.getFullYear() - i,
 			});
 

@@ -39,27 +39,37 @@ class SetTarget extends React.Component {
 		this.state = {
 			lsMonth: lsMonth,
 			lsBuilding: [],
-			lastMonthTarget: 0,
-			lastMonthActual: 0,
-			lastYearTarget: 0,
-			lastYearActual: 0,
-			monthAverage: 0,
-			yearAverage: 0,
+			lastMonthTarget_bill: 0,
+			lastMonthActual_bill: 0,
+			lastYearTarget_bill: 0,
+			lastYearActual_bill: 0,
+			monthAverage_bill: 0,
+			yearAverage_bill: 0,
+			lastMonthTarget_usage: 0,
+			lastMonthActual_usage: 0,
+			lastYearTarget_usage: 0,
+			lastYearActual_usage: 0,
+			monthAverage_usage: 0,
+			yearAverage_usage: 0,
 			building: "Auditorium",
-			month: new Date().getMonth() + 1,
+			month: new Date().getMonth(),
 			year: new Date().getFullYear(),
 			electricityBill: "",
+			energyUsage: "",
 			amountPeople: "",
 			tariff: "",
 			isDisplayTarget: true,
 			isDisplayAverage: false,
 		};
 
-		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
-		this.setTarget = this.setTarget.bind(this);
 		this.handleRadioInputChange = this.handleRadioInputChange.bind(this);
+
+		this.setTarget = this.setTarget.bind(this);
+
+		this.getAllBuilding = this.getAllBuilding.bind(this);
 		this.getTarget_MonthYear = this.getTarget_MonthYear.bind(this);
+		this.getTargetPresets = this.getTargetPresets.bind(this);
 	}
 
 	componentDidMount() {
@@ -70,7 +80,7 @@ class SetTarget extends React.Component {
 		try {
 			let resp = await http.get("/building/all");
 
-			this.setState({ lsBuilding: resp.data });
+			this.setState({ lsBuilding: resp.data }, () => this.getTargetPresets());
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -79,6 +89,13 @@ class SetTarget extends React.Component {
 
 	handleInputChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
+		if (
+			e.target.name === "month" ||
+			e.target.name === "year" ||
+			e.target.name === "building"
+		) {
+			this.getTargetPresets();
+		}
 	}
 
 	handleRadioInputChange(e) {
@@ -97,8 +114,15 @@ class SetTarget extends React.Component {
 
 	async setTarget() {
 		try {
-			let { lsBuilding, building, month, year, electricityBill, amountPeople } =
-				this.state;
+			let {
+				lsBuilding,
+				building,
+				month,
+				year,
+				electricityBill,
+				energyUsage,
+				amountPeople,
+			} = this.state;
 
 			let buildingID;
 			for (let b of lsBuilding) {
@@ -116,6 +140,10 @@ class SetTarget extends React.Component {
 
 			if (electricityBill.length > 0) {
 				payload.electricity_bill = electricityBill;
+			}
+
+			if (energyUsage.length > 0) {
+				payload.energyUsage = energyUsage;
 			}
 
 			if (amountPeople.length > 0) {
@@ -159,8 +187,58 @@ class SetTarget extends React.Component {
 		}
 	}
 
+	async getTargetPresets() {
+		try {
+			let { month, year, building, lsBuilding } = this.state;
+
+			let payload = {
+				month: month,
+				year: year,
+				building_id: lsBuilding.find((b) => b.label === building).id,
+			};
+
+			let resp = await http.post("/target/presets", payload);
+
+			this.setState({
+				lastMonthTarget_bill: resp.data.lastMonthTarget_bill,
+				lastMonthActual_bill: resp.data.lastMonthActual_bill,
+				lastYearTarget_bill: resp.data.lastYearTarget_bill,
+				lastYearActual_bill: resp.data.lastYearActual_bill,
+				monthAverage_bill: resp.data.monthAverage_bill,
+				yearAverage_bill: resp.data.yearAverage_bill,
+
+				lastMonthTarget_usage: resp.data.lastMonthTarget_usage,
+				lastMonthActual_usage: resp.data.lastMonthActual_usage,
+				lastYearTarget_usage: resp.data.lastYearTarget_usage,
+				lastYearActual_usage: resp.data.lastYearActual_usage,
+				monthAverage_usage: resp.data.monthAverage_usage,
+				yearAverage_usage: resp.data.yearAverage_usage,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	render() {
-		let { lsMonth, lsBuilding, isDisplayTarget, isDisplayAverage } = this.state;
+		let {
+			lsMonth,
+			lsBuilding,
+			isDisplayTarget,
+			isDisplayAverage,
+			lastMonthTarget_bill,
+			lastMonthActual_bill,
+			lastYearTarget_bill,
+			lastYearActual_bill,
+			monthAverage_bill,
+			yearAverage_bill,
+			lastMonthTarget_usage,
+			lastMonthActual_usage,
+			lastYearTarget_usage,
+			lastYearActual_usage,
+			monthAverage_usage,
+			yearAverage_usage,
+		} = this.state;
 
 		let currentYear = new Date().getFullYear();
 		let end = currentYear + 20;
@@ -194,7 +272,7 @@ class SetTarget extends React.Component {
 								<Row className="row-config">
 									<Form className="form-target">
 										<FormGroup row className="fg-config-1">
-											<Label for="month" sm={2} className="col-label">
+											<Label for="month" sm={2}>
 												Month
 											</Label>
 											<Col sm={4}>
@@ -202,19 +280,19 @@ class SetTarget extends React.Component {
 													type="select"
 													name="month"
 													id="monthSelect"
-													value={new Date().getMonth() + 1}
+													value={new Date().getMonth()}
 													onChange={this.handleInputChange}
 												>
 													{lsMonth.map((month, index) => (
 														<option
 															key={month}
 															label={month}
-															value={index + 1}
+															value={index}
 														></option>
 													))}
 												</Input>
 											</Col>
-											<Label for="year" sm={2} className="col-label">
+											<Label for="year" sm={2}>
 												Year
 											</Label>
 											<Col sm={4}>
@@ -232,7 +310,7 @@ class SetTarget extends React.Component {
 											</Col>
 										</FormGroup>
 										<FormGroup row className="fg-config-building">
-											<Label for="building" sm={2} className="col-label">
+											<Label for="building" sm={2}>
 												Building
 											</Label>
 											<Col sm={4}>
@@ -273,8 +351,32 @@ class SetTarget extends React.Component {
 											</Col>
 											<Col sm={3} />
 										</FormGroup>
+										<FormGroup row className="fg-config-tariff">
+											<Label
+												for="tariff"
+												sm={3}
+												style={{
+													color: "black",
+													width: "fit-content",
+												}}
+											>
+												Tariff (Baht/kWh)
+											</Label>
+											<Col sm={3}>
+												<Input
+													type="number"
+													name="tariff"
+													id="tariff"
+													min="0"
+													placeholder="4"
+													autoComplete="off"
+													onChange={this.handleInputChange}
+												/>
+											</Col>
+											<Col sm={3} />
+										</FormGroup>
 										<FormGroup row className="fg-config-bill">
-											<Label for="amountBill" sm={4} className="col-label">
+											<Label for="amountBill" sm={4}>
 												Electricity Bill (THB)
 											</Label>
 											<Col sm={6}>
@@ -289,12 +391,76 @@ class SetTarget extends React.Component {
 													onChange={this.handleInputChange}
 												/>
 												<datalist id="presets">
-													<option label="Last Month Target" value={2} />
-													<option label="Last Month Actual" value={2} />
-													<option label="Last Year Target" value={2} />
-													<option label="Last Year Actual" value={2} />
-													<option label="Month Average" value={2} />
-													<option label="Year Average" value={2} />
+													<option
+														label="Last Month Target"
+														value={lastMonthTarget_bill}
+													/>
+													<option
+														label="Last Month Actual"
+														value={lastMonthActual_bill}
+													/>
+													<option
+														label="Last Year Target"
+														value={lastYearTarget_bill}
+													/>
+													<option
+														label="Last Year Actual"
+														value={lastYearActual_bill}
+													/>
+													<option
+														label="Month Average"
+														value={monthAverage_bill}
+													/>
+													<option
+														label="Year Average"
+														value={yearAverage_bill}
+													/>{" "}
+												</datalist>
+											</Col>
+											<Col sm={2} style={{ fontWeight: "600", margin: "auto" }}>
+												Baht
+											</Col>
+										</FormGroup>
+										<FormGroup row className="fg-config-usage">
+											<Label for="energyUsage" sm={4}>
+												Energy Usage
+											</Label>
+											<Col sm={6}>
+												<Input
+													list="presets"
+													type="number"
+													name="energyUsage"
+													id="energyUsage"
+													min="0"
+													placeholder="Enter Amount"
+													autoComplete="off"
+													onChange={this.handleInputChange}
+												/>
+												<datalist id="presets">
+													<option
+														label="Last Month Target"
+														value={lastMonthTarget_usage}
+													/>
+													<option
+														label="Last Month Actual"
+														value={lastMonthActual_usage}
+													/>
+													<option
+														label="Last Year Target"
+														value={lastYearTarget_usage}
+													/>
+													<option
+														label="Last Year Actual"
+														value={lastYearActual_usage}
+													/>
+													<option
+														label="Month Average"
+														value={monthAverage_usage}
+													/>
+													<option
+														label="Year Average"
+														value={yearAverage_usage}
+													/>{" "}
 												</datalist>
 											</Col>
 											<Col sm={2} style={{ fontWeight: "600", margin: "auto" }}>
@@ -302,7 +468,7 @@ class SetTarget extends React.Component {
 											</Col>
 										</FormGroup>
 										<FormGroup row>
-											<Col sm={6} className="col-note">
+											<Col sm={8} className="col-note">
 												<span
 													style={{
 														textDecoration: "underline",
