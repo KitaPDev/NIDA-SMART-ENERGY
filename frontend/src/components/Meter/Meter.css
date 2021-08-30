@@ -513,6 +513,10 @@
 	font-size: 120%;
 }
 
+.modal-meter .body-row-2 .spacer {
+	height: 1rem;
+}
+
 .modal-meter .body-row-2 td:nth-child(odd) {
 	width: 35%;
 }

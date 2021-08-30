@@ -313,7 +313,6 @@ class Meter extends React.Component {
 			"Current L1: I1 (A)",
 			"Current L2: I2 (A)",
 			"Current L3: I3 (A)",
-			"Current N: In (A)",
 			"Power L1 (kW)",
 			"Power L2 (kW)",
 			"Power L3 (kW)",
@@ -344,7 +343,6 @@ class Meter extends React.Component {
 				log.current_l1,
 				log.current_l2,
 				log.current_l3,
-				0,
 				log.kw_l1,
 				log.kw_l2,
 				log.k2_l3,
@@ -1088,18 +1086,7 @@ class Meter extends React.Component {
 										</td>
 									</tr>
 
-									<tr>
-										<td></td>
-										<td></td>
-										<td>Current N: In (A)</td>
-										<td>
-											{modalLog
-												? modalLog.current_l3 !== null
-													? modalLog.current_l3
-													: "N/A"
-												: "N/A"}
-										</td>
-									</tr>
+									<tr className="spacer"></tr>
 
 									<tr>
 										<td>Line Voltage L1-L2 (V)</td>
@@ -1107,19 +1094,6 @@ class Meter extends React.Component {
 											{modalLog
 												? modalLog.voltage_l1_l2 !== null
 													? modalLog.voltage_l1_l2
-													: "N/A"
-												: "N/A"}
-										</td>
-										<td></td>
-										<td></td>
-									</tr>
-
-									<tr>
-										<td>Line Voltage L2-L3 (V)</td>
-										<td>
-											{modalLog
-												? modalLog.voltage_l2_l3 !== null
-													? modalLog.voltage_l2_l3
 													: "N/A"
 												: "N/A"}
 										</td>
@@ -1134,11 +1108,11 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Line Voltage L3-L1 (V)</td>
+										<td>Line Voltage L2-L3 (V)</td>
 										<td>
 											{modalLog
-												? modalLog.voltage_l3_l1 !== null
-													? modalLog.voltage_l3_l1
+												? modalLog.voltage_l2_l3 !== null
+													? modalLog.voltage_l2_l3
 													: "N/A"
 												: "N/A"}
 										</td>
@@ -1153,8 +1127,14 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td></td>
-										<td></td>
+										<td>Line Voltage L3-L1 (V)</td>
+										<td>
+											{modalLog
+												? modalLog.voltage_l3_l1 !== null
+													? modalLog.voltage_l3_l1
+													: "N/A"
+												: "N/A"}
+										</td>
 										<td>Power L3 (kW)</td>
 										<td>
 											{modalLog
@@ -1165,25 +1145,14 @@ class Meter extends React.Component {
 										</td>
 									</tr>
 
+									<tr className="spacer"></tr>
+
 									<tr>
 										<td>Reactive L1 (KVar)</td>
 										<td>
 											{modalLog
 												? modalLog.kvar_l1 !== null
 													? modalLog.kvar_l1
-													: "N/A"
-												: "N/A"}
-										</td>
-										<td></td>
-										<td></td>
-									</tr>
-
-									<tr>
-										<td>Reactive L2 (KVar)</td>
-										<td>
-											{modalLog
-												? modalLog.kvar_l2 !== null
-													? modalLog.kvar_l2
 													: "N/A"
 												: "N/A"}
 										</td>
@@ -1198,11 +1167,11 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Reactive L3 (KVar)</td>
+										<td>Reactive L2 (KVar)</td>
 										<td>
 											{modalLog
-												? modalLog.kvar_l3 !== null
-													? modalLog.kvar_l3
+												? modalLog.kvar_l2 !== null
+													? modalLog.kvar_l2
 													: "N/A"
 												: "N/A"}
 										</td>
@@ -1217,8 +1186,14 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td></td>
-										<td></td>
+										<td>Reactive L3 (KVar)</td>
+										<td>
+											{modalLog
+												? modalLog.kvar_l3 !== null
+													? modalLog.kvar_l3
+													: "N/A"
+												: "N/A"}
+										</td>
 										<td>Apparent L3 (kVA)</td>
 										<td>
 											{modalLog
@@ -1228,6 +1203,8 @@ class Meter extends React.Component {
 												: "N/A"}
 										</td>
 									</tr>
+
+									<tr className="spacer"></tr>
 
 									<tr>
 										<td>Frequency (Hz)</td>

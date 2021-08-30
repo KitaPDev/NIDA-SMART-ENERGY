@@ -1,20 +1,43 @@
 .container-set-target {
-	padding: 2rem !important;
+	padding: 1rem !important;
 }
 
-.div-set-target .heading {
+.container-set-target .heading {
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
+	margin-bottom: 1rem;
+}
+
+.container-set-target .heading-historical-data {
+	padding-left: 1rem;
+	display: flex;
+	align-items: center;
+}
+
+.container-set-target .heading-historical-data .icon-excel {
+	margin-left: 1rem;
+}
+
+.container-set-target .col-left {
+	padding: 0;
 }
 
 .row-config {
-	margin-top: 1rem !important;
 	border: 1px solid #000000;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	padding-right: 0;
+	margin: 0 0.5rem 0 0.25rem !important;
+}
+
+.row-config label {
+	font-weight: 500;
+}
+
+.row-config select {
+	text-align-last: center;
 }
 
 .fg-config-1 {
@@ -60,17 +83,79 @@
 	padding-right: 0;
 }
 
-.row-building-users-heading {
-	font-size: 150%;
+.list-pane {
+	margin-top: 1rem;
+	padding: 0.5rem;
+	border: 1px solid #000;
+	border-radius: 0.5rem;
+	margin: 1rem 0.5rem 0 0.25rem;
+}
+
+.list-pane .form {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 1rem;
 	font-weight: 600;
-	margin: auto !important;
-	color: #6b6666;
+}
+
+.list-pane .form label {
+	width: 15%;
+	text-align: center;
+	font-size: 130%;
+}
+
+.list-pane .form select {
+	width: 30%;
+	font-size: 130%;
+	text-align-last: center;
+}
+
+.list-pane .table-building-users {
+	width: 80%;
+	padding: 0 1rem 0 1rem;
+	margin: 1rem auto 1rem auto;
+}
+
+.list-pane .table-building-users > thead {
+	font-weight: 500;
+	font-size: 150%;
+	text-align: center;
+}
+
+.list-pane tr.tr-building > td {
+	padding-top: 0.5rem;
+}
+
+.list-pane .table-building-users .td-building {
+	display: flex;
+	align-items: center;
+}
+
+.list-pane .table-building-users .td-users {
+	text-align: center;
+	font-size: 120%;
+}
+
+.list-pane .table-building-users .td-tariff {
+	text-align: center;
+	font-size: 120%;
+}
+
+.list-pane .square-building {
+	height: 20px;
+	width: 20px;
+}
+
+.list-pane .building-label {
+	margin-left: 1rem;
+	font-weight: 500;
+	font-size: 120%;
 }
 
 .container-historical-data {
-	margin-top: 1rem !important;
-	margin-left: 1rem !important;
-	border: 1px solid #000000;
+	border: 1px solid #000;
 	border-radius: 0.5rem;
 	padding: 1rem;
 }
@@ -96,25 +181,13 @@
 }
 
 .row-historical-data-title {
-	margin: auto !important;
-	margin: auto;
+	margin-left: 0.5rem !important;
 }
 
 .title {
 	width: fit-content !important;
 	font-size: 175%;
 	font-weight: bold;
-}
-
-.excel-icon {
-	width: fit-content !important;
-	margin-top: auto !important;
-	margin-bottom: auto !important;
-}
-
-.excel-icon :hover {
-	cursor: pointer;
-	opacity: 0.8;
 }
 
 .btn-period {
@@ -138,6 +211,10 @@
 	color: white !important;
 	outline: 0 !important;
 	box-shadow: none !important;
+}
+
+.container-set-target .col-right {
+	padding-right: 0;
 }
 
 .dot-actual {
