@@ -1,8 +1,20 @@
 .container-set-target {
 	padding: 1rem !important;
+	height: 100%;
+	/* overflow: hidden; */
+}
+
+.container-set-target .row-heading {
+	max-height: 7%;
+}
+
+.container-set-target .row-content {
+	margin-top: 0 !important;
+	height: 93%;
 }
 
 .container-set-target .heading {
+	height: 100%;
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
@@ -21,10 +33,14 @@
 }
 
 .container-set-target .col-left {
-	padding: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0 0 0 0.5rem;
 }
 
 .row-config {
+	flex-grow: 1;
 	border: 1px solid #000000;
 	border-radius: 0.5rem;
 	padding: 1rem;
@@ -84,11 +100,11 @@
 }
 
 .list-pane {
-	margin-top: 1rem;
-	padding: 0.5rem;
+	flex-grow: 1;
 	border: 1px solid #000;
 	border-radius: 0.5rem;
-	margin: 1rem 0.5rem 0 0.25rem;
+	margin: 1rem 0.5rem 0.5rem 0.25rem;
+	overflow: scroll;
 }
 
 .list-pane .form {
@@ -103,12 +119,12 @@
 .list-pane .form label {
 	width: 15%;
 	text-align: center;
-	font-size: 130%;
+	font-size: 115%;
 }
 
 .list-pane .form select {
 	width: 30%;
-	font-size: 130%;
+	font-size: 115%;
 	text-align-last: center;
 }
 
@@ -120,17 +136,24 @@
 
 .list-pane .table-building-users > thead {
 	font-weight: 500;
-	font-size: 150%;
+	font-size: 120%;
 	text-align: center;
+	border-bottom: 2px solid #000;
 }
 
 .list-pane tr.tr-building > td {
-	padding-top: 0.5rem;
+	padding-top: 0.25rem;
 }
 
 .list-pane .table-building-users .td-building {
 	display: flex;
 	align-items: center;
+}
+
+.list-pane .building-label {
+	margin-left: 1rem;
+	font-weight: 600;
+	font-size: 120%;
 }
 
 .list-pane .table-building-users .td-users {
@@ -148,21 +171,12 @@
 	width: 20px;
 }
 
-.list-pane .building-label {
-	margin-left: 1rem;
-	font-weight: 500;
-	font-size: 120%;
-}
-
 .container-historical-data {
+	height: 100%;
 	border: 1px solid #000;
 	border-radius: 0.5rem;
 	padding: 1rem;
-}
-
-.container-bill-chart {
-	height: 25vh !important;
-	margin-right: 0 !important;
+	margin-bottom: 0.5rem;
 }
 
 .row-chart-title {
@@ -171,13 +185,13 @@
 	margin-left: 0.5rem !important;
 }
 
-.row-bill-chart {
-	padding-left: 0 !important;
+.row-chart {
+	height: 30%;
 }
 
-.col-bill-chart {
-	padding-left: 0 !important;
-	padding-right: 0 !important;
+.col-chart {
+	padding-right: 0;
+	height: 100%;
 }
 
 .row-historical-data-title {
@@ -214,7 +228,11 @@
 }
 
 .container-set-target .col-right {
-	padding-right: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0 1rem 0 0;
+	overflow-y: scroll;
 }
 
 .dot-actual {
@@ -224,7 +242,10 @@
 }
 
 .col-form {
-	padding-left: 0 !important;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-end;
 }
 
 .label-actual {

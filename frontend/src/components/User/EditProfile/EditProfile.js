@@ -383,7 +383,7 @@ class EditProfile extends React.Component {
 		} = this.state;
 
 		return (
-			<div className="div-edit-profile">
+			<div className="container-edit-profile">
 				<Container className="container-user-info" fluid>
 					<Row className="heading">User Information</Row>
 

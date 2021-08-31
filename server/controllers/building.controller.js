@@ -37,7 +37,7 @@ async function getBillCompare(req, res) {
 
 		let data = await buildingService.getBillCompareData(buildingID);
 
-		let bill_month = {};
+		let billData_month = {};
 
 		let bill_year_month = {};
 		let lsLog_year_month = data.lsLog_year_month;
@@ -45,7 +45,7 @@ async function getBillCompare(req, res) {
 		let today = new Date();
 
 		for (let month = 0; month <= 11; month++) {
-			bill_month[month] = {};
+			billData_month[month] = {};
 
 			bill_year_month[month] = {};
 			let bill_year = bill_year_month[month];
@@ -67,8 +67,20 @@ async function getBillCompare(req, res) {
 						continue;
 					}
 
+					let tariff = 4;
+					let target = lsTarget.find((target) => {
+						if (target !== undefined) {
+							return (
+								target.month === month &&
+								target.year === year &&
+								target.building === log.building
+							);
+						}
+					});
+					if (target !== undefined) tariff = target.tariff;
+
 					if (!bill_year[year]) bill_year[year] = 0;
-					bill_year[year] += kwh;
+					bill_year[year] += kwh * tariff;
 
 					lsPrevDevice.push(log.device);
 				}
@@ -85,22 +97,21 @@ async function getBillCompare(req, res) {
 						continue;
 					}
 
-					bill_year[year] -= kwh;
+					let tariff = 4;
+					let target = lsTarget.find((target) => {
+						if (target !== undefined) {
+							return (
+								target.month === month &&
+								target.year === year &&
+								target.building === log.building
+							);
+						}
+					});
+					if (target !== undefined) tariff = target.tariff;
+
+					bill_year[year] -= kwh * tariff;
 					lsPrevDevice.push(log.device);
 				}
-
-				let tariff = 4;
-				let target = lsTarget.find((target) => {
-					if (target !== undefined) {
-						target.month === month && target.year === year;
-					}
-				});
-				if (target !== undefined) {
-					tariff = target.tariff;
-				}
-
-				if (bill_year[year] === undefined) bill_year[year] = 0;
-				bill_year[year] *= tariff;
 			}
 		}
 
@@ -114,35 +125,41 @@ async function getBillCompare(req, res) {
 			}
 
 			// Current month and year bill
-			bill_month[month].latest = bill_year_month[month][year];
+			billData_month[month].latest = 0;
+			if (bill_year_month[month][year] !== undefined) {
+				billData_month[month].latest = bill_year_month[month][year];
+			}
 
 			// Last year's bill
-			bill_month[month].lastYear = bill_year_month[month][year - 1];
+			billData_month[month].lastYear = 0;
+			if (bill_year_month[month][year - 1] !== undefined) {
+				billData_month[month].lastYear = bill_year_month[month][year - 1];
+			}
 
 			// Target bill
 			let targetBill = 0;
-			let target = lsTarget.find((t) => {
-				if (t !== undefined) {
-					return t.month === month && t.year === year;
+			lsTarget.forEach((t) => {
+				if (t.month === month && t.year === year) {
+					if (t.electricity_bill !== null) targetBill += t.electricity_bill;
 				}
 			});
-			if (target !== undefined) targetBill = target.electricity_bill;
-			if (targetBill === null) targetBill = 0;
-			bill_month[month].target = targetBill;
+			billData_month[month].target = targetBill;
 
 			// Average Bill over past 3 years
 			for (let j = 1; j <= 3; j++) {
-				if (bill_month[month].average === undefined) {
-					bill_month[month].average = 0;
+				if (billData_month[month].average === undefined) {
+					billData_month[month].average = 0;
 				}
-				bill_month[month].average += bill_year_month[month][year - j];
+				if (bill_year_month[month][year - j] !== undefined) {
+					billData_month[month].average += bill_year_month[month][year - j];
+				}
 			}
 
-			bill_month[month].average /= 3;
+			billData_month[month].average /= 3;
 			month--;
 		}
 
-		return res.status(httpStatusCodes.OK).send(bill_month);
+		return res.status(httpStatusCodes.OK).send(billData_month);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);

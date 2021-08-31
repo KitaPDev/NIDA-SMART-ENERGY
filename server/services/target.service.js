@@ -40,7 +40,7 @@ async function insertTarget(
 		electricity_bill: electricityBill,
 		amount_people: amountPeople,
 		tariff: tariff,
-		energyUsage: energyUsage,
+		energy_usage: energyUsage,
 	});
 }
 
@@ -53,20 +53,18 @@ async function updateTarget(
 	tariff,
 	energyUsage
 ) {
-	if (electricityBill !== undefined && amountPeople !== undefined) {
-		await knex(knex.ref("target"))
-			.where({
-				building_id: buildingID,
-				month: month,
-				year: year,
-			})
-			.update({
-				electricity_bill: electricityBill,
-				amount_people: amountPeople,
-				tariff: tariff,
-				energyUsage: energyUsage,
-			});
-	}
+	await knex(knex.ref("target"))
+		.where({
+			building_id: buildingID,
+			month: month,
+			year: year,
+		})
+		.update({
+			electricity_bill: electricityBill,
+			amount_people: amountPeople,
+			tariff: tariff,
+			energy_usage: energyUsage,
+		});
 }
 
 async function getAllTargetByMonthYear(month, year) {
@@ -79,7 +77,8 @@ async function getAllTargetByMonthYear(month, year) {
 			"building.label as building",
 			"target.electricity_bill",
 			"target.amount_people",
-			"target.tariff"
+			"target.tariff",
+			"target.energy_usage"
 		)
 		.where({ month: month, year: year });
 

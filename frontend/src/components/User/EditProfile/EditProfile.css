@@ -2,14 +2,14 @@
 	padding: 2rem !important;
 }
 
-.div-edit-profile .heading {
+.container-edit-profile .heading {
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
 }
 
-.row-content {
+.container-edit-profile .row-content {
 	margin-top: 2rem !important;
 	justify-content: center !important;
 	align-items: center;
@@ -118,7 +118,7 @@ button.close {
 	border-radius: 1rem !important;
 }
 
-.div-edit-profile .td-button {
+.container-edit-profile .td-button {
 	border: none !important;
 }
 
@@ -155,7 +155,7 @@ button.close {
 	color: red;
 }
 
-.div-edit-profile .btn-approve {
+.container-edit-profile .btn-approve {
 	background-color: transparent !important;
 	color: green !important;
 	font-weight: 600;
@@ -163,7 +163,7 @@ button.close {
 	padding: 0 0.5rem 0 0.5rem;
 }
 
-.div-edit-profile .td-approve:hover {
+.container-edit-profile .td-approve:hover {
 	background-color: green !important;
 	color: white !important;
 	border: 0;

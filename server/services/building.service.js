@@ -56,7 +56,7 @@ async function getBillCompareData(buildingID) {
 		data.lsLog_year_month[month] = {};
 
 		let firstDay = new Date(year, month, 1, 0, 0);
-		let lastDay = new Date(year, month, 0, 24);
+		let lastDay = new Date(year, month + 1, 0, 0);
 
 		// For current month when now is not last day of month.
 		if (i === 0) lastDay = new Date();
@@ -66,7 +66,6 @@ async function getBillCompareData(buildingID) {
 		let dateEnd_before = new Date(lastDay.getTime() - 43200000); // 12 Hours before beginning of last day.
 		let dateEnd_after = lastDay;
 
-		// Average
 		for (let j = 0; j <= 3; j++) {
 			let ds_before = new Date(dateStart_before);
 			ds_before.setFullYear(dateStart_before.getFullYear() - j);
@@ -110,7 +109,16 @@ async function getBillCompareData(buildingID) {
 
 			// Target
 			result = await knex("target")
-				.select()
+				.join("building", "target.building_id", "=", "building.id")
+				.select(
+					"target.amount_people",
+					"target.electricity_bill",
+					"target.energy_usage",
+					"target.month",
+					"target.year",
+					"target.tariff",
+					"building.label as building"
+				)
 				.where({
 					month: month,
 					year: year - j,
@@ -123,7 +131,7 @@ async function getBillCompareData(buildingID) {
 					}
 				});
 
-			if (result[0] !== undefined) data.lsTarget.push(result[0]);
+			data.lsTarget = data.lsTarget.concat(result);
 		}
 
 		month--;

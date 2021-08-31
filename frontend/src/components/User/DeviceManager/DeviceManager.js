@@ -532,7 +532,7 @@ class DeviceManager extends React.Component {
 								<th>Site</th>
 								<th>Brand / Model</th>
 								<th>System</th>
-								{deviceIDEdit !== -1 ? (
+								{deviceIDEdit !== "" ? (
 									""
 								) : (
 									<th
@@ -674,7 +674,7 @@ class DeviceManager extends React.Component {
 										<td>
 											<span
 												className={
-													device.is_active === 1 ? "green-dot" : "red-dot"
+													device.is_active === true ? "green-dot" : "red-dot"
 												}
 											></span>
 										</td>
