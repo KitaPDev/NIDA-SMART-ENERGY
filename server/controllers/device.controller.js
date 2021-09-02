@@ -1,7 +1,7 @@
 const deviceService = require("../services/device.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
-async function getAllDevice(req, res) {
+async function getAllDevice(_, res) {
 	try {
 		let result = await deviceService.getAllDevice();
 
@@ -22,8 +22,9 @@ async function newDevice(req, res) {
 		let site = body.site;
 		let brandModel = body.brand_model;
 		let system = body.system;
-		let isActive = body.is_active;
-		let activatedDate = new Date(body.activated_date);
+		let activatedDate = new Date(body.activated_datetime);
+
+		if (floor === "") floor = null;
 
 		await deviceService.insertDevice(
 			deviceID,
@@ -33,11 +34,10 @@ async function newDevice(req, res) {
 			site,
 			brandModel,
 			system,
-			isActive,
 			activatedDate
 		);
 
-		return res.status(httpStatusCodes.OK).send(result);
+		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
@@ -54,7 +54,9 @@ async function editDevice(req, res) {
 		let site = body.site;
 		let brandModel = body.brand_model;
 		let system = body.system;
-		let activatedDate = new Date(body.activated_date);
+		let activatedDate = new Date(body.activated_datetime);
+
+		if (floor === "") floor = null;
 
 		await deviceService.updateDevice(
 			deviceID,
@@ -67,7 +69,7 @@ async function editDevice(req, res) {
 			activatedDate
 		);
 
-		return res.status(httpStatusCodes.OK).send(result);
+		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);

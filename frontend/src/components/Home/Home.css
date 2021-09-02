@@ -175,7 +175,7 @@
 	font-weight: bold;
 }
 
-.label-building {
+#container-home .label-building {
 	font-weight: bold;
 	font-size: 130%;
 	border-radius: 1rem;
@@ -184,7 +184,7 @@
 	margin: 0 1rem 0 1rem;
 }
 
-.label-building:hover {
+#container-home .label-building:hover {
 	cursor: pointer;
 	opacity: 0.7;
 }

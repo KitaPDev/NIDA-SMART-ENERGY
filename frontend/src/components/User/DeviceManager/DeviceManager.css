@@ -1,36 +1,70 @@
-.div-device-manager {
-	height: 85vh;
+.container-device-manager {
+	height: 100%;
 	padding: 2rem;
+	overflow: hidden;
 }
 
-.div-device-manager .col-heading {
-	width: fit-content;
+.row-heading {
+	width: 100%;
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+.container-device-manager .col-heading {
+	width: 19%;
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
 }
 
-.div-device-manager .excel-icon {
-	width: fit-content !important;
-	color: black !important;
-}
-
-.excel-icon:hover {
-	cursor: pointer;
-	opacity: 0.8;
-	transition-duration: 0.3s;
-}
-
 .col-excel-icon {
+	width: 3%;
+	display: flex;
+	align-items: center;
+	margin-left: 1rem;
+}
+
+.row-heading .col-right {
+	width: 78%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.row-heading .col-right input {
+	width: 20%;
+	margin-right: 1rem;
+	border: 1px solid #000;
+}
+
+.row-heading .col-right .col-search-icon {
 	display: flex;
 	align-items: center;
 }
 
+.container-device-manager .div-add-meter {
+	display: flex;
+	align-items: center;
+	font-size: 130%;
+	font-weight: bold;
+	padding: 0.5rem 1rem 0.5rem 1rem;
+	border-radius: 0.5rem;
+	margin-right: 1rem;
+}
+
+.container-device-manager .div-add-meter:hover {
+	cursor: pointer;
+	opacity: 0.8;
+	background-color: black;
+	color: white;
+	transition-duration: 0.3s;
+}
+
 .container-table-device-manager {
 	margin-top: 1.5rem;
-	max-height: 75vh;
-	overflow-y: auto;
+	height: 94%;
+	overflow-y: scroll;
 }
 
 .table-device-manager {
@@ -45,10 +79,14 @@
 
 .device-table-head {
 	text-align: center;
+	position: sticky;
+	top: 0;
+	background-color: #fff;
 }
 
 .table-device-manager td {
 	text-align: center;
+	vertical-align: middle;
 }
 
 .sort {
@@ -81,26 +119,10 @@
 	border: 2px solid black !important;
 }
 
-.container-table-device-manager .span-search-icon {
-	width: fit-content !important;
-	vertical-align: middle;
-	display: flex;
-	align-items: center;
-}
-
-.div-device-manager .btn-add-meter {
-	position: fixed;
-	bottom: 2rem;
-	right: 2rem;
-}
-
-.div-device-manager .div-add-meter:hover {
-	cursor: pointer;
-	opacity: 0.8;
-}
-
 .form-add-meter .form-group {
 	margin-top: 1rem;
+	display: flex;
+	justify-content: space-between;
 }
 
 .form-add-meter label {

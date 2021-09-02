@@ -1,8 +1,8 @@
 import React from "react";
+
 import "./DeviceManager.css";
 import {
 	Col,
-	Row,
 	Table,
 	Container,
 	Form,
@@ -19,10 +19,10 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import { IoMdSearch, IoMdAddCircle } from "react-icons/io";
 import { MdModeEdit, MdDelete } from "react-icons/md";
 import { GiConfirmed, GiCancel } from "react-icons/gi";
+
 import dateFormatter from "../../../utils/dateFormatter";
 import http from "../../../utils/http";
-
-const tzOffset = new Date().getTimezoneOffset() * 60000;
+import csv from "../../../utils/csv";
 
 class DeviceManager extends React.Component {
 	constructor(props) {
@@ -42,18 +42,17 @@ class DeviceManager extends React.Component {
 			isModalConfirmAddMeterOpen: false,
 			isModalConfirmEditMeterOpen: false,
 			isModalConfirmDeleteMeterOpen: false,
+			deviceID: "",
 			deviceIDEdit: "",
 			deviceIDDelete: "",
-			building: "",
-			floor: 0,
+			building: "Auditorium",
+			floor: undefined,
 			location: "",
 			site: "",
 			brandModel: "",
 			system: "Main",
 			isActive: false,
-			activatedDate: new Date(Date.now() - tzOffset)
-				.toISOString()
-				.substring(0, 16),
+			activatedDate: undefined,
 		};
 
 		this.toggleSortByDeviceID = this.toggleSortByDeviceID.bind(this);
@@ -74,6 +73,7 @@ class DeviceManager extends React.Component {
 		this.deleteMeter = this.deleteMeter.bind(this);
 		this.setMeterEditMode = this.setMeterEditMode.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
+		this.exportTable = this.exportTable.bind(this);
 	}
 
 	componentDidMount() {
@@ -184,18 +184,16 @@ class DeviceManager extends React.Component {
 	toggleModalAddMeter() {
 		this.setState((prevState) => ({
 			isModalAddMeterOpen: !prevState.isModalAddMeterOpen,
-			devicededit: -1,
+			deviceIDEdit: "",
 			deviceID: "",
-			building: "",
+			building: "Auditorium",
 			floor: 0,
 			location: "",
 			site: "",
 			brandModel: "",
 			system: "Main",
 			isActive: false,
-			activatedDate: new Date(Date.now() - tzOffset)
-				.toISOString()
-				.substring(0, 16),
+			activatedDate: undefined,
 		}));
 	}
 
@@ -265,31 +263,61 @@ class DeviceManager extends React.Component {
 			brandModel,
 			system,
 			activatedDate,
+			lsDevice,
 		} = this.state;
 
 		try {
 			if (deviceID.length === 0) {
 				alert("Meter ID is required.");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
+			}
+
+			if (lsDevice.find((d) => d.id === deviceID)) {
+				alert("Meter already exists");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
 			}
 
 			if (building.length === 0) {
 				alert("Building is required.");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
 			}
 
 			if (location.length === 0) {
 				alert("Location is required.");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
 			}
 
 			if (site.length === 0) {
 				alert("Site is required.");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
 			}
 
 			if (brandModel.length === 0) {
 				alert("Brand / Model is required.");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
 			}
 
 			if (system.length === 0) {
 				alert("System is required.");
+				this.toggleModalConfirmAddMeter();
+				this.toggleModalAddMeter();
+				return;
+			}
+
+			if (activatedDate === "" || activatedDate === undefined) {
+				activatedDate = new Date();
 			}
 
 			let payload = {
@@ -300,23 +328,27 @@ class DeviceManager extends React.Component {
 				site: site,
 				brand_model: brandModel,
 				system: system,
-				activated_date: activatedDate,
+				activated_datetime: activatedDate,
 			};
 
 			await http.post("/device", payload);
 
 			this.toggleModalConfirmAddMeter();
 			this.toggleModalAddMeter();
-
 			this.getAllDevice();
 		} catch (err) {
 			console.log(err);
+			alert("Failed to add Meter. Please try again.");
+
+			this.toggleModalConfirmAddMeter();
+			this.toggleModalAddMeter();
+
 			return err.response;
 		}
 	}
 
 	setMeterEditMode(deviceID) {
-		if (deviceID !== -1) {
+		if (deviceID !== "") {
 			let { lsDevice } = this.state;
 			let device = lsDevice.find((device) => {
 				return device.id === deviceID;
@@ -329,7 +361,7 @@ class DeviceManager extends React.Component {
 				site: device.site,
 				brandModel: device.brand_model,
 				system: device.system,
-				activatedDate: device.activated_date,
+				activatedDate: new Date(device.activated_datetime),
 			});
 		}
 
@@ -339,6 +371,7 @@ class DeviceManager extends React.Component {
 	async editMeter() {
 		let {
 			deviceIDEdit,
+			deviceID,
 			building,
 			floor,
 			location,
@@ -349,47 +382,66 @@ class DeviceManager extends React.Component {
 		} = this.state;
 
 		try {
-			if (deviceIDEdit.length === 0) {
-				alert("Meter ID is required.");
+			if (deviceID.length === 0) {
+				deviceID = deviceIDEdit;
 			}
 
 			if (building.length === 0) {
 				alert("Building is required.");
+				this.toggleModalConfirmEditMeter();
+				return;
 			}
 
 			if (location.length === 0) {
 				alert("Location is required.");
+				this.toggleModalConfirmEditMeter();
+				return;
 			}
 
 			if (site.length === 0) {
 				alert("Site is required.");
+				this.toggleModalConfirmEditMeter();
+				return;
 			}
 
 			if (brandModel.length === 0) {
 				alert("Brand / Model is required.");
+				this.toggleModalConfirmEditMeter();
+				return;
 			}
 
 			if (system.length === 0) {
 				alert("System is required.");
+				this.toggleModalConfirmEditMeter();
+				return;
 			}
 
+			if (activatedDate === undefined) activatedDate = new Date();
+
 			let payload = {
-				id: deviceIDEdit,
+				id: deviceID,
 				building: building,
 				floor: floor,
 				location: location,
 				site: site,
 				brand_model: brandModel,
 				system: system,
-				activated_date: activatedDate,
+				activated_datetime: activatedDate,
 			};
 
 			await http.post("/device/edit", payload);
 
-			this.setState({ deviceIDEdit: "", isModalConfirmEditMeter: false });
+			this.setState({
+				deviceID: "",
+				isModalConfirmEditMeterOpen: false,
+				deviceIDEdit: "",
+			});
+
+			this.getAllDevice();
 		} catch (err) {
 			console.log(err);
 			alert("Failed to edit Meter. Please try again.");
+			this.toggleModalConfirmEditMeter();
 			return err.response;
 		}
 	}
@@ -411,8 +463,27 @@ class DeviceManager extends React.Component {
 		} catch (err) {
 			console.log(err);
 			alert("Failed to delete Meter. Please try again.");
+			this.toggleModalConfirmDeleteMeter();
 			return err.response;
 		}
+	}
+
+	exportTable() {
+		let rows = [];
+		let tableRows = document.querySelectorAll("table tr");
+
+		for (let i = 0; i < tableRows.length; i++) {
+			let row = [];
+			let cols = tableRows[i].querySelectorAll("td, th");
+
+			for (let j = 0; j < cols.length; j++) {
+				row.push(cols[j].innerText);
+			}
+
+			rows.push(row);
+		}
+
+		csv.exportFile("Meter Table", rows);
 	}
 
 	render() {
@@ -439,6 +510,7 @@ class DeviceManager extends React.Component {
 			lsBuilding,
 			lsSystem,
 			deviceIDEdit,
+			deviceID,
 		} = this.state;
 
 		let lsDeviceDisplay = lsDevice.slice();
@@ -458,19 +530,19 @@ class DeviceManager extends React.Component {
 		} else if (isSortByDateActivatedAsc) {
 			lsDeviceDisplay.sort(
 				(a, b) =>
-					new Date(a.activated_timestamp).getTime() -
-					new Date(b.activated_timestamp).getTime()
+					new Date(a.activated_datetime).getTime() -
+					new Date(b.activated_datetime).getTime()
 			);
 		} else if (isSortByDateActivatedDesc) {
 			lsDeviceDisplay.sort(
 				(a, b) =>
-					new Date(b.activated_timestamp).getTime() -
-					new Date(a.activated_timestamp).getTime()
+					new Date(b.activated_datetime).getTime() -
+					new Date(a.activated_datetime).getTime()
 			);
 		}
 
 		if (searchText.length > 0) {
-			lsDeviceDisplay = lsDeviceDisplay.filter((device, index) => {
+			lsDeviceDisplay = lsDeviceDisplay.filter((device) => {
 				for (let [, value] of Object.entries(device)) {
 					if (value !== null) {
 						if (value.toString().includes(searchText)) {
@@ -483,34 +555,40 @@ class DeviceManager extends React.Component {
 			});
 		}
 
+		if (deviceIDEdit.length > 0 && deviceID.length === 0) {
+			deviceID = deviceIDEdit;
+		}
+
 		return (
-			<div className="div-device-manager">
-				<Row className="row-heading">
-					<Col sm={3} className="col-heading">
-						Device Manager
-					</Col>
-					<Col sm={1} className="col-excel-icon">
-						<RiFileExcel2Fill className="excel-icon" size={25} />
-					</Col>
-					<Col sm={8}></Col>
-				</Row>
+			<div className="container-device-manager">
+				<div className="row-heading" style={{ maxHeight: "6%" }}>
+					<div className="col-heading">Device Manager</div>
+					<div className="col-excel-icon">
+						<RiFileExcel2Fill
+							className="icon-excel"
+							size={25}
+							onClick={() => this.exportTable()}
+						/>
+					</div>
+					<div className="col-right">
+						<div className="div-add-meter" onClick={this.toggleModalAddMeter}>
+							<IoMdAddCircle className="btn-add-meter" size={30} /> Add Meter
+						</div>
+
+						<Input
+							type="text"
+							name="searchText"
+							id="searchText"
+							value={searchText}
+							onChange={this.handleInputChange}
+						/>
+
+						<span className="span-search-icon">
+							<IoMdSearch size={25} />
+						</span>
+					</div>
+				</div>
 				<Container className="container-table-device-manager" fluid>
-					<Row className="row-input">
-						<Form>
-							<FormGroup row className="fg-period">
-								<Input
-									type="text"
-									name="searchText"
-									id="searchText"
-									value={searchText}
-									onChange={this.handleInputChange}
-								/>
-								<span className="span-search-icon">
-									<IoMdSearch size={25} />
-								</span>
-							</FormGroup>
-						</Form>
-					</Row>
 					<Table className="table-device-manager">
 						<thead className="device-table-head">
 							<tr>
@@ -566,21 +644,9 @@ class DeviceManager extends React.Component {
 							</tr>
 						</thead>
 						<tbody>
-							{lsDeviceDisplay.map((device, index) => (
+							{lsDeviceDisplay.map((device) => (
 								<tr>
-									<td>
-										{deviceIDEdit === device.id ? (
-											<Input
-												type="text"
-												name="deviceID"
-												id="deviceID"
-												value={deviceIDEdit}
-												onChange={this.handleInputChange}
-											/>
-										) : (
-											device.id
-										)}
-									</td>
+									<td>{device.id}</td>
 									<td>
 										{deviceIDEdit === device.id ? (
 											<Input
@@ -629,9 +695,9 @@ class DeviceManager extends React.Component {
 										{deviceIDEdit === device.id ? (
 											<Input
 												type="text"
-												name="location"
-												id="location"
-												value={location}
+												name="site"
+												id="site"
+												value={site}
 												onChange={this.handleInputChange}
 											/>
 										) : (
@@ -682,16 +748,22 @@ class DeviceManager extends React.Component {
 									<td>
 										{deviceIDEdit === device.id ? (
 											<Input
-												type="datetime-local"
+												type="date"
 												name="activatedDate"
 												id="activatedDate"
 												placeholder="datetime placeholder"
-												value={activatedDate}
+												value={
+													activatedDate
+														? dateFormatter.yyyymmdd_input(activatedDate)
+														: dateFormatter.yyyymmdd_input(
+																new Date(device.activated_datetime)
+														  )
+												}
 												onChange={this.handleInputChange}
 											/>
 										) : (
 											dateFormatter.ddmmyyyy(
-												new Date(device.activated_timestamp)
+												new Date(device.activated_datetime)
 											)
 										)}
 									</td>
@@ -712,7 +784,7 @@ class DeviceManager extends React.Component {
 										{deviceIDEdit === device.id ? (
 											<GiCancel
 												size={20}
-												onClick={() => this.setMeterEditMode(-1)}
+												onClick={() => this.setMeterEditMode("")}
 											/>
 										) : (
 											<MdDelete
@@ -728,9 +800,6 @@ class DeviceManager extends React.Component {
 						</tbody>
 					</Table>
 				</Container>
-				<div className="div-add-meter" onClick={this.toggleModalAddMeter}>
-					<IoMdAddCircle className="btn-add-meter" size={50} />
-				</div>
 				<Modal
 					isOpen={isModalAddMeterOpen}
 					toggle={this.toggleModalAddMeter}
@@ -748,7 +817,7 @@ class DeviceManager extends React.Component {
 										type="text"
 										name="deviceID"
 										id="deviceID"
-										value={deviceIDEdit}
+										value={deviceID}
 										onChange={this.handleInputChange}
 									/>
 								</Col>
@@ -766,7 +835,7 @@ class DeviceManager extends React.Component {
 								</Col>
 							</FormGroup>
 							<FormGroup row>
-								<Label for="building" sm={2} className="label-building">
+								<Label for="building" sm={1} className="label-building">
 									Building
 								</Label>
 								<Col sm={4}>
@@ -819,10 +888,14 @@ class DeviceManager extends React.Component {
 								</Label>
 								<Col sm={4}>
 									<Input
-										type="datetime-local"
+										type="date"
 										name="activatedDate"
 										id="activatedDate"
-										value={activatedDate}
+										value={
+											activatedDate
+												? dateFormatter.yyyymmdd_input(activatedDate)
+												: dateFormatter.yyyymmdd_input(new Date())
+										}
 										onChange={this.handleInputChange}
 									/>
 								</Col>
@@ -831,7 +904,7 @@ class DeviceManager extends React.Component {
 								<Label for="location" sm={2} className="label-location">
 									Location
 								</Label>
-								<Col sm={4}>
+								<Col sm={6}>
 									<Input
 										type="text"
 										name="location"
@@ -840,10 +913,10 @@ class DeviceManager extends React.Component {
 										onChange={this.handleInputChange}
 									/>
 								</Col>
-								<Label for="systsem" sm={2} className="label-system">
+								<Label for="systsem" sm={1} className="label-system">
 									System
 								</Label>
-								<Col sm={4}>
+								<Col sm={3}>
 									<Input
 										type="select"
 										name="system"
