@@ -1,5 +1,5 @@
 import React from "react";
-import "./MixedChartBillCompare.css";
+import "./BarChartEnergyCompare.css";
 
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -20,9 +20,9 @@ const lsMonth = [
 	"DEC",
 ];
 
-let mixedChart;
+let barChart;
 
-class MixedChartBillCompare extends React.Component {
+class BarChartEnergyCompare extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -35,7 +35,7 @@ class MixedChartBillCompare extends React.Component {
 		this.state = {
 			building: {},
 			compareTo: "Target",
-			billData_month: {},
+			energyData_month: {},
 			compareData: [],
 			lsBuilding: [],
 			// Chart details
@@ -58,15 +58,21 @@ class MixedChartBillCompare extends React.Component {
 						},
 					},
 					yAxis: {
-						min: 0,
+						min: -100,
 						max: 100,
 						display: true,
 						grid: {
-							display: false,
+							drawBorder: false,
+							color: function (context) {
+								if (context.tick.value === 0) {
+									return "#000";
+								}
+								return "#00000000";
+							},
 						},
 						title: {
 							display: true,
-							text: "THB",
+							text: "%",
 							font: {
 								size: 16,
 								weight: "600",
@@ -77,7 +83,7 @@ class MixedChartBillCompare extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Electricity Bill",
+						text: "Energy Usage Compared to Target/Average",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 					},
@@ -93,6 +99,19 @@ class MixedChartBillCompare extends React.Component {
 						titleFont: { size: 20 },
 						bodyFont: { size: 18 },
 						bodySpacing: 10,
+						callbacks: {
+							label: function (context) {
+								let label = context.dataset.label || "";
+
+								if (label) {
+									label += ": ";
+								}
+								if (context.parsed.y !== null) {
+									label += context.parsed.y + "%";
+								}
+								return label;
+							},
+						},
 					},
 					zoom: {
 						pan: {
@@ -118,61 +137,74 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	buildChart = () => {
-		let { data, options, billData_month, compareTo } = this.state;
+		let { data, options, energyData_month, compareTo } = this.state;
 
-		if (Object.keys(billData_month).length === 0) return;
+		if (Object.keys(energyData_month).length === 0) return;
 
-		let datasets = [
-			{
-				label: "Latest",
-				backgroundColor: "#FFB800",
-				borderColor: "#FFB800",
-				data: [],
-				type: "bar",
-			},
-			{
-				label: compareTo,
-				backgroundColor: "#E2E2E2",
-				borderColor: "#E2E2E2",
-				fill: "origin",
-				borderWidth: 2,
-				pointRadius: 2,
-				data: [],
-				type: "line",
-			},
-		];
+		let lsData = [];
+		let lsColor = [];
 
 		let yMax = 0;
 		let month = new Date().getMonth();
 		for (let i = 0; i < 12; i++) {
 			if (month < 0) month += 12;
 
-			let dataMonth = billData_month[month];
+			let dataMonth = energyData_month[month];
+			let latest = dataMonth.latest;
+			let target = dataMonth.target;
+			let average = dataMonth.average;
 
-			datasets[0].data.unshift(dataMonth.latest);
-
-			let compareData = datasets[1].data;
-			if (compareTo === "Target") compareData.unshift(dataMonth.target);
-			else if (compareTo === "Average") compareData.unshift(dataMonth.average);
-
-			for (let bill of Object.values(billData_month[month])) {
-				if (bill > yMax) yMax = bill;
+			if (compareTo === "Target") {
+				if (target === 0) lsData.unshift(0);
+				else {
+					lsData.unshift(
+						+parseFloat(((target - latest) / target) * 100).toFixed(2)
+					);
+				}
+			} else if (compareTo === "Average") {
+				if (average === 0) lsData.unshift(0);
+				else {
+					lsData.unshift(
+						+parseFloat(((average - latest) / average) * 100).toFixed(2)
+					);
+				}
 			}
 
 			month--;
 		}
 
+		lsData.forEach((data) => {
+			if (Math.abs(data) > yMax) yMax = Math.abs(data);
+
+			if (data >= 0) lsColor.push("#7DA0CF");
+			else lsColor.push("#F19D9B");
+		});
+
+		let datasets = [
+			{
+				label: "Saved",
+				backgroundColor: lsColor,
+				borderColor: lsColor,
+				data: lsData,
+			},
+		];
+
 		data.datasets = datasets;
+
+		if (yMax === 0) yMax = 100;
 		options.scales.yAxis.max = Math.ceil(yMax);
+		options.scales.yAxis.min = Math.ceil(-yMax);
+		options.scales.yAxis.max = Math.ceil(yMax);
+		options.scales.yAxis.min = Math.ceil(-yMax);
 
-		document.getElementById("mc-bill-compare").remove();
+		document.getElementById("bc-energy-compare").remove();
 		document.getElementById(
-			"wrapper-mc-bill-compare"
-		).innerHTML = `<canvas id="mc-bill-compare" />`;
+			"wrapper-bc-energy-compare"
+		).innerHTML = `<canvas id="bc-energy-compare" />`;
 
-		let ctx = document.getElementById("mc-bill-compare").getContext("2d");
+		let ctx = document.getElementById("bc-energy-compare").getContext("2d");
 
-		mixedChart = new Chart(ctx, {
+		barChart = new Chart(ctx, {
 			type: "bar",
 			data: data,
 			options: options,
@@ -191,12 +223,12 @@ class MixedChartBillCompare extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		let lsBuilding = nextProps.lsBuilding;
 		let compareTo = nextProps.compareTo;
-		let billData_month = nextProps.billData_month;
+		let energyData_month = nextProps.energyData_month;
 
 		this.setState(
 			{
 				lsBuilding: lsBuilding,
-				billData_month: billData_month,
+				energyData_month: energyData_month,
 				compareTo: compareTo,
 			},
 			() => this.buildChart()
@@ -204,16 +236,19 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	handleDoubleClick() {
-		if (mixedChart) mixedChart.resetZoom();
+		if (barChart) barChart.resetZoom();
 	}
 
 	render() {
 		return (
-			<div id="wrapper-mc-bill-compare" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="mc-bill-compare" />
+			<div
+				id="wrapper-bc-energy-compare"
+				onDoubleClick={this.handleDoubleClick}
+			>
+				<canvas id="bc-energy-compare" />
 			</div>
 		);
 	}
 }
 
-export default MixedChartBillCompare;
+export default BarChartEnergyCompare;

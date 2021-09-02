@@ -1,7 +1,7 @@
 .container-set-target {
 	padding: 1rem !important;
 	height: 100%;
-	/* overflow: hidden; */
+	overflow: hidden;
 }
 
 .container-set-target .row-heading {
@@ -103,7 +103,7 @@
 	flex-grow: 1;
 	border: 1px solid #000;
 	border-radius: 0.5rem;
-	margin: 1rem 0.5rem 0.5rem 0.25rem;
+	margin: 1rem 0.5rem 0 0.25rem;
 	overflow: scroll;
 }
 
@@ -176,7 +176,7 @@
 	border: 1px solid #000;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	margin-bottom: 0.5rem;
+	overflow-y: scroll;
 }
 
 .row-chart-title {
@@ -186,7 +186,8 @@
 }
 
 .row-chart {
-	height: 30%;
+	height: 40%;
+	margin-bottom: 1rem !important;
 }
 
 .col-chart {
@@ -231,8 +232,14 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 0 1rem 0 0;
-	overflow-y: scroll;
+	padding: 0 1rem 0 0.5rem;
+}
+
+.col-form {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-end;
 }
 
 .dot-actual {
@@ -241,11 +248,10 @@
 	border-radius: 50%;
 }
 
-.col-form {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-end;
+.dot-actual-light {
+	width: 10px !important;
+	background-color: #f3efa9;
+	border-radius: 50%;
 }
 
 .label-actual {
@@ -285,19 +291,23 @@
 
 .block-saved {
 	text-align: center;
-	padding: 0.5rem;
+	padding: 0.5rem 1rem 0.5rem 1rem;
 	background-color: #b6cee9;
 	border-radius: 0.5rem;
+	font-size: 125%;
 	font-weight: 600;
-	margin-bottom: 1rem;
+	margin: 1rem 0 1rem 0;
+	width: 100%;
 }
 
 .block-excess {
 	text-align: center;
-	padding: 0.5rem;
+	padding: 0.5rem 1rem 0.5rem 1rem;
 	background-color: #ffafaf;
 	border-radius: 0.5rem;
+	font-size: 125%;
 	font-weight: 600;
+	width: 100%;
 }
 
 .container-capita-chart {

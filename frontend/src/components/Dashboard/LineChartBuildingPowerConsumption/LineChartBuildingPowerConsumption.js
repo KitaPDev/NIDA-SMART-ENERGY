@@ -5,8 +5,6 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
-import tooltipHandler from "../../../utils/tooltipHandler";
-
 let lineChart;
 
 class LineChartBuildingPowerConsumption extends React.Component {
@@ -67,8 +65,13 @@ class LineChartBuildingPowerConsumption extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: false,
-						external: tooltipHandler.tooltipHandlerLeft_300_bottom_150,
+						enabled: true,
+						padding: 14,
+						backgroundColor: "#F2F2F2f0",
+						titleColor: "#000",
+						bodyColor: "#000",
+						titleFont: { size: 18 },
+						bodyFont: { size: 16 },
 					},
 					zoom: {
 						pan: {

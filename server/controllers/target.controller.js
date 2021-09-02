@@ -1,4 +1,5 @@
 const targetService = require("../services/target.service");
+const buildingService = require("../services/building.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function inputTarget(req, res) {
@@ -376,10 +377,183 @@ async function getTargetPresets(req, res) {
 	}
 }
 
+async function getEnergyUseCompareData(req, res) {
+	try {
+		let body = req.body;
+		let buildingID = body.building_id;
+
+		let data = await buildingService.getBillCompareData(buildingID);
+
+		let kwhData_month = {};
+
+		let kwh_year_month = {};
+		let lsLog_year_month = data.lsLog_year_month;
+		let lsTarget = data.lsTarget;
+		let today = new Date();
+
+		for (let month = 0; month <= 11; month++) {
+			kwhData_month[month] = {};
+
+			kwh_year_month[month] = {};
+			let kwh_year = kwh_year_month[month];
+
+			// Calculate bill of each month of each year from list of logs.
+			let lsLog_year = lsLog_year_month[month];
+			for (let [year, lsLog] of Object.entries(lsLog_year)) {
+				kwh_year = kwh_year_month[month];
+
+				let lsPrevDevice = [];
+				for (let log of lsLog.slice().reverse()) {
+					let kwh = log.kwh;
+
+					if (
+						log.system !== "Main" ||
+						lsPrevDevice.includes(log.device) ||
+						kwh === null
+					) {
+						continue;
+					}
+
+					if (!kwh_year[year]) kwh_year[year] = 0;
+					kwh_year[year] += kwh;
+
+					lsPrevDevice.push(log.device);
+				}
+
+				lsPrevDevice = [];
+				for (let log of lsLog) {
+					let kwh = log.kwh;
+
+					if (
+						log.system !== "Main" ||
+						lsPrevDevice.includes(log.device) ||
+						kwh === null
+					) {
+						continue;
+					}
+
+					kwh_year[year] -= kwh;
+					lsPrevDevice.push(log.device);
+				}
+			}
+		}
+
+		// Calculate data from bill
+		let month = today.getMonth();
+		let year = today.getFullYear();
+		for (let i = 0; i < 12; i++) {
+			if (month < 0) {
+				month += 12;
+				year--;
+			}
+
+			// Current month and year energy usage
+			kwhData_month[month].latest = 0;
+			if (kwh_year_month[month][year] !== undefined) {
+				kwhData_month[month].latest = kwh_year_month[month][year];
+			}
+
+			// Last year's energy usage
+			kwhData_month[month].lastYear = 0;
+			if (kwh_year_month[month][year - 1] !== undefined) {
+				kwhData_month[month].lastYear = kwh_year_month[month][year - 1];
+			}
+
+			// Target energy usage
+			let energyUsage = 0;
+			lsTarget.forEach((t) => {
+				if (t.month === month && t.year === year) {
+					if (t.energy_usage !== null) energyUsage += t.energy_usage;
+				}
+			});
+			kwhData_month[month].target = energyUsage;
+
+			// Average energy usage over past 3 years
+			for (let j = 1; j <= 3; j++) {
+				if (kwhData_month[month].average === undefined) {
+					kwhData_month[month].average = 0;
+				}
+				if (kwh_year_month[month][year - j] !== undefined) {
+					kwhData_month[month].average += kwh_year_month[month][year - j];
+				}
+			}
+
+			kwhData_month[month].average /= 3;
+			month--;
+		}
+
+		return res.status(httpStatusCodes.OK).send(kwhData_month);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function getDataEnergyMonthPastYear(_, res) {
+	try {
+		let lsLog_month = await targetService.getDataEnergyMonthPastYear();
+
+		let kwh_building_month = {};
+
+		for (let [month, lsLog] of Object.entries(lsLog_month)) {
+			if (kwh_building_month[month] === undefined) {
+				kwh_building_month[month] = {};
+			}
+			let kwh_building = kwh_building_month[month];
+
+			let lsPrevDevice = [];
+			for (let log of lsLog.slice().reverse()) {
+				let system = log.system;
+				let building = log.building;
+				let kwh = log.kwh;
+
+				if (
+					system !== "Main" ||
+					lsPrevDevice.includes(log.device) ||
+					kwh === null
+				) {
+					continue;
+				}
+
+				if (!kwh_building[building]) kwh_building[building] = 0;
+				kwh_building[building] += kwh;
+
+				lsPrevDevice.push(log.device);
+			}
+
+			lsPrevDevice = [];
+			for (let log of lsLog) {
+				let system = log.system;
+				let building = log.building;
+				let kwh = log.kwh;
+
+				if (
+					system !== "Main" ||
+					lsPrevDevice.includes(log.device) ||
+					kwh === null
+				) {
+					continue;
+				}
+
+				kwh_building[building] -= kwh;
+
+				lsPrevDevice.push(log.device);
+			}
+		}
+
+		return res.status(httpStatusCodes.OK).send(kwh_building_month);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	inputTarget,
 	getAllTargetByMonthYear,
 	getAllBuildingTariffByMonthYear,
 	getBuildingTargetRange,
 	getTargetPresets,
+	getEnergyUseCompareData,
+	getDataEnergyMonthPastYear,
 };

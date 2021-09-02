@@ -5,10 +5,6 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
-import http from "../../../../utils/http";
-import csv from "../../../../utils/csv";
-import tooltipHandler from "../../../../utils/tooltipHandler";
-
 const lsMonth = [
 	"JAN",
 	"FEB",
@@ -62,18 +58,32 @@ class BarChartBillCompare extends React.Component {
 						},
 					},
 					yAxis: {
-						min: 0,
+						min: -100,
 						max: 100,
 						display: true,
 						grid: {
-							display: false,
+							drawBorder: false,
+							color: function (context) {
+								if (context.tick.value === 0) {
+									return "#000";
+								}
+								return "#00000000";
+							},
+						},
+						title: {
+							display: true,
+							text: "%",
+							font: {
+								size: 16,
+								weight: "600",
+							},
 						},
 					},
 				},
 				plugins: {
 					title: {
 						display: true,
-						text: "Electricity Bill Compare to Target/Average",
+						text: "Electricity Bill Compared to Target/Average",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 					},
@@ -81,8 +91,29 @@ class BarChartBillCompare extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: false,
-						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
+						enabled: true,
+						padding: 14,
+						backgroundColor: "#F2F2F2",
+						titleColor: "#000",
+						bodyColor: "#000",
+						titleFont: { size: 20 },
+						bodyFont: { size: 18 },
+						bodySpacing: 10,
+						callbacks: {
+							label: function (context) {
+								var label = context.dataset.label || "";
+
+								if (label) {
+									label += ": ";
+								}
+								if (context.parsed.y !== null) {
+									if (context.parsed.y < 0) label = "Excess: ";
+
+									label += context.parsed.y + "%";
+								}
+								return label;
+							},
+						},
 					},
 					zoom: {
 						pan: {
@@ -104,9 +135,7 @@ class BarChartBillCompare extends React.Component {
 			},
 		};
 
-		this.getBillDataMonth = this.getBillDataMonth.bind(this);
 		this.handleDoubleClick = this.handleDoubleClick.bind(this);
-		this.exportData = this.exportData.bind(this);
 	}
 
 	buildChart = () => {
@@ -114,15 +143,8 @@ class BarChartBillCompare extends React.Component {
 
 		if (Object.keys(billData_month).length === 0) return;
 
-		let datasets = [
-			{
-				label: "Latest",
-				backgroundColor: "#FFB800",
-				borderColor: "#FFB800",
-				data: [],
-				type: "bar",
-			},
-		];
+		let lsData = [];
+		let lsColor = [];
 
 		let yMax = 0;
 		let month = new Date().getMonth();
@@ -130,22 +152,50 @@ class BarChartBillCompare extends React.Component {
 			if (month < 0) month += 12;
 
 			let dataMonth = billData_month[month];
+			let latest = dataMonth.latest;
+			let target = dataMonth.target;
+			let average = dataMonth.average;
 
-			datasets[0].data.unshift(dataMonth.latest);
-
-			let compareData = datasets[1].data;
-			if (compareTo === "Target") compareData.unshift(dataMonth.target);
-			else if (compareTo === "Average") compareData.unshift(dataMonth.average);
-
-			for (let bill of Object.values(billData_month[month])) {
-				if (bill > yMax) yMax = bill;
+			if (compareTo === "Target") {
+				if (target === 0) lsData.unshift(0);
+				else {
+					lsData.unshift(
+						+parseFloat(((target - latest) / target) * 100).toFixed(2)
+					);
+				}
+			} else if (compareTo === "Average") {
+				if (average === 0) lsData.unshift(0);
+				else {
+					lsData.unshift(
+						+parseFloat(((average - latest) / average) * 100).toFixed(2)
+					);
+				}
 			}
 
 			month--;
 		}
 
+		lsData.forEach((data) => {
+			if (Math.abs(data) > yMax) yMax = Math.abs(data);
+
+			if (data >= 0) lsColor.push("#7DA0CF");
+			else lsColor.push("#F19D9B");
+		});
+
+		let datasets = [
+			{
+				label: "Saved",
+				backgroundColor: lsColor,
+				borderColor: lsColor,
+				data: lsData,
+			},
+		];
+
 		data.datasets = datasets;
+
+		if (yMax === 0) yMax = 100;
 		options.scales.yAxis.max = Math.ceil(yMax);
+		options.scales.yAxis.min = Math.ceil(-yMax);
 
 		document.getElementById("bc-bill-compare").remove();
 		document.getElementById(
@@ -173,78 +223,16 @@ class BarChartBillCompare extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		let lsBuilding = nextProps.lsBuilding;
 		let compareTo = nextProps.compareTo;
+		let billData_month = nextProps.billData_month;
 
-		if (
-			(lsBuilding === undefined ||
-				this.props.lsBuilding.length === lsBuilding.length) &&
-			this.props.compareTo === compareTo
-		) {
-			this.setState(
-				{
-					lsBuilding: lsBuilding,
-				},
-				() => this.getBillDataMonth()
-			);
-		} else if (
-			lsBuilding !== undefined &&
-			this.props.lsBuilding.length !== nextProps.lsBuilding.length
-		) {
-			this.setState(
-				{
-					lsBuilding: lsBuilding,
-				},
-				() => this.getBillDataMonth()
-			);
-		} else {
-			this.setState(
-				{
-					compareTo: compareTo,
-				},
-				() => this.buildChart()
-			);
-		}
-	}
-
-	async getBillDataMonth() {
-		try {
-			let { lsBuilding } = this.state;
-
-			let payload = {
-				building_id: lsBuilding.map(function (building) {
-					return building.id;
-				}),
-			};
-
-			let resp = await http.post("/building/bill/compare", payload);
-
-			this.setState(
-				{
-					billData_month: resp.data,
-				},
-				() => this.buildChart()
-			);
-		} catch (err) {
-			console.log(err);
-			return err.response;
-		}
-	}
-
-	exportData() {
-		let { data, compareTo } = this.state;
-
-		let labels = data.labels;
-		let dataMonth = data.datasets[0].data;
-		let dataMonthCompare = data.datasets[1].data;
-
-		let rows = [[]];
-		rows[0].push("Month", "Bill", compareTo);
-
-		dataMonth.forEach((d, idx) => {
-			if (!rows[idx + 1]) rows[idx + 1] = [];
-			rows[idx + 1].push(labels[idx], d, dataMonthCompare[idx]);
-		});
-
-		csv.exportFile(`Bill Compare to ${compareTo}`, rows);
+		this.setState(
+			{
+				lsBuilding: lsBuilding,
+				billData_month: billData_month,
+				compareTo: compareTo,
+			},
+			() => this.buildChart()
+		);
 	}
 
 	handleDoubleClick() {

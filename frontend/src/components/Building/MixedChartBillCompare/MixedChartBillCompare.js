@@ -10,7 +10,6 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 
 import http from "../../../utils/http";
 import csv from "../../../utils/csv";
-import tooltipHandler from "../../../utils/tooltipHandler";
 
 const lsMonth = [
 	"JAN",
@@ -80,8 +79,13 @@ class MixedChartBillCompare extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: false,
-						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
+						enabled: true,
+						padding: 14,
+						backgroundColor: "#F2F2F2",
+						titleColor: "#000",
+						bodyColor: "#000",
+						titleFont: { size: 18 },
+						bodyFont: { size: 16 },
 					},
 					zoom: {
 						pan: {

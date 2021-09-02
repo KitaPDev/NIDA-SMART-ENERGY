@@ -28,4 +28,12 @@ router.post("/presets", authenticateJWT, async function (req, res) {
 	targetController.getTargetPresets(req, res);
 });
 
+router.post("/energy/compare", authenticateJWT, async function (req, res) {
+	targetController.getEnergyUseCompareData(req, res);
+});
+
+router.get("/energy/year", authenticateJWT, async function (req, res) {
+	targetController.getDataEnergyMonthPastYear(req, res);
+});
+
 module.exports = router;

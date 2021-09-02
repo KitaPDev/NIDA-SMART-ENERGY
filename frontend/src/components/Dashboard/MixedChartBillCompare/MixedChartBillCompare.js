@@ -10,7 +10,6 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 
 import http from "../../../utils/http";
 import csv from "../../../utils/csv";
-import tooltipHandler from "../../../utils/tooltipHandler";
 
 const lsMonth = [
 	"JAN",
@@ -81,8 +80,14 @@ class MixedChartBillCompare extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: false,
-						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
+						enabled: true,
+						padding: 8,
+						backgroundColor: "#F2F2F2",
+						titleColor: "#000",
+						bodyColor: "#000",
+						titleFont: { size: 16 },
+						bodyFont: { size: 14 },
+						bodySpacing: 10,
 					},
 					zoom: {
 						pan: {
@@ -185,27 +190,32 @@ class MixedChartBillCompare extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		let lsBuilding = nextProps.lsBuilding;
 		let compareTo = nextProps.compareTo;
+		let billData_month = nextProps.billData_month;
 
 		if (
 			(lsBuilding === undefined ||
 				this.props.lsBuilding.length === lsBuilding.length) &&
-			this.props.compareTo === compareTo
+			this.props.compareTo === compareTo &&
+			Object.keys(billData_month).length > 0
 		) {
 			this.setState(
 				{
 					lsBuilding: lsBuilding,
+					billData_month: billData_month,
 				},
-				() => this.getBillDataMonth()
+				() => this.buildChart()
 			);
 		} else if (
 			lsBuilding !== undefined &&
-			this.props.lsBuilding.length !== nextProps.lsBuilding.length
+			this.props.lsBuilding.length !== nextProps.lsBuilding.length &&
+			Object.keys(billData_month).length > 0
 		) {
 			this.setState(
 				{
 					lsBuilding: lsBuilding,
+					billData_month: billData_month,
 				},
-				() => this.getBillDataMonth()
+				() => this.buildChart()
 			);
 		} else {
 			this.setState(

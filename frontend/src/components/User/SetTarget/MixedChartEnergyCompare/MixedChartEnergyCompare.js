@@ -1,5 +1,5 @@
 import React from "react";
-import "./MixedChartBillCompare.css";
+import "./MixedChartEnergyCompare.css";
 
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -22,7 +22,7 @@ const lsMonth = [
 
 let mixedChart;
 
-class MixedChartBillCompare extends React.Component {
+class MixedChartEnergyCompare extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -35,7 +35,7 @@ class MixedChartBillCompare extends React.Component {
 		this.state = {
 			building: {},
 			compareTo: "Target",
-			billData_month: {},
+			energyData_month: {},
 			compareData: [],
 			lsBuilding: [],
 			// Chart details
@@ -66,7 +66,7 @@ class MixedChartBillCompare extends React.Component {
 						},
 						title: {
 							display: true,
-							text: "THB",
+							text: "kWh",
 							font: {
 								size: 16,
 								weight: "600",
@@ -77,12 +77,9 @@ class MixedChartBillCompare extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Electricity Bill",
+						text: "Energy Usage (kWh)",
 						align: "start",
 						font: { weight: "bold", size: 20 },
-					},
-					legend: {
-						display: false,
 					},
 					tooltip: {
 						enabled: true,
@@ -93,6 +90,9 @@ class MixedChartBillCompare extends React.Component {
 						titleFont: { size: 20 },
 						bodyFont: { size: 18 },
 						bodySpacing: 10,
+					},
+					legend: {
+						display: false,
 					},
 					zoom: {
 						pan: {
@@ -118,15 +118,15 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	buildChart = () => {
-		let { data, options, billData_month, compareTo } = this.state;
+		let { data, options, energyData_month, compareTo } = this.state;
 
-		if (Object.keys(billData_month).length === 0) return;
+		if (Object.keys(energyData_month).length === 0) return;
 
 		let datasets = [
 			{
 				label: "Latest",
-				backgroundColor: "#FFB800",
-				borderColor: "#FFB800",
+				backgroundColor: "#f3efa9",
+				borderColor: "#f3efa9",
 				data: [],
 				type: "bar",
 			},
@@ -147,7 +147,7 @@ class MixedChartBillCompare extends React.Component {
 		for (let i = 0; i < 12; i++) {
 			if (month < 0) month += 12;
 
-			let dataMonth = billData_month[month];
+			let dataMonth = energyData_month[month];
 
 			datasets[0].data.unshift(dataMonth.latest);
 
@@ -155,8 +155,8 @@ class MixedChartBillCompare extends React.Component {
 			if (compareTo === "Target") compareData.unshift(dataMonth.target);
 			else if (compareTo === "Average") compareData.unshift(dataMonth.average);
 
-			for (let bill of Object.values(billData_month[month])) {
-				if (bill > yMax) yMax = bill;
+			for (let kwh of Object.values(energyData_month[month])) {
+				if (kwh > yMax) yMax = kwh;
 			}
 
 			month--;
@@ -165,12 +165,12 @@ class MixedChartBillCompare extends React.Component {
 		data.datasets = datasets;
 		options.scales.yAxis.max = Math.ceil(yMax);
 
-		document.getElementById("mc-bill-compare").remove();
+		document.getElementById("mc-energy-compare").remove();
 		document.getElementById(
-			"wrapper-mc-bill-compare"
-		).innerHTML = `<canvas id="mc-bill-compare" />`;
+			"wrapper-mc-energy-compare"
+		).innerHTML = `<canvas id="mc-energy-compare" />`;
 
-		let ctx = document.getElementById("mc-bill-compare").getContext("2d");
+		let ctx = document.getElementById("mc-energy-compare").getContext("2d");
 
 		mixedChart = new Chart(ctx, {
 			type: "bar",
@@ -191,12 +191,12 @@ class MixedChartBillCompare extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		let lsBuilding = nextProps.lsBuilding;
 		let compareTo = nextProps.compareTo;
-		let billData_month = nextProps.billData_month;
+		let energyData_month = nextProps.energyData_month;
 
 		this.setState(
 			{
 				lsBuilding: lsBuilding,
-				billData_month: billData_month,
+				energyData_month: energyData_month,
 				compareTo: compareTo,
 			},
 			() => this.buildChart()
@@ -209,11 +209,14 @@ class MixedChartBillCompare extends React.Component {
 
 	render() {
 		return (
-			<div id="wrapper-mc-bill-compare" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="mc-bill-compare" />
+			<div
+				id="wrapper-mc-energy-compare"
+				onDoubleClick={this.handleDoubleClick}
+			>
+				<canvas id="mc-energy-compare" />
 			</div>
 		);
 	}
 }
 
-export default MixedChartBillCompare;
+export default MixedChartEnergyCompare;

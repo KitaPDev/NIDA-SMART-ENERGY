@@ -15,6 +15,10 @@ import { MdPeople } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
 import MixedChartBillCompare from "./MixedChartBillCompare/MixedChartBillCompare";
+import BarChartBillCompare from "./BarChartBillCompare/BarChartBillCompare";
+import LineChartUsagePerCapita from "./LineChartUsagePerCapita/LineChartUsagePerCapita";
+import MixedChartEnergyCompare from "./MixedChartEnergyCompare/MixedChartEnergyCompare";
+import BarChartEnergyCompare from "./BarChartEnergyCompare/BarChartEnergyCompare";
 
 import http from "../../../utils/http";
 
@@ -65,10 +69,14 @@ class SetTarget extends React.Component {
 			tariff: "",
 			compareToBill: "Target",
 			compareToUsage: "Target",
+			billData_month: {},
+			energyData_month: {},
+			kwh_building_month: {},
 		};
 
 		this.onClickCompareToBill = this.onClickCompareToBill.bind(this);
 		this.onClickCompareToUsage = this.onClickCompareToUsage.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
 
 		this.setTarget = this.setTarget.bind(this);
 
@@ -77,23 +85,22 @@ class SetTarget extends React.Component {
 		this.getTarget_monthYear_display =
 			this.getTarget_monthYear_display.bind(this);
 		this.getTargetPresets = this.getTargetPresets.bind(this);
+		this.getBillDataMonth = this.getBillDataMonth.bind(this);
+		this.getEnergyDataMonth = this.getEnergyDataMonth.bind(this);
+		this.getEnergyMonthPastYear = this.getEnergyMonthPastYear.bind(this);
 	}
 
 	componentDidMount() {
 		this.getAllBuilding();
 		this.getTarget_monthYear();
 		this.getTarget_monthYear_display();
+		this.getEnergyMonthPastYear();
+
+		document.getElementById("root").classList.add("no-scroll");
 	}
 
-	async getAllBuilding() {
-		try {
-			let resp = await http.get("/building/all");
-
-			this.setState({ lsBuilding: resp.data }, () => this.getTargetPresets());
-		} catch (err) {
-			console.log(err);
-			return err.response;
-		}
+	componentWillUnmount() {
+		document.getElementById("root").classList.remove("no-scroll");
 	}
 
 	handleInputChange(e) {
@@ -104,6 +111,7 @@ class SetTarget extends React.Component {
 				e.target.name === "building"
 			) {
 				this.getTargetPresets();
+				this.getTarget_monthYear();
 			}
 
 			if (e.target.name === "monthDisplay" || e.target.name === "yearDisplay") {
@@ -156,22 +164,24 @@ class SetTarget extends React.Component {
 				year: year,
 			};
 
-			payload.tariff = target.tariff;
+			if (target !== undefined) payload.tariff = target.tariff;
 			if (tariff.length > 0) {
 				payload.tariff = +tariff;
 			}
 
-			payload.electricity_bill = target.electricity_bill;
+			if (target !== undefined) {
+				payload.electricity_bill = target.electricity_bill;
+			}
 			if (electricityBill.length > 0) {
 				payload.electricity_bill = +electricityBill;
 			}
 
-			payload.energy_usage = target.energy_usage;
+			if (target !== undefined) payload.energy_usage = target.energy_usage;
 			if (energyUsage.length > 0) {
 				payload.energy_usage = +energyUsage;
 			}
 
-			payload.amount_people = target.amount_people;
+			if (target !== undefined) payload.amount_people = target.amount_people;
 			if (amountPeople.length > 0) {
 				payload.amount_people = +amountPeople;
 			}
@@ -182,8 +192,9 @@ class SetTarget extends React.Component {
 				this.getTarget_monthYear();
 				this.getTarget_monthYear_display();
 				this.getTargetPresets();
+				this.getBillDataMonth();
+				this.getEnergyDataMonth();
 
-				alert("Target set successful.");
 				this.setState({
 					electricityBill: "",
 					energyUsage: "",
@@ -191,6 +202,21 @@ class SetTarget extends React.Component {
 					tariff: "",
 				});
 			}
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getAllBuilding() {
+		try {
+			let resp = await http.get("/building/all");
+
+			this.setState({ lsBuilding: resp.data }, () => {
+				this.getTargetPresets();
+				this.getBillDataMonth();
+				this.getEnergyDataMonth();
+			});
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -246,8 +272,8 @@ class SetTarget extends React.Component {
 			let { month, year, building, lsBuilding } = this.state;
 
 			let payload = {
-				month: month,
-				year: year,
+				month: +month,
+				year: +year,
 				building_id: lsBuilding.find((b) => b.label === building).id,
 			};
 
@@ -267,6 +293,61 @@ class SetTarget extends React.Component {
 				lastYearActual_usage: presets.lastYearActual_usage,
 				monthAverage_usage: resp.data.monthAverage_usage,
 				yearAverage_usage: presets.yearAverage_usage,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getBillDataMonth() {
+		try {
+			let { lsBuilding } = this.state;
+
+			let payload = {
+				building_id: lsBuilding.map(function (building) {
+					return building.id;
+				}),
+			};
+
+			let resp = await http.post("/building/bill/compare", payload);
+
+			this.setState({
+				billData_month: resp.data,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getEnergyDataMonth() {
+		try {
+			let { lsBuilding } = this.state;
+
+			let payload = {
+				building_id: lsBuilding.map(function (building) {
+					return building.id;
+				}),
+			};
+
+			let resp = await http.post("/target/energy/compare", payload);
+
+			this.setState({
+				energyData_month: resp.data,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getEnergyMonthPastYear() {
+		try {
+			let resp = await http.get("/target/energy/year");
+
+			this.setState({
+				kwh_building_month: resp.data,
 			});
 		} catch (err) {
 			console.log(err);
@@ -303,6 +384,9 @@ class SetTarget extends React.Component {
 			energyUsage,
 			compareToBill,
 			compareToUsage,
+			billData_month,
+			energyData_month,
+			kwh_building_month,
 		} = this.state;
 
 		let currentYear = new Date().getFullYear();
@@ -681,45 +765,122 @@ class SetTarget extends React.Component {
 						{/* ****************************** HISTORICAL DATA PANE *****************************/}
 						<Container fluid className="container-historical-data">
 							{/* ****************************** CHART 1 **************************** */}
-
 							<Row className="row-chart">
 								<Col sm={10} className="col-chart">
 									<MixedChartBillCompare
 										compareTo={compareToBill}
 										lsBuilding={lsBuilding}
+										billData_month={billData_month}
 									/>
 								</Col>
 								<Col sm={2} className="col-form">
-									<Row>
-										<Form className="form-historical-data-charts">
-											<Row>
-												<span className="dot-actual"></span>
-												<span className="label-actual">Actual</span>
-											</Row>
-											<FormGroup row>
-												<Label check>
-													<Input
-														type="radio"
-														name="compareToBill"
-														onChange={() => this.onClickCompareToBill("Target")}
-														checked={compareToBill === "Target"}
-													/>
-													Target
-												</Label>
-												<Label check>
-													<Input
-														type="radio"
-														name="compareToBill"
-														onChange={() =>
-															this.onClickCompareToBill("Average")
-														}
-														checked={compareToBill === "Average"}
-													/>
-													Average
-												</Label>
-											</FormGroup>
-										</Form>
-									</Row>
+									<Form className="form-historical-data-charts">
+										<Row>
+											<span className="dot-actual"></span>
+											<span className="label-actual">Actual</span>
+										</Row>
+										<FormGroup row>
+											<Label check>
+												<Input
+													type="radio"
+													name="compareToBill"
+													onChange={() => this.onClickCompareToBill("Target")}
+													checked={compareToBill === "Target"}
+												/>
+												Target
+											</Label>
+											<Label check>
+												<Input
+													type="radio"
+													name="compareToBill"
+													onChange={() => this.onClickCompareToBill("Average")}
+													checked={compareToBill === "Average"}
+												/>
+												Average
+											</Label>
+										</FormGroup>
+									</Form>
+								</Col>
+							</Row>
+
+							{/* ****************************** CHART 2 **************************** */}
+							<Row className="row-chart">
+								<Col sm={10} className="col-chart">
+									<BarChartBillCompare
+										compareTo={compareToBill}
+										lsBuilding={lsBuilding}
+										billData_month={billData_month}
+									/>
+								</Col>
+								<Col sm={2} className="col-form">
+									<div className="block-saved">Saved</div>
+									<div className="block-excess">Excess</div>
+								</Col>
+							</Row>
+
+							{/* ****************************** CHART 3 **************************** */}
+							<Row className="row-chart">
+								<Col sm={10} className="col-chart">
+									<LineChartUsagePerCapita
+										lsBuilding={lsBuilding}
+										kwh_building_month={kwh_building_month}
+										lsTarget={lsTarget}
+									/>
+								</Col>
+								<Col sm={2} className="col-form"></Col>
+							</Row>
+
+							{/* ****************************** CHART 4 **************************** */}
+							<Row className="row-chart">
+								<Col sm={10} className="col-chart">
+									<MixedChartEnergyCompare
+										compareTo={compareToUsage}
+										lsBuilding={lsBuilding}
+										energyData_month={energyData_month}
+									/>
+								</Col>
+								<Col sm={2} className="col-form">
+									<Form className="form-historical-data-charts">
+										<Row>
+											<span className="dot-actual-light"></span>
+											<span className="label-actual">Actual</span>
+										</Row>
+										<FormGroup row>
+											<Label check>
+												<Input
+													type="radio"
+													name="compareToUsage"
+													onChange={() => this.onClickCompareToUsage("Target")}
+													checked={compareToUsage === "Target"}
+												/>
+												Target
+											</Label>
+											<Label check>
+												<Input
+													type="radio"
+													name="compareToUsage"
+													onChange={() => this.onClickCompareToUsage("Average")}
+													checked={compareToUsage === "Average"}
+												/>
+												Average
+											</Label>
+										</FormGroup>
+									</Form>
+								</Col>
+							</Row>
+
+							{/* ****************************** CHART 5 **************************** */}
+							<Row className="row-chart">
+								<Col sm={10} className="col-chart">
+									<BarChartEnergyCompare
+										compareTo={compareToUsage}
+										lsBuilding={lsBuilding}
+										energyData_month={energyData_month}
+									/>
+								</Col>
+								<Col sm={2} className="col-form">
+									<div className="block-saved">Saved</div>
+									<div className="block-excess">Excess</div>
 								</Col>
 							</Row>
 						</Container>

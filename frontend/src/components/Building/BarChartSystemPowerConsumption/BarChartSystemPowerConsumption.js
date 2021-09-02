@@ -5,8 +5,6 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
-import tooltipHandler from "../../../utils/tooltipHandler";
-
 let barChart;
 
 class BarChartSystemPowerConsumption extends React.Component {
@@ -57,8 +55,13 @@ class BarChartSystemPowerConsumption extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: false,
-						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
+						enabled: true,
+						padding: 14,
+						backgroundColor: "#F2F2F2",
+						titleColor: "#000",
+						bodyColor: "#000",
+						titleFont: { size: 18 },
+						bodyFont: { size: 16 },
 					},
 					zoom: {
 						pan: {

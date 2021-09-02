@@ -53,6 +53,7 @@ class Dashboard extends React.Component {
 			kwhSolar: 0,
 			compareTo: "Target",
 			lsTempHumi: [],
+			billData_month: {},
 		};
 
 		this.updateData = this.updateData.bind(this);
@@ -62,6 +63,7 @@ class Dashboard extends React.Component {
 		this.getAllTargetByMonthYear = this.getAllTargetByMonthYear.bind(this);
 		this.getSolarCurrentMonth = this.getSolarCurrentMonth.bind(this);
 		this.getDataIaqByDatetime = this.getDataIaqByDatetime.bind(this);
+		this.getBillDataMonth = this.getBillDataMonth.bind(this);
 
 		this.handleInputDateChange = this.handleInputDateChange.bind(this);
 		this.onClickApply = this.onClickApply.bind(this);
@@ -198,7 +200,7 @@ class Dashboard extends React.Component {
 		try {
 			let resp = await http.get("/building/all");
 
-			this.setState({ lsBuilding: resp.data });
+			this.setState({ lsBuilding: resp.data }, () => this.getBillDataMonth());
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -276,6 +278,27 @@ class Dashboard extends React.Component {
 
 			this.setState({
 				lsTempHumi: resp.data,
+			});
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getBillDataMonth() {
+		try {
+			let { lsBuilding } = this.state;
+
+			let payload = {
+				building_id: lsBuilding.map(function (building) {
+					return building.id;
+				}),
+			};
+
+			let resp = await http.post("/building/bill/compare", payload);
+
+			this.setState({
+				billData_month: resp.data,
 			});
 		} catch (err) {
 			console.log(err);
@@ -473,6 +496,7 @@ class Dashboard extends React.Component {
 			kwhSolar,
 			compareTo,
 			lsTempHumi,
+			billData_month,
 		} = this.state;
 
 		let kwhMainTotal = 0;
@@ -743,6 +767,7 @@ class Dashboard extends React.Component {
 								<MixedChartBillCompare
 									compareTo={compareTo}
 									lsBuilding={lsBuilding}
+									billData_month={billData_month}
 								/>
 							) : (
 								<MixedChartBillCompareDate

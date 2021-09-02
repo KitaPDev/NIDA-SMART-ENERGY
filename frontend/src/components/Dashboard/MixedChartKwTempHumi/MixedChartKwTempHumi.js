@@ -8,7 +8,6 @@ import "chartjs-adapter-moment";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
 import csv from "../../../utils/csv";
-import tooltipHandler from "../../../utils/tooltipHandler";
 import dateFormatter from "../../../utils/dateFormatter";
 
 let mixedChart;
@@ -96,8 +95,14 @@ class MixedChartKwTempHumi extends React.Component {
 						labels: { usePointStyle: true },
 					},
 					tooltip: {
-						enabled: false,
-						external: tooltipHandler.tooltipHandlerLeft_200_top_100,
+						enabled: true,
+						padding: 8,
+						backgroundColor: "#F2F2F2",
+						titleColor: "#000",
+						bodyColor: "#000",
+						titleFont: { size: 16 },
+						bodyFont: { size: 14 },
+						bodySpacing: 10,
 					},
 					zoom: {
 						pan: {

@@ -1,5 +1,5 @@
 import React from "react";
-import "./MixedChartBillCompare.css";
+import "./LineChartUsagePerCapita.css";
 
 import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -20,9 +20,9 @@ const lsMonth = [
 	"DEC",
 ];
 
-let mixedChart;
+let lineChart;
 
-class MixedChartBillCompare extends React.Component {
+class LineChartUsagePerCapita extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -33,11 +33,10 @@ class MixedChartBillCompare extends React.Component {
 		}
 
 		this.state = {
-			building: {},
-			compareTo: "Target",
-			billData_month: {},
-			compareData: [],
 			lsBuilding: [],
+			lsTarget: [],
+			kwh_building_month: {},
+
 			// Chart details
 			data: {
 				labels: labels,
@@ -66,7 +65,7 @@ class MixedChartBillCompare extends React.Component {
 						},
 						title: {
 							display: true,
-							text: "THB",
+							text: "kWh",
 							font: {
 								size: 16,
 								weight: "600",
@@ -77,7 +76,7 @@ class MixedChartBillCompare extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Electricity Bill",
+						text: "Energy Use per Capita",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 					},
@@ -103,7 +102,7 @@ class MixedChartBillCompare extends React.Component {
 							wheel: { enabled: true },
 							pinch: { enabled: true },
 							mode: "xy",
-							speed: 100,
+							speed: 2,
 						},
 						limits: {
 							x: { min: labels[0], max: labels[labels.length - 1] },
@@ -118,45 +117,67 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	buildChart = () => {
-		let { data, options, billData_month, compareTo } = this.state;
+		let { data, options, lsBuilding, lsTarget, kwh_building_month } =
+			this.state;
 
-		if (Object.keys(billData_month).length === 0) return;
+		if (Object.keys(kwh_building_month).length === 0) return;
 
-		let datasets = [
-			{
-				label: "Latest",
-				backgroundColor: "#FFB800",
-				borderColor: "#FFB800",
-				data: [],
-				type: "bar",
-			},
-			{
-				label: compareTo,
-				backgroundColor: "#E2E2E2",
-				borderColor: "#E2E2E2",
-				fill: "origin",
+		let datasets = [];
+		lsBuilding.forEach((building) => {
+			datasets.push({
+				label: building.label,
+				fill: false,
+				borderColor: building.color_code,
+				backgroundColor: building.color_code,
 				borderWidth: 2,
+				spanGaps: true,
 				pointRadius: 2,
 				data: [],
-				type: "line",
-			},
-		];
+			});
+		});
 
 		let yMax = 0;
+
+		let year = new Date().getFullYear();
 		let month = new Date().getMonth();
 		for (let i = 0; i < 12; i++) {
-			if (month < 0) month += 12;
+			if (month < 0) {
+				month += 12;
+				year--;
+			}
 
-			let dataMonth = billData_month[month];
+			let kwh_building = kwh_building_month[month];
+			if (kwh_building === undefined) {
+				datasets.forEach((ds) => {
+					ds.data.unshift(0);
+				});
+				continue;
+			} else if (Object.keys(kwh_building).length === 0) {
+				datasets.forEach((ds) => {
+					ds.data.unshift(0);
+				});
+				continue;
+			}
 
-			datasets[0].data.unshift(dataMonth.latest);
+			datasets.forEach((ds) => {
+				if (!Object.keys(kwh_building).includes(ds.label)) ds.data.unshift(0);
+			});
 
-			let compareData = datasets[1].data;
-			if (compareTo === "Target") compareData.unshift(dataMonth.target);
-			else if (compareTo === "Average") compareData.unshift(dataMonth.average);
+			for (let [building, kwh] of Object.entries(kwh_building)) {
+				let ds = datasets.find((ds) => ds.label === building);
 
-			for (let bill of Object.values(billData_month[month])) {
-				if (bill > yMax) yMax = bill;
+				let target = lsTarget.find(
+					(t) => t.building === building && t.month === month && t.year === year
+				);
+				if (target === undefined) ds.data.unshift(0);
+				else if (target.amount_people === null) ds.data.unshift(0);
+				else {
+					ds.data.unshift(parseFloat(kwh / target.amount_people).toFixed(2));
+
+					if (kwh / target.amount_people > yMax) {
+						yMax = kwh / target.amount_people;
+					}
+				}
 			}
 
 			month--;
@@ -165,21 +186,17 @@ class MixedChartBillCompare extends React.Component {
 		data.datasets = datasets;
 		options.scales.yAxis.max = Math.ceil(yMax);
 
-		document.getElementById("mc-bill-compare").remove();
+		document.getElementById("lc-energy-capita").remove();
 		document.getElementById(
-			"wrapper-mc-bill-compare"
-		).innerHTML = `<canvas id="mc-bill-compare" />`;
+			"wrapper-lc-energy-capita"
+		).innerHTML = `<canvas id="lc-energy-capita" />`;
 
-		let ctx = document.getElementById("mc-bill-compare").getContext("2d");
+		let ctx = document.getElementById("lc-energy-capita").getContext("2d");
 
-		mixedChart = new Chart(ctx, {
-			type: "bar",
+		lineChart = new Chart(ctx, {
+			type: "line",
 			data: data,
 			options: options,
-		});
-
-		this.setState({
-			data: data,
 		});
 	};
 
@@ -190,30 +207,30 @@ class MixedChartBillCompare extends React.Component {
 
 	componentWillReceiveProps(nextProps) {
 		let lsBuilding = nextProps.lsBuilding;
-		let compareTo = nextProps.compareTo;
-		let billData_month = nextProps.billData_month;
+		let lsTarget = nextProps.lsTarget;
+		let kwh_building_month = nextProps.kwh_building_month;
 
 		this.setState(
 			{
 				lsBuilding: lsBuilding,
-				billData_month: billData_month,
-				compareTo: compareTo,
+				lsTarget: lsTarget,
+				kwh_building_month: kwh_building_month,
 			},
 			() => this.buildChart()
 		);
 	}
 
 	handleDoubleClick() {
-		if (mixedChart) mixedChart.resetZoom();
+		if (lineChart) lineChart.resetZoom();
 	}
 
 	render() {
 		return (
-			<div id="wrapper-mc-bill-compare" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="mc-bill-compare" />
+			<div id="wrapper-lc-energy-capita" onDoubleClick={this.handleDoubleClick}>
+				<canvas id="lc-energy-capita" />
 			</div>
 		);
 	}
 }
 
-export default MixedChartBillCompare;
+export default LineChartUsagePerCapita;

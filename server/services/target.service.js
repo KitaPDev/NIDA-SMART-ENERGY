@@ -150,7 +150,7 @@ async function getTargetPresetData(buildingID, month, year) {
 		.where(function () {
 			let y = year;
 			let m = month;
-			for (let i = 0; i < 13; i++) {
+			for (let i = 0; i <= 12; i++) {
 				if (m < 0) {
 					y--;
 					m += 12;
@@ -158,7 +158,15 @@ async function getTargetPresetData(buildingID, month, year) {
 
 				let dateStart_before = new Date(y, m, 1, 0, 0);
 				let dateStart_after = new Date(y, m, 1, 10, 0);
-				let dateEnd_after = new Date(y, m + 1, 0, 0, 0);
+				let dateEnd_after = new Date(y, m + 1, 23, 59, 59);
+
+				let today = new Date();
+				if (
+					today.getMonth() === dateEnd_after.getMonth() &&
+					today.getFullYear() === dateEnd_after.getFullYear()
+				) {
+					dateEnd_after = today;
+				}
 				let dateEnd_before = new Date(dateEnd_after.getTime() - 36000000);
 
 				this.orWhereBetween("log_power_meter.data_datetime", [
@@ -195,6 +203,75 @@ async function getTargetPresetData(buildingID, month, year) {
 	return data;
 }
 
+async function getDataEnergyMonthPastYear() {
+	let today = new Date();
+
+	let result = await knex("log_power_meter")
+		.join("device", "log_power_meter.device_id", "=", "device.id")
+		.join("building", "device.building_id", "=", "building.id")
+		.join("system", "device.system_id", "=", "system.id")
+		.select(
+			"log_power_meter.data_datetime",
+			"building.label as building",
+			"device.id as device",
+			"log_power_meter.kwh",
+			"system.label as system"
+		)
+		.where(function () {
+			let y = today.getFullYear();
+			let m = today.getMonth();
+			for (let i = 0; i <= 12; i++) {
+				if (m < 0) {
+					y--;
+					m += 12;
+				}
+
+				let dateStart_before = new Date(y, m, 1, 0, 0);
+				let dateStart_after = new Date(y, m, 1, 12, 0);
+				if (y === 2021 && m === 5) {
+					dateStart_before = new Date(y, m, 22, 19, 35);
+					dateStart_after = new Date(dateStart_before.getTime() + 43200000);
+				}
+
+				let dateEnd_after = new Date(y, m + 1, 0, 23, 59, 59);
+
+				let today = new Date();
+				if (
+					today.getMonth() === dateEnd_after.getMonth() &&
+					today.getFullYear() === dateEnd_after.getFullYear()
+				) {
+					dateEnd_after = today;
+				}
+				let dateEnd_before = new Date(dateEnd_after.getTime() - 43200000);
+
+				this.orWhereBetween("log_power_meter.data_datetime", [
+					dateFormatter.yyyymmddhhmmss(dateStart_before),
+					dateFormatter.yyyymmddhhmmss(dateStart_after),
+				]).orWhereBetween("log_power_meter.data_datetime", [
+					dateFormatter.yyyymmddhhmmss(dateEnd_before),
+					dateFormatter.yyyymmddhhmmss(dateEnd_after),
+				]);
+
+				m--;
+			}
+		})
+		.orderBy("log_power_meter.data_datetime");
+
+	lsLog_month = {};
+	for (let row of result) {
+		let datetime = new Date(row.data_datetime);
+		let month = datetime.getMonth();
+
+		if (lsLog_month[month] === undefined) {
+			lsLog_month[month] = [];
+		}
+
+		lsLog_month[month].push(row);
+	}
+
+	return lsLog_month;
+}
+
 module.exports = {
 	getBuildingPeople,
 	targetExists,
@@ -203,4 +280,5 @@ module.exports = {
 	getAllTargetByMonthYear,
 	getBuildingTargetRange,
 	getTargetPresetData,
+	getDataEnergyMonthPastYear,
 };

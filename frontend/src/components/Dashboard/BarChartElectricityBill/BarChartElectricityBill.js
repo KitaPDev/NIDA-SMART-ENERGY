@@ -61,6 +61,9 @@ class BarChartElectricityBill extends React.Component {
 					legend: {
 						display: false,
 					},
+					tooltip: {
+						enabled: false,
+					},
 					datalabels: {
 						anchor: "end",
 						align: "end",
