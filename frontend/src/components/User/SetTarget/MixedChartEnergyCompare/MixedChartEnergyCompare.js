@@ -77,7 +77,7 @@ class MixedChartEnergyCompare extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Energy Usage (kWh)",
+						text: "Energy Usage",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 					},

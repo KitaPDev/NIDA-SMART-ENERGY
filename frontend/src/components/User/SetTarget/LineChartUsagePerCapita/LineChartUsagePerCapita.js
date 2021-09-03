@@ -91,7 +91,6 @@ class LineChartUsagePerCapita extends React.Component {
 						bodyColor: "#000",
 						titleFont: { size: 20 },
 						bodyFont: { size: 18 },
-						bodySpacing: 10,
 					},
 					zoom: {
 						pan: {
