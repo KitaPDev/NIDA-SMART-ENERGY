@@ -30,6 +30,9 @@ instance.interceptors.response.use(
 			}
 		} else if (resp.status === 401 && window.location.pathname !== "/login") {
 			window.location.pathname = "/login";
+		} else if (resp.status === 403) {
+			alert("Permission Denied!");
+			window.location.pathname = "/";
 		}
 
 		return Promise.reject(err);

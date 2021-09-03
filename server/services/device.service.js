@@ -68,8 +68,11 @@ async function insertDevice(
 	system,
 	activatedDate
 ) {
-	let result = await knex("building").select("id").where("label", building);
-	let buildingID = result[0].id;
+	let buildingID = null;
+	if (building.length > 0) {
+		let result = await knex("building").select("id").where("label", building);
+		buildingID = result[0].id;
+	}
 
 	result = await knex("system").select("id").where("label", system);
 	let systemID = result[0].id;
@@ -96,8 +99,11 @@ async function updateDevice(
 	system,
 	activatedDate
 ) {
-	let result = await knex("building").select("id").where("label", building);
-	let buildingID = result[0].id;
+	let buildingID = null;
+	if (building !== null) {
+		let result = await knex("building").select("id").where("label", building);
+		buildingID = result[0].id;
+	}
 
 	result = await knex("system").select("id").where("label", system);
 	let systemID = result[0].id;

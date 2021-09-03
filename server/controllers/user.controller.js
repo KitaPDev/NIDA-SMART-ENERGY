@@ -235,8 +235,7 @@ async function changeUsername(req, res) {
 	try {
 		let body = req.body;
 		let username = body.username;
-
-		let prevUsername = await authService.getUsernameFromCookies(req);
+		let prevUsername = body.prev_username;
 
 		if (!username) {
 			return res.sendStatus(httpStatusCodes.FORBIDDEN);
@@ -320,9 +319,6 @@ async function changePassword(req, res) {
 			return res.sendStatus(httpStatusCodes.FORBIDDEN);
 		}
 
-		// todo check edit user permission
-		// if (changePasswordUsername === username && ) {}
-
 		let email = await userService.getEmailFromUsername(changePasswordUsername);
 
 		if (!(await userService.emailExists(email))) {
@@ -361,9 +357,6 @@ async function deactivateUser(req, res) {
 			return res.sendStatus(httpStatusCodes.FORBIDDEN);
 		}
 
-		// todo check edit user permission
-		// if (username !== deactivateUsername) {}
-
 		await userService.deactivateUser(deactivateUsername);
 
 		return res.sendStatus(httpStatusCodes.OK);
@@ -380,9 +373,6 @@ async function activateUser(req, res) {
 		if (!username) {
 			return res.sendStatus(httpStatusCodes.FORBIDDEN);
 		}
-
-		// todo check edit user permission
-		// if (username !== activateUsername) {}
 
 		await userService.activateUser(activateUsername);
 
@@ -429,13 +419,21 @@ async function approveUserType(req, res) {
 			return res.sendStatus(httpStatusCodes.FORBIDDEN);
 		}
 
-		// todo check edit user permission
-		// if (username !== approveUsername) {}
-
 		await userService.approveUserType(approveUsername);
 		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
+async function getUsername(req, res) {
+	try {
+		return res
+			.status(httpStatusCodes.OK)
+			.send(await authService.getUsernameFromCookies(req));
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
 
@@ -456,4 +454,5 @@ module.exports = {
 	getAllUser,
 	getUserType,
 	approveUserType,
+	getUsername,
 };

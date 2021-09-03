@@ -1,6 +1,8 @@
 const express = require("express");
 const targetController = require("../controllers/target.controller");
 const authenticateJWT = require("../middleware/authenticateJWT");
+const checkPermission = require("../middleware/checkPermission");
+const logActivity = require("../middleware/activityLogger");
 
 let router = express.Router();
 
@@ -8,9 +10,22 @@ router.post("/people", authenticateJWT, async function (req, res) {
 	targetController.getBuildingPeople(req, res);
 });
 
-router.post("/", authenticateJWT, async function (req, res) {
-	targetController.inputTarget(req, res);
-});
+router.post(
+	"/",
+	authenticateJWT,
+	(req, res, next) => {
+		checkPermission(req, res, next, "Set Target");
+	},
+	(req, res, next) => {
+		checkPermission(req, res, next, "Edit Amount of People");
+	},
+	(req, res, next) => {
+		logActivity(req, res, next, 1);
+	},
+	async function (req, res) {
+		targetController.inputTarget(req, res);
+	}
+);
 
 router.post("/monthyear", authenticateJWT, async function (req, res) {
 	targetController.getAllTargetByMonthYear(req, res);

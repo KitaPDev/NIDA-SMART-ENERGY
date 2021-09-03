@@ -7,7 +7,7 @@ module.exports = async (req, res, next) => {
 	const token = cookies.jwt;
 	if (token) {
 		try {
-			let decodedToken = jwt.decode(token, process.env.TOKEN_SECRET);
+			let decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
 
 			let refreshToken = cookies.refresh_jwt;
 

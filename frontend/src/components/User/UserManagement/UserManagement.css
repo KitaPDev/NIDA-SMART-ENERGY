@@ -1,5 +1,7 @@
-.container-user-management {
-	padding: 2rem !important;
+.user-management {
+	height: 100%;
+	padding: 2rem;
+	overflow: hidden;
 }
 
 .user-management .heading {
@@ -7,26 +9,27 @@
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
+	display: flex;
+	align-items: center;
+	max-height: 6%;
 }
 
-.user-management .excel-icon {
-	margin-left: 2rem;
-}
-
-.user-management .excel-icon {
-	width: fit-content !important;
-	color: black !important;
+.user-management .icon-excel {
+	margin-left: 1rem;
 }
 
 .container-table-user-management {
 	margin-top: 1.5rem;
-	max-height: 75vh;
+	height: 94%;
 	overflow-y: auto;
 }
 
 .table-user-management thead {
 	text-align: center;
 	border-bottom: 2px solid #bfbcbc;
+	position: sticky;
+	top: 0;
+	background: white;
 }
 
 .table-user-management th {

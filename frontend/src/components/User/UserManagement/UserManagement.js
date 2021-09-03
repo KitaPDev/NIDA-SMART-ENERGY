@@ -1,11 +1,14 @@
 import React from "react";
-import { Container, Row, Table, Form, FormGroup, Input } from "reactstrap";
+
 import "./UserManagement.css";
+import { Container, Row, Table, Form, FormGroup, Input } from "reactstrap";
 import { RiFileExcel2Fill } from "react-icons/ri";
-import http from "../../../utils/http";
-import dateFormatter from "../../../utils/dateFormatter";
 import { FaEye } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
+
+import http from "../../../utils/http";
+import dateFormatter from "../../../utils/dateFormatter";
+import csv from "../../../utils/csv";
 
 class UserManagement extends React.Component {
 	constructor(props) {
@@ -28,6 +31,7 @@ class UserManagement extends React.Component {
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.navigateToUserProfile = this.navigateToUserProfile.bind(this);
 		this.navigateToActivityLog = this.navigateToActivityLog.bind(this);
+		this.exportTable = this.exportTable.bind(this);
 	}
 
 	componentDidMount() {
@@ -157,6 +161,24 @@ class UserManagement extends React.Component {
 		e.stopPropagation();
 	}
 
+	exportTable() {
+		let rows = [];
+		let tableRows = document.querySelectorAll("table tr");
+
+		for (let i = 0; i < tableRows.length; i++) {
+			let row = [];
+			let cols = tableRows[i].querySelectorAll("td, th");
+
+			for (let j = 0; j < cols.length - 1; j++) {
+				row.push(cols[j].innerText);
+			}
+
+			rows.push(row);
+		}
+
+		csv.exportFile("User Management", rows);
+	}
+
 	render() {
 		let {
 			lsUser,
@@ -223,105 +245,105 @@ class UserManagement extends React.Component {
 
 		return (
 			<div className="user-management">
-				<Container className="container-user-management" fluid>
-					<Row className="heading">
-						User Management{" "}
-						<RiFileExcel2Fill className="excel-icon" size={25} />
+				<Row className="heading">
+					User Management{" "}
+					<RiFileExcel2Fill
+						className="icon-excel"
+						size={25}
+						onClick={this.exportTable}
+					/>
+				</Row>
+				<Container className="container-table-user-management">
+					<Row className="row-search">
+						<Form>
+							<FormGroup row className="fg-search">
+								<Input
+									type="text"
+									name="searchText"
+									id="searchText"
+									value={searchText}
+									onChange={this.handleInputChange}
+								/>
+								<span className="span-search-icon">
+									<IoMdSearch size={25} />
+								</span>
+							</FormGroup>
+						</Form>
 					</Row>
-					<Container className="container-table-user-management">
-						<Row className="row-search">
-							<Form>
-								<FormGroup row className="fg-search">
-									<Input
-										type="text"
-										name="searchText"
-										id="searchText"
-										value={searchText}
-										onChange={this.handleInputChange}
-									/>
-									<span className="span-search-icon">
-										<IoMdSearch size={25} />
-									</span>
-								</FormGroup>
-							</Form>
-						</Row>
-						<Table className="table-user-management">
-							<thead>
-								<tr>
-									<th
-										className={
-											isSortByUsernameAsc
-												? "sort_asc"
-												: isSortByUsernameDesc
-												? "sort_desc"
-												: "sort"
-										}
-										onClick={this.toggleSortByUsername}
+					<Table className="table-user-management">
+						<thead>
+							<tr>
+								<th
+									className={
+										isSortByUsernameAsc
+											? "sort_asc"
+											: isSortByUsernameDesc
+											? "sort_desc"
+											: "sort"
+									}
+									onClick={this.toggleSortByUsername}
+								>
+									Username{" "}
+								</th>
+								<th>Email</th>
+								<th>User Type</th>
+								<th
+									className={
+										isSortByDateActivatedAsc
+											? "sort_asc"
+											: isSortByDateActivatedDesc
+											? "sort_desc"
+											: "sort"
+									}
+									onClick={this.toggleSortByActivatedDate}
+								>
+									Activated Date
+								</th>
+								<th
+									className={
+										isSortByDateLastLoginAsc
+											? "sort_asc"
+											: isSortByDateLastLoginDesc
+											? "sort_desc"
+											: "sort"
+									}
+									onClick={this.toggleSortByLastLoginDate}
+								>
+									Last Login
+								</th>
+								<th>View Activity Log</th>
+							</tr>
+						</thead>
+						<tbody>
+							{lsUserDisplay.map((user) => (
+								<tr onClick={() => this.navigateToUserProfile(user.username)}>
+									<td>{user.username}</td>
+									<td>{user.email}</td>
+									<td className={user.is_user_type_approved ? "" : "pending"}>
+										{user.user_type}
+										{user.is_user_type_approved ? "" : " (Pending)"}
+									</td>
+									<td>
+										{dateFormatter.ddmmyyyy(new Date(user.activated_timestamp))}
+									</td>
+									<td>
+										{dateFormatter.ddmmyyyy(
+											new Date(user.last_login_timestamp)
+										)}
+									</td>
+									<td
+										className="td-view-activity-log"
+										onClick={this.navigateToActivityLog.bind(
+											this,
+											user.username
+										)}
 									>
-										Username{" "}
-									</th>
-									<th>Email</th>
-									<th>User Type</th>
-									<th
-										className={
-											isSortByDateActivatedAsc
-												? "sort_asc"
-												: isSortByDateActivatedDesc
-												? "sort_desc"
-												: "sort"
-										}
-										onClick={this.toggleSortByActivatedDate}
-									>
-										Activated Date
-									</th>
-									<th
-										className={
-											isSortByDateLastLoginAsc
-												? "sort_asc"
-												: isSortByDateLastLoginDesc
-												? "sort_desc"
-												: "sort"
-										}
-										onClick={this.toggleSortByLastLoginDate}
-									>
-										Last Login
-									</th>
-									<th>View Activity Log</th>
+										<FaEye size={25} />
+									</td>
 								</tr>
-							</thead>
-							<tbody>
-								{lsUserDisplay.map((user) => (
-									<tr onClick={() => this.navigateToUserProfile(user.username)}>
-										<td>{user.username}</td>
-										<td>{user.email}</td>
-										<td className={user.is_user_type_approved ? "" : "pending"}>
-											{user.user_type}
-											{user.is_user_type_approved ? "" : " (Pending)"}
-										</td>
-										<td>
-											{dateFormatter.ddmmyyyy(
-												new Date(user.activated_timestamp)
-											)}
-										</td>
-										<td>
-											{dateFormatter.ddmmyyyy(
-												new Date(user.last_login_timestamp)
-											)}
-										</td>
-										<td
-											className="td-view-activity-log"
-											onClick={this.navigateToActivityLog.bind(
-												this,
-												user.username
-											)}
-										>
-											<FaEye size={25} />
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</Table>
-					</Container>
+							))}
+						</tbody>
+					</Table>
 				</Container>
 			</div>
 		);

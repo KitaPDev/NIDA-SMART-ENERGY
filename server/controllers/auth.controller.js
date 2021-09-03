@@ -1,6 +1,7 @@
 const userService = require("../services/user.service");
 const authService = require("../services/auth.service");
 const etcService = require("../services/etc.service");
+const activityService = require("../services/activity.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function login(req, res) {
@@ -49,14 +50,16 @@ async function login(req, res) {
 
 		let refreshJwt = await authService.generateRefreshJwt(username);
 
+		activityService.insertActivity(username, 2);
+
 		res.cookie("jwt", jwt);
 		res.cookie("refresh_jwt", refreshJwt);
+
+		etcService.incrementVisitors();
+		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
-
-	etcService.incrementVisitors();
-	res.sendStatus(httpStatusCodes.OK);
 }
 
 async function logout(req, res) {

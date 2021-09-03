@@ -1,24 +1,36 @@
 const httpStatusCodes = require("http-status-codes").StatusCodes;
-const authService = require("../services/auth.service");
 const jwt = require("jsonwebtoken");
+const permissionService = require("../services/permission.service");
 
-module.exports = async (req, res, next) => {
+module.exports = async (req, res, next, permission) => {
+	let cookies = req.cookies;
+	const token = cookies.jwt;
 	try {
-		let userType = req.userType;
+		let decodedToken = jwt.decode(token, process.env.TOKEN_SECRET);
 
-		//get user type;
+		let userType = decodedToken.type;
+		if (userType === "Super Admin") return next();
 
-		// if (userType) {
-		// 	if (decodedToken.userType !== userType) {
-		// 		return res.status(httpStatusCodes.UNAUTHORIZED).send();
-		// 	}
-		// }
+		if (permission === "Add/Edit/Delete Other User") {
+			if (
+				req.body.username === decodedToken.username &&
+				req.url !== "/activate"
+			)
+				return next();
+		}
 
-		res.cookie("jwt", newToken);
+		if (
+			(await permissionService.checkUserTypePermission(
+				userType,
+				permission
+			)) === true
+		) {
+			return next();
+		}
+
+		return res.sendStatus(httpStatusCodes.FORBIDDEN);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
-
-	next();
 };

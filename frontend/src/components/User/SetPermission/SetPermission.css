@@ -17,10 +17,6 @@
 	overflow-y: auto;
 }
 
-.set-permission .table-set-permission {
-	table-layout: fixed;
-}
-
 .set-permission .table-set-permission thead {
 	border-bottom: 2px solid black;
 	text-align: center;
@@ -30,8 +26,13 @@
 	width: fit-content;
 }
 
+.set-permission .table-set-permission tbody th {
+	width: 24%;
+}
+
 .set-permission .table-set-permission td {
 	text-align: center;
+	width: 19%;
 }
 
 .set-permission .table-set-permission .form-check-input {

@@ -182,6 +182,7 @@ class EditProfile extends React.Component {
 
 			let payload = {
 				username: username,
+				prev_username: this.state.prevUsername,
 			};
 
 			await http.post("/user/username", payload);

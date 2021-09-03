@@ -70,9 +70,11 @@ class NavBar extends React.Component {
 				})
 				.replace("24:", "00:"),
 			username: "",
+			lsPermission: [],
 			unauthenticatedPathnames: ["/login", "/forgot-password", "/register"],
-			temperature: undefined,
-			humidity: undefined,
+			temperature: "",
+			humidity: "",
+			isFetchingPermissions: false,
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
@@ -80,11 +82,17 @@ class NavBar extends React.Component {
 		this.toggleUserDropdown = this.toggleUserDropdown.bind(this);
 		this.changeLocale = this.changeLocale.bind(this);
 		this.logout = this.logout.bind(this);
+		this.getUserPermissions = this.getUserPermissions.bind(this);
+		this.getUsername = this.getUsername.bind(this);
 	}
 
 	async componentDidMount() {
 		let { unauthenticatedPathnames } = this.state;
 		let { pathname } = this.props.location;
+
+		if (!this.state.unauthenticatedPathnames.includes(pathname)) {
+			await this.getUserPermissions();
+		}
 
 		this.intervalTime = setInterval(
 			() =>
@@ -149,7 +157,13 @@ class NavBar extends React.Component {
 			dataIaq = subjectIaqData.value;
 
 			if (!dataIaq) return;
-			if (dataIaq.length === 0) return;
+			if (dataIaq.length === 0) {
+				let start = new Date(new Date().getTime() - 15 * 60 * 1000);
+				let end = new Date();
+
+				await apiService.updateIaqData(start, end);
+				return;
+			}
 
 			let latestData = dataIaq[dataIaq.length - 1];
 			let latestDate = new Date(latestData.data_datetime);
@@ -164,17 +178,32 @@ class NavBar extends React.Component {
 		}, 900000);
 	}
 
-	componentDidUpdate() {
-		let { username, unauthenticatedPathnames } = this.state;
+	async componentDidUpdate() {
+		let {
+			username,
+			unauthenticatedPathnames,
+			lsPermission,
+			isFetchingPermissions,
+		} = this.state;
 		let pathname = this.props.history.location.pathname;
 
-		if (username === "" && !unauthenticatedPathnames.includes(pathname)) {
-			this.setState({ username: localStorage.getItem("current_username") });
+		if (!unauthenticatedPathnames.includes(pathname)) {
+			if (username === "" || username === null) {
+				username = localStorage.getItem("current_username");
+				if (username === null) await this.getUsername();
+
+				this.setState({ username: username });
+			}
+			if (lsPermission.length === 0 && !isFetchingPermissions) {
+				this.setState({ isFetchingPermissions: true }, () =>
+					this.getUserPermissions()
+				);
+			}
 		}
 	}
 
 	componentWillUnmount() {
-		subscriberIaqData.unsubscribe();
+		if (subscriberIaqData) subscriberIaqData.unsubscribe();
 		clearInterval(this.intervalTime);
 		clearInterval(this.intervalIaq);
 		this.unlisten();
@@ -207,12 +236,36 @@ class NavBar extends React.Component {
 	logout() {
 		http.get("/auth/logout");
 
-		this.setState({ username: "" });
+		this.setState({ username: "", lsPermission: [] });
 		localStorage.clear();
 
 		this.props.history.push({
 			pathname: "/login",
 		});
+	}
+
+	async getUserPermissions() {
+		try {
+			let resp = await http.get("/permission/");
+
+			this.setState({ lsPermission: resp.data, isFetchingPermissions: false });
+			localStorage.setItem("lsPermission", resp.data);
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getUsername() {
+		try {
+			let resp = await http.get("/user/username/");
+
+			this.setState({ username: resp.data });
+			localStorage.setItem("current_username", resp.data);
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
 	}
 
 	render() {
@@ -224,6 +277,7 @@ class NavBar extends React.Component {
 			username,
 			temperature,
 			humidity,
+			lsPermission,
 		} = this.state;
 
 		let { location } = this.props;
@@ -298,19 +352,27 @@ class NavBar extends React.Component {
 										Dashboard
 									</NavLink>
 								</NavItem>
-								<NavItem>
-									<NavLink
-										exact
-										tag={Link}
-										to="/report"
-										className="nav-link d-flex flex-column"
-										activeClassName="activeLink"
-										onClick={() => window.history.pushState("", "", "/report")}
-									>
-										<AiFillFile size="2em" style={{ margin: "auto" }} />
-										Report
-									</NavLink>
-								</NavItem>
+
+								{lsPermission.find((p) => p.label === "Generate Report") ? (
+									<NavItem>
+										<NavLink
+											exact
+											tag={Link}
+											to="/report"
+											className="nav-link d-flex flex-column"
+											activeClassName="activeLink"
+											onClick={() =>
+												window.history.pushState("", "", "/report")
+											}
+										>
+											<AiFillFile size="2em" style={{ margin: "auto" }} />
+											Report
+										</NavLink>
+									</NavItem>
+								) : (
+									<></>
+								)}
+
 								<NavItem>
 									<NavLink
 										exact
@@ -362,88 +424,124 @@ class NavBar extends React.Component {
 												Edit Profile
 											</NavLink>
 										</DropdownItem>
-										<DropdownItem>
-											<NavLink
-												exact
-												tag={Link}
-												to="/user/set-target"
-												className="nav-link d-flex flex-column"
-												activeClassName="activeLink"
-												onClick={() =>
-													window.history.pushState("", "", "/user/set-target")
-												}
-											>
-												Set Target
-											</NavLink>
-										</DropdownItem>
-										<DropdownItem>
-											<NavLink
-												exact
-												tag={Link}
-												to="/user/device-manager"
-												className="nav-link d-flex flex-column"
-												activeClassName="activeLink"
-												onClick={() =>
-													window.history.pushState(
-														"",
-														"",
-														"/user/device-manager"
-													)
-												}
-											>
-												Device Manager
-											</NavLink>
-										</DropdownItem>
-										<DropdownItem>
-											<NavLink
-												exact
-												tag={Link}
-												to="/user/activity-log"
-												className="nav-link d-flex flex-column"
-												activeClassName="activeLink"
-												onClick={() =>
-													window.history.pushState("", "", "/user/activity-log")
-												}
-											>
-												Activity Log
-											</NavLink>
-										</DropdownItem>
-										<DropdownItem>
-											<NavLink
-												exact
-												tag={Link}
-												to="/user/user-management"
-												className="nav-link d-flex flex-column"
-												activeClassName="activeLink"
-												onClick={() =>
-													window.history.pushState(
-														"",
-														"",
-														"/user/user-management"
-													)
-												}
-											>
-												User Management
-											</NavLink>
-										</DropdownItem>
-										<DropdownItem>
-											<NavLink
-												exact
-												tag={Link}
-												to="/user/set-permission"
-												className="nav-link d-flex flex-column"
-												activeClassName="activeLink"
-												onClick={() =>
-													window.history.pushState(
-														"",
-														"",
-														"/user/set-permission"
-													)
-												}
-											>
-												Set Permission
-											</NavLink>
-										</DropdownItem>
+
+										{lsPermission.find((p) => p.label === "Set Target") ? (
+											<DropdownItem>
+												<NavLink
+													exact
+													tag={Link}
+													to="/user/set-target"
+													className="nav-link d-flex flex-column"
+													activeClassName="activeLink"
+													onClick={() =>
+														window.history.pushState("", "", "/user/set-target")
+													}
+												>
+													Set Target
+												</NavLink>
+											</DropdownItem>
+										) : (
+											<></>
+										)}
+
+										{lsPermission.find(
+											(p) => p.label === "Add/Edit/Delete Meter Information"
+										) ? (
+											<DropdownItem>
+												<NavLink
+													exact
+													tag={Link}
+													to="/user/device-manager"
+													className="nav-link d-flex flex-column"
+													activeClassName="activeLink"
+													onClick={() =>
+														window.history.pushState(
+															"",
+															"",
+															"/user/device-manager"
+														)
+													}
+												>
+													Device Manager
+												</NavLink>
+											</DropdownItem>
+										) : (
+											<></>
+										)}
+
+										{lsPermission.find(
+											(p) => p.label === "View Other's Activity Log"
+										) ? (
+											<DropdownItem>
+												<NavLink
+													exact
+													tag={Link}
+													to="/user/activity-log"
+													className="nav-link d-flex flex-column"
+													activeClassName="activeLink"
+													onClick={() =>
+														window.history.pushState(
+															"",
+															"",
+															"/user/activity-log"
+														)
+													}
+												>
+													Activity Log
+												</NavLink>
+											</DropdownItem>
+										) : (
+											<></>
+										)}
+
+										{lsPermission.find(
+											(p) => p.label === "Add/Edit/Delete Other User"
+										) ? (
+											<DropdownItem>
+												<NavLink
+													exact
+													tag={Link}
+													to="/user/user-management"
+													className="nav-link d-flex flex-column"
+													activeClassName="activeLink"
+													onClick={() =>
+														window.history.pushState(
+															"",
+															"",
+															"/user/user-management"
+														)
+													}
+												>
+													User Management
+												</NavLink>
+											</DropdownItem>
+										) : (
+											<></>
+										)}
+
+										{lsPermission.find((p) => p.label === "Set Permissions") ? (
+											<DropdownItem>
+												<NavLink
+													exact
+													tag={Link}
+													to="/user/set-permission"
+													className="nav-link d-flex flex-column"
+													activeClassName="activeLink"
+													onClick={() =>
+														window.history.pushState(
+															"",
+															"",
+															"/user/set-permission"
+														)
+													}
+												>
+													Set Permission
+												</NavLink>
+											</DropdownItem>
+										) : (
+											<></>
+										)}
+
 										<DropdownItem divider />
 										<DropdownItem>
 											{" "}
@@ -486,7 +584,7 @@ class NavBar extends React.Component {
 							</Row>
 							<Row style={{ justifyContent: "center", alignItems: "center" }}>
 								<FaTemperatureLow />
-								{temperature ? temperature : "N/A "}°C
+								{temperature.length > 0 ? temperature : "N/A "}°C
 							</Row>
 						</div>
 						<div style={{ width: "100px", fontWeight: "600" }}>
@@ -499,7 +597,7 @@ class NavBar extends React.Component {
 							</Row>
 							<Row style={{ justifyContent: "center", alignItems: "center" }}>
 								<IoIosWater />
-								{humidity ? humidity : "N/A "}%
+								{humidity.length > 0 ? humidity : "N/A "}%
 							</Row>
 						</div>
 						<div

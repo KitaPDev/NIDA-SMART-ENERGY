@@ -123,6 +123,12 @@ function toDateTimeString(date) {
 	}
 }
 
+function toDateTimeString_noOffset(date) {
+	if (date instanceof Date) {
+		return date.toISOString().substring(0, 16);
+	}
+}
+
 function ddmmyyyyhhmm_noOffset(date) {
 	if (date instanceof Date) {
 		let dd = date.getDate();
@@ -250,6 +256,7 @@ const dateFormatter = {
 	yyyymmddhhmmss,
 	ddmmmyyyy,
 	toDateTimeString,
+	toDateTimeString_noOffset,
 	ddmmyyyyhhmm_noOffset,
 	ddmmmyyyyhhmm_noOffset,
 	yyyymmddhhmmss_noOffset,

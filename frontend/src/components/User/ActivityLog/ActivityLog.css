@@ -1,5 +1,11 @@
-.container-activity-log {
+.activity-log {
 	padding: 2rem !important;
+	height: 100%;
+	overflow: hidden;
+}
+
+.activity-log .row-heading {
+	max-height: 6%;
 }
 
 .activity-log .col-heading {
@@ -10,18 +16,13 @@
 	text-transform: uppercase;
 }
 
-.activity-log .excel-icon {
-	width: fit-content !important;
-	color: black !important;
-}
-
-.excel-icon:hover {
-	cursor: pointer;
-	opacity: 0.8;
-	transition-duration: 0.3s;
-}
-
 .col-excel-icon {
+	display: flex;
+	align-items: center;
+	margin-left: 0;
+}
+
+.activity-log .row-fg-period {
 	display: flex;
 	align-items: center;
 }
@@ -29,14 +30,39 @@
 .activity-log .col-form-label {
 	width: fit-content;
 	font-weight: 600;
+	margin-right: 1rem;
+}
+
+.activity-log .col-input {
+	margin-right: 1rem;
+}
+
+.activity-log .btn-apply {
+	background-color: white;
+	color: black;
+	width: fit-content;
+	font-weight: 600;
+	border: 0;
+	border-radius: 0.5rem;
+	padding: 0.5rem 1rem 0.5rem 1rem;
+}
+
+.activity-log .btn-apply:hover {
+	background-color: black;
+	color: white;
+	width: fit-content;
+	border: 0;
+	transition-duration: 0.2s;
 }
 
 .container-table-activity-log {
 	margin-top: 1.5rem;
+	overflow-y: scroll;
+	height: 94%;
 }
 
 .container-table-activity-log #searchText {
-	width: auto;
+	width: 250px;
 	margin-left: auto;
 	margin-right: 0;
 	border: 2px solid #898989;
@@ -47,11 +73,8 @@
 	border: 2px solid black !important;
 }
 
-.container-table-activity-log .span-search-icon {
-	width: fit-content !important;
-	vertical-align: middle;
-	display: flex;
-	align-items: center;
+.container-table-activity-log .search-icon {
+	margin-left: 1rem;
 }
 
 .container-table-activity-log .col-input {
@@ -65,11 +88,13 @@
 .table-activity-log thead {
 	text-align: center;
 	border-bottom: 2px solid #bfbcbc;
+	position: sticky;
+	top: 0;
+	background: white;
 }
 
-.table-activity-log th {
-	width: fit-content;
-	white-space: nowrap;
+.table-activity-log td {
+	text-align: center;
 }
 
 .sort {

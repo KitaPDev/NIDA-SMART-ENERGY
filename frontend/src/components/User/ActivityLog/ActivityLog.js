@@ -1,33 +1,22 @@
 import React from "react";
+
 import "./ActivityLog.css";
-import {
-	Container,
-	Row,
-	Col,
-	Form,
-	FormGroup,
-	Input,
-	Label,
-	Table,
-} from "reactstrap";
+import { Container, Row, Col, Input, Label, Table } from "reactstrap";
 import { IoMdSearch } from "react-icons/io";
+import { RiFileExcel2Fill } from "react-icons/ri";
+
 import http from "../../../utils/http";
 import dateFormatter from "../../../utils/dateFormatter";
-import { RiFileExcel2Fill } from "react-icons/ri";
+import csv from "../../../utils/csv";
 
 class ActivityLog extends React.Component {
 	constructor(props) {
 		super(props);
-		let tzOffset = new Date().getTimezoneOffset() * 60000;
-
-		let dateFrom = new Date(
-			new Date(new Date(Date.now() - tzOffset).setHours(0, 0, 0, 0)) - tzOffset
-		);
 
 		this.state = {
 			lsActivity: [],
-			dateFrom: dateFrom.toISOString().substring(0, 16),
-			dateTo: new Date(Date.now() - tzOffset).toISOString().substring(0, 16),
+			dateFrom: new Date(new Date().setHours(0, 0, 0, 0)),
+			dateTo: new Date(),
 			isSortByTimestampAsc: false,
 			searchText: this.props.location.username
 				? this.props.location.username
@@ -39,6 +28,7 @@ class ActivityLog extends React.Component {
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.toggleSortByTimestamp = this.toggleSortByTimestamp.bind(this);
 		this.getActivity = this.getActivity.bind(this);
+		this.exportTable = this.exportTable.bind(this);
 	}
 
 	componentDidMount() {
@@ -49,16 +39,13 @@ class ActivityLog extends React.Component {
 		try {
 			let { dateFrom, dateTo } = this.state;
 			let payload = {
-				from: new Date(dateFrom).toISOString().slice(0, 19).replace("T", " "),
-				to: new Date(dateTo).toISOString().slice(0, 19).replace("T", " "),
+				from: dateFrom,
+				to: dateTo,
 			};
 
 			let resp = await http.post("/activity/", payload);
-			if (resp.status === 200) {
-				if (resp.data instanceof Array && resp.data.length > 0) {
-					this.setState({ lsActivity: resp.data });
-				}
-			}
+
+			this.setState({ lsActivity: resp.data });
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -103,6 +90,24 @@ class ActivityLog extends React.Component {
 		}));
 	}
 
+	exportTable() {
+		let rows = [];
+		let tableRows = document.querySelectorAll("table tr");
+
+		for (let i = 0; i < tableRows.length; i++) {
+			let row = [];
+			let cols = tableRows[i].querySelectorAll("td, th");
+
+			for (let j = 0; j < cols.length; j++) {
+				row.push(cols[j].innerText);
+			}
+
+			rows.push(row);
+		}
+
+		csv.exportFile("Activity Log", rows);
+	}
+
 	render() {
 		let { lsActivity, dateFrom, dateTo, searchText, isSortByTimestampAsc } =
 			this.state;
@@ -112,25 +117,23 @@ class ActivityLog extends React.Component {
 		if (isSortByTimestampAsc) {
 			lsActivityDisplay.sort(
 				(a, b) =>
-					new Date(a.logged_timestamp).getTime() -
-					new Date(b.logged_timestamp).getTime()
+					new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
 			);
 		} else {
 			lsActivityDisplay.sort(
 				(a, b) =>
-					new Date(b.logged_timestamp).getTime() -
-					new Date(a.logged_timestamp).getTime()
+					new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
 			);
 		}
 
 		if (searchText.length > 0) {
-			lsActivity = lsActivityDisplay.filter((activity, index) => {
+			lsActivityDisplay = lsActivityDisplay.filter((activity) => {
 				return (
 					activity.username.includes(searchText) ||
 					activity.user_type.includes(searchText) ||
 					activity.action.includes(searchText) ||
 					dateFormatter
-						.ddmmyyyy(new Date(activity.logged_timestamp))
+						.ddmmyyyyhhmm(new Date(activity.datetime))
 						.includes(searchText)
 				);
 			});
@@ -138,82 +141,96 @@ class ActivityLog extends React.Component {
 
 		return (
 			<div className="activity-log">
-				<Container fluid className="container-activity-log">
-					<Row className="row-heading">
-						<Col sm={3} className="col-heading">
-							Activity Log
-						</Col>
-						<Col sm={1} className="col-excel-icon">
-							<RiFileExcel2Fill className="excel-icon" size={25} />
-						</Col>
-						<Col sm={8}></Col>
+				<Row className="row-heading">
+					<Col sm={3} className="col-heading">
+						Activity Log
+					</Col>
+					<Col sm={1} className="col-excel-icon">
+						<RiFileExcel2Fill
+							className="icon-excel"
+							size={25}
+							onClick={this.exportTable}
+						/>
+					</Col>
+					<Col sm={8}></Col>
+				</Row>
+				<Container className="container-table-activity-log">
+					<Row className="row-input">
+						<div row className="row-fg-period">
+							<Label for="dateFrom" sm={1}>
+								From
+							</Label>
+							<Col sm={3} className="col-input">
+								<Input
+									className="datepicker"
+									type="datetime-local"
+									name="dateFrom"
+									id="dateFrom"
+									placeholder="datetime placeholder"
+									value={dateFormatter.toDateTimeString(dateFrom)}
+									onChange={this.handleChangeDateFrom}
+									max={dateFormatter.toDateTimeString(dateTo)}
+								/>
+							</Col>
+							<Label for="dateTo" sm={1}>
+								To
+							</Label>
+							<Col sm={3} className="col-input">
+								<Input
+									className="datepicker"
+									type="datetime-local"
+									name="dateTo"
+									id="dateTo"
+									placeholder="datetime placeholder"
+									value={dateFormatter.toDateTimeString(dateTo)}
+									onChange={this.handleChangeDateTo}
+									min={dateFormatter.toDateTimeString(dateFrom)}
+								/>
+							</Col>
+							<button className="btn-apply" onClick={this.getActivity}>
+								Apply
+							</button>
+							<Input
+								type="text"
+								name="searchText"
+								id="searchText"
+								value={searchText}
+								onChange={this.handleInputChange}
+							/>
+							<span className="search-icon">
+								<IoMdSearch size={25} />
+							</span>
+						</div>
 					</Row>
-					<Container className="container-table-activity-log">
-						<Row className="row-input">
-							<Form>
-								<FormGroup row className="fg-period">
-									<Label for="dateFrom" sm={1}>
-										From
-									</Label>
-									<Col sm={3} className="col-input">
-										<Input
-											className="datepicker"
-											type="datetime-local"
-											name="dateFrom"
-											id="dateFrom"
-											placeholder="datetime placeholder"
-											value={dateFrom}
-											onChange={this.handleChangeDateFrom}
-										/>
-									</Col>
-									<Label for="dateTo" sm={1}>
-										To
-									</Label>
-									<Col sm={3} className="col-input">
-										<Input
-											className="datepicker"
-											type="datetime-local"
-											name="dateTo"
-											id="dateTo"
-											placeholder="datetime placeholder"
-											value={dateTo}
-											onChange={this.handleChangeDateTo}
-										/>
-									</Col>
-									<Input
-										type="text"
-										name="searchText"
-										id="searchText"
-										value={searchText}
-										onChange={this.handleInputChange}
-									/>
-									<span className="span-search-icon">
-										<IoMdSearch size={25} />
-									</span>
-								</FormGroup>
-							</Form>
-						</Row>
-						<Table className="table-activity-log">
-							<thead>
+					<Table className="table-activity-log">
+						<thead>
+							<tr>
+								<th
+									className={isSortByTimestampAsc ? "sort_asc" : "sort_desc"}
+									onClick={this.toggleSortByTimestamp}
+								>
+									Datetime
+								</th>
+								<th>Username</th>
+								<th>User Type</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							{lsActivityDisplay.map((act) => (
 								<tr>
-									<th
-										className={isSortByTimestampAsc ? "sort_asc" : "sort_desc"}
-										onClick={this.toggleSortByTimestamp}
-									>
-										Timestamp
-									</th>
-									<th>Username</th>
-									<th>User Type</th>
-									<th>Action</th>
+									<td>
+										{dateFormatter.ddmmyyyyhhmm_noOffset(
+											new Date(act.datetime)
+										)}
+									</td>
+									<td>{act.username}</td>
+									<td>{act.user_type}</td>
+									<td>{act.action}</td>
 								</tr>
-							</thead>
-							<tbody>
-								{lsActivity.map((d) => (
-									<tr></tr>
-								))}
-							</tbody>
-						</Table>
-					</Container>
+							))}
+						</tbody>
+					</Table>
 				</Container>
 			</div>
 		);
