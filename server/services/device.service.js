@@ -15,7 +15,7 @@ async function getAllDevice() {
 			"device.location",
 			"device.site",
 			"system.label as system",
-			"device.activated_timestamp"
+			"device.activated_datetime"
 		);
 
 	data = result.slice();
@@ -66,7 +66,6 @@ async function insertDevice(
 	site,
 	brandModel,
 	system,
-	isActive,
 	activatedDate
 ) {
 	let result = await knex("building").select("id").where("label", building);
@@ -82,11 +81,7 @@ async function insertDevice(
 		brand_model: brandModel,
 		location: location,
 		site: site,
-		activated_timestamp: activatedDate
-			.toISOString()
-			.slice(0, 19)
-			.replace("T", " "),
-		is_active: isActive,
+		activated_datetime: dateFormatter.yyyymmddhhmmss(activatedDate),
 		floor: floor,
 	});
 }
@@ -110,16 +105,12 @@ async function updateDevice(
 	await knex("device")
 		.where({ id: deviceID })
 		.update({
-			id: deviceID,
 			building_id: buildingID,
 			system_id: systemID,
 			brand_model: brandModel,
 			location: location,
 			site: site,
-			activated_timestamp: activatedDate
-				.toISOString()
-				.slice(0, 19)
-				.replace("T", " "),
+			activated_datetime: dateFormatter.yyyymmddhhmmss(activatedDate),
 			floor: floor,
 		});
 }
@@ -169,7 +160,7 @@ async function getAllDeviceLatestLog() {
 	let now = new Date();
 	let result = await knex.raw(
 		`SELECT lpm.*, device.brand_model, device.location, device.site, 
-		device.activated_timestamp, device.floor, building.label as building, 
+		device.activated_datetime, device.floor, building.label as building, 
 		system.label as system 
 		FROM log_power_meter lpm
 		INNER JOIN device ON device.id = lpm.device_id

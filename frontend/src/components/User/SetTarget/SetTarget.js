@@ -21,6 +21,7 @@ import MixedChartEnergyCompare from "./MixedChartEnergyCompare/MixedChartEnergyC
 import BarChartEnergyCompare from "./BarChartEnergyCompare/BarChartEnergyCompare";
 
 import http from "../../../utils/http";
+import csv from "../../../utils/csv";
 
 const lsMonth = [
 	"January",
@@ -88,6 +89,8 @@ class SetTarget extends React.Component {
 		this.getBillDataMonth = this.getBillDataMonth.bind(this);
 		this.getEnergyDataMonth = this.getEnergyDataMonth.bind(this);
 		this.getEnergyMonthPastYear = this.getEnergyMonthPastYear.bind(this);
+
+		this.exportCharts = this.exportCharts.bind(this);
 	}
 
 	componentDidMount() {
@@ -355,6 +358,160 @@ class SetTarget extends React.Component {
 		}
 	}
 
+	exportCharts() {
+		let {
+			lsBuilding,
+			billData_month,
+			energyData_month,
+			kwh_building_month,
+			lsTarget,
+		} = this.state;
+
+		let rows = [[]];
+		rows[0].push("Electricity Bill");
+		rows.push(["Month", "Actual", "Target", "Average"]);
+
+		let today = new Date();
+		let month = today.getMonth();
+		for (let i = 0; i < 12; i++) {
+			if (month < 0) month += 12;
+
+			let dataMonth = billData_month[month];
+
+			rows.push([
+				lsMonth[month],
+				dataMonth.latest,
+				dataMonth.target,
+				dataMonth.average,
+			]);
+
+			month--;
+		}
+
+		rows.push([]);
+		rows.push(["Electricity Bill Compared to Target/Average"]);
+		rows.push(["Month", "Saved % Target", "Saved % Average"]);
+		month = today.getMonth();
+		for (let i = 0; i < 12; i++) {
+			if (month < 0) month += 12;
+
+			let dataMonth = billData_month[month];
+			let latest = dataMonth.latest;
+			let target = dataMonth.target;
+			let average = dataMonth.average;
+
+			rows.push([
+				lsMonth[month],
+				target !== 0
+					? parseFloat(((target - latest) / target) * 100).toFixed(2)
+					: 0,
+				average !== 0
+					? parseFloat(((average - latest) / average) * 100).toFixed(2)
+					: 0,
+			]);
+
+			month--;
+		}
+
+		rows.push([]);
+		rows.push(["Energy Use per Capita"]);
+		rows.push(["Month"]);
+
+		lsBuilding.forEach((building) => {
+			rows[rows.length - 1].push(building.label);
+		});
+
+		let year = today.getFullYear();
+		month = today.getMonth();
+		for (let i = 0; i < 12; i++) {
+			if (month < 0) {
+				month += 12;
+				year--;
+			}
+			rows.push([lsMonth[month]]);
+
+			let kwh_building = kwh_building_month[month];
+			if (kwh_building === undefined) {
+				rows[rows.length - 1] = rows[rows.length - 1].concat(
+					new Array(lsBuilding.length).fill(0)
+				);
+				continue;
+			} else if (Object.keys(kwh_building).length === 0) {
+				rows[rows.length - 1] = rows[rows.length - 1].concat(
+					new Array(lsBuilding.length).fill(0)
+				);
+				continue;
+			}
+
+			lsBuilding.forEach((b) => {
+				if (!Object.keys(kwh_building).includes(b.label)) {
+					rows[rows.length - 1].push(0);
+				} else {
+					let kwh = kwh_building[b.label];
+					let target = lsTarget.find(
+						(t) =>
+							t.building === b.label && t.month === month && t.year === year
+					);
+					if (target === undefined) rows[rows.length - 1].push(0);
+					else if (target.amount_people === null) rows[rows.length - 1].push(0);
+					else {
+						rows[rows.length - 1].push(
+							parseFloat(kwh / target.amount_people).toFixed(2)
+						);
+					}
+				}
+			});
+
+			month--;
+		}
+
+		rows.push([]);
+		rows.push(["Energy Usage"]);
+		rows.push(["Month", "Actual", "Target", "Average"]);
+		month = today.getMonth();
+		for (let i = 0; i < 12; i++) {
+			if (month < 0) month += 12;
+
+			let dataEnergy = energyData_month[month];
+
+			rows.push([
+				lsMonth[month],
+				dataEnergy.latest,
+				dataEnergy.target,
+				dataEnergy.average,
+			]);
+
+			month--;
+		}
+
+		rows.push([]);
+		rows.push(["Energy Usage Compared to Target/Average"]);
+		rows.push(["Month", "Saved % Target", "Saved % Average"]);
+		month = today.getMonth();
+		for (let i = 0; i < 12; i++) {
+			if (month < 0) month += 12;
+
+			let energyData = energyData_month[month];
+			let latest = energyData.latest;
+			let target = energyData.target;
+			let average = energyData.average;
+
+			rows.push([
+				lsMonth[month],
+				target !== 0
+					? parseFloat(((target - latest) / target) * 100).toFixed(2)
+					: 0,
+				average !== 0
+					? parseFloat(((average - latest) / average) * 100).toFixed(2)
+					: 0,
+			]);
+
+			month--;
+		}
+
+		csv.exportFile("Historical Data", rows);
+	}
+
 	render() {
 		let {
 			lsMonth,
@@ -406,7 +563,11 @@ class SetTarget extends React.Component {
 					</Col>
 					<Col sm={8} className="heading-historical-data">
 						<span className="title">Historical Data</span>
-						<RiFileExcel2Fill size={30} className="icon-excel" />
+						<RiFileExcel2Fill
+							size={30}
+							className="icon-excel"
+							onClick={() => this.exportCharts()}
+						/>
 						<Button className="btn-period">Monthly</Button>
 						<Button className="btn-period">Yearly</Button>
 					</Col>

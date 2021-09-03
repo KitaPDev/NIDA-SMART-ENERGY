@@ -45,14 +45,14 @@ class DeviceManager extends React.Component {
 			deviceID: "",
 			deviceIDEdit: "",
 			deviceIDDelete: "",
-			building: "Auditorium",
-			floor: undefined,
+			building: "",
+			floor: "",
 			location: "",
 			site: "",
 			brandModel: "",
 			system: "Main",
 			isActive: false,
-			activatedDate: undefined,
+			activatedDate: "",
 		};
 
 		this.toggleSortByDeviceID = this.toggleSortByDeviceID.bind(this);
@@ -186,14 +186,14 @@ class DeviceManager extends React.Component {
 			isModalAddMeterOpen: !prevState.isModalAddMeterOpen,
 			deviceIDEdit: "",
 			deviceID: "",
-			building: "Auditorium",
-			floor: 0,
+			building: "",
+			floor: "",
 			location: "",
 			site: "",
 			brandModel: "",
 			system: "Main",
 			isActive: false,
-			activatedDate: undefined,
+			activatedDate: "",
 		}));
 	}
 
@@ -269,50 +269,16 @@ class DeviceManager extends React.Component {
 		try {
 			if (deviceID.length === 0) {
 				alert("Meter ID is required.");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
 				return;
 			}
 
 			if (lsDevice.find((d) => d.id === deviceID)) {
 				alert("Meter already exists");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
-				return;
-			}
-
-			if (building.length === 0) {
-				alert("Building is required.");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
-				return;
-			}
-
-			if (location.length === 0) {
-				alert("Location is required.");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
-				return;
-			}
-
-			if (site.length === 0) {
-				alert("Site is required.");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
-				return;
-			}
-
-			if (brandModel.length === 0) {
-				alert("Brand / Model is required.");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
 				return;
 			}
 
 			if (system.length === 0) {
 				alert("System is required.");
-				this.toggleModalConfirmAddMeter();
-				this.toggleModalAddMeter();
 				return;
 			}
 
@@ -386,33 +352,8 @@ class DeviceManager extends React.Component {
 				deviceID = deviceIDEdit;
 			}
 
-			if (building.length === 0) {
-				alert("Building is required.");
-				this.toggleModalConfirmEditMeter();
-				return;
-			}
-
-			if (location.length === 0) {
-				alert("Location is required.");
-				this.toggleModalConfirmEditMeter();
-				return;
-			}
-
-			if (site.length === 0) {
-				alert("Site is required.");
-				this.toggleModalConfirmEditMeter();
-				return;
-			}
-
-			if (brandModel.length === 0) {
-				alert("Brand / Model is required.");
-				this.toggleModalConfirmEditMeter();
-				return;
-			}
-
 			if (system.length === 0) {
 				alert("System is required.");
-				this.toggleModalConfirmEditMeter();
 				return;
 			}
 
@@ -656,6 +597,7 @@ class DeviceManager extends React.Component {
 												value={building}
 												onChange={this.handleInputChange}
 											>
+												<option></option>
 												{lsBuilding.map((building) => (
 													<option>{building.label}</option>
 												))}
@@ -846,6 +788,7 @@ class DeviceManager extends React.Component {
 										value={building}
 										onChange={this.handleInputChange}
 									>
+										<option></option>
 										{lsBuilding.map((building) => (
 											<option>{building.label}</option>
 										))}
