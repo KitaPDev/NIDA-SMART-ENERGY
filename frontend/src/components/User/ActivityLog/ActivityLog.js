@@ -21,6 +21,7 @@ class ActivityLog extends React.Component {
 			searchText: this.props.location.username
 				? this.props.location.username
 				: "",
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		this.handleChangeDateTo = this.handleChangeDateTo.bind(this);
@@ -109,8 +110,14 @@ class ActivityLog extends React.Component {
 	}
 
 	render() {
-		let { lsActivity, dateFrom, dateTo, searchText, isSortByTimestampAsc } =
-			this.state;
+		let {
+			lsActivity,
+			dateFrom,
+			dateTo,
+			searchText,
+			isSortByTimestampAsc,
+			lsPermission,
+		} = this.state;
 
 		let lsActivityDisplay = lsActivity.slice();
 
@@ -146,11 +153,15 @@ class ActivityLog extends React.Component {
 						Activity Log
 					</Col>
 					<Col sm={1} className="col-excel-icon">
-						<RiFileExcel2Fill
-							className="icon-excel"
-							size={25}
-							onClick={this.exportTable}
-						/>
+						{lsPermission.find((p) => p.label === "Export Information") ? (
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={25}
+								onClick={this.exportTable}
+							/>
+						) : (
+							<></>
+						)}
 					</Col>
 					<Col sm={8}></Col>
 				</Row>

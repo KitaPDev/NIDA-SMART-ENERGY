@@ -73,6 +73,7 @@ class SetTarget extends React.Component {
 			billData_month: {},
 			energyData_month: {},
 			kwh_building_month: {},
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		this.onClickCompareToBill = this.onClickCompareToBill.bind(this);
@@ -544,6 +545,7 @@ class SetTarget extends React.Component {
 			billData_month,
 			energyData_month,
 			kwh_building_month,
+			lsPermission,
 		} = this.state;
 
 		let currentYear = new Date().getFullYear();
@@ -563,11 +565,15 @@ class SetTarget extends React.Component {
 					</Col>
 					<Col sm={8} className="heading-historical-data">
 						<span className="title">Historical Data</span>
-						<RiFileExcel2Fill
-							size={30}
-							className="icon-excel"
-							onClick={() => this.exportCharts()}
-						/>
+						{lsPermission.find((p) => p.label === "Export Information") ? (
+							<RiFileExcel2Fill
+								size={30}
+								className="icon-excel"
+								onClick={() => this.exportCharts()}
+							/>
+						) : (
+							<></>
+						)}
 						<Button className="btn-period">Monthly</Button>
 						<Button className="btn-period">Yearly</Button>
 					</Col>

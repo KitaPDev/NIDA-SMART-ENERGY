@@ -22,6 +22,7 @@ class UserManagement extends React.Component {
 			isSortByDateLastLoginAsc: false,
 			isSortByDateLastLoginDesc: false,
 			searchText: "",
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		this.getAllUser = this.getAllUser.bind(this);
@@ -189,6 +190,7 @@ class UserManagement extends React.Component {
 			isSortByDateLastLoginAsc,
 			isSortByDateLastLoginDesc,
 			searchText,
+			lsPermission,
 		} = this.state;
 
 		let lsUserDisplay = lsUser.slice();
@@ -247,11 +249,15 @@ class UserManagement extends React.Component {
 			<div className="user-management">
 				<Row className="heading">
 					User Management{" "}
-					<RiFileExcel2Fill
-						className="icon-excel"
-						size={25}
-						onClick={this.exportTable}
-					/>
+					{lsPermission.find((p) => p.label === "Export Information") ? (
+						<RiFileExcel2Fill
+							className="icon-excel"
+							size={25}
+							onClick={this.exportTable}
+						/>
+					) : (
+						<></>
+					)}
 				</Row>
 				<Container className="container-table-user-management">
 					<Row className="row-search">

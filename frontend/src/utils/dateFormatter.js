@@ -250,6 +250,23 @@ function yyyymmdd_input(date) {
 	}
 }
 
+function hhmm(date) {
+	if (date instanceof Date) {
+		let hh = date.getHours();
+		let min = date.getMinutes();
+
+		if (hh < 10) {
+			hh = "0" + hh;
+		}
+
+		if (min < 10) {
+			min = "0" + min;
+		}
+
+		return hh + ":" + min;
+	}
+}
+
 const dateFormatter = {
 	ddmmyyyy,
 	ddmmyyyyhhmm,
@@ -262,6 +279,7 @@ const dateFormatter = {
 	yyyymmddhhmmss_noOffset,
 	yyyymmdd_noOffset,
 	yyyymmdd_input,
+	hhmm,
 };
 
 export default dateFormatter;

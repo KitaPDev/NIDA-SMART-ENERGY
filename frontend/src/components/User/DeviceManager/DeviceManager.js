@@ -53,6 +53,7 @@ class DeviceManager extends React.Component {
 			system: "Main",
 			isActive: false,
 			activatedDate: "",
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		this.toggleSortByDeviceID = this.toggleSortByDeviceID.bind(this);
@@ -452,6 +453,7 @@ class DeviceManager extends React.Component {
 			lsSystem,
 			deviceIDEdit,
 			deviceID,
+			lsPermission,
 		} = this.state;
 
 		let lsDeviceDisplay = lsDevice.slice();
@@ -505,11 +507,15 @@ class DeviceManager extends React.Component {
 				<div className="row-heading" style={{ maxHeight: "6%" }}>
 					<div className="col-heading">Device Manager</div>
 					<div className="col-excel-icon">
-						<RiFileExcel2Fill
-							className="icon-excel"
-							size={25}
-							onClick={() => this.exportTable()}
-						/>
+						{lsPermission.find((p) => p.label === "Export Information") ? (
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={25}
+								onClick={() => this.exportTable()}
+							/>
+						) : (
+							<></>
+						)}
 					</div>
 					<div className="col-right">
 						<div className="div-add-meter" onClick={this.toggleModalAddMeter}>
