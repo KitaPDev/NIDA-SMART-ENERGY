@@ -70,8 +70,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text:
-							i18n.language === "th" ? "การใช้กำลังไฟฟ้า (kW)" : "Power (kW)",
+						text: "Power (kW)",
 						align: "start",
 						font: { weight: "bold", size: 14 },
 						padding: {
@@ -117,6 +116,12 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 	buildChart = () => {
 		let { data, options } = this.state;
+		let dt = JSON.parse(JSON.stringify(data));
+		let opt = JSON.parse(JSON.stringify(options));
+
+		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+
+		dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 
 		document.getElementById("bc-system-power").remove();
 		document.getElementById(
@@ -127,8 +132,8 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 		barChart = new Chart(ctx, {
 			type: "bar",
-			data: data,
-			options: options,
+			data: dt,
+			options: opt,
 		});
 	};
 
@@ -141,24 +146,8 @@ class BarChartSystemPowerConsumption extends React.Component {
 		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
 
 		if (currentLanguage !== i18n.language) {
-			options.plugins.title.text =
-				i18n.language === "th" ? "การใช้กำลังไฟฟ้า (kW)" : "Power (kW)";
-
-			if (data.datasets) {
-				if (data.datasets.length > 0) {
-					data.datasets[0].label =
-						i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner";
-					data.datasets[1].label = i18n.language === "th" ? "อื่นๆ" : "Others";
-				}
-			}
-
-			this.setState(
-				{
-					data: data,
-					options: options,
-					currentLanguage: i18n.language,
-				},
-				() => this.buildChart()
+			this.setState({ currentLanguage: i18n.language }, () =>
+				this.buildChart()
 			);
 		}
 
@@ -261,14 +250,14 @@ class BarChartSystemPowerConsumption extends React.Component {
 		);
 
 		let datasetAc = {
-			label: i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner",
+			label: "Air Conditioner",
 			backgroundColor: "#4469B8",
 			borderColor: "#4469B8",
 			data: lsKwAc,
 		};
 
 		let datasetOthers = {
-			label: i18n.language === "th" ? "อื่นๆ" : "Others",
+			label: "Others",
 			backgroundColor: "#B14926",
 			borderColor: "#B14926",
 			data: lsKwOthers,

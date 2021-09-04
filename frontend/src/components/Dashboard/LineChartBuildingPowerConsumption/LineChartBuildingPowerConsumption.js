@@ -57,7 +57,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: i18n.language === "th" ? "กำลังไฟฟ้า (kW)" : "Power (kW)",
+						text: "Power (kW)",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 						padding: {
@@ -101,6 +101,14 @@ class LineChartBuildingPowerConsumption extends React.Component {
 
 	buildChart = () => {
 		let { data, options } = this.state;
+		let dt = JSON.parse(JSON.stringify(data));
+		let opt = JSON.parse(JSON.stringify(options));
+
+		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+
+		if (dt.datasets) {
+			dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
+		}
 
 		document.getElementById("lc-building-power").remove();
 		document.getElementById(
@@ -111,8 +119,8 @@ class LineChartBuildingPowerConsumption extends React.Component {
 
 		lineChart = new Chart(ctx, {
 			type: "line",
-			data: data,
-			options: options,
+			data: dt,
+			options: opt,
 		});
 	};
 
@@ -125,66 +133,8 @@ class LineChartBuildingPowerConsumption extends React.Component {
 		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
 
 		if (currentLanguage !== i18n.language) {
-			options.plugins.title.text =
-				i18n.language === "th" ? "การใช้กำลังไฟฟ้า (kW)" : "Power (kW)";
-
-			if (data.datasets) {
-				data.datasets.forEach((ds, idx) => {
-					let bld = ds.label;
-					if (bld === "Auditorium" || bld === "หอประชุม") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "หอประชุม")
-							: (data.datasets[idx].label = "Auditorium");
-					} else if (bld === "Bunchana" || bld === "บุญชนะ") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "บุญชนะ")
-							: (data.datasets[idx].label = "Bunchana");
-					} else if (bld === "Choop" || bld === "ชุบ") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "ชุบ")
-							: (data.datasets[idx].label = "Choop");
-					} else if (bld === "Malai" || bld === "มาลัย") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "มาลัย")
-							: (data.datasets[idx].label = "Malai");
-					} else if (bld === "Naradhip" || bld === "นราธิป") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "นราธิป")
-							: (data.datasets[idx].label = "Naradhip");
-					} else if (bld === "Navamin" || bld === "นวมินทร์") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "นวมินทร์")
-							: (data.datasets[idx].label = "Navamin");
-					} else if (bld === "Nida House" || bld === "นิด้าเฮ้าส์") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "นิด้าเฮ้าส์")
-							: (data.datasets[idx].label = "Nida House");
-					} else if (bld === "Nidasumpun" || bld === "นิด้าสัมพันธ์") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "นิด้าสัมพันธ์")
-							: (data.datasets[idx].label = "Nidasumpun");
-					} else if (bld === "Ratchaphruek" || bld === "ราชพฤกษ์") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "ราชพฤกษ์")
-							: (data.datasets[idx].label = "Ratchaphruek");
-					} else if (bld === "Serithai" || bld === "เสรีไทย") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "เสรีไทย")
-							: (data.datasets[idx].label = "Serithai");
-					} else if (bld === "Siam" || bld === "สยาม") {
-						i18n.language === "th"
-							? (data.datasets[idx].label = "สยาม")
-							: (data.datasets[idx].label = "Siam");
-					}
-				});
-			}
-
-			this.setState(
-				{
-					options: options,
-					currentLanguage: i18n.language,
-				},
-				() => this.buildChart()
+			this.setState({ currentLanguage: i18n.language }, () =>
+				this.buildChart()
 			);
 		}
 

@@ -91,6 +91,10 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 	buildChart = () => {
 		let { data, options } = this.state;
+		let dt = JSON.parse(JSON.stringify(data));
+
+		if (dt.datasets === undefined) return;
+		dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 
 		document.getElementById("bc-system-power").remove();
 		document.getElementById(
@@ -101,7 +105,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 		barChart = new Chart(ctx, {
 			type: "bar",
-			data: data,
+			data: dt,
 			options: options,
 		});
 	};
@@ -115,28 +119,8 @@ class BarChartSystemPowerConsumption extends React.Component {
 		let { data, options, currentLanguage } = this.state;
 
 		if (currentLanguage !== i18n.language) {
-			if (data.datasets.length > 0) {
-				let ds = data.datasets[0];
-
-				if (ds.label === "ทั้งหมด" || ds.label === "Overall") {
-					ds.label = i18n.language === "th" ? "ทั้งหมด" : "Overall";
-				} else if (
-					ds.label === "ระบบปรับอากาศ" ||
-					ds.label === "Air Conditioner"
-				) {
-					ds.label =
-						i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner";
-				} else if (ds.label === "อื่นๆ" || ds.label === "Others") {
-					ds.label = i18n.language === "th" ? "อื่นๆ" : "Others";
-				}
-			}
-
-			this.setState(
-				{
-					data: data,
-					currentLanguage: i18n.language,
-				},
-				() => this.buildChart()
+			this.setState({ currentLanguage: i18n.language }, () =>
+				this.buildChart()
 			);
 		}
 
@@ -189,8 +173,10 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 		let lsKw = [];
 		if (lsKw_system["Main"] !== undefined) lsKw = lsKw_system["Main"];
-		if (system === "Air Conditioner") lsKw = lsKw_system["Air Conditioner"];
-		else if (system === "Others") {
+
+		if (system === "Air Conditioner" || system === "ระบบปรับอากาศ")
+			lsKw = lsKw_system["Air Conditioner"];
+		else if (system === "Others" || system === "อื่นๆ") {
 			if (lsKw_system["Air Conditioner"] !== undefined) {
 				lsKw.forEach((_, idx) => {
 					lsKw[idx] -= lsKw_system["Air Conditioner"][idx];
@@ -216,21 +202,6 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 		options.plugins.zoom.limits.x.min = labels[labels.length - 1];
 		options.plugins.zoom.limits.x.max = labels[0];
-
-		if (data.datasets.length > 0) {
-			let ds = data.datasets[0];
-
-			if (ds.label === "ทั้งหมด" || ds.label === "Overall") {
-				ds.label = i18n.language === "th" ? "ทั้งหมด" : "Overall";
-			} else if (
-				ds.label === "ระบบปรับอากาศ" ||
-				ds.label === "Air Conditioner"
-			) {
-				ds.label = i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner";
-			} else if (ds.label === "อื่นๆ" || ds.label === "Others") {
-				ds.label = i18n.language === "th" ? "อื่นๆ" : "Others";
-			}
-		}
 
 		this.setState({
 			data: data,

@@ -39,7 +39,7 @@ const renderCustomizedLabel = ({
 
 const getLine1 = () => {
 	return (
-		(i18n.language === "th" ? "วันนี้" : "TODAY") +
+		i18n.t("TODAY") +
 		" 00:00 - " +
 		new Date().toLocaleString([], {
 			hour: "2-digit",
@@ -56,7 +56,8 @@ const getLine2 = (building, ac, others) => {
 		building +
 		" " +
 		numberWithCommas(Math.round(totalEnergyConsumption)) +
-		(i18n.language === "th" ? " หน่วย" : " kWh")
+		" " +
+		i18n.t("kWh")
 	);
 };
 
@@ -64,11 +65,13 @@ const getLine3 = (ac, others) => {
 	let percentAC = Math.round((ac / (ac + others)) * 100);
 
 	return (
-		(i18n.language === "th" ? "ระบบปรับอากาศ " : "Air Conditioner ") +
+		i18n.t("Air Conditioner") +
+		" " +
 		percentAC +
 		"% " +
 		numberWithCommas(Math.round(ac)) +
-		(i18n.language === "th" ? " หน่วย" : " kWh")
+		" " +
+		i18n.t("kWh")
 	);
 };
 
@@ -76,11 +79,13 @@ const getLine4 = (ac, others) => {
 	let percentOthers = Math.round((others / (ac + others)) * 100);
 
 	return (
-		(i18n.language === "th" ? "อื่นๆ " : "Others ") +
+		i18n.t("Others") +
+		" " +
 		percentOthers +
 		"% " +
 		numberWithCommas(Math.round(others)) +
-		(i18n.language === "th" ? " หน่วย" : " kWh")
+		" " +
+		i18n.t("kWh")
 	);
 };
 

@@ -24,6 +24,7 @@ import http from "../../../utils/http";
 import csv from "../../../utils/csv";
 
 import { withTranslation } from "react-i18next";
+import i18n from "../../../i18n";
 
 const lsMonth = [
 	"January",
@@ -154,7 +155,7 @@ class SetTarget extends React.Component {
 
 			let buildingID;
 			for (let b of lsBuilding) {
-				if (b.label === building) {
+				if (i18n.t(b.label) === building) {
 					buildingID = b.id;
 					break;
 				}

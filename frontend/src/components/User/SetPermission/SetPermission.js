@@ -1,7 +1,11 @@
 import React from "react";
+
 import "./SetPermission.css";
 import { Row, Col, Container, Table, Input } from "reactstrap";
+
 import http from "../../../utils/http";
+
+import { withTranslation } from "react-i18next";
 
 class SetPermission extends React.Component {
 	constructor(props) {
@@ -78,11 +82,13 @@ class SetPermission extends React.Component {
 	render() {
 		let { lsUserTypePermission, lsPermission, lsUserType } = this.state;
 
+		const { t } = this.props;
+
 		return (
 			<div className="set-permission">
 				<Row className="row-heading">
 					<Col sm={3} className="col-heading">
-						Set Permission
+						{t("Set Permission")}
 					</Col>
 				</Row>
 				<Container className="container-set-permission">
@@ -91,14 +97,14 @@ class SetPermission extends React.Component {
 							<tr>
 								<th></th>
 								{lsUserType.map((userType) => (
-									<th>{userType.label}</th>
+									<th>{t(userType.label)}</th>
 								))}
 							</tr>
 						</thead>
 						<tbody>
 							{lsPermission.map((permission) => (
 								<tr>
-									<th>{permission.label}</th>
+									<th>{t(permission.label)}</th>
 									{lsUserType.map((userType) => (
 										<td>
 											<Input
@@ -131,4 +137,4 @@ class SetPermission extends React.Component {
 	}
 }
 
-export default SetPermission;
+export default withTranslation()(SetPermission);

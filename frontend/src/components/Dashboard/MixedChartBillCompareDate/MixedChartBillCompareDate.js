@@ -109,6 +109,12 @@ class MixedChartBillCompareDate extends React.Component {
 			lsTarget,
 		} = this.state;
 
+		if (bill_building_strDate === undefined) return;
+
+		let labels = Object.keys(bill_building_strDate).sort(
+			(a, b) => new Date(a).getTime() - new Date(b).getTime()
+		);
+
 		let datasets = [
 			{
 				label: "Latest",
@@ -128,10 +134,6 @@ class MixedChartBillCompareDate extends React.Component {
 				type: "line",
 			},
 		];
-
-		let labels = Object.keys(bill_building_strDate).sort(
-			(a, b) => new Date(a).getTime() - new Date(b).getTime()
-		);
 
 		let latest = [];
 		let compareData = [];
@@ -208,21 +210,7 @@ class MixedChartBillCompareDate extends React.Component {
 		options.plugins.zoom.limits.x.min = labels[0];
 		options.plugins.zoom.limits.x.max = labels[labels.length - 1];
 
-		if (data.datasets) {
-			if (data.datasets.length > 0) {
-				let ds = data.datasets[0];
-				ds.label = i18n.language === "th" ? "ค่าล่าสุด" : "Latest";
-
-				ds = data.datasets[1];
-				if (ds.label === "Target" || ds.label === "ค่าเป้าหมาย") {
-					ds.label = i18n.language === "th" ? "ค่าเป้าหมาย" : "Target";
-				} else if (ds.label === "Average" || ds.label === "ค่าเฉลี่ย") {
-					ds.label = i18n.language === "th" ? "ค่าเฉลี่ย" : "Average";
-				} else if (ds.label === "Last Year" || ds.label === "ค่าปีที่แล้ว") {
-					ds.label = i18n.language === "th" ? "ค่าปีที่แล้ว" : "Last Year";
-				}
-			}
-		}
+		data.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 
 		document.getElementById("mc-bill-compare").remove();
 		document.getElementById(
@@ -256,15 +244,9 @@ class MixedChartBillCompareDate extends React.Component {
 		} = this.state;
 
 		if (currentLanguage !== i18n.language) {
-			if (data.datasets) {
-				if (data.datasets.length > 0) {
-					data.datasets[0].label =
-						i18n.language === "th" ? "ค่าล่าสุด" : "Latest";
-					data.datasets[1].label = i18n.language === "th" ? "อื่นๆ" : "Others";
-				}
-			}
-
-			this.setState({ currentLanguage: i18n.language, data: data });
+			this.setState({ currentLanguage: i18n.language }, () =>
+				this.buildChart()
+			);
 		}
 
 		if (dateTo === undefined || dateFrom === undefined) {

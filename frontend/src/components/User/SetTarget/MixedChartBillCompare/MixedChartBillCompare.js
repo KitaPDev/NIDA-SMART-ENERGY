@@ -5,32 +5,15 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
-const lsMonth = [
-	"JAN",
-	"FEB",
-	"MAR",
-	"APR",
-	"MAY",
-	"JUN",
-	"JUL",
-	"AUG",
-	"SEP",
-	"OCT",
-	"NOV",
-	"DEC",
-];
+import i18n from "../../../../i18n";
+
+import { lsMonth } from "../../../../utils/months";
 
 let mixedChart;
 
 class MixedChartBillCompare extends React.Component {
 	constructor(props) {
 		super(props);
-
-		let labels = [];
-		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
-			if (monthIdx < 0) monthIdx += 12;
-			labels.unshift(lsMonth[monthIdx % 12]);
-		}
 
 		this.state = {
 			building: {},
@@ -39,9 +22,7 @@ class MixedChartBillCompare extends React.Component {
 			compareData: [],
 			lsBuilding: [],
 			// Chart details
-			data: {
-				labels: labels,
-			},
+			data: {},
 			options: {
 				responsive: true,
 				animation: false,
@@ -77,7 +58,7 @@ class MixedChartBillCompare extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Electricity Bill",
+						text: "Electricity Bill (THB)",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 					},
@@ -106,7 +87,7 @@ class MixedChartBillCompare extends React.Component {
 							speed: 100,
 						},
 						limits: {
-							x: { min: labels[0], max: labels[labels.length - 1] },
+							x: { min: "original", max: "original" },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -119,6 +100,7 @@ class MixedChartBillCompare extends React.Component {
 
 	buildChart = () => {
 		let { data, options, billData_month, compareTo } = this.state;
+		let opt = JSON.parse(JSON.stringify(options));
 
 		if (Object.keys(billData_month).length === 0) return;
 
@@ -162,8 +144,22 @@ class MixedChartBillCompare extends React.Component {
 			month--;
 		}
 
+		let labels = [];
+		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
+			if (monthIdx < 0) monthIdx += 12;
+			labels.unshift(i18n.t(lsMonth[monthIdx % 12]));
+		}
+
+		data.labels = labels;
 		data.datasets = datasets;
-		options.scales.yAxis.max = Math.ceil(yMax);
+		opt.scales.yAxis.max = Math.ceil(yMax);
+
+		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+		opt.scales.yAxis.title.text = i18n.t(opt.scales.yAxis.title.text);
+
+		data.datasets.forEach((ds) => {
+			ds.label = i18n.t(ds.label);
+		});
 
 		document.getElementById("mc-bill-compare").remove();
 		document.getElementById(
@@ -175,7 +171,7 @@ class MixedChartBillCompare extends React.Component {
 		mixedChart = new Chart(ctx, {
 			type: "bar",
 			data: data,
-			options: options,
+			options: opt,
 		});
 
 		this.setState({

@@ -208,6 +208,7 @@ class EditProfile extends React.Component {
 
 			let payload = {
 				email: email,
+				username: this.state.username,
 			};
 
 			await http.post("/user/email", payload);
@@ -276,6 +277,7 @@ class EditProfile extends React.Component {
 
 			let payload = {
 				image: image,
+				username: this.state.username,
 			};
 
 			await http.post("/user/profile-image", payload);
@@ -548,6 +550,7 @@ class EditProfile extends React.Component {
 									<tr>
 										<th scope="row">{t("User Type")}</th>
 										<td className={isUserTypeApproved ? "" : "pending"}>
+											{t(userType)}
 											{isUserTypeApproved ? "" : " (Pending)"}
 										</td>
 										{isUserTypeApproved ? (

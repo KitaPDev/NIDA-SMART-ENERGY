@@ -526,8 +526,8 @@ class DeviceManager extends React.Component {
 		return (
 			<div className="container-device-manager">
 				<div className="row-heading" style={{ maxHeight: "6%" }}>
-					<div className="col-heading">{t("Device Manager")}</div>
-					<div className="col-excel-icon">
+					<div className="col-heading">
+						{t("Device Manager")}
 						{lsPermission.find((p) => p.label === "Export Information") ? (
 							<RiFileExcel2Fill
 								className="icon-excel"

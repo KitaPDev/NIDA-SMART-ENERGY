@@ -13,32 +13,13 @@ import csv from "../../../utils/csv";
 
 import i18n from "../../../i18n";
 
-const lsMonth = [
-	"JAN",
-	"FEB",
-	"MAR",
-	"APR",
-	"MAY",
-	"JUN",
-	"JUL",
-	"AUG",
-	"SEP",
-	"OCT",
-	"NOV",
-	"DEC",
-];
+import { lsMonth } from "../../../utils/months";
 
 let mixedChart;
 
 class MixedChartBillCompare extends React.Component {
 	constructor(props) {
 		super(props);
-
-		let labels = [];
-		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
-			if (monthIdx < 0) monthIdx += 12;
-			labels.unshift(lsMonth[monthIdx % 12]);
-		}
 
 		this.state = {
 			building: {},
@@ -50,9 +31,7 @@ class MixedChartBillCompare extends React.Component {
 			currentLanguage: i18n.language,
 
 			// Chart details
-			data: {
-				labels: labels,
-			},
+			data: {},
 			options: {
 				responsive: true,
 				animation: false,
@@ -106,7 +85,7 @@ class MixedChartBillCompare extends React.Component {
 							speed: 100,
 						},
 						limits: {
-							x: { min: labels[0], max: labels[labels.length - 1] },
+							x: { min: "original", max: "original" },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -166,24 +145,17 @@ class MixedChartBillCompare extends React.Component {
 			month--;
 		}
 
+		let labels = [];
+		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
+			if (monthIdx < 0) monthIdx += 12;
+			labels.unshift(i18n.t(lsMonth[monthIdx % 12]));
+		}
+
+		data.labels = labels;
 		data.datasets = datasets;
 		options.scales.yAxis.max = Math.ceil(yMax);
 
-		if (data.datasets) {
-			if (data.datasets.length > 0) {
-				let ds = data.datasets[0];
-				ds.label = i18n.language === "th" ? "ค่าล่าสุด" : "Latest";
-
-				ds = data.datasets[1];
-				if (ds.label === "Target" || ds.label === "ค่าเป้าหมาย") {
-					ds.label = i18n.language === "th" ? "ค่าเป้าหมาย" : "Target";
-				} else if (ds.label === "Average" || ds.label === "ค่าเฉลี่ย") {
-					ds.label = i18n.language === "th" ? "ค่าเฉลี่ย" : "Average";
-				} else if (ds.label === "Last Year" || ds.label === "ค่าปีที่แล้ว") {
-					ds.label = i18n.language === "th" ? "ค่าปีที่แล้ว" : "Last Year";
-				}
-			}
-		}
+		data.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 
 		document.getElementById("mc-bill-compare").remove();
 		document.getElementById(
@@ -209,18 +181,10 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, currentLanguage } = this.state;
+		let { currentLanguage } = this.state;
 
 		if (currentLanguage !== i18n.language) {
-			if (data.datasets) {
-				if (data.datasets.length > 0) {
-					data.datasets[0].label =
-						i18n.language === "th" ? "ค่าล่าสุด" : "Latest";
-					data.datasets[1].label = i18n.language === "th" ? "อื่นๆ" : "Others";
-				}
-			}
-
-			this.setState({ currentLanguage: i18n.language, data: data });
+			this.setState({ currentLanguage: i18n.language });
 		}
 
 		let lsBuilding = nextProps.lsBuilding;

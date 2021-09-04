@@ -42,7 +42,8 @@ const getLine1 = (building, ac, others) => {
 		building +
 		" " +
 		numberFormatter.withCommas(Math.round(totalEnergyConsumption)) +
-		(i18n.language === "th" ? " หน่วย" : " kWh")
+		" " +
+		i18n.t("kWh")
 	);
 };
 
@@ -50,11 +51,13 @@ const getLine2 = (ac, others) => {
 	let percentAC = Math.round((ac / (ac + others)) * 100);
 
 	return (
-		(i18n.language === "th" ? "ระบบปรับอากาศ " : "Air Conditioner ") +
+		i18n.t("Air Conditioner") +
+		" " +
 		percentAC +
 		"% " +
 		numberFormatter.withCommas(Math.round(ac)) +
-		(i18n.language === "th" ? " หน่วย" : " kWh")
+		" " +
+		i18n.t("kWh")
 	);
 };
 
@@ -62,11 +65,13 @@ const getLine3 = (ac, others) => {
 	let percentOthers = Math.round((others / (ac + others)) * 100);
 
 	return (
-		(i18n.language === "th" ? "อื่นๆ " : "Others ") +
+		i18n.t("Others") +
+		" " +
 		percentOthers +
 		"% " +
 		numberFormatter.withCommas(Math.round(others)) +
-		(i18n.language === "th" ? " หน่วย" : " kWh")
+		" " +
+		i18n.t("kWh")
 	);
 };
 

@@ -340,7 +340,7 @@ class Building extends React.Component {
 			});
 		}
 
-		csv.exportFile(`Power - ${system}`, rows);
+		csv.exportFile(`${i18n.t("Power")} - ${i18n.t(system)}`, rows);
 	}
 
 	render() {

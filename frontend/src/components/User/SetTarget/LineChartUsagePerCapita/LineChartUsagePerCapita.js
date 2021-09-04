@@ -5,20 +5,9 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
-const lsMonth = [
-	"JAN",
-	"FEB",
-	"MAR",
-	"APR",
-	"MAY",
-	"JUN",
-	"JUL",
-	"AUG",
-	"SEP",
-	"OCT",
-	"NOV",
-	"DEC",
-];
+import i18n from "../../../../i18n";
+
+import { lsMonth } from "../../../../utils/months";
 
 let lineChart;
 
@@ -26,21 +15,13 @@ class LineChartUsagePerCapita extends React.Component {
 	constructor(props) {
 		super(props);
 
-		let labels = [];
-		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
-			if (monthIdx < 0) monthIdx += 12;
-			labels.unshift(lsMonth[monthIdx % 12]);
-		}
-
 		this.state = {
 			lsBuilding: [],
 			lsTarget: [],
 			kwh_building_month: {},
 
 			// Chart details
-			data: {
-				labels: labels,
-			},
+			data: {},
 			options: {
 				responsive: true,
 				animation: false,
@@ -104,7 +85,7 @@ class LineChartUsagePerCapita extends React.Component {
 							speed: 2,
 						},
 						limits: {
-							x: { min: labels[0], max: labels[labels.length - 1] },
+							x: { min: "original", max: "original" },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -118,6 +99,7 @@ class LineChartUsagePerCapita extends React.Component {
 	buildChart = () => {
 		let { data, options, lsBuilding, lsTarget, kwh_building_month } =
 			this.state;
+		let opt = JSON.parse(JSON.stringify(options));
 
 		if (Object.keys(kwh_building_month).length === 0) return;
 
@@ -182,8 +164,22 @@ class LineChartUsagePerCapita extends React.Component {
 			month--;
 		}
 
+		let labels = [];
+		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
+			if (monthIdx < 0) monthIdx += 12;
+			labels.unshift(i18n.t(lsMonth[monthIdx % 12]));
+		}
+		data.labels = labels;
+
+		datasets.forEach((ds) => {
+			ds.label = i18n.t(ds.label);
+		});
+
 		data.datasets = datasets;
-		options.scales.yAxis.max = Math.ceil(yMax);
+
+		opt.scales.yAxis.max = Math.ceil(yMax);
+		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+		opt.scales.yAxis.title.text = i18n.t(opt.scales.yAxis.title.text);
 
 		document.getElementById("lc-energy-capita").remove();
 		document.getElementById(
@@ -195,7 +191,7 @@ class LineChartUsagePerCapita extends React.Component {
 		lineChart = new Chart(ctx, {
 			type: "line",
 			data: data,
-			options: options,
+			options: opt,
 		});
 	};
 

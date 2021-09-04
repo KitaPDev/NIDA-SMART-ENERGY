@@ -56,7 +56,7 @@ class MixedChartKwTempHumi extends React.Component {
 						grid: { display: false },
 						title: {
 							display: true,
-							text: i18n.language === "th" ? "อุณภูมิ" : "Temperature",
+							text: "Temperature",
 							font: {
 								size: 16,
 								weight: "600",
@@ -69,7 +69,7 @@ class MixedChartKwTempHumi extends React.Component {
 						grid: { display: false },
 						title: {
 							display: true,
-							text: i18n.language === "th" ? "ความชื้น" : "Humidity",
+							text: "Humidity",
 							font: {
 								size: 16,
 								weight: "600",
@@ -92,10 +92,7 @@ class MixedChartKwTempHumi extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text:
-							i18n.language === "th"
-								? "กำลังไฟฟ้าระบบปรับอากาศ (kW)"
-								: "Energy (kW) Air Conditioner",
+						text: "Energy (kW) Air Conditioner",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 						padding: {
@@ -143,6 +140,14 @@ class MixedChartKwTempHumi extends React.Component {
 
 	buildChart = () => {
 		let { data, options } = this.state;
+		let dt = JSON.parse(JSON.stringify(data));
+		let opt = JSON.parse(JSON.stringify(options));
+
+		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+		opt.scales.yTemp.title.text = i18n.t(opt.scales.yTemp.title.text);
+		opt.scales.yHumi.title.text = i18n.t(opt.scales.yHumi.title.text);
+
+		dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 
 		document.getElementById("mc-kw-temp-humi").remove();
 		document.getElementById(
@@ -153,8 +158,8 @@ class MixedChartKwTempHumi extends React.Component {
 
 		mixedChart = new Chart(ctx, {
 			type: "bar",
-			data: data,
-			options: options,
+			data: dt,
+			options: opt,
 		});
 	};
 
@@ -167,32 +172,8 @@ class MixedChartKwTempHumi extends React.Component {
 		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
 
 		if (currentLanguage !== i18n.language) {
-			options.plugins.title.text =
-				i18n.language === "th"
-					? "กำลังไฟฟ้าระบบปรับอากาศ (kW)"
-					: "Energy (kW) Air Conditioner";
-
-			options.scales.yTemp.title.text =
-				i18n.language === "th" ? "อุณภูมิ" : "Temperature";
-			options.scales.yHumi.title.text =
-				i18n.language === "th" ? "ความชื้น" : "Humidity";
-
-			if (data.datasets) {
-				if (data.datasets.length > 0) {
-					data.datasets[0].label =
-						i18n.language === "th" ? "อุณภูมิ" : "Temperature";
-					data.datasets[1].label =
-						i18n.language === "th" ? "ความชื้น" : "Humidity";
-				}
-			}
-
-			this.setState(
-				{
-					data: data,
-					options: options,
-					currentLanguage: i18n.language,
-				},
-				() => this.buildChart()
+			this.setState({ currentLanguage: i18n.language }, () =>
+				this.buildChart()
 			);
 		}
 

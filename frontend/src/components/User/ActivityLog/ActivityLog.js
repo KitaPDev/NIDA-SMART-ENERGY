@@ -9,6 +9,9 @@ import http from "../../../utils/http";
 import dateFormatter from "../../../utils/dateFormatter";
 import csv from "../../../utils/csv";
 
+import { withTranslation } from "react-i18next";
+import i18n from "../../../i18n";
+
 class ActivityLog extends React.Component {
 	constructor(props) {
 		super(props);
@@ -119,6 +122,8 @@ class ActivityLog extends React.Component {
 			lsPermission,
 		} = this.state;
 
+		const { t } = this.props;
+
 		let lsActivityDisplay = lsActivity.slice();
 
 		if (isSortByTimestampAsc) {
@@ -137,8 +142,8 @@ class ActivityLog extends React.Component {
 			lsActivityDisplay = lsActivityDisplay.filter((activity) => {
 				return (
 					activity.username.includes(searchText) ||
-					activity.user_type.includes(searchText) ||
-					activity.action.includes(searchText) ||
+					t(activity.user_type).includes(searchText) ||
+					t(activity.action).includes(searchText) ||
 					dateFormatter
 						.ddmmyyyyhhmm(new Date(activity.datetime))
 						.includes(searchText)
@@ -150,7 +155,7 @@ class ActivityLog extends React.Component {
 			<div className="activity-log">
 				<Row className="row-heading">
 					<Col sm={3} className="col-heading">
-						Activity Log
+						{t("Activity Log")}
 					</Col>
 					<Col sm={1} className="col-excel-icon">
 						{lsPermission.find((p) => p.label === "Export Information") ? (
@@ -169,7 +174,7 @@ class ActivityLog extends React.Component {
 					<Row className="row-input">
 						<div row className="row-fg-period">
 							<Label for="dateFrom" sm={1}>
-								From
+								{t("From")}
 							</Label>
 							<Col sm={3} className="col-input">
 								<Input
@@ -184,7 +189,7 @@ class ActivityLog extends React.Component {
 								/>
 							</Col>
 							<Label for="dateTo" sm={1}>
-								To
+								{t("To")}
 							</Label>
 							<Col sm={3} className="col-input">
 								<Input
@@ -199,7 +204,7 @@ class ActivityLog extends React.Component {
 								/>
 							</Col>
 							<button className="btn-apply" onClick={this.getActivity}>
-								Apply
+								{t("Apply")}
 							</button>
 							<Input
 								type="text"
@@ -220,11 +225,11 @@ class ActivityLog extends React.Component {
 									className={isSortByTimestampAsc ? "sort_asc" : "sort_desc"}
 									onClick={this.toggleSortByTimestamp}
 								>
-									Datetime
+									{t("Datetime")}
 								</th>
-								<th>Username</th>
-								<th>User Type</th>
-								<th>Action</th>
+								<th>{t("Username")}</th>
+								<th>{t("User Type")}</th>
+								<th>{t("Action")}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -236,8 +241,8 @@ class ActivityLog extends React.Component {
 										)}
 									</td>
 									<td>{act.username}</td>
-									<td>{act.user_type}</td>
-									<td>{act.action}</td>
+									<td>{t(act.user_type)}</td>
+									<td>{t(act.action)}</td>
 								</tr>
 							))}
 						</tbody>
@@ -248,4 +253,4 @@ class ActivityLog extends React.Component {
 	}
 }
 
-export default ActivityLog;
+export default withTranslation()(ActivityLog);

@@ -5,32 +5,15 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
-const lsMonth = [
-	"JAN",
-	"FEB",
-	"MAR",
-	"APR",
-	"MAY",
-	"JUN",
-	"JUL",
-	"AUG",
-	"SEP",
-	"OCT",
-	"NOV",
-	"DEC",
-];
+import i18n from "../../../../i18n";
+
+import { lsMonth } from "../../../../utils/months";
 
 let barChart;
 
 class BarChartEnergyCompare extends React.Component {
 	constructor(props) {
 		super(props);
-
-		let labels = [];
-		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
-			if (monthIdx < 0) monthIdx += 12;
-			labels.unshift(lsMonth[monthIdx % 12]);
-		}
 
 		this.state = {
 			building: {},
@@ -39,9 +22,7 @@ class BarChartEnergyCompare extends React.Component {
 			compareData: [],
 			lsBuilding: [],
 			// Chart details
-			data: {
-				labels: labels,
-			},
+			data: {},
 			options: {
 				responsive: true,
 				animation: false,
@@ -104,9 +85,15 @@ class BarChartEnergyCompare extends React.Component {
 								let label = context.dataset.label || "";
 
 								if (label) {
+									label = i18n.t(label);
 									label += ": ";
 								}
 								if (context.parsed.y !== null) {
+									if (context.parsed.y < 0) {
+										label = i18n.t(label);
+										label += ": ";
+									}
+
 									label += context.parsed.y + "%";
 								}
 								return label;
@@ -125,7 +112,7 @@ class BarChartEnergyCompare extends React.Component {
 							speed: 100,
 						},
 						limits: {
-							x: { min: labels[0], max: labels[labels.length - 1] },
+							x: { min: "original", max: "original" },
 							y: { min: "original", max: "original" },
 						},
 					},
@@ -138,6 +125,7 @@ class BarChartEnergyCompare extends React.Component {
 
 	buildChart = () => {
 		let { data, options, energyData_month, compareTo } = this.state;
+		let opt = JSON.parse(JSON.stringify(options));
 
 		if (Object.keys(energyData_month).length === 0) return;
 
@@ -189,13 +177,41 @@ class BarChartEnergyCompare extends React.Component {
 			},
 		];
 
+		let labels = [];
+		for (let monthIdx = new Date().getMonth(); labels.length < 12; monthIdx--) {
+			if (monthIdx < 0) monthIdx += 12;
+			labels.unshift(i18n.t(lsMonth[monthIdx % 12]));
+		}
+
+		data.labels = labels;
 		data.datasets = datasets;
 
 		if (yMax === 0) yMax = 100;
-		options.scales.yAxis.max = Math.ceil(yMax);
-		options.scales.yAxis.min = Math.ceil(-yMax);
-		options.scales.yAxis.max = Math.ceil(yMax);
-		options.scales.yAxis.min = Math.ceil(-yMax);
+		opt.scales.yAxis.max = Math.ceil(yMax);
+		opt.scales.yAxis.min = Math.ceil(-yMax);
+		opt.scales.yAxis.max = Math.ceil(yMax);
+		opt.scales.yAxis.min = Math.ceil(-yMax);
+
+		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+		opt.plugins.tooltip.callbacks = {
+			label: function (context) {
+				let label = context.dataset.label || "";
+
+				if (label) {
+					label = i18n.t(label);
+					label += ": ";
+				}
+				if (context.parsed.y !== null) {
+					if (context.parsed.y < 0) {
+						label = i18n.t("Excess");
+						label += ": ";
+					}
+
+					label += context.parsed.y + "%";
+				}
+				return label;
+			},
+		};
 
 		document.getElementById("bc-energy-compare").remove();
 		document.getElementById(
@@ -207,7 +223,7 @@ class BarChartEnergyCompare extends React.Component {
 		barChart = new Chart(ctx, {
 			type: "bar",
 			data: data,
-			options: options,
+			options: opt,
 		});
 
 		this.setState({

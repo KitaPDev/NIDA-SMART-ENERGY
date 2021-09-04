@@ -13,7 +13,8 @@ module.exports = async (req, res, next, permission) => {
 
 		if (permission === "Add/Edit/Delete Other User") {
 			if (
-				req.body.username === decodedToken.username &&
+				(req.body.username === decodedToken.username ||
+					req.body.prev_username === decodedToken.username) &&
 				req.url !== "/activate"
 			)
 				return next();
