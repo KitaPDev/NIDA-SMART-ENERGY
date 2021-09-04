@@ -26,6 +26,8 @@ import dateFormatter from "../../utils/dateFormatter";
 import http from "../../utils/http";
 import csv from "../../utils/csv";
 
+import { withTranslation } from "react-i18next";
+
 class Meter extends React.Component {
 	constructor(props) {
 		super(props);
@@ -51,6 +53,7 @@ class Meter extends React.Component {
 			interval: "15 min",
 			buildingPath: window.location.origin + "/building/", // For Building Images
 			propsPath: window.location.origin + "/props/", // For Props Images
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		this.setMapMode = this.setMapMode.bind(this);
@@ -376,7 +379,10 @@ class Meter extends React.Component {
 			dateTo,
 			dateFrom,
 			interval,
+			lsPermission,
 		} = this.state;
+
+		const { t } = this.props;
 
 		if (lsSelectedBuilding.length === 0) {
 			lsSelectedBuilding = lsBuilding.map((building) => building.label);
@@ -405,13 +411,13 @@ class Meter extends React.Component {
 
 				return (
 					id.includes(searchText) ||
-					building.includes(searchText) ||
+					t(building).includes(searchText) ||
 					location.includes(searchText) ||
 					site.includes(searchText) ||
 					brandModel.includes(searchText) ||
-					system.includes(searchText) ||
+					t(system).includes(searchText) ||
 					dateFormatter
-						.ddmmyyyy(new Date(device.activated_timestamp))
+						.ddmmyyyy(new Date(device.activated_datetime))
 						.includes(searchText)
 				);
 			});
@@ -471,14 +477,14 @@ class Meter extends React.Component {
 						active={isMapMode}
 						onClick={this.setMapMode}
 					>
-						Map
+						{t("Map")}
 					</Button>
 					<Button
 						className="btn-diagram"
 						active={isDiagramMode}
 						onClick={this.setDiagramMode}
 					>
-						Diagram
+						{t("Diagram")}
 					</Button>
 				</Row>
 				{isMapMode ? (
@@ -503,7 +509,7 @@ class Meter extends React.Component {
 											this.onDoubleClickBuilding(building.label)
 										}
 									>
-										{building.label}
+										{t(`${building.label}`)}
 									</div>
 								))}
 							</div>
@@ -562,14 +568,20 @@ class Meter extends React.Component {
 							<Form>
 								<FormGroup row>
 									<Col sm={1} className="col-table-heading">
-										General Info
+										{t("General Info")}
 									</Col>
 									<Col sm={1} className="col-excel-icon">
-										<RiFileExcel2Fill
-											className="icon-excel"
-											size={25}
-											onClick={this.exportTable}
-										/>
+										{lsPermission.find(
+											(p) => p.label === "Export Information"
+										) ? (
+											<RiFileExcel2Fill
+												className="icon-excel"
+												size={25}
+												onClick={this.exportTable}
+											/>
+										) : (
+											<></>
+										)}
 									</Col>
 									<Input
 										type="text"
@@ -598,14 +610,14 @@ class Meter extends React.Component {
 											}
 											onClick={this.toggleSortByMeterID}
 										>
-											Meter ID
+											{t("Meter") + " ID"}
 										</th>
-										<th>Building</th>
-										<th>Floor</th>
-										<th>Location</th>
-										<th>Site</th>
-										<th>Brand / Model</th>
-										<th>System</th>
+										<th>{t("Building")}</th>
+										<th>{t("Floor")}</th>
+										<th>{t("Location")}</th>
+										<th>{t("Site")}</th>
+										<th>{t("Brand / Model")}</th>
+										<th>{t("System")}</th>
 										<th
 											className={
 												isSortByStatusActive
@@ -616,10 +628,10 @@ class Meter extends React.Component {
 											}
 											onClick={this.toggleSortByStatus}
 										>
-											Status
+											{t("Status")}
 										</th>
 
-										<th>Activated Date</th>
+										<th>{t("Activated Date")}</th>
 										<th></th>
 										<th></th>
 									</tr>
@@ -628,12 +640,12 @@ class Meter extends React.Component {
 									{lsDeviceDisplay.map((device, _) => (
 										<tr>
 											<td>{device.id}</td>
-											<td>{device.building}</td>
+											<td>{t(`${device.building}`)}</td>
 											<td>{device.floor}</td>
 											<td>{device.location}</td>
 											<td>{device.site}</td>
 											<td>{device.brand_model}</td>
-											<td>{device.system}</td>
+											<td>{t(`${device.system}`)}</td>
 											<td>
 												<span
 													className={device.is_active ? "green-dot" : "red-dot"}
@@ -641,7 +653,7 @@ class Meter extends React.Component {
 											</td>
 											<td>
 												{dateFormatter.ddmmyyyy(
-													new Date(device.activated_timestamp)
+													new Date(device.activated_datetime)
 												)}
 											</td>
 										</tr>
@@ -654,13 +666,13 @@ class Meter extends React.Component {
 					<Row className="row-diagram">
 						<Col sm={2}>
 							<div class="building-list-pane">
-								<p class="heading-1">Building</p>
+								<p class="heading-1">{t("Building")}</p>
 								<Row
 									className="row-building"
 									style={{ justifyContent: "center" }}
 									onClick={this.onClickAllBuilding}
 								>
-									Overall
+									{t("Overall")}
 								</Row>
 								{lsBuilding.map((bld) => (
 									<div>
@@ -681,7 +693,7 @@ class Meter extends React.Component {
 													}}
 												></div>
 											</Col>
-											<Col sm={10}>{bld.label}</Col>
+											<Col sm={10}>{t(`${bld.label}`)}</Col>
 										</Row>
 									</div>
 								))}
@@ -691,13 +703,13 @@ class Meter extends React.Component {
 							{lsSelectedBuilding.length === lsBuilding.length ? (
 								<>
 									<Row className="row-title" style={{ textTransform: "none" }}>
-										time{" "}
+										{t("time")}{" "}
 										<span className="latest-time">
 											{latestTime.toTimeString().split(" ")[0].substring(0, 5)}
 										</span>
 									</Row>
 									<Row className="row-title">
-										NIDA{" "}
+										{t("NIDA")}{" "}
 										<span className="kw-total">
 											{parseFloat(kwTotal).toFixed(2) + " kW"}
 										</span>
@@ -706,7 +718,10 @@ class Meter extends React.Component {
 										{lsBuilding.map((bld) => (
 											<div className="meter-building">
 												<div className="meter">
-													<img src={window.location.origin + "/meter.png"} />
+													<img
+														src={window.location.origin + "/meter.png"}
+														alt="meter.png"
+													/>
 												</div>
 												<div className="info">
 													<div
@@ -714,7 +729,7 @@ class Meter extends React.Component {
 														style={{ backgroundColor: bld.color_code }}
 														onClick={() => this.onClickBuilding(bld.label)}
 													>
-														{bld.label}
+														{t(`${bld.label}`)}
 													</div>
 													<div className="kw">
 														{kw_building[bld.label] === undefined
@@ -778,7 +793,7 @@ class Meter extends React.Component {
 										<table className="table-ac">
 											<thead>
 												<tr>
-													<th>Air Handling Unit</th>
+													<th>{t("Air Handling Unit")}</th>
 												</tr>
 											</thead>
 											<div className="tbody">
@@ -820,7 +835,7 @@ class Meter extends React.Component {
 																						: parseFloat(log.kw_total).toFixed(
 																								2
 																						  ) + " kW"}
-																					){" - Floor "}
+																					){` - ${t("Floor")} `}
 																					{log.floor === null
 																						? "N/A"
 																						: log.floor < 0
@@ -861,7 +876,7 @@ class Meter extends React.Component {
 										<table className="table-others">
 											<thead>
 												<tr>
-													<th>Others</th>
+													<th>{t("Others")}</th>
 												</tr>
 											</thead>
 											<div className="tbody">
@@ -903,7 +918,7 @@ class Meter extends React.Component {
 																						: parseFloat(log.kw_total).toFixed(
 																								2
 																						  ) + " kW"}
-																					){" - Floor "}
+																					){` - ${t("Floor")} `}
 																					{log.floor === null
 																						? "N/A"
 																						: log.floor < 0
@@ -983,7 +998,7 @@ class Meter extends React.Component {
 							<table>
 								<tbody>
 									<tr>
-										<td>Energy (kWh)</td>
+										<td>{t("Energy")} (kWh)</td>
 										<td>
 											{modalLog
 												? modalLog.kwh !== null
@@ -993,7 +1008,7 @@ class Meter extends React.Component {
 										</td>
 									</tr>
 									<tr>
-										<td>Total Power (kW)</td>
+										<td>{t("Total Power")} (kW)</td>
 										<td>
 											{modalLog
 												? modalLog.kw_total !== null
@@ -1003,7 +1018,7 @@ class Meter extends React.Component {
 										</td>
 									</tr>
 									<tr>
-										<td>Total Apparent (kVA)</td>
+										<td>{t("Total Apparent")} (kVA)</td>
 										<td>
 											{modalLog
 												? modalLog.kva_total !== null
@@ -1013,7 +1028,7 @@ class Meter extends React.Component {
 										</td>
 									</tr>
 									<tr>
-										<td>Power Factor: PF</td>
+										<td>{t("Power Factor")}: PF</td>
 										<td>
 											{modalLog
 												? modalLog.pf !== null
@@ -1030,7 +1045,7 @@ class Meter extends React.Component {
 							<table>
 								<tbody>
 									<tr>
-										<td>Phase Voltage L1: V1 (V)</td>
+										<td>{t("Phase Voltage")} L1: V1 (V)</td>
 										<td>
 											{modalLog
 												? modalLog.voltage_l1_N !== null
@@ -1038,7 +1053,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Current L1: I1 (A)</td>
+										<td>{t("Current")} L1: I1 (A)</td>
 										<td>
 											{modalLog
 												? modalLog.current_l1 !== null
@@ -1049,7 +1064,7 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Phase Voltage L2: V2 (V)</td>
+										<td>{t("Phase Voltage")} L2: V2 (V)</td>
 										<td>
 											{modalLog
 												? modalLog.voltage_l2_N !== null
@@ -1057,7 +1072,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Current L2: I2 (A)</td>
+										<td>{t("Current")} L2: I2 (A)</td>
 										<td>
 											{modalLog
 												? modalLog.current_l2 !== null
@@ -1068,7 +1083,7 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Phase Voltage L3: V3 (V)</td>
+										<td>{t("Phase Voltage")} L3: V3 (V)</td>
 										<td>
 											{modalLog
 												? modalLog.voltage_l3_N !== null
@@ -1076,7 +1091,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Current L3: I3 (A)</td>
+										<td>{t("Current")} L3: I3 (A)</td>
 										<td>
 											{modalLog
 												? modalLog.current_l3 !== null
@@ -1089,7 +1104,7 @@ class Meter extends React.Component {
 									<tr className="spacer"></tr>
 
 									<tr>
-										<td>Line Voltage L1-L2 (V)</td>
+										<td>{t("Line Voltage")} L1-L2 (V)</td>
 										<td>
 											{modalLog
 												? modalLog.voltage_l1_l2 !== null
@@ -1097,7 +1112,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Power L1 (kW)</td>
+										<td>{t("Power")} L1 (kW)</td>
 										<td>
 											{modalLog
 												? modalLog.kw_l1 !== null
@@ -1108,7 +1123,7 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Line Voltage L2-L3 (V)</td>
+										<td>{t("Line Voltage")} L2-L3 (V)</td>
 										<td>
 											{modalLog
 												? modalLog.voltage_l2_l3 !== null
@@ -1116,7 +1131,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Power L2 (kW)</td>
+										<td>{t("Power")} L2 (kW)</td>
 										<td>
 											{modalLog
 												? modalLog.kw_l2 !== null
@@ -1127,7 +1142,7 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Line Voltage L3-L1 (V)</td>
+										<td>{t("Line Voltage")} L3-L1 (V)</td>
 										<td>
 											{modalLog
 												? modalLog.voltage_l3_l1 !== null
@@ -1135,7 +1150,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Power L3 (kW)</td>
+										<td>{t("Power")} L3 (kW)</td>
 										<td>
 											{modalLog
 												? modalLog.kw_l3 !== null
@@ -1148,7 +1163,7 @@ class Meter extends React.Component {
 									<tr className="spacer"></tr>
 
 									<tr>
-										<td>Reactive L1 (KVar)</td>
+										<td>{t("Reactive")} L1 (KVar)</td>
 										<td>
 											{modalLog
 												? modalLog.kvar_l1 !== null
@@ -1156,7 +1171,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Apparent L1 (kVA)</td>
+										<td>{t("Apparent")} L1 (kVA)</td>
 										<td>
 											{modalLog
 												? modalLog.kva_l1 !== null
@@ -1167,7 +1182,7 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Reactive L2 (KVar)</td>
+										<td>{t("Reactive")} L2 (KVar)</td>
 										<td>
 											{modalLog
 												? modalLog.kvar_l2 !== null
@@ -1175,7 +1190,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Apparent L2 (kVA)</td>
+										<td>{t("Apparent")} L2 (kVA)</td>
 										<td>
 											{modalLog
 												? modalLog.kva_l2 !== null
@@ -1186,7 +1201,7 @@ class Meter extends React.Component {
 									</tr>
 
 									<tr>
-										<td>Reactive L3 (KVar)</td>
+										<td>{t("Reactive")} L3 (KVar)</td>
 										<td>
 											{modalLog
 												? modalLog.kvar_l3 !== null
@@ -1194,7 +1209,7 @@ class Meter extends React.Component {
 													: "N/A"
 												: "N/A"}
 										</td>
-										<td>Apparent L3 (kVA)</td>
+										<td>{t("Apparent")} L3 (kVA)</td>
 										<td>
 											{modalLog
 												? modalLog.kva_l3 !== null
@@ -1207,7 +1222,7 @@ class Meter extends React.Component {
 									<tr className="spacer"></tr>
 
 									<tr>
-										<td>Frequency (Hz)</td>
+										<td>{t("Frequency")} (Hz)</td>
 										<td>
 											{modalLog
 												? modalLog.hz !== null
@@ -1224,15 +1239,19 @@ class Meter extends React.Component {
 					</ModalBody>
 					<ModalFooter>
 						<div className="footer-row-1">
-							<span>Select date to export</span>{" "}
-							<RiFileExcel2Fill
-								className="icon-excel"
-								size={30}
-								onClick={this.exportMeter}
-							/>
+							<span>{t("Select date to export")}</span>{" "}
+							{lsPermission.find((p) => p.label === "Export Information") ? (
+								<RiFileExcel2Fill
+									className="icon-excel"
+									size={30}
+									onClick={this.exportMeter}
+								/>
+							) : (
+								<></>
+							)}
 						</div>
 						<form>
-							<Label for="dateFrom">From</Label>
+							<Label for="dateFrom">{t("From")}</Label>
 							<div>
 								<Input
 									className="datepicker"
@@ -1245,7 +1264,7 @@ class Meter extends React.Component {
 									max={dateFormatter.yyyymmdd_noOffset(dateTo)}
 								/>
 							</div>
-							<Label for="dateTo">To</Label>
+							<Label for="dateTo">{t("To")}</Label>
 							<div>
 								<Input
 									className="datepicker"
@@ -1258,7 +1277,9 @@ class Meter extends React.Component {
 									min={dateFormatter.yyyymmdd_noOffset(dateFrom)}
 								/>
 							</div>
-							<Label for="interval">Interval</Label>
+							<Label for="interval" className="label-interval">
+								{t("Interval")}
+							</Label>
 							<div className="col-input-interval">
 								<Input
 									type="select"
@@ -1267,10 +1288,10 @@ class Meter extends React.Component {
 									value={interval}
 									onChange={this.handleInputChange}
 								>
-									<option>15 min</option>
-									<option>30 min</option>
-									<option>1 hour</option>
-									<option>1 day</option>
+									<option>15 {t("min")}</option>
+									<option>30 {t("min")}</option>
+									<option>1 {t("hour")}</option>
+									<option>1 {t("day")}</option>
 								</Input>
 							</div>
 						</form>
@@ -1281,4 +1302,4 @@ class Meter extends React.Component {
 	}
 }
 
-export default Meter;
+export default withTranslation()(Meter);

@@ -5,6 +5,8 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
+import i18n from "../../../i18n";
+
 let barChart;
 
 class BarChartSystemPowerConsumption extends React.Component {
@@ -12,6 +14,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 		super(props);
 
 		this.state = {
+			currentLanguage: i18n.language,
 			// Chart details
 			data: {},
 			options: {
@@ -109,7 +112,33 @@ class BarChartSystemPowerConsumption extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, options } = this.state;
+		let { data, options, currentLanguage } = this.state;
+
+		if (currentLanguage !== i18n.language) {
+			if (data.datasets.length > 0) {
+				let ds = data.datasets[0];
+
+				if (ds.label === "ทั้งหมด" || ds.label === "Overall") {
+					ds.label = i18n.language === "th" ? "ทั้งหมด" : "Overall";
+				} else if (
+					ds.label === "ระบบปรับอากาศ" ||
+					ds.label === "Air Conditioner"
+				) {
+					ds.label =
+						i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner";
+				} else if (ds.label === "อื่นๆ" || ds.label === "Others") {
+					ds.label = i18n.language === "th" ? "อื่นๆ" : "Others";
+				}
+			}
+
+			this.setState(
+				{
+					data: data,
+					currentLanguage: i18n.language,
+				},
+				() => this.buildChart()
+			);
+		}
 
 		let lsLogKw_system = nextProps.lsLogKw_system;
 		if (lsLogKw_system === undefined) return;
@@ -187,6 +216,21 @@ class BarChartSystemPowerConsumption extends React.Component {
 
 		options.plugins.zoom.limits.x.min = labels[labels.length - 1];
 		options.plugins.zoom.limits.x.max = labels[0];
+
+		if (data.datasets.length > 0) {
+			let ds = data.datasets[0];
+
+			if (ds.label === "ทั้งหมด" || ds.label === "Overall") {
+				ds.label = i18n.language === "th" ? "ทั้งหมด" : "Overall";
+			} else if (
+				ds.label === "ระบบปรับอากาศ" ||
+				ds.label === "Air Conditioner"
+			) {
+				ds.label = i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner";
+			} else if (ds.label === "อื่นๆ" || ds.label === "Others") {
+				ds.label = i18n.language === "th" ? "อื่นๆ" : "Others";
+			}
+		}
 
 		this.setState({
 			data: data,

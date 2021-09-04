@@ -14,6 +14,8 @@ import { Link } from "react-router-dom";
 import validator from "validator";
 import http from "../../utils/http";
 
+import { withTranslation } from "react-i18next";
+
 class Register extends React.Component {
 	constructor(props) {
 		super(props);
@@ -171,6 +173,8 @@ class Register extends React.Component {
 			loading,
 		} = this.state;
 
+		const { t } = this.props;
+
 		return (
 			<div style={{ backgroundColor: "#f2f3f7", height: "100vh" }}>
 				<Container fluid className="container-register">
@@ -182,12 +186,12 @@ class Register extends React.Component {
 					</div>
 
 					<Container className="container-form">
-						<Row className="row-heading">Register</Row>
+						<Row className="row-heading">{t("Register")}</Row>
 						<Row>
 							<Form>
 								<FormGroup row>
-									<Label for="username" sm={2}>
-										Username
+									<Label for="username" sm={3}>
+										{t("Username")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -200,8 +204,8 @@ class Register extends React.Component {
 									</Col>
 								</FormGroup>
 								<FormGroup row>
-									<Label for="email" sm={2}>
-										Email
+									<Label for="email" sm={3}>
+										{t("Email")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -214,8 +218,8 @@ class Register extends React.Component {
 									</Col>
 								</FormGroup>
 								<FormGroup row>
-									<Label for="password" sm={2}>
-										Password
+									<Label for="password" sm={3}>
+										{t("Password")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -228,8 +232,8 @@ class Register extends React.Component {
 									</Col>
 								</FormGroup>
 								<FormGroup row>
-									<Label for="confirmPassword" sm={2}>
-										Password
+									<Label for="confirmPassword" sm={3}>
+										{t("Confirm Password")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -245,8 +249,8 @@ class Register extends React.Component {
 									""
 								) : (
 									<FormGroup row>
-										<Label for="userType" sm={2}>
-											User Type
+										<Label for="userType" sm={3}>
+											{t("User Type")}
 										</Label>
 										<Col sm={6}>
 											<Input
@@ -269,52 +273,57 @@ class Register extends React.Component {
 										className="btn-register"
 										onClick={this.submitRegister}
 									>
-										Register
+										{t("Register")}
 									</Button>
 								</FormGroup>
 							</Form>
 						</Row>
 						{isCredentialsIncorrect ? (
-							<Row className="row-feedback">Credentials don't match!</Row>
+							<Row className="row-feedback">
+								{t("Credentials don't match!")}
+							</Row>
 						) : (
 							""
 						)}
 						{isUsernameEmpty ? (
-							<Row className="row-feedback">Please fill in your username.</Row>
+							<Row className="row-feedback">
+								{t("Please fill in your username.")}
+							</Row>
 						) : (
 							""
 						)}
 						{isEmailEmpty ? (
-							<Row className="row-feedback">Please fill in your email.</Row>
+							<Row className="row-feedback">
+								{t("Please fill in your email.")}
+							</Row>
 						) : (
 							""
 						)}
 						{isEmailValid ? (
-							<Row className="row-feedback">Email is invalid.</Row>
+							<Row className="row-feedback">{t("Email is invalid.")}</Row>
 						) : (
 							""
 						)}
 						{isPasswordEmpty ? (
-							<Row className="row-feedback">Please fill in your password.</Row>
+							<Row className="row-feedback">
+								{t("Please fill in your password.")}
+							</Row>
 						) : (
 							""
 						)}
 
 						<Row className="row-login">
 							<Link to="/login" className="link">
-								Back to Log In
+								{t("Back to Log In")}
 							</Link>
 						</Row>
 					</Container>
 				</Container>
 
-				<footer>
-					Address : 148 Seri Thai Rd., Khlong Chan, Bang Kapi, Bangkok 10240 Tel
-					: 0-2727-3000
-				</footer>
+				<footer>{t("address")}</footer>
 			</div>
 		);
 	}
 }
 
-export default Register;
+export default withTranslation()(Register);

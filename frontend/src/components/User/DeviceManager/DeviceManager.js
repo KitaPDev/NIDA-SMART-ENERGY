@@ -24,9 +24,14 @@ import dateFormatter from "../../../utils/dateFormatter";
 import http from "../../../utils/http";
 import csv from "../../../utils/csv";
 
+import { withTranslation } from "react-i18next";
+
 class DeviceManager extends React.Component {
 	constructor(props) {
 		super(props);
+
+		const { t } = this.props;
+
 		this.state = {
 			lsDevice: [],
 			lsBuilding: [],
@@ -50,7 +55,7 @@ class DeviceManager extends React.Component {
 			location: "",
 			site: "",
 			brandModel: "",
-			system: "Main",
+			system: t("Main"),
 			isActive: false,
 			activatedDate: "",
 			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
@@ -256,6 +261,8 @@ class DeviceManager extends React.Component {
 
 	async addMeter() {
 		let {
+			lsBuilding,
+			lsSystem,
 			deviceID,
 			building,
 			floor,
@@ -286,6 +293,11 @@ class DeviceManager extends React.Component {
 			if (activatedDate === "" || activatedDate === undefined) {
 				activatedDate = new Date();
 			}
+
+			const { t } = this.props;
+
+			building = lsBuilding.find((b) => t(b.label) === t(building)).label;
+			system = lsSystem.find((s) => t(s.label) === t(system)).label;
 
 			let payload = {
 				id: deviceID,
@@ -337,6 +349,8 @@ class DeviceManager extends React.Component {
 
 	async editMeter() {
 		let {
+			lsBuilding,
+			lsSystem,
 			deviceIDEdit,
 			deviceID,
 			building,
@@ -359,6 +373,11 @@ class DeviceManager extends React.Component {
 			}
 
 			if (activatedDate === undefined) activatedDate = new Date();
+
+			const { t } = this.props;
+
+			building = lsBuilding.find((b) => t(b.label) === building).label;
+			system = lsSystem.find((s) => t(s.label) === system).label;
 
 			let payload = {
 				id: deviceID,
@@ -456,6 +475,8 @@ class DeviceManager extends React.Component {
 			lsPermission,
 		} = this.state;
 
+		const { t } = this.props;
+
 		let lsDeviceDisplay = lsDevice.slice();
 
 		if (isSortByDeviceIDAsc) {
@@ -488,7 +509,7 @@ class DeviceManager extends React.Component {
 			lsDeviceDisplay = lsDeviceDisplay.filter((device) => {
 				for (let [, value] of Object.entries(device)) {
 					if (value !== null) {
-						if (value.toString().includes(searchText)) {
+						if (t(value).toString().includes(searchText)) {
 							return true;
 						}
 					}
@@ -505,7 +526,7 @@ class DeviceManager extends React.Component {
 		return (
 			<div className="container-device-manager">
 				<div className="row-heading" style={{ maxHeight: "6%" }}>
-					<div className="col-heading">Device Manager</div>
+					<div className="col-heading">{t("Device Manager")}</div>
 					<div className="col-excel-icon">
 						{lsPermission.find((p) => p.label === "Export Information") ? (
 							<RiFileExcel2Fill
@@ -519,7 +540,8 @@ class DeviceManager extends React.Component {
 					</div>
 					<div className="col-right">
 						<div className="div-add-meter" onClick={this.toggleModalAddMeter}>
-							<IoMdAddCircle className="btn-add-meter" size={30} /> Add Meter
+							<IoMdAddCircle className="btn-add-meter" size={30} />{" "}
+							{t("Add Meter")}
 						</div>
 
 						<Input
@@ -549,14 +571,14 @@ class DeviceManager extends React.Component {
 									}
 									onClick={this.toggleSortByDeviceID}
 								>
-									Meter ID
+									{t("device.Meter")} ID
 								</th>
-								<th>Building</th>
-								<th>Floor</th>
-								<th>Location</th>
-								<th>Site</th>
-								<th>Brand / Model</th>
-								<th>System</th>
+								<th>{t("Building")}</th>
+								<th>{t("Floor")}</th>
+								<th>{t("Location")}</th>
+								<th>{t("Site")}</th>
+								<th>{t("Brand / Model")}</th>
+								<th>{t("System")}</th>
 								{deviceIDEdit !== "" ? (
 									""
 								) : (
@@ -570,7 +592,7 @@ class DeviceManager extends React.Component {
 										}
 										onClick={this.toggleSortByStatus}
 									>
-										Status
+										{t("Status")}
 									</th>
 								)}
 
@@ -584,7 +606,7 @@ class DeviceManager extends React.Component {
 									}
 									onClick={this.toggleSortByDateActivated}
 								>
-									Activated Date
+									{t("Activated Date")}
 								</th>
 								<th></th>
 								<th></th>
@@ -600,16 +622,16 @@ class DeviceManager extends React.Component {
 												type="select"
 												name="building"
 												id="building"
-												value={building}
+												value={t(building)}
 												onChange={this.handleInputChange}
 											>
 												<option></option>
 												{lsBuilding.map((building) => (
-													<option>{building.label}</option>
+													<option>{t(building.label)}</option>
 												))}
 											</Input>
 										) : (
-											device.building
+											t(device.building)
 										)}
 									</td>
 									<td>
@@ -671,15 +693,15 @@ class DeviceManager extends React.Component {
 												type="select"
 												name="system"
 												id="system"
-												value={system}
+												value={t(system)}
 												onChange={this.handleInputChange}
 											>
 												{lsSystem.map((system) => (
-													<option>{system.label}</option>
+													<option>{t(system.label)}</option>
 												))}
 											</Input>
 										) : (
-											device.system
+											t(device.system)
 										)}
 									</td>
 									{deviceIDEdit === device.id ? (
@@ -753,12 +775,14 @@ class DeviceManager extends React.Component {
 					toggle={this.toggleModalAddMeter}
 					size="lg"
 				>
-					<ModalHeader toggle={this.toggleModalAddMeter}>Add Meter</ModalHeader>
+					<ModalHeader toggle={this.toggleModalAddMeter}>
+						{t("Add Meter")}
+					</ModalHeader>
 					<ModalBody>
 						<Form className="form-add-meter">
 							<FormGroup row>
 								<Label for="deviceID" sm={2} className="label-deviceID">
-									Meter ID
+									{t("Meter")} ID
 								</Label>
 								<Col sm={4}>
 									<Input
@@ -770,7 +794,7 @@ class DeviceManager extends React.Component {
 									/>
 								</Col>
 								<Label for="site" sm={2} className="label-site">
-									Site
+									{t("Site")}
 								</Label>
 								<Col sm={4}>
 									<Input
@@ -784,7 +808,7 @@ class DeviceManager extends React.Component {
 							</FormGroup>
 							<FormGroup row>
 								<Label for="building" sm={1} className="label-building">
-									Building
+									{t("Building")}
 								</Label>
 								<Col sm={4}>
 									<Input
@@ -796,13 +820,13 @@ class DeviceManager extends React.Component {
 									>
 										<option></option>
 										{lsBuilding.map((building) => (
-											<option>{building.label}</option>
+											<option>{t(building.label)}</option>
 										))}
 									</Input>
 								</Col>
 
 								<Label for="brandModel" sm={2} className="label-brand-model">
-									Brand / Model
+									{t("Brand / Model")}
 								</Label>
 								<Col sm={4}>
 									<Input
@@ -816,7 +840,7 @@ class DeviceManager extends React.Component {
 							</FormGroup>
 							<FormGroup row>
 								<Label for="floor" sm={2} className="label-floor">
-									Floor
+									{t("Floor")}
 								</Label>
 								<Col sm={4}>
 									<Input
@@ -833,7 +857,7 @@ class DeviceManager extends React.Component {
 									sm={2}
 									className="label-activated-date"
 								>
-									Activated Date
+									{t("Activated Date")}
 								</Label>
 								<Col sm={4}>
 									<Input
@@ -851,7 +875,7 @@ class DeviceManager extends React.Component {
 							</FormGroup>
 							<FormGroup row>
 								<Label for="location" sm={2} className="label-location">
-									Location
+									{t("Location")}
 								</Label>
 								<Col sm={6}>
 									<Input
@@ -863,18 +887,18 @@ class DeviceManager extends React.Component {
 									/>
 								</Col>
 								<Label for="systsem" sm={1} className="label-system">
-									System
+									{t("System")}
 								</Label>
 								<Col sm={3}>
 									<Input
 										type="select"
 										name="system"
 										id="system"
-										value={system}
+										value={t(`${system}`)}
 										onChange={this.handleInputChange}
 									>
 										{lsSystem.map((system) => (
-											<option>{system.label}</option>
+											<option>{t(`${system.label}`)}</option>
 										))}
 									</Input>
 								</Col>
@@ -886,10 +910,10 @@ class DeviceManager extends React.Component {
 							className="btn-add"
 							onClick={this.toggleModalConfirmAddMeter}
 						>
-							Add
+							{t("Add")}
 						</Button>{" "}
 						<Button className="btn-discard" onClick={this.toggleModalAddMeter}>
-							Discard
+							{t("Discard")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -898,14 +922,14 @@ class DeviceManager extends React.Component {
 					toggle={this.toggleModalConfirmAddMeter}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmAddMeter}>
-						Confirm Add Meter
+						{t("Confirm Add Meter")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.addMeter}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmAddMeter}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -914,14 +938,14 @@ class DeviceManager extends React.Component {
 					toggle={this.toggleModalConfirmEditMeter}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmEditMeter}>
-						Confirm Edit Meter
+						{t("Confirm Edit Meter")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.editMeter}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmEditMeter}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -930,14 +954,14 @@ class DeviceManager extends React.Component {
 					toggle={this.toggleModalConfirmDeleteMeter}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmDeleteMeter}>
-						Confirm Delete Meter
+						{t("Confirm Delete Meter")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.deleteMeter}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmDeleteMeter}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -946,4 +970,4 @@ class DeviceManager extends React.Component {
 	}
 }
 
-export default DeviceManager;
+export default withTranslation()(DeviceManager);

@@ -34,6 +34,24 @@ import numberFormatter from "../../utils/numberFormatter";
 import colorConverter from "../../utils/colorConverter";
 import csv from "../../utils/csv";
 
+import { withTranslation } from "react-i18next";
+import i18n from "../../i18n";
+
+const lsMonthName = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
+
 class Building extends React.Component {
 	constructor(props) {
 		super(props);
@@ -56,6 +74,7 @@ class Building extends React.Component {
 			lsLogKw_system: {},
 			compareTo: "Target",
 			buildingPath: window.location.origin + "/building/", // For Building Images
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		let currentBuildingLabel = this.props.location.building;
@@ -340,6 +359,7 @@ class Building extends React.Component {
 			lsLogKw_system,
 			compareTo,
 			buildingPath,
+			lsPermission,
 		} = this.state;
 
 		// Calculate Estimated People
@@ -394,6 +414,8 @@ class Building extends React.Component {
 		let floor = 1; // Some buildings have basement levels
 		if (currentBuildingLabel === "Navamin") floor = -2;
 
+		const { t } = this.props;
+
 		return (
 			<div id="container-building">
 				<Container id="container-building-top" fluid>
@@ -401,7 +423,7 @@ class Building extends React.Component {
 						{/* ******************************** Left Pane ******************************** */}
 						<Col id="col-building-list" sm={2}>
 							<div class="building-list-pane">
-								<p class="heading-1">Building</p>
+								<p class="heading-1">{t("Building")}</p>
 								{lsBuilding.map((bld) => (
 									<div>
 										<Row
@@ -419,7 +441,7 @@ class Building extends React.Component {
 													}}
 												></div>
 											</Col>
-											<Col sm={10}>{bld.label}</Col>
+											<Col sm={10}>{t(`${bld.label}`)}</Col>
 										</Row>
 									</div>
 								))}
@@ -437,7 +459,7 @@ class Building extends React.Component {
 											color: color,
 										}}
 									>
-										{currentBuildingLabel}
+										{t(`${currentBuildingLabel}`)}
 									</Row>
 									<Row
 										className="row-heading"
@@ -446,48 +468,61 @@ class Building extends React.Component {
 										}}
 									>
 										<p>
-											Estimated{" "}
+											{t("building.Estimated")}{" "}
 											<span style={{ fontSize: "150%", fontWeight: "bold" }}>
 												{numberFormatter.withCommas(estimatedPeople)}
 											</span>{" "}
-											people{" "}
+											{t("people")}{" "}
 											<span>
 												<MdPeople size="1.5em" style={{ margin: "auto" }} />
 											</span>
 										</p>
 									</Row>
 									<Row className="row-date">
-										{dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateFrom) +
-											" - " +
-											dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateTo)}
+										{displayDateFrom.getDate() + " "}
+										{t(`${lsMonthName[displayDateFrom.getMonth()]}`)}
+										{" " +
+											(i18n.language === "th"
+												? displayDateFrom.getFullYear() + 543
+												: displayDateFrom.getFullYear()) +
+											" "}
+										{dateFormatter.hhmm(displayDateFrom) + " - "}
+										{displayDateTo.getDate() + " "}
+										{t(`${lsMonthName[displayDateTo.getMonth()]}`)}
+										{" " +
+											(i18n.language === "th"
+												? displayDateTo.getFullYear() + 543
+												: displayDateTo.getFullYear()) +
+											" "}
+										{dateFormatter.hhmm(displayDateTo)}
 									</Row>
 									<Row id="row-tec">
 										<Col sm={5} className="col-label-1">
-											Total Energy Consumption
+											{t("building.Total Energy Consumption")}
 										</Col>
 										<Col sm={5} className="col-data-1" style={{ color: color }}>
 											{numberFormatter.withCommas(kwhTotal)}
 										</Col>
 										<Col sm={2} className="col-unit-1" style={{ color: color }}>
-											kWh
+											{t("kWh")}
 										</Col>
 									</Row>
 
 									<Row id="row-eb">
 										<Col sm={5} className="col-label-1">
-											Electricity Bill
+											{t("Electricity Bill")}
 										</Col>
 										<Col sm={5} className="col-data-2" style={{ color: color }}>
 											{numberFormatter.withCommas(bill)}
 										</Col>
 										<Col sm={2} className="col-unit-1" style={{ color: color }}>
-											THB
+											{t("THB")}
 										</Col>
 									</Row>
 
 									<Row id="row-pie">
 										<Col sm={3} className="col-label-2">
-											Used in
+											{t("Used in")}
 										</Col>
 										<Col sm={4} style={{ paddingRight: 0, margin: "auto" }}>
 											<div>
@@ -499,7 +534,7 @@ class Building extends React.Component {
 														paddingLeft: "0.3rem",
 													}}
 												>
-													Air Conditioner
+													{t("Air Conditioner")}
 												</span>
 											</div>
 											<div>
@@ -511,7 +546,7 @@ class Building extends React.Component {
 														paddingLeft: "0.3rem",
 													}}
 												>
-													Others
+													{t("Others")}
 												</span>
 											</div>
 										</Col>
@@ -527,13 +562,14 @@ class Building extends React.Component {
 
 									<Row id="row-capita">
 										<Col sm={7} className="col-label-2">
-											Energy Use per Capita <FaUser size={15} id="icon-user" />
+											{t("Energy Use per Capita")}
+											<FaUser size={15} id="icon-user" />
 										</Col>
 										<Col sm={3} className="col-data-2" style={{ color: color }}>
 											{kwhPerCapita}
 										</Col>
 										<Col sm={2} className="col-unit-1" style={{ color: color }}>
-											kWh
+											{t("kWh")}
 										</Col>
 									</Row>
 								</Col>
@@ -542,7 +578,7 @@ class Building extends React.Component {
 								<Col sm={8}>
 									<Row className="row-form">
 										<Label for="dateFrom" sm={1} className="label-datepicker">
-											From
+											{t("From")}
 										</Label>
 										<Col sm={4} className="col-datepicker">
 											<Input
@@ -557,7 +593,7 @@ class Building extends React.Component {
 											/>
 										</Col>
 										<Label for="dateTo" sm={1} className="label-datepicker">
-											To
+											{t("To")}
 										</Label>
 										<Col sm={4} className="col-datepicker">
 											<Input
@@ -573,7 +609,7 @@ class Building extends React.Component {
 										</Col>
 										<Col sm={2} style={{ textAlign: "center" }}>
 											<Button id="btn-apply-bld" onClick={this.onClickApply}>
-												Apply
+												{t("Apply")}
 											</Button>
 										</Col>
 									</Row>
@@ -588,7 +624,7 @@ class Building extends React.Component {
 														fontSize: "125%",
 													}}
 												>
-													Power (kW)
+													{t("Power (kW)")}
 												</span>
 											</Col>
 											<Col sm={2} style={{ textAlign: "right" }}>
@@ -597,17 +633,17 @@ class Building extends React.Component {
 													toggle={this.toggleSystem}
 												>
 													<DropdownToggle color="transparent" caret>
-														{system}
+														{t(`${system}`)}
 													</DropdownToggle>
 													<DropdownMenu>
 														<DropdownItem onClick={this.changeSystem}>
-															Overall
+															{t("Overall")}
 														</DropdownItem>
 														<DropdownItem onClick={this.changeSystem}>
-															Air Conditioner
+															{t("Air Conditioner")}
 														</DropdownItem>
 														<DropdownItem onClick={this.changeSystem}>
-															Others
+															{t("Others")}
 														</DropdownItem>
 													</DropdownMenu>
 												</Dropdown>
@@ -616,11 +652,17 @@ class Building extends React.Component {
 												sm={1}
 												style={{ margin: "auto", textAlign: "right" }}
 											>
-												<RiFileExcel2Fill
-													className="icon-excel"
-													size={25}
-													onClick={this.exportBarChartSystemPowerConsumption}
-												/>
+												{lsPermission.find(
+													(p) => p.label === "Export Information"
+												) ? (
+													<RiFileExcel2Fill
+														className="icon-excel"
+														size={25}
+														onClick={this.exportBarChartSystemPowerConsumption}
+													/>
+												) : (
+													<></>
+												)}
 											</Col>
 										</Row>
 										<Row>
@@ -637,7 +679,7 @@ class Building extends React.Component {
 										<Row>
 											<Col sm={3} id="col-compare">
 												<Form id="form-compare">
-													<legend>Compare to</legend>
+													<legend>{t("Compare to")}</legend>
 													<FormGroup check>
 														<Label check>
 															<Input
@@ -647,7 +689,7 @@ class Building extends React.Component {
 																checked={compareTo === "Target"}
 																onChange={() => this.onClickCompareTo("Target")}
 															/>
-															Target
+															{t("Target")}
 														</Label>
 													</FormGroup>
 													<FormGroup check>
@@ -661,7 +703,7 @@ class Building extends React.Component {
 																	this.onClickCompareTo("Average")
 																}
 															/>
-															Average
+															{t("Average")}
 														</Label>
 													</FormGroup>
 													<FormGroup check>
@@ -675,7 +717,7 @@ class Building extends React.Component {
 																	this.onClickCompareTo("Last Year")
 																}
 															/>
-															Last Year
+															{t("Last Year")}
 														</Label>
 													</FormGroup>
 												</Form>
@@ -697,11 +739,11 @@ class Building extends React.Component {
 				{/* ****************************** Floor Plan ******************************** */}
 				<Container id="container-floor-plan" fluid>
 					<div id="floor-plan-row-top">
-						<span id="floor-plan-title">Floor Plan</span>
+						<span id="floor-plan-title">{t("Floor Plan")}</span>
 						<span id="wrapper-legend">
 							<span className="legend-desc">
-								<div>Color Legend</div>
-								<div>#From Total Energy</div>
+								<div>{t("Color Legend")}</div>
+								<div>*{t("From Total Energy")}</div>
 							</span>
 							<span className="legend-graphics">
 								<div className="legend-dots">
@@ -800,7 +842,7 @@ class Building extends React.Component {
 														id={"floor-title-" + floor}
 														className="floor-title"
 													>
-														FLOOR{" "}
+														{t("Floor")}{" "}
 														{floor < 0
 															? floor.toString().slice().replace("-", "B")
 															: floor === 13
@@ -831,7 +873,7 @@ class Building extends React.Component {
 																  )
 																: "-"
 															: "-"}{" "}
-														kWh
+														{t("kWh")}
 													</span>
 												</div>
 
@@ -855,8 +897,10 @@ class Building extends React.Component {
 														)}
 													</Progress>
 													<div className="prg-legend">
-														<span>Air Con.</span>
-														<span style={{ float: "right" }}>Others</span>
+														<span>{t("Air Con.")}</span>
+														<span style={{ float: "right" }}>
+															{t("Others")}
+														</span>
 													</div>
 												</div>
 
@@ -883,14 +927,15 @@ class Building extends React.Component {
 													<div>
 														<div>
 															<span className="floor-kwh">
-																{isProgressBarDisabled ? "-" : kwhFloorAc} kWh
+																{isProgressBarDisabled ? "-" : kwhFloorAc}{" "}
+																{t("kWh")}
 															</span>
 															<span
 																className="floor-kwh"
 																style={{ float: "right" }}
 															>
 																{isProgressBarDisabled ? "-" : kwhFloorOthers}{" "}
-																kWh
+																{t("kWh")}
 															</span>
 														</div>
 													</div>
@@ -909,4 +954,4 @@ class Building extends React.Component {
 	}
 }
 
-export default Building;
+export default withTranslation()(Building);

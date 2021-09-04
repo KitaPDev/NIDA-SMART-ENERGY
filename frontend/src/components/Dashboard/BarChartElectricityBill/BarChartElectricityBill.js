@@ -7,6 +7,8 @@ import numberFormatter from "../../../utils/numberFormatter";
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
+import i18n from "../../../i18n";
+
 let barChart;
 
 class BarChartElectricityBill extends React.Component {
@@ -16,6 +18,7 @@ class BarChartElectricityBill extends React.Component {
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
+			currentLanguage: i18n.language,
 
 			// Chart details
 			data: {},
@@ -51,7 +54,10 @@ class BarChartElectricityBill extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Electricity Bill (THB)",
+						text:
+							i18n.language === "th"
+								? "ค่าไฟฟ้า (บาท)"
+								: "Electricity Bill (THB)",
 						align: "start",
 						font: { weight: "bold", size: 20 },
 						padding: {
@@ -83,6 +89,60 @@ class BarChartElectricityBill extends React.Component {
 	buildChart = () => {
 		let { data, options } = this.state;
 
+		options.plugins.title.text =
+			i18n.language === "th" ? "ค่าไฟฟ้า (บาท)" : "Electricity Bill (THB)";
+
+		if (data.labels) {
+			data.labels.forEach((bld, idx) => {
+				switch (bld) {
+					case "Auditorium":
+						if (i18n.language === "th") data.labels[idx] = "หอประชุม";
+						else data.labels[idx] = "Auditorium";
+						return;
+					case "Bunchana":
+						if (i18n.language === "th") data.labels[idx] = "บุญชนะ";
+						else data.labels[idx] = "Bunchana";
+						return;
+					case "Choop":
+						if (i18n.language === "th") data.labels[idx] = "ชุบ";
+						else data.labels[idx] = "Choop";
+						return;
+					case "Malai":
+						if (i18n.language === "th") data.labels[idx] = "มาลัย";
+						else data.labels[idx] = "Malai";
+						return;
+					case "Naradhip":
+						if (i18n.language === "th") data.labels[idx] = "นราธิป";
+						else data.labels[idx] = "Naradhip";
+						return;
+					case "Navamin":
+						if (i18n.language === "th") data.labels[idx] = "นวมินทร์";
+						else data.labels[idx] = "Navamin";
+						return;
+					case "Nida House":
+						if (i18n.language === "th") data.labels[idx] = "นิด้าเฮ้าส์";
+						else data.labels[idx] = "Nida House";
+						return;
+					case "Nidasumpun":
+						if (i18n.language === "th") data.labels[idx] = "นิด้าสัมพันธ์";
+						else data.labels[idx] = "Nidasumpun";
+						return;
+					case "Ratchaphruek":
+						if (i18n.language === "th") data.labels[idx] = "ราชพฤกษ์";
+						else data.labels[idx] = "Ratchaphruek";
+						return;
+					case "Serithai":
+						if (i18n.language === "th") data.labels[idx] = "ราชพฤกษ์";
+						else data.labels[idx] = "Serithai";
+						return;
+					case "Siam":
+						if (i18n.language === "th") data.labels[idx] = "สยาม";
+						else data.labels[idx] = "Siam";
+						return;
+				}
+			});
+		}
+
 		let max = 1;
 		data.datasets[0].data.forEach((d) => {
 			if (d > max) max = d;
@@ -111,7 +171,71 @@ class BarChartElectricityBill extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, options, lsSelectedBuildingPrev } = this.state;
+		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
+
+		if (currentLanguage !== i18n.language) {
+			options.plugins.title.text =
+				i18n.language === "th" ? "ค่าไฟฟ้า (บาท)" : "Electricity Bill (THB)";
+
+			if (data.labels) {
+				data.labels.forEach((bld, idx) => {
+					if (bld === "Auditorium" || bld === "หอประชุม") {
+						i18n.language === "th"
+							? (data.labels[idx] = "หอประชุม")
+							: (data.labels[idx] = "Auditorium");
+					} else if (bld === "Bunchana" || bld === "บุญชนะ") {
+						i18n.language === "th"
+							? (data.labels[idx] = "บุญชนะ")
+							: (data.labels[idx] = "Bunchana");
+					} else if (bld === "Choop" || bld === "ชุบ") {
+						i18n.language === "th"
+							? (data.labels[idx] = "ชุบ")
+							: (data.labels[idx] = "Choop");
+					} else if (bld === "Malai" || bld === "มาลัย") {
+						i18n.language === "th"
+							? (data.labels[idx] = "มาลัย")
+							: (data.labels[idx] = "Malai");
+					} else if (bld === "Naradhip" || bld === "นราธิป") {
+						i18n.language === "th"
+							? (data.labels[idx] = "นราธิป")
+							: (data.labels[idx] = "Naradhip");
+					} else if (bld === "Navamin" || bld === "นวมินทร์") {
+						i18n.language === "th"
+							? (data.labels[idx] = "นวมินทร์")
+							: (data.labels[idx] = "Navamin");
+					} else if (bld === "Nida House" || bld === "นิด้าเฮ้าส์") {
+						i18n.language === "th"
+							? (data.labels[idx] = "นิด้าเฮ้าส์")
+							: (data.labels[idx] = "Nida House");
+					} else if (bld === "Nidasumpun" || bld === "นิด้าสัมพันธ์") {
+						i18n.language === "th"
+							? (data.labels[idx] = "นิด้าสัมพันธ์")
+							: (data.labels[idx] = "Nidasumpun");
+					} else if (bld === "Ratchaphruek" || bld === "ราชพฤกษ์") {
+						i18n.language === "th"
+							? (data.labels[idx] = "ราชพฤกษ์")
+							: (data.labels[idx] = "Ratchaphruek");
+					} else if (bld === "Serithai" || bld === "เสรีไทย") {
+						i18n.language === "th"
+							? (data.labels[idx] = "เสรีไทย")
+							: (data.labels[idx] = "Serithai");
+					} else if (bld === "Siam" || bld === "สยาม") {
+						i18n.language === "th"
+							? (data.labels[idx] = "สยาม")
+							: (data.labels[idx] = "Siam");
+					}
+				});
+			}
+
+			this.setState(
+				{
+					data: data,
+					options: options,
+					currentLanguage: i18n.language,
+				},
+				() => this.buildChart()
+			);
+		}
 
 		if (
 			JSON.stringify(this.props.bill_building) ===

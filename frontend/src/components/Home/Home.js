@@ -24,6 +24,8 @@ import http from "../../utils/http";
 import colorConverter from "../../utils/colorConverter";
 import numberFormatter from "../../utils/numberFormatter";
 
+import { withTranslation } from "react-i18next";
+
 let subscriberPowerMeterData;
 let subscriberSolarData;
 
@@ -421,6 +423,8 @@ class Home extends React.Component {
 			}
 		}
 
+		const { t } = this.props;
+
 		return (
 			<div style={{ height: "100%" }}>
 				{/* ****************************** Building Map Styles ******************************** */}
@@ -455,7 +459,7 @@ class Home extends React.Component {
 				>
 					<Row>
 						{/* ******************************** LEFT COLUMN ******************************** */}
-						<Col sm="5">
+						<Col sm="5" style={{ height: "100%" }}>
 							<div id="left-top-pane-group">
 								{/* ******************************** ENERGY CONSUMPTION PANE ******************************** */}
 								<div className="total-energy-consumption-pane">
@@ -465,14 +469,14 @@ class Home extends React.Component {
 											marginTop: "auto",
 										}}
 									>
-										<span>Total</span>
+										<span>{t("home.Total")}</span>
 										<span
 											style={{
 												textTransform: "uppercase",
 												fontWeight: "bold",
 											}}
 										>
-											Energy Consumption
+											{t("home.EnergyConsumption")}
 										</span>
 									</Row>
 
@@ -485,7 +489,7 @@ class Home extends React.Component {
 												alignItems: "center",
 											}}
 										>
-											Today
+											{t("home.Today")}
 										</span>
 										<span
 											style={{
@@ -509,7 +513,7 @@ class Home extends React.Component {
 												paddingLeft: "0",
 											}}
 										>
-											kWh
+											{t("kWh")}
 										</span>
 									</Row>
 
@@ -521,37 +525,37 @@ class Home extends React.Component {
 												marginLeft: "5%",
 											}}
 										>
-											From
+											{t("From")}
 										</span>
 										<span className="dot-grey" />
 										<span
 											style={{
 												color: "#757272",
 												fontWeight: "500",
-												paddingLeft: "0.3rem",
+												paddingLeft: "0.2rem",
 											}}
 										>
-											MEA
+											{t("MEA")}
 										</span>
 										<span className="dot-orange" />
 										<span
 											style={{
 												color: "#757272",
 												fontWeight: "500",
-												paddingLeft: "0.3rem",
+												paddingLeft: "0.2rem",
 											}}
 										>
-											Solar Cells
+											{t("Solar Cells")}
 										</span>
 
 										<span
 											style={{
 												color: "#6B6666",
 												fontWeight: "600",
-												marginLeft: "5%",
+												marginLeft: "2%",
 											}}
 										>
-											Used in
+											{t("Used in")}
 										</span>
 										<span className="dot-blue" />
 										<span
@@ -561,7 +565,7 @@ class Home extends React.Component {
 												paddingLeft: "0.3rem",
 											}}
 										>
-											Air Conditioner
+											{t("Air Conditioner")}
 										</span>
 										<span className="dot-red" />
 										<span
@@ -571,7 +575,7 @@ class Home extends React.Component {
 												paddingLeft: "0.3rem",
 											}}
 										>
-											Others
+											{t("Others")}
 										</span>
 									</Row>
 
@@ -607,7 +611,7 @@ class Home extends React.Component {
 													alignItems: "center",
 												}}
 											>
-												Electricity Bill
+												{t("Electricity Bill")}
 											</span>
 											<span
 												style={{
@@ -618,7 +622,7 @@ class Home extends React.Component {
 													paddingLeft: "1rem",
 												}}
 											>
-												Month to Date
+												{t("home.Month to Date")}
 											</span>
 										</Col>
 										<Col sm="6" style={{ textAlign: "right" }}>
@@ -630,7 +634,7 @@ class Home extends React.Component {
 													alignItems: "center",
 												}}
 											>
-												Total
+												{t("Total-2")}
 											</span>
 											<span
 												style={{
@@ -649,14 +653,14 @@ class Home extends React.Component {
 										</Col>
 									</Row>
 									<Row style={{ textAlign: "center", fontWeight: "bold" }}>
-										<Col sm="3" style={{ color: "#DAA407" }}>
-											<span>Saved From Solar</span>
+										<Col sm="4" style={{ color: "#DAA407" }}>
+											<span>{t("home.Saved From Solar")}</span>
 										</Col>
-										<Col sm="6" style={{ color: "#899CA2" }}>
-											<span>% Electricity Used Month Target</span>
+										<Col sm="5" style={{ color: "#899CA2" }}>
+											<span>% {t("home.Electricity Used Month Target")}</span>
 										</Col>
 										<Col sm="3">
-											<span>Target</span>
+											<span>{t("home.Target")}</span>
 										</Col>
 									</Row>
 									<Row style={{ textAlign: "center", fontWeight: "bold" }}>
@@ -754,7 +758,7 @@ class Home extends React.Component {
 										checked={isDisplayBill}
 										onChange={this.toggleDisplayBill}
 									/>
-									<label id="label-bill">Electricity Bill</label>
+									<label id="label-bill">{t("Electricity Bill")}</label>
 								</Col>
 								<Col sm="6" id="col-visitors">
 									<IoMdPeople size={"2rem"} />
@@ -808,7 +812,7 @@ class Home extends React.Component {
 														this.onDoubleClickBuilding(building.label)
 													}
 												>
-													{building.label}
+													{t(`${building.label}`)}
 												</div>
 												<div
 													className="kwh-building"
@@ -823,7 +827,7 @@ class Home extends React.Component {
 															(data) => data.building === building.label
 														).kwh
 													}{" "}
-													kWh
+													{t("kWh")}
 												</div>
 												<div
 													className="percentKwh-building"
@@ -907,18 +911,11 @@ class Home extends React.Component {
 									<Col sm="6" style={{ display: "flex" }}>
 										<span
 											style={{
-												alignSelf: "flex-end",
-											}}
-										>
-											*
-										</span>
-										<span
-											style={{
 												textDecoration: "underline",
 												alignSelf: "flex-end",
 											}}
 										>
-											*Note:
+											*{t("Note")}:
 										</span>
 										<span
 											style={{
@@ -926,7 +923,7 @@ class Home extends React.Component {
 												marginLeft: "0.2rem",
 											}}
 										>
-											Electricity bill is estimated
+											{t("Electricity bill is estimated")}
 										</span>
 									</Col>
 									<Col sm="3" style={{ verticalAlign: "bottom" }}>
@@ -938,7 +935,7 @@ class Home extends React.Component {
 												marginBottom: 0,
 											}}
 										>
-											Color Legend
+											{t("Color Legend")}
 										</Row>
 										<Row
 											style={{
@@ -946,7 +943,7 @@ class Home extends React.Component {
 												justifyContent: "center",
 											}}
 										>
-											*From Total Energy
+											*{t("From Total Energy")}
 										</Row>
 									</Col>
 									<Col sm="3">
@@ -986,4 +983,4 @@ class Home extends React.Component {
 	}
 }
 
-export default Home;
+export default withTranslation()(Home);

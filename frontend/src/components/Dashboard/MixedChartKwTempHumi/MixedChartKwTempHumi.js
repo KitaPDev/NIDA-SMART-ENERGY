@@ -10,6 +10,8 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import csv from "../../../utils/csv";
 import dateFormatter from "../../../utils/dateFormatter";
 
+import i18n from "../../../i18n";
+
 let mixedChart;
 
 class MixedChartKwTempHumi extends React.Component {
@@ -19,6 +21,8 @@ class MixedChartKwTempHumi extends React.Component {
 		this.state = {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
+			currentLanguage: i18n.language,
 
 			// Chart details
 			data: {},
@@ -52,7 +56,7 @@ class MixedChartKwTempHumi extends React.Component {
 						grid: { display: false },
 						title: {
 							display: true,
-							text: "Temperature",
+							text: i18n.language === "th" ? "อุณภูมิ" : "Temperature",
 							font: {
 								size: 16,
 								weight: "600",
@@ -65,7 +69,7 @@ class MixedChartKwTempHumi extends React.Component {
 						grid: { display: false },
 						title: {
 							display: true,
-							text: "Humidity",
+							text: i18n.language === "th" ? "ความชื้น" : "Humidity",
 							font: {
 								size: 16,
 								weight: "600",
@@ -87,7 +91,16 @@ class MixedChartKwTempHumi extends React.Component {
 				},
 				plugins: {
 					title: {
-						display: false,
+						display: true,
+						text:
+							i18n.language === "th"
+								? "กำลังไฟฟ้าระบบปรับอากาศ (kW)"
+								: "Energy (kW) Air Conditioner",
+						align: "start",
+						font: { weight: "bold", size: 20 },
+						padding: {
+							bottom: 10,
+						},
 					},
 					legend: {
 						display: true,
@@ -151,7 +164,37 @@ class MixedChartKwTempHumi extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, options, lsSelectedBuildingPrev } = this.state;
+		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
+
+		if (currentLanguage !== i18n.language) {
+			options.plugins.title.text =
+				i18n.language === "th"
+					? "กำลังไฟฟ้าระบบปรับอากาศ (kW)"
+					: "Energy (kW) Air Conditioner";
+
+			options.scales.yTemp.title.text =
+				i18n.language === "th" ? "อุณภูมิ" : "Temperature";
+			options.scales.yHumi.title.text =
+				i18n.language === "th" ? "ความชื้น" : "Humidity";
+
+			if (data.datasets) {
+				if (data.datasets.length > 0) {
+					data.datasets[0].label =
+						i18n.language === "th" ? "อุณภูมิ" : "Temperature";
+					data.datasets[1].label =
+						i18n.language === "th" ? "ความชื้น" : "Humidity";
+				}
+			}
+
+			this.setState(
+				{
+					data: data,
+					options: options,
+					currentLanguage: i18n.language,
+				},
+				() => this.buildChart()
+			);
+		}
 
 		if (
 			JSON.stringify(this.props.lsKw_system_building) ===
@@ -323,13 +366,18 @@ class MixedChartKwTempHumi extends React.Component {
 	}
 
 	render() {
+		let { lsPermission } = this.state;
 		return (
 			<>
-				<RiFileExcel2Fill
-					className="icon-excel"
-					size={25}
-					onClick={this.exportData}
-				/>
+				{lsPermission.find((p) => p.label === "Export Information") ? (
+					<RiFileExcel2Fill
+						className="icon-excel"
+						size={25}
+						onClick={this.exportData}
+					/>
+				) : (
+					<></>
+				)}
 				<div
 					id="wrapper-mc-kw-temp-humi"
 					onDoubleClick={this.handleDoubleClick}

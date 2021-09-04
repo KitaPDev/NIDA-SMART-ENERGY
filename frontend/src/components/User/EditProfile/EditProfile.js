@@ -1,4 +1,6 @@
 import React from "react";
+
+import "./EditProfile.css";
 import { ImagePicker } from "react-file-picker";
 import {
 	Row,
@@ -12,10 +14,12 @@ import {
 	ModalBody,
 	ModalFooter,
 } from "reactstrap";
-import "./EditProfile.css";
 import { FaCamera, FaUserCircle } from "react-icons/fa";
 import { MdModeEdit } from "react-icons/md";
+
 import http from "../../../utils/http";
+
+import { withTranslation } from "react-i18next";
 
 class EditProfile extends React.Component {
 	constructor(props) {
@@ -383,10 +387,12 @@ class EditProfile extends React.Component {
 			isModalConfirmApproveOpen,
 		} = this.state;
 
+		const { t } = this.props;
+
 		return (
 			<div className="container-edit-profile">
 				<Container className="container-user-info" fluid>
-					<Row className="heading">User Information</Row>
+					<Row className="heading">{t("User Information")}</Row>
 
 					<Row className="row-content">
 						<Col sm={2} className="col-image">
@@ -417,14 +423,14 @@ class EditProfile extends React.Component {
 								>
 									<span className="choose-image">
 										<FaCamera />
-										Choose an Image
+										{t("Choose an Image")}
 									</span>
 								</ImagePicker>
 							</Row>
 							{prevProfileImage !== profileImage ? (
 								<Row className="row-upload">
 									<Button className="btn-upload" onClick={this.uploadImage}>
-										Upload
+										{t("Upload")}
 									</Button>
 								</Row>
 							) : (
@@ -436,7 +442,7 @@ class EditProfile extends React.Component {
 								<tbody>
 									<tr>
 										<th style={{ verticalAlign: "middle" }} scope="row">
-											Username
+											{t("Username")}
 										</th>
 										{isEditUsernameMode ? (
 											<td>
@@ -462,7 +468,7 @@ class EditProfile extends React.Component {
 															className="btn-submit"
 															onClick={this.toggleModalConfirmUsername}
 														>
-															Submit
+															{t("Submit")}
 														</Button>
 													</td>
 												) : (
@@ -480,7 +486,7 @@ class EditProfile extends React.Component {
 													className="btn-submit"
 													onClick={this.toggleEditUsername}
 												>
-													Cancel
+													{t("Cancel")}
 												</Button>
 											</td>
 										) : (
@@ -489,7 +495,7 @@ class EditProfile extends React.Component {
 									</tr>
 									<tr>
 										<th style={{ verticalAlign: "middle" }} scope="row">
-											Email
+											{t("Email")}
 										</th>
 										{isEditEmailMode ? (
 											<td>
@@ -515,7 +521,7 @@ class EditProfile extends React.Component {
 															className="btn-submit"
 															onClick={this.toggleModalConfirmEmail}
 														>
-															Submit
+															{t("Submit")}
 														</Button>
 													</td>
 												) : (
@@ -532,7 +538,7 @@ class EditProfile extends React.Component {
 													className="btn-submit"
 													onClick={this.toggleEditEmail}
 												>
-													Cancel
+													{t("Cancel")}
 												</Button>
 											</td>
 										) : (
@@ -540,7 +546,7 @@ class EditProfile extends React.Component {
 										)}
 									</tr>
 									<tr>
-										<th scope="row">User Type</th>
+										<th scope="row">{t("User Type")}</th>
 										<td className={isUserTypeApproved ? "" : "pending"}>
 											{isUserTypeApproved ? "" : " (Pending)"}
 										</td>
@@ -557,29 +563,29 @@ class EditProfile extends React.Component {
 													className="btn-approve"
 													onClick={this.toggleModalConfirmApprove}
 												>
-													Approve
+													{t("Approve")}
 												</Button>
 											</td>
 										)}
 									</tr>
 									<tr>
-										<th scope="row">Activated Date</th>
+										<th scope="row">{t("Activated Date")}</th>
 										<td>{this.formatDate(dateActivated)}</td>
 									</tr>
 									<tr>
-										<th scope="row">Last Login</th>
+										<th scope="row">{t("Last Login")}</th>
 										<td>{this.formatDate(dateLastLogin)}</td>
 									</tr>
 									<tr>
-										<th scope="row">Status</th>
+										<th scope="row">{t("Status")}</th>
 										<td>
 											{isDeactivated ? (
-												<div>
-													<span className="red-dot"></span> Inactive
+												<div className="td-status">
+													<span className="red-dot"></span> {t("Inactive")}
 												</div>
 											) : (
-												<div>
-													<span className="green-dot"></span> Active
+												<div className="td-status">
+													<span className="green-dot"></span> {t("Active")}
 												</div>
 											)}
 										</td>
@@ -590,7 +596,7 @@ class EditProfile extends React.Component {
 												className="btn-change-password"
 												onClick={this.toggleModalConfirmChangePassword}
 											>
-												Change Password
+												{t("Change Password")}
 											</Button>
 										</td>
 										{(currentUsername === username ||
@@ -603,14 +609,14 @@ class EditProfile extends React.Component {
 														className="btn-activate"
 														onClick={this.toggleModalConfirmActivate}
 													>
-														Activate
+														{t("Activate")}
 													</Button>
 												) : (
 													<Button
 														className="btn-deactivate"
 														onClick={this.toggleModalConfirmDeactivate}
 													>
-														Deactivate
+														{t("Deactivate")}
 													</Button>
 												)}
 											</td>
@@ -628,14 +634,14 @@ class EditProfile extends React.Component {
 					toggle={this.toggleModalConfirmUsername}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmUsername}>
-						Confirm Edit Username
+						{t("Confirm Edit Username")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.submitUsername}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmUsername}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -644,17 +650,17 @@ class EditProfile extends React.Component {
 					toggle={this.toggleModalConfirmEmail}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmEmail}>
-						Confirm Edit Email
+						{t("Confirm Edit Email")}
 					</ModalHeader>
 					<ModalBody>
-						You will be logged out after changing your email address.
+						{t("You will be logged out after changing your email address.")}
 					</ModalBody>
 					<ModalFooter>
 						<Button color="primary" onClick={this.submitEmail}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmEmail}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -663,21 +669,22 @@ class EditProfile extends React.Component {
 					toggle={this.toggleModalConfirmChangePassword}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmChangePassword}>
-						Confirm Change Password
+						{t("Confirm Change Password")}
 					</ModalHeader>
 					<ModalBody>
-						An email with instructions to change your password will be sent to
-						your email address.
+						{t(
+							"An email with instructions to change your password will be sent to your email address."
+						)}
 					</ModalBody>
 					<ModalFooter>
 						<Button color="primary" onClick={this.changePassword}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button
 							color="danger"
 							onClick={this.toggleModalConfirmChangePassword}
 						>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -686,14 +693,14 @@ class EditProfile extends React.Component {
 					toggle={this.toggleModalConfirmDeactivate}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmDeactivate}>
-						Confirm Deactivate User
+						{t("Confirm Deactivate User")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.deactivate}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmDeactivate}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -702,14 +709,14 @@ class EditProfile extends React.Component {
 					toggle={this.toggleModalConfirmActivate}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmActivate}>
-						Confirm Activate User
+						{t("Confirm Activate User")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.activate}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmActivate}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -718,14 +725,14 @@ class EditProfile extends React.Component {
 					toggle={this.toggleModalConfirmApprove}
 				>
 					<ModalHeader toggle={this.toggleModalConfirmApprove}>
-						Confirm Approve User Type
+						{t("Confirm Approve User Type")}
 					</ModalHeader>
 					<ModalFooter>
 						<Button color="primary" onClick={this.approve}>
-							Confirm
+							{t("Confirm")}
 						</Button>{" "}
 						<Button color="danger" onClick={this.toggleModalConfirmApprove}>
-							Cancel
+							{t("Cancel")}
 						</Button>
 					</ModalFooter>
 				</Modal>
@@ -734,4 +741,4 @@ class EditProfile extends React.Component {
 	}
 }
 
-export default EditProfile;
+export default withTranslation()(EditProfile);

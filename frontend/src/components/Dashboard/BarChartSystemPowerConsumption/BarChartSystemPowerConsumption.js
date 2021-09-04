@@ -5,6 +5,8 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
+import i18n from "../../../i18n";
+
 let barChart;
 
 class BarChartSystemPowerConsumption extends React.Component {
@@ -15,6 +17,7 @@ class BarChartSystemPowerConsumption extends React.Component {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
 			componentShouldUpdate: true,
+			currentLanguage: i18n.language,
 
 			// Chart details
 			data: {},
@@ -114,7 +117,26 @@ class BarChartSystemPowerConsumption extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, options, lsSelectedBuildingPrev } = this.state;
+		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
+
+		if (currentLanguage !== i18n.language) {
+			if (data.datasets) {
+				if (data.datasets.length > 0) {
+					data.datasets[0].label =
+						i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner";
+					data.datasets[1].label = i18n.language === "th" ? "อื่นๆ" : "Others";
+				}
+			}
+
+			this.setState(
+				{
+					data: data,
+					options: options,
+					currentLanguage: i18n.language,
+				},
+				() => this.buildChart()
+			);
+		}
 
 		if (
 			JSON.stringify(this.props.lsKw_system_building) ===
@@ -215,14 +237,14 @@ class BarChartSystemPowerConsumption extends React.Component {
 		);
 
 		let datasetAc = {
-			label: "Air Conditioner",
+			label: i18n.language === "th" ? "ระบบปรับอากาศ" : "Air Conditioner",
 			backgroundColor: "#4469B8",
 			borderColor: "#4469B8",
 			data: lsKwAc,
 		};
 
 		let datasetOthers = {
-			label: "Others",
+			label: i18n.language === "th" ? "อื่นๆ" : "Others",
 			backgroundColor: "#B14926",
 			borderColor: "#B14926",
 			data: lsKwOthers,

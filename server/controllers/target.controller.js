@@ -141,7 +141,7 @@ async function getTargetPresets(req, res) {
 		let targetLastYear = lsTarget.find(
 			(target) => target.month === month && target.year === year - 1
 		);
-		if (targetLastMonth !== undefined) {
+		if (targetLastYear !== undefined) {
 			presets.lastYearTarget_bill = targetLastYear.electricity_bill;
 			presets.lastYearTarget_usage = targetLastYear.energy_usage;
 		}

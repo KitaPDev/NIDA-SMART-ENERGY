@@ -11,6 +11,8 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import http from "../../../utils/http";
 import csv from "../../../utils/csv";
 
+import i18n from "../../../i18n";
+
 const lsMonth = [
 	"JAN",
 	"FEB",
@@ -44,6 +46,9 @@ class MixedChartBillCompare extends React.Component {
 			billData_month: {},
 			compareData: [],
 			lsBuilding: [],
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
+			currentLanguage: i18n.language,
+
 			// Chart details
 			data: {
 				labels: labels,
@@ -164,6 +169,22 @@ class MixedChartBillCompare extends React.Component {
 		data.datasets = datasets;
 		options.scales.yAxis.max = Math.ceil(yMax);
 
+		if (data.datasets) {
+			if (data.datasets.length > 0) {
+				let ds = data.datasets[0];
+				ds.label = i18n.language === "th" ? "ค่าล่าสุด" : "Latest";
+
+				ds = data.datasets[1];
+				if (ds.label === "Target" || ds.label === "ค่าเป้าหมาย") {
+					ds.label = i18n.language === "th" ? "ค่าเป้าหมาย" : "Target";
+				} else if (ds.label === "Average" || ds.label === "ค่าเฉลี่ย") {
+					ds.label = i18n.language === "th" ? "ค่าเฉลี่ย" : "Average";
+				} else if (ds.label === "Last Year" || ds.label === "ค่าปีที่แล้ว") {
+					ds.label = i18n.language === "th" ? "ค่าปีที่แล้ว" : "Last Year";
+				}
+			}
+		}
+
 		document.getElementById("mc-bill-compare").remove();
 		document.getElementById(
 			"wrapper-mc-bill-compare"
@@ -188,6 +209,20 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
+		let { data, currentLanguage } = this.state;
+
+		if (currentLanguage !== i18n.language) {
+			if (data.datasets) {
+				if (data.datasets.length > 0) {
+					data.datasets[0].label =
+						i18n.language === "th" ? "ค่าล่าสุด" : "Latest";
+					data.datasets[1].label = i18n.language === "th" ? "อื่นๆ" : "Others";
+				}
+			}
+
+			this.setState({ currentLanguage: i18n.language, data: data });
+		}
+
 		let lsBuilding = nextProps.lsBuilding;
 		let compareTo = nextProps.compareTo;
 		let billData_month = nextProps.billData_month;
@@ -274,13 +309,18 @@ class MixedChartBillCompare extends React.Component {
 	}
 
 	render() {
+		let { lsPermission } = this.state;
 		return (
 			<Col sm={9} id="col-graph-bill">
-				<RiFileExcel2Fill
-					className="icon-excel"
-					size={25}
-					onClick={this.exportData}
-				/>
+				{lsPermission.find((p) => p.label === "Export Information") ? (
+					<RiFileExcel2Fill
+						className="icon-excel"
+						size={25}
+						onClick={this.exportData}
+					/>
+				) : (
+					<></>
+				)}
 				<div
 					id="wrapper-mc-bill-compare"
 					onDoubleClick={this.handleDoubleClick}

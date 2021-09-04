@@ -288,6 +288,7 @@
 .row-floor {
 	margin-bottom: 1rem;
 	width: 100%;
+	text-align: center;
 }
 
 .floor-title {
@@ -296,6 +297,7 @@
 	padding: 0.5rem 0.75rem 0.5rem 0.75rem;
 	border-radius: 0.5rem;
 	background: #d8dfe2;
+	text-transform: uppercase;
 }
 
 .floor-percent {

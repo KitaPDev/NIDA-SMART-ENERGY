@@ -7,6 +7,9 @@ import "chartjs-adapter-moment";
 
 import tooltipHandler from "../../../utils/tooltipHandler";
 
+import { withTranslation } from "react-i18next";
+import i18n from "../../../i18n";
+
 let lineChart;
 
 class LineChartBuildingPowerConsumption extends React.Component {
@@ -28,6 +31,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
 			lsBuilding: this.props.lsBuilding,
 			lsSelectedBuildingPrev: [],
 			componentShouldUpdate: true,
+			currentLanguage: i18n.language,
 
 			// Chart details
 			data: {},
@@ -67,7 +71,8 @@ class LineChartBuildingPowerConsumption extends React.Component {
 				plugins: {
 					title: {
 						display: true,
-						text: "Power (kW)",
+						text:
+							i18n.language === "th" ? "การใช้กำลังไฟฟ้า (kW)" : "Power (kW)",
 						align: "start",
 						font: { weight: "bold", size: 14 },
 						padding: {
@@ -127,7 +132,72 @@ class LineChartBuildingPowerConsumption extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		let { data, options, lsSelectedBuildingPrev } = this.state;
+		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
+
+		if (currentLanguage !== i18n.language) {
+			options.plugins.title.text =
+				i18n.language === "th" ? "การใช้กำลังไฟฟ้า (kW)" : "Power (kW)";
+
+			if (data.datasets) {
+				data.datasets.forEach((ds, idx) => {
+					let bld = ds.label;
+					if (bld === "Auditorium" || bld === "หอประชุม") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "หอประชุม")
+							: (data.datasets[idx].label = "Auditorium");
+					} else if (bld === "Bunchana" || bld === "บุญชนะ") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "บุญชนะ")
+							: (data.datasets[idx].label = "Bunchana");
+					} else if (bld === "Choop" || bld === "ชุบ") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "ชุบ")
+							: (data.datasets[idx].label = "Choop");
+					} else if (bld === "Malai" || bld === "มาลัย") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "มาลัย")
+							: (data.datasets[idx].label = "Malai");
+					} else if (bld === "Naradhip" || bld === "นราธิป") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "นราธิป")
+							: (data.datasets[idx].label = "Naradhip");
+					} else if (bld === "Navamin" || bld === "นวมินทร์") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "นวมินทร์")
+							: (data.datasets[idx].label = "Navamin");
+					} else if (bld === "Nida House" || bld === "นิด้าเฮ้าส์") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "นิด้าเฮ้าส์")
+							: (data.datasets[idx].label = "Nida House");
+					} else if (bld === "Nidasumpun" || bld === "นิด้าสัมพันธ์") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "นิด้าสัมพันธ์")
+							: (data.datasets[idx].label = "Nidasumpun");
+					} else if (bld === "Ratchaphruek" || bld === "ราชพฤกษ์") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "ราชพฤกษ์")
+							: (data.datasets[idx].label = "Ratchaphruek");
+					} else if (bld === "Serithai" || bld === "เสรีไทย") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "เสรีไทย")
+							: (data.datasets[idx].label = "Serithai");
+					} else if (bld === "Siam" || bld === "สยาม") {
+						i18n.language === "th"
+							? (data.datasets[idx].label = "สยาม")
+							: (data.datasets[idx].label = "Siam");
+					}
+				});
+			}
+
+			this.setState(
+				{
+					data: data,
+					options: options,
+					currentLanguage: i18n.language,
+				},
+				() => this.buildChart()
+			);
+		}
 
 		if (
 			JSON.stringify(this.props.lsKw_system_building) ===
@@ -210,6 +280,55 @@ class LineChartBuildingPowerConsumption extends React.Component {
 		options.scales.xAxis.max = labels[labels.length - 1];
 		options.scales.yAxis.max = yMax + 10;
 
+		data.datasets.forEach((ds, idx) => {
+			let bld = ds.label;
+			if (bld === "Auditorium" || bld === "หอประชุม") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "หอประชุม")
+					: (data.datasets[idx].label = "Auditorium");
+			} else if (bld === "Bunchana" || bld === "บุญชนะ") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "บุญชนะ")
+					: (data.datasets[idx].label = "Bunchana");
+			} else if (bld === "Choop" || bld === "ชุบ") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "ชุบ")
+					: (data.datasets[idx].label = "Choop");
+			} else if (bld === "Malai" || bld === "มาลัย") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "มาลัย")
+					: (data.datasets[idx].label = "Malai");
+			} else if (bld === "Naradhip" || bld === "นราธิป") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "นราธิป")
+					: (data.datasets[idx].label = "Naradhip");
+			} else if (bld === "Navamin" || bld === "นวมินทร์") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "นวมินทร์")
+					: (data.datasets[idx].label = "Navamin");
+			} else if (bld === "Nida House" || bld === "นิด้าเฮ้าส์") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "นิด้าเฮ้าส์")
+					: (data.datasets[idx].label = "Nida House");
+			} else if (bld === "Nidasumpun" || bld === "นิด้าสัมพันธ์") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "นิด้าสัมพันธ์")
+					: (data.datasets[idx].label = "Nidasumpun");
+			} else if (bld === "Ratchaphruek" || bld === "ราชพฤกษ์") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "ราชพฤกษ์")
+					: (data.datasets[idx].label = "Ratchaphruek");
+			} else if (bld === "Serithai" || bld === "เสรีไทย") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "เสรีไทย")
+					: (data.datasets[idx].label = "Serithai");
+			} else if (bld === "Siam" || bld === "สยาม") {
+				i18n.language === "th"
+					? (data.datasets[idx].label = "สยาม")
+					: (data.datasets[idx].label = "Siam");
+			}
+		});
+
 		this.setState({
 			data: data,
 			options: options,
@@ -244,4 +363,4 @@ class LineChartBuildingPowerConsumption extends React.Component {
 	}
 }
 
-export default LineChartBuildingPowerConsumption;
+export default withTranslation()(LineChartBuildingPowerConsumption);

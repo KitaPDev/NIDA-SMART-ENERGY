@@ -11,18 +11,19 @@
 }
 
 .container-device-manager .col-heading {
-	width: 19%;
+	width: fit-content;
+	max-width: 19%;
 	font-size: 200%;
 	font-weight: bold;
 	padding-left: 1rem;
 	text-transform: uppercase;
 }
 
-.col-excel-icon {
+.container-device-manager .col-excel-icon {
 	width: 3%;
 	display: flex;
 	align-items: center;
-	margin-left: 1rem;
+	justify-content: center;
 }
 
 .row-heading .col-right {

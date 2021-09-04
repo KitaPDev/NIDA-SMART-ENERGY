@@ -1,4 +1,6 @@
 import React from "react";
+
+import "./Navbar.css";
 import {
 	Collapse,
 	Navbar,
@@ -13,7 +15,6 @@ import {
 	DropdownItem,
 } from "reactstrap";
 import { Link, NavLink, withRouter } from "react-router-dom";
-import "./Navbar.css";
 import "bootstrap/dist/css/bootstrap.css";
 import { BsFillHouseDoorFill, BsBuilding } from "react-icons/bs";
 import {
@@ -24,8 +25,13 @@ import {
 } from "react-icons/fa";
 import { AiFillFile } from "react-icons/ai";
 import { IoIosWater } from "react-icons/io";
+
 import http from "../../utils/http";
+
 import { subjectIaqData, apiService } from "../../apiService";
+
+import { withTranslation } from "react-i18next";
+import i18n from "../../i18n";
 
 const lsMonthName = [
 	"January",
@@ -59,9 +65,7 @@ class NavBar extends React.Component {
 		super(props);
 		this.state = {
 			isOpen: false,
-			isLocaleDropdownOpen: false,
 			isUserDropdownOpen: false,
-			locale: "English",
 			currentTime: new Date()
 				.toLocaleString([], {
 					hour: "2-digit",
@@ -78,9 +82,7 @@ class NavBar extends React.Component {
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
-		this.toggleLocaleDropdown = this.toggleLocaleDropdown.bind(this);
 		this.toggleUserDropdown = this.toggleUserDropdown.bind(this);
-		this.changeLocale = this.changeLocale.bind(this);
 		this.logout = this.logout.bind(this);
 		this.getUserPermissions = this.getUserPermissions.bind(this);
 		this.getUsername = this.getUsername.bind(this);
@@ -215,22 +217,10 @@ class NavBar extends React.Component {
 		}));
 	}
 
-	toggleLocaleDropdown() {
-		this.setState((prevState) => ({
-			isLocaleDropdownOpen: !prevState.isLocaleDropdownOpen,
-		}));
-	}
-
 	toggleUserDropdown() {
 		this.setState((prevState) => ({
 			isUserDropdownOpen: !prevState.isUserDropdownOpen,
 		}));
-	}
-
-	changeLocale(e) {
-		this.setState({
-			locale: e.currentTarget.textContent,
-		});
 	}
 
 	logout() {
@@ -249,7 +239,7 @@ class NavBar extends React.Component {
 			let resp = await http.get("/permission/");
 
 			this.setState({ lsPermission: resp.data, isFetchingPermissions: false });
-			localStorage.setItem("lsPermission", resp.data);
+			localStorage.setItem("lsPermission", JSON.stringify(resp.data));
 		} catch (err) {
 			console.log(err);
 			return err.response;
@@ -271,8 +261,6 @@ class NavBar extends React.Component {
 	render() {
 		let {
 			isUserDropdownOpen,
-			isLocaleDropdownOpen,
-			locale,
 			currentTime,
 			username,
 			temperature,
@@ -290,6 +278,8 @@ class NavBar extends React.Component {
 			location.pathname !== "/login" &&
 			location.pathname !== "/forgot-password" &&
 			location.pathname !== "/register";
+
+		const { t } = this.props;
 
 		return (
 			<div style={{ height: isDisplayNavbar ? "10%" : 0 }}>
@@ -319,7 +309,7 @@ class NavBar extends React.Component {
 											size="2em"
 											style={{ margin: "auto" }}
 										/>
-										Home
+										{t("Home")}
 									</NavLink>
 								</NavItem>
 								<NavItem>
@@ -334,7 +324,7 @@ class NavBar extends React.Component {
 										}
 									>
 										<BsBuilding size="2em" style={{ margin: "auto" }} />
-										Building
+										{t("Building")}
 									</NavLink>
 								</NavItem>
 								<NavItem>
@@ -349,7 +339,7 @@ class NavBar extends React.Component {
 										}
 									>
 										<FaChartLine size="2em" style={{ margin: "auto" }} />
-										Dashboard
+										{t("Dashboard")}
 									</NavLink>
 								</NavItem>
 
@@ -366,7 +356,7 @@ class NavBar extends React.Component {
 											}
 										>
 											<AiFillFile size="2em" style={{ margin: "auto" }} />
-											Report
+											{t("Report")}
 										</NavLink>
 									</NavItem>
 								) : (
@@ -383,7 +373,7 @@ class NavBar extends React.Component {
 										onClick={() => window.history.pushState("", "", "/meter")}
 									>
 										<FaTachometerAlt size="2em" style={{ margin: "auto" }} />
-										Meter
+										{t("Meter")}
 									</NavLink>
 								</NavItem>
 
@@ -421,7 +411,7 @@ class NavBar extends React.Component {
 													window.history.pushState("", "", "/user/edit-profile")
 												}
 											>
-												Edit Profile
+												{t("Edit Profile")}
 											</NavLink>
 										</DropdownItem>
 
@@ -437,7 +427,7 @@ class NavBar extends React.Component {
 														window.history.pushState("", "", "/user/set-target")
 													}
 												>
-													Set Target
+													{t("Set Target")}
 												</NavLink>
 											</DropdownItem>
 										) : (
@@ -462,7 +452,7 @@ class NavBar extends React.Component {
 														)
 													}
 												>
-													Device Manager
+													{t("Device Manager")}
 												</NavLink>
 											</DropdownItem>
 										) : (
@@ -487,7 +477,7 @@ class NavBar extends React.Component {
 														)
 													}
 												>
-													Activity Log
+													{t("Activity Log")}
 												</NavLink>
 											</DropdownItem>
 										) : (
@@ -512,7 +502,7 @@ class NavBar extends React.Component {
 														)
 													}
 												>
-													User Management
+													{t("User Management")}
 												</NavLink>
 											</DropdownItem>
 										) : (
@@ -535,7 +525,7 @@ class NavBar extends React.Component {
 														)
 													}
 												>
-													Set Permission
+													{t("Set Permission")}
 												</NavLink>
 											</DropdownItem>
 										) : (
@@ -545,30 +535,12 @@ class NavBar extends React.Component {
 										<DropdownItem divider />
 										<DropdownItem>
 											{" "}
-											<div onClick={this.logout}>Logout</div>
+											<div onClick={this.logout}>{t("Logout")}</div>
 										</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
 							</Nav>
 						</Collapse>
-
-						<div className="locale-toggler">
-							<Dropdown
-								isOpen={isLocaleDropdownOpen}
-								toggle={this.toggleLocaleDropdown}
-							>
-								<DropdownToggle color="transparent" caret>
-									{locale}
-								</DropdownToggle>
-								<DropdownMenu>
-									<DropdownItem onClick={this.changeLocale}>
-										English
-									</DropdownItem>
-									<DropdownItem onClick={this.changeLocale}>Thai</DropdownItem>
-								</DropdownMenu>
-							</Dropdown>
-						</div>
-
 						<div
 							style={{
 								width: "120px",
@@ -580,7 +552,7 @@ class NavBar extends React.Component {
 									justifyContent: "center",
 								}}
 							>
-								Temperature
+								{t("Temperature")}
 							</Row>
 							<Row style={{ justifyContent: "center", alignItems: "center" }}>
 								<FaTemperatureLow />
@@ -593,7 +565,7 @@ class NavBar extends React.Component {
 									justifyContent: "center",
 								}}
 							>
-								Humidity
+								{t("Humidity")}
 							</Row>
 							<Row style={{ justifyContent: "center", alignItems: "center" }}>
 								<IoIosWater />
@@ -613,15 +585,16 @@ class NavBar extends React.Component {
 								}}
 							>
 								<span style={{ textAlign: "center" }}>
-									{lsDay[today.getDay()]}
+									{t(`${lsDay[today.getDay()]}`)}
 								</span>
 							</Row>
 							<Row style={{ width: "100%", margin: 0 }}>
-								{today.getDate() +
-									" " +
-									lsMonthName[today.getMonth()] +
-									" " +
-									today.getFullYear()}
+								{today.getDate() + " "}
+								{t(`${lsMonthName[today.getMonth()]}`)}
+								{" " +
+									(i18n.language === "th"
+										? today.getFullYear() + 543
+										: today.getFullYear())}
 							</Row>
 						</div>
 						<div style={{ fontWeight: "700", marginLeft: "0.5rem" }}>
@@ -642,4 +615,4 @@ class NavBar extends React.Component {
 	}
 }
 
-export default withRouter(NavBar);
+export default withTranslation()(withRouter(NavBar));

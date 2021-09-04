@@ -14,6 +14,8 @@ import { Link } from "react-router-dom";
 import validator from "validator";
 import http from "../../utils/http";
 
+import { withTranslation } from "react-i18next";
+
 class ForgotPassword extends React.Component {
 	constructor(props) {
 		super(props);
@@ -76,6 +78,8 @@ class ForgotPassword extends React.Component {
 	render() {
 		let { username, email } = this.state;
 
+		const { t } = this.props;
+
 		return (
 			<div style={{ backgroundColor: "#f2f3f7", height: "100vh" }}>
 				<Container fluid className="container-forgot-password">
@@ -87,12 +91,12 @@ class ForgotPassword extends React.Component {
 					</div>
 
 					<Container className="container-form">
-						<Row className="row-heading">Forgot Password</Row>
+						<Row className="row-heading">{t("Forgot Password")}</Row>
 						<Row>
 							<Form>
 								<FormGroup row>
 									<Label for="username" sm={2}>
-										Username
+										{t("Username")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -104,10 +108,10 @@ class ForgotPassword extends React.Component {
 										/>
 									</Col>
 								</FormGroup>
-								<Row className="row-or">or</Row>
+								<Row className="row-or">{t("or")}</Row>
 								<FormGroup row id="fg-email">
 									<Label for="email" sm={2}>
-										Email
+										{t("Email")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -125,7 +129,7 @@ class ForgotPassword extends React.Component {
 										className="btn-forgot-password"
 										onClick={this.submitForgotPassword}
 									>
-										Submit
+										{t("Submit")}
 									</Button>
 								</FormGroup>
 							</Form>
@@ -133,19 +137,16 @@ class ForgotPassword extends React.Component {
 
 						<Row className="row-login">
 							<Link to="/login" className="link">
-								Back to Log In
+								{t("Back to Log In")}
 							</Link>
 						</Row>
 					</Container>
 				</Container>
 
-				<footer>
-					Address : 148 Seri Thai Rd., Khlong Chan, Bang Kapi, Bangkok 10240 Tel
-					: 0-2727-3000
-				</footer>
+				<footer>{t("address")}</footer>
 			</div>
 		);
 	}
 }
 
-export default ForgotPassword;
+export default withTranslation()(ForgotPassword);

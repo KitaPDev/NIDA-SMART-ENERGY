@@ -2,6 +2,8 @@ import React, { PureComponent } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import "./PieChartSystem.css";
 
+import i18n from "../../../i18n";
+
 const COLORS = ["#3c67be", "#be4114"];
 
 const numberWithCommas = (x) => {
@@ -37,7 +39,8 @@ const renderCustomizedLabel = ({
 
 const getLine1 = () => {
 	return (
-		"TODAY 00:00 - " +
+		(i18n.language === "th" ? "วันนี้" : "TODAY") +
+		" 00:00 - " +
 		new Date().toLocaleString([], {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -53,7 +56,7 @@ const getLine2 = (building, ac, others) => {
 		building +
 		" " +
 		numberWithCommas(Math.round(totalEnergyConsumption)) +
-		" kWh"
+		(i18n.language === "th" ? " หน่วย" : " kWh")
 	);
 };
 
@@ -61,11 +64,11 @@ const getLine3 = (ac, others) => {
 	let percentAC = Math.round((ac / (ac + others)) * 100);
 
 	return (
-		"Air Conditioner " +
+		(i18n.language === "th" ? "ระบบปรับอากาศ " : "Air Conditioner ") +
 		percentAC +
 		"% " +
 		numberWithCommas(Math.round(ac)) +
-		" kWh"
+		(i18n.language === "th" ? " หน่วย" : " kWh")
 	);
 };
 
@@ -73,11 +76,11 @@ const getLine4 = (ac, others) => {
 	let percentOthers = Math.round((others / (ac + others)) * 100);
 
 	return (
-		"Others " +
+		(i18n.language === "th" ? "อื่นๆ " : "Others ") +
 		percentOthers +
 		"% " +
 		numberWithCommas(Math.round(others)) +
-		" kWh"
+		(i18n.language === "th" ? " หน่วย" : " kWh")
 	);
 };
 

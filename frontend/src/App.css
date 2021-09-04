@@ -64,3 +64,21 @@
 	overflow: hidden;
 	width: 100%;
 }
+
+.locale-selector {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 1000000;
+}
+
+.locale-selector > span {
+	margin: 0.5rem 0.25rem 0 0.25rem;
+	text-decoration: underline;
+}
+
+.locale-selector > span:hover {
+	cursor: pointer;
+	background-color: black;
+	color: white;
+}

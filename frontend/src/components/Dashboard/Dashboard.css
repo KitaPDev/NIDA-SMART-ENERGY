@@ -87,14 +87,13 @@
 	position: absolute;
 	bottom: 0;
 	margin-bottom: 1rem;
-	width: 100%;
+	width: 15%;
 }
 
 #dashboard-center .row-date {
 	width: 100%;
 	font-size: 125%;
 	font-weight: bold;
-	padding-bottom: 0.5rem;
 	max-height: 5%;
 }
 
@@ -136,7 +135,7 @@
 	width: fit-content !important;
 	max-width: 25%;
 	font-weight: 500;
-	font-size: 120%;
+	font-size: 100%;
 }
 
 #dashboard-center .row-pie-charts .legend-row {
@@ -206,6 +205,6 @@
 	width: 100%;
 	border: 1px solid #000;
 	border-radius: 0.5rem;
-	padding: 1.5rem 0.5rem 1rem 0.5rem;
+	padding: 0 0.5rem 1rem 0.5rem;
 	position: relative;
 }

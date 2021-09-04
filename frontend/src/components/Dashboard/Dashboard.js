@@ -28,6 +28,24 @@ import {
 import csv from "../../utils/csv";
 import MixedChartKwTempHumi from "./MixedChartKwTempHumi/MixedChartKwTempHumi";
 
+import { withTranslation } from "react-i18next";
+import i18n from "../../i18n";
+
+const lsMonthName = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
+
 let subscriberPowerMeterData;
 let subscriberSolarData;
 
@@ -54,6 +72,7 @@ class Dashboard extends React.Component {
 			compareTo: "Target",
 			lsTempHumi: [],
 			billData_month: {},
+			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 		};
 
 		this.updateData = this.updateData.bind(this);
@@ -497,6 +516,7 @@ class Dashboard extends React.Component {
 			compareTo,
 			lsTempHumi,
 			billData_month,
+			lsPermission,
 		} = this.state;
 
 		let kwhMainTotal = 0;
@@ -516,17 +536,19 @@ class Dashboard extends React.Component {
 			}
 		}
 
+		const { t } = this.props;
+
 		return (
 			<div id="container-dashboard">
 				<div id="dashboard-filter">
 					{/* ******************************** Filter Pane *****************************/}
 					<div id="filter-container">
-						<div className="title">Filter</div>
+						<div className="title">{t("Filter")}</div>
 
 						{/* ****************************** Filter Form **************************** */}
 						<Row className="row-form">
 							<Label for="dateFrom" sm={2} className="label-datepicker">
-								From
+								{t("From")}
 							</Label>
 							<Col sm={10} className="col-datepicker">
 								<Input
@@ -543,7 +565,7 @@ class Dashboard extends React.Component {
 						</Row>
 						<Row className="row-form">
 							<Label for="dateTo" sm={2} className="label-datepicker">
-								To
+								{t("To")}
 							</Label>
 							<Col sm={10} className="col-datepicker">
 								<Input
@@ -562,14 +584,14 @@ class Dashboard extends React.Component {
 							<Col sm={8} />
 							<Col sm={4} style={{ textAlign: "center" }}>
 								<Button id="btn-apply-bld" onClick={this.onClickApply}>
-									Apply
+									{t("Apply")}
 								</Button>
 							</Col>
 						</Row>
 
 						{/* ****************************** Building Section **************************** */}
 						<div className="building-list-pane">
-							<p className="heading-1">Building</p>
+							<p className="heading-1">{t("Building")}</p>
 							<Row className="row-building">
 								<Col sm={2}>
 									<Input
@@ -578,7 +600,7 @@ class Dashboard extends React.Component {
 										checked={lsSelectedBuilding.length === lsBuilding.length}
 									/>
 								</Col>
-								<Col sm={10}>(All)</Col>
+								<Col sm={10}>({t("All")})</Col>
 							</Row>
 							{lsBuilding.map((bld) => (
 								<div>
@@ -599,7 +621,7 @@ class Dashboard extends React.Component {
 												}}
 											></div>
 										</Col>
-										<Col sm={8}>{bld.label}</Col>
+										<Col sm={8}>{t(`${bld.label}`)}</Col>
 									</Row>
 								</div>
 							))}
@@ -607,8 +629,8 @@ class Dashboard extends React.Component {
 
 						{/* ****************************** Footer Note **************************** */}
 						<div className="footer-note">
-							*<span style={{ textDecoration: "underline" }}>Note</span>{" "}
-							Electricity bill is estimated.
+							*<span style={{ textDecoration: "underline" }}>{t("Note")}</span>{" "}
+							{t("Electricity bill is estimated")}
 						</div>
 					</div>
 				</div>
@@ -616,49 +638,68 @@ class Dashboard extends React.Component {
 				<div id="dashboard-center">
 					{/* ****************************** Date Row *****************************/}
 					<div className="row-date">
-						{dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateFrom) +
-							" - " +
-							dateFormatter.ddmmmyyyyhhmm_noOffset(displayDateTo)}
+						{displayDateFrom.getDate() + " "}
+						{t(`${lsMonthName[displayDateFrom.getMonth()]}`)}
+						{" " +
+							(i18n.language === "th"
+								? displayDateFrom.getFullYear() + 543
+								: displayDateFrom.getFullYear()) +
+							" "}
+						{dateFormatter.hhmm(displayDateFrom) + " - "}
+						{displayDateTo.getDate() + " "}
+						{t(`${lsMonthName[displayDateTo.getMonth()]}`)}
+						{" " +
+							(i18n.language === "th"
+								? displayDateTo.getFullYear() + 543
+								: displayDateTo.getFullYear()) +
+							" "}
+						{dateFormatter.hhmm(displayDateTo)}
 					</div>
 
 					{/* ****************************** Total Energy Consumption Pane *****************************/}
 					<div className="container-pie-charts">
 						<div>
-							<RiFileExcel2Fill
-								className="icon-excel"
-								size={25}
-								onClick={this.exportPieCharts}
-							/>
+							{lsPermission.find((p) => p.label === "Export Information") ? (
+								<RiFileExcel2Fill
+									className="icon-excel"
+									size={25}
+									onClick={this.exportPieCharts}
+								/>
+							) : (
+								<></>
+							)}
 						</div>
 						<div className="row-pie-charts-title">
 							<span className="pie-charts-title-1">
-								Total Energy Consumption
+								{t("Total Energy Consumption")}
 							</span>
 							<span className="pie-charts-title-2">
 								{numberFormatter.withCommas(Math.round(kwhMainTotal))}
 							</span>
-							<span className="pie-charts-title-1">kWh</span>
+							<span className="pie-charts-title-1">{t("kWh")}</span>
 						</div>
 						<div className="row-pie-charts">
 							<div className="legend">
-								<div className="legend-title">From</div>
+								<div className="legend-title">{t("From")}</div>
 								<div className="legend-row">
-									<span className="dot-grey" /> <span>MEA</span>
+									<span className="dot-grey" /> <span>{t("MEA")}</span>
 								</div>
 								<div className="legend-row">
-									<span className="dot-orange" /> <span>Solar Cells</span>
+									<span className="dot-orange" />{" "}
+									<span>{t("Solar Cells")}</span>
 								</div>
 							</div>
 							<div className="pie-chart">
 								<PieChartEnergySource mea={kwhMainTotal} solar={kwhSolar} />
 							</div>
 							<div className="legend">
-								<div className="legend-title">Used in</div>
+								<div className="legend-title">{t("Used in")}</div>
 								<div className="legend-row">
-									<span className="dot-blue" /> <span>Air Conditioner</span>
+									<span className="dot-blue" />{" "}
+									<span>{t("Air Conditioner")}</span>
 								</div>
 								<div className="legend-row">
-									<span className="dot-red" /> <span>Others</span>
+									<span className="dot-red" /> <span>{t("Others")}</span>
 								</div>
 							</div>
 							<div className="pie-chart">
@@ -676,11 +717,15 @@ class Dashboard extends React.Component {
 					{/* ****************************** Power (kW) Charts *****************************/}
 					<div className="container-kw-charts">
 						<div className="row-chart">
-							<RiFileExcel2Fill
-								className="icon-excel"
-								size={25}
-								onClick={this.exportLineChartPower}
-							/>
+							{lsPermission.find((p) => p.label === "Export Information") ? (
+								<RiFileExcel2Fill
+									className="icon-excel"
+									size={25}
+									onClick={this.exportLineChartPower}
+								/>
+							) : (
+								<></>
+							)}
 							<LineChartBuildingPowerConsumption
 								lsSelectedBuilding={lsSelectedBuilding}
 								lsKw_system_building={lsKw_system_building}
@@ -690,11 +735,15 @@ class Dashboard extends React.Component {
 							/>
 						</div>
 						<div className="row-chart">
-							<RiFileExcel2Fill
-								className="icon-excel"
-								size={25}
-								onClick={this.exportBarChartPower}
-							/>
+							{lsPermission.find((p) => p.label === "Export Information") ? (
+								<RiFileExcel2Fill
+									className="icon-excel"
+									size={25}
+									onClick={this.exportBarChartPower}
+								/>
+							) : (
+								<></>
+							)}
 							<BarChartSystemPowerConsumption
 								lsSelectedBuilding={lsSelectedBuilding}
 								lsKw_system_building={lsKw_system_building}
@@ -709,11 +758,15 @@ class Dashboard extends React.Component {
 				{/* ******************************** Right Section *****************************/}
 				<div id="dashboard-right">
 					<div className="container-bill-1">
-						<RiFileExcel2Fill
-							className="icon-excel"
-							size={25}
-							onClick={this.exportBarChartElectricityBill}
-						/>
+						{lsPermission.find((p) => p.label === "Export Information") ? (
+							<RiFileExcel2Fill
+								className="icon-excel"
+								size={25}
+								onClick={this.exportBarChartElectricityBill}
+							/>
+						) : (
+							<></>
+						)}
 						<BarChartElectricityBill
 							lsSelectedBuilding={lsSelectedBuilding}
 							bill_building={bill_building}
@@ -724,7 +777,7 @@ class Dashboard extends React.Component {
 						<Row>
 							<Col sm={3} id="col-compare">
 								<Form id="form-compare">
-									<legend>Compare to</legend>
+									<legend>{t("Compare to")}</legend>
 									<FormGroup check>
 										<Label check>
 											<Input
@@ -734,7 +787,7 @@ class Dashboard extends React.Component {
 												checked={compareTo === "Target"}
 												onChange={() => this.onClickCompareTo("Target")}
 											/>
-											Target
+											{t("Target")}
 										</Label>
 									</FormGroup>
 									<FormGroup check>
@@ -746,7 +799,7 @@ class Dashboard extends React.Component {
 												checked={compareTo === "Average"}
 												onChange={() => this.onClickCompareTo("Average")}
 											/>
-											Average
+											{t("Average")}
 										</Label>
 									</FormGroup>
 									<FormGroup check>
@@ -758,7 +811,7 @@ class Dashboard extends React.Component {
 												checked={compareTo === "Last Year"}
 												onChange={() => this.onClickCompareTo("Last Year")}
 											/>
-											Last Year
+											{t("Last Year")}
 										</Label>
 									</FormGroup>
 								</Form>
@@ -795,4 +848,4 @@ class Dashboard extends React.Component {
 	}
 }
 
-export default Dashboard;
+export default withTranslation()(Dashboard);

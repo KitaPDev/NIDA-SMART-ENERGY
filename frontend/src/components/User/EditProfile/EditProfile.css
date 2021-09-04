@@ -169,3 +169,8 @@ button.close {
 	border: 0;
 	padding: 0 0.5rem 0 0.5rem;
 }
+
+.td-status {
+	display: flex;
+	align-items: center;
+}

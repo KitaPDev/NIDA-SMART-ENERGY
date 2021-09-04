@@ -23,6 +23,8 @@ import BarChartEnergyCompare from "./BarChartEnergyCompare/BarChartEnergyCompare
 import http from "../../../utils/http";
 import csv from "../../../utils/csv";
 
+import { withTranslation } from "react-i18next";
+
 const lsMonth = [
 	"January",
 	"February",
@@ -557,14 +559,16 @@ class SetTarget extends React.Component {
 			(t) => t.month === +month && t.year === +year && t.building === building
 		);
 
+		const { t } = this.props;
+
 		return (
 			<div className="container-set-target">
 				<Row className="row-heading">
 					<Col sm={4} className="heading">
-						Set Target
+						{t("Set Target")}
 					</Col>
 					<Col sm={8} className="heading-historical-data">
-						<span className="title">Historical Data</span>
+						<span className="title">{t("Historical Data")}</span>
 						{lsPermission.find((p) => p.label === "Export Information") ? (
 							<RiFileExcel2Fill
 								size={30}
@@ -574,8 +578,8 @@ class SetTarget extends React.Component {
 						) : (
 							<></>
 						)}
-						<Button className="btn-period">Monthly</Button>
-						<Button className="btn-period">Yearly</Button>
+						<Button className="btn-period">{t("Monthly")}</Button>
+						<Button className="btn-period">{t("Yearly")}</Button>
 					</Col>
 				</Row>
 
@@ -586,7 +590,7 @@ class SetTarget extends React.Component {
 							<Form className="form-target">
 								<FormGroup row className="fg-config-1">
 									<Label for="month" sm={2}>
-										Month
+										{t("Month")}
 									</Label>
 									<Col sm={4}>
 										<Input
@@ -597,12 +601,12 @@ class SetTarget extends React.Component {
 											onChange={this.handleInputChange}
 										>
 											{lsMonth.map((m, idx) => (
-												<option key={m} label={m} value={idx}></option>
+												<option key={m} label={t(m)} value={idx}></option>
 											))}
 										</Input>
 									</Col>
 									<Label for="year" sm={2}>
-										Year
+										{t("Year")}
 									</Label>
 									<Col sm={4}>
 										<Input
@@ -620,7 +624,7 @@ class SetTarget extends React.Component {
 								</FormGroup>
 								<FormGroup row className="fg-config-building">
 									<Label for="building" sm={2}>
-										Building
+										{t("Building")}
 									</Label>
 									<Col sm={4}>
 										<Input
@@ -630,7 +634,7 @@ class SetTarget extends React.Component {
 											onChange={this.handleInputChange}
 										>
 											{lsBuilding.map((building) => (
-												<option key={building}>{building.label}</option>
+												<option key={building}>{t(building.label)}</option>
 											))}
 										</Input>
 									</Col>
@@ -645,7 +649,7 @@ class SetTarget extends React.Component {
 											width: "fit-content",
 										}}
 									>
-										People <MdPeople />
+										{t("People")} <MdPeople />
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -676,7 +680,7 @@ class SetTarget extends React.Component {
 											width: "fit-content",
 										}}
 									>
-										Tariff (Baht/kWh)
+										{t("Tariff")} ({t("Baht")}/{t("kWh")})
 									</Label>
 									<Col sm={3}>
 										<Input
@@ -700,7 +704,7 @@ class SetTarget extends React.Component {
 								</FormGroup>
 								<FormGroup row className="fg-config-bill">
 									<Label for="amountBill" sm={4}>
-										Electricity Bill (THB)
+										{t("Electricity Bill")} ({t("THB")})
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -722,32 +726,38 @@ class SetTarget extends React.Component {
 										/>
 										<datalist id="presets-bill">
 											<option
-												label="Last Month Target"
+												label={t("Last Month Target")}
 												value={lastMonthTarget_bill}
 											/>
 											<option
-												label="Last Month Actual"
+												label={t("Last Month Actual")}
 												value={lastMonthActual_bill}
 											/>
 											<option
-												label="Last Year Target"
+												label={t("Last Year Target")}
 												value={lastYearTarget_bill}
 											/>
 											<option
-												label="Last Year Actual"
+												label={t("Last Year Actual")}
 												value={lastYearActual_bill}
 											/>
-											<option label="Month Average" value={monthAverage_bill} />
-											<option label="Year Average" value={yearAverage_bill} />
+											<option
+												label={t("Month Average")}
+												value={monthAverage_bill}
+											/>
+											<option
+												label={t("Year Average")}
+												value={yearAverage_bill}
+											/>
 										</datalist>
 									</Col>
 									<Col sm={2} style={{ fontWeight: "600", margin: "auto" }}>
-										Baht
+										{t("Baht")}
 									</Col>
 								</FormGroup>
 								<FormGroup row className="fg-config-usage">
 									<Label for="energyUsage" sm={4}>
-										Energy Usage
+										{t("Energy Usage")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -769,30 +779,33 @@ class SetTarget extends React.Component {
 										/>
 										<datalist id="presets-usage">
 											<option
-												label="Last Month Target"
+												label={t("Last Month Target")}
 												value={lastMonthTarget_usage}
 											/>
 											<option
-												label="Last Month Actual"
+												label={t("Last Month Actual")}
 												value={lastMonthActual_usage}
 											/>
 											<option
-												label="Last Year Target"
+												label={t("Last Year Target")}
 												value={lastYearTarget_usage}
 											/>
 											<option
-												label="Last Year Actual"
+												label={t("Last Year Actual")}
 												value={lastYearActual_usage}
 											/>
 											<option
-												label="Month Average"
+												label={t("Month Average")}
 												value={monthAverage_usage}
 											/>
-											<option label="Year Average" value={yearAverage_usage} />{" "}
+											<option
+												label={t("Year Average")}
+												value={yearAverage_usage}
+											/>{" "}
 										</datalist>
 									</Col>
 									<Col sm={2} style={{ fontWeight: "600", margin: "auto" }}>
-										kWh
+										{t("kWh")}
 									</Col>
 								</FormGroup>
 								<FormGroup row>
@@ -805,7 +818,7 @@ class SetTarget extends React.Component {
 												paddingRight: 0,
 											}}
 										>
-											*Note:
+											*{t("Note")}:
 										</span>
 										<span
 											style={{
@@ -815,12 +828,12 @@ class SetTarget extends React.Component {
 												paddingLeft: 0,
 											}}
 										>
-											Electricity bill is estimated
+											{t("Electricity bill is estimated")}
 										</span>
 									</Col>
 									<Col sm={4} className="col-btn-set-target">
 										<Button className="btn-set-target" onClick={this.setTarget}>
-											Set
+											{t("Set")}
 										</Button>
 									</Col>
 								</FormGroup>
@@ -830,7 +843,7 @@ class SetTarget extends React.Component {
 						{/* ****************************** List Pane **************************** */}
 						<div className="list-pane">
 							<div className="form">
-								<Label for="monthDisplay">Month</Label>
+								<Label for="monthDisplay">{t("Month")}</Label>
 
 								<Input
 									type="select"
@@ -840,11 +853,11 @@ class SetTarget extends React.Component {
 									onChange={this.handleInputChange}
 								>
 									{lsMonth.map((month, index) => (
-										<option key={month} label={month} value={index}></option>
+										<option key={month} label={t(month)} value={index}></option>
 									))}
 								</Input>
 
-								<Label for="yearDisplay">Year</Label>
+								<Label for="yearDisplay">{t("Year")}</Label>
 
 								<Input
 									type="select"
@@ -861,9 +874,9 @@ class SetTarget extends React.Component {
 							<table className="table-building-users">
 								<thead>
 									<tr>
-										<th>Building</th>
-										<th>Users</th>
-										<th>Tariff</th>
+										<th>{t("Building")}</th>
+										<th>{t("Users")}</th>
+										<th>{t("Tariff")}</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -876,7 +889,9 @@ class SetTarget extends React.Component {
 														backgroundColor: building.color_code,
 													}}
 												/>
-												<div className="building-label">{building.label}</div>
+												<div className="building-label">
+													{t(building.label)}
+												</div>
 											</td>
 											<td className="td-users">
 												{lsTargetDisplay.find(
@@ -944,7 +959,7 @@ class SetTarget extends React.Component {
 									<Form className="form-historical-data-charts">
 										<Row>
 											<span className="dot-actual"></span>
-											<span className="label-actual">Actual</span>
+											<span className="label-actual">{t("Actual")}</span>
 										</Row>
 										<FormGroup row>
 											<Label check>
@@ -954,7 +969,7 @@ class SetTarget extends React.Component {
 													onChange={() => this.onClickCompareToBill("Target")}
 													checked={compareToBill === "Target"}
 												/>
-												Target
+												{t("Target")}
 											</Label>
 											<Label check>
 												<Input
@@ -963,7 +978,7 @@ class SetTarget extends React.Component {
 													onChange={() => this.onClickCompareToBill("Average")}
 													checked={compareToBill === "Average"}
 												/>
-												Average
+												{t("Average")}
 											</Label>
 										</FormGroup>
 									</Form>
@@ -980,8 +995,8 @@ class SetTarget extends React.Component {
 									/>
 								</Col>
 								<Col sm={2} className="col-form">
-									<div className="block-saved">Saved</div>
-									<div className="block-excess">Excess</div>
+									<div className="block-saved">{t("Saved")}</div>
+									<div className="block-excess">{t("Excess")}</div>
 								</Col>
 							</Row>
 
@@ -1010,7 +1025,7 @@ class SetTarget extends React.Component {
 									<Form className="form-historical-data-charts">
 										<Row>
 											<span className="dot-actual-light"></span>
-											<span className="label-actual">Actual</span>
+											<span className="label-actual">{t("Actual")}</span>
 										</Row>
 										<FormGroup row>
 											<Label check>
@@ -1020,7 +1035,7 @@ class SetTarget extends React.Component {
 													onChange={() => this.onClickCompareToUsage("Target")}
 													checked={compareToUsage === "Target"}
 												/>
-												Target
+												{t("Target")}
 											</Label>
 											<Label check>
 												<Input
@@ -1029,7 +1044,7 @@ class SetTarget extends React.Component {
 													onChange={() => this.onClickCompareToUsage("Average")}
 													checked={compareToUsage === "Average"}
 												/>
-												Average
+												{t("Average")}
 											</Label>
 										</FormGroup>
 									</Form>
@@ -1046,8 +1061,8 @@ class SetTarget extends React.Component {
 									/>
 								</Col>
 								<Col sm={2} className="col-form">
-									<div className="block-saved">Saved</div>
-									<div className="block-excess">Excess</div>
+									<div className="block-saved">{t("Saved")}</div>
+									<div className="block-excess">{t("Excess")}</div>
 								</Col>
 							</Row>
 						</Container>
@@ -1058,4 +1073,4 @@ class SetTarget extends React.Component {
 	}
 }
 
-export default SetTarget;
+export default withTranslation()(SetTarget);

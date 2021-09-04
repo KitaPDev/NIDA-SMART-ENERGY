@@ -132,9 +132,16 @@ async function getTargetPresetData(buildingID, month, year) {
 			"target.energy_usage"
 		)
 		.where("building_id", "=", buildingID)
-		.andWhere("month", "=", month)
 		.andWhere(function () {
-			this.where("year", "=", year).orWhere("year", "=", year - 1);
+			this.where({
+				year: year,
+				month: month - 1,
+			})
+				.orWhere({
+					year: year - 1,
+					month: month,
+				})
+				.orWhere({});
 		});
 
 	data.lsLog = await knex("log_power_meter")

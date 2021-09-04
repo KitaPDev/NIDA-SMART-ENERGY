@@ -15,6 +15,8 @@ import { Link } from "react-router-dom";
 
 import http from "../../utils/http";
 
+import { withTranslation } from "react-i18next";
+
 class Login extends React.Component {
 	constructor(props) {
 		super(props);
@@ -104,6 +106,8 @@ class Login extends React.Component {
 			errorMessage,
 		} = this.state;
 
+		const { t } = this.props;
+
 		return (
 			<div style={{ backgroundColor: "#f2f3f7", height: "100vh" }}>
 				<Container fluid className="container-login">
@@ -115,12 +119,12 @@ class Login extends React.Component {
 					</div>
 
 					<Container className="container-form">
-						<Row className="row-heading">Login</Row>
+						<Row className="row-heading">{t("Login")}</Row>
 						<Row>
 							<Form>
 								<FormGroup row>
 									<Label for="username" sm={2}>
-										Username
+										{t("Username")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -134,7 +138,7 @@ class Login extends React.Component {
 								</FormGroup>
 								<FormGroup row>
 									<Label for="password" sm={2}>
-										Password
+										{t("Password")}
 									</Label>
 									<Col sm={6}>
 										<Input
@@ -155,7 +159,7 @@ class Login extends React.Component {
 												checked={showPassword}
 												onChange={this.toggleShowPassword}
 											/>{" "}
-											Show password
+											{t("Show Password")}
 										</Label>
 									</Col>
 								</FormGroup>
@@ -165,7 +169,7 @@ class Login extends React.Component {
 										className="btn-login"
 										onClick={this.submitLogin}
 									>
-										Log In
+										{t("Log In")}
 									</Button>
 								</FormGroup>
 							</Form>
@@ -176,36 +180,37 @@ class Login extends React.Component {
 							""
 						)}
 						{isUsernameEmpty ? (
-							<Row className="row-feedback">Please fill in your username.</Row>
+							<Row className="row-feedback">
+								{t("Please fill in your username.")}
+							</Row>
 						) : (
 							""
 						)}
 						{isPasswordEmpty ? (
-							<Row className="row-feedback">Please fill in your password.</Row>
+							<Row className="row-feedback">
+								{t("Please fill in your password.")}
+							</Row>
 						) : (
 							""
 						)}
 
 						<Row className="row-forgot-password">
 							<Link to="/forgot-password" className="link">
-								Forgot password?
+								{t("Forgot password")}
 							</Link>
 						</Row>
 						<Row className="row-link">
 							<Link to="/register" className="link">
-								Register?
+								{t("Register")}
 							</Link>
 						</Row>
 					</Container>
 				</Container>
 
-				<footer>
-					Address : 148 Seri Thai Rd., Khlong Chan, Bang Kapi, Bangkok 10240 Tel
-					: 0-2727-3000
-				</footer>
+				<footer>{t("address")}</footer>
 			</div>
 		);
 	}
 }
 
-export default Login;
+export default withTranslation()(Login);

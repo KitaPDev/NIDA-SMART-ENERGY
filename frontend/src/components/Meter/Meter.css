@@ -550,8 +550,12 @@
 	margin-left: 1.5rem;
 }
 
+.modal-meter .label-interval {
+	width: 25%;
+}
+
 .modal-meter .col-input-interval {
-	width: 100%;
+	width: 75%;
 }
 
 .modal-meter #interval {

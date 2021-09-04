@@ -39,10 +39,6 @@ li.dropdown.nav-item {
 	width: fit-content !important;
 }
 
-.locale-toggler {
-	margin-right: 1rem;
-}
-
 nav button :active {
 	color: white !important;
 }

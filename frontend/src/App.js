@@ -1,6 +1,8 @@
 import React from "react";
 import "./App.css";
+
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
 import NavBar from "./components/NavBar/Navbar";
 import Home from "./components/Home/Home";
 import Login from "./components/Login/Login";
@@ -19,10 +21,19 @@ import ActivityLog from "./components/User/ActivityLog/ActivityLog";
 import UserManagement from "./components/User/UserManagement/UserManagement";
 import SetPermission from "./components/User/SetPermission/SetPermission";
 
+import i18n from "./i18n";
+import { withTranslation } from "react-i18next";
+
 class App extends React.Component {
 	render() {
+		const { t } = this.props;
+
 		return (
 			<div id="wrapper-root">
+				<div className="locale-selector">
+					<span onClick={() => i18n.changeLanguage("th")}>{t("TH")}</span>|
+					<span onClick={() => i18n.changeLanguage("en")}>{t("ENG")}</span>
+				</div>
 				<Router>
 					<NavBar />
 					<div id="wrapper-content">
@@ -78,4 +89,4 @@ class App extends React.Component {
 	}
 }
 
-export default App;
+export default withTranslation()(App);

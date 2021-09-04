@@ -4,6 +4,8 @@ import "./PieChartSystem.css";
 
 import numberFormatter from "../../../utils/numberFormatter";
 
+import i18n from "../../../i18n";
+
 const COLORS = ["#3c67be", "#be4114"];
 
 const RADIAN = Math.PI / 180;
@@ -40,7 +42,7 @@ const getLine1 = (building, ac, others) => {
 		building +
 		" " +
 		numberFormatter.withCommas(Math.round(totalEnergyConsumption)) +
-		" kWh"
+		(i18n.language === "th" ? " หน่วย" : " kWh")
 	);
 };
 
@@ -48,11 +50,11 @@ const getLine2 = (ac, others) => {
 	let percentAC = Math.round((ac / (ac + others)) * 100);
 
 	return (
-		"Air Conditioner " +
+		(i18n.language === "th" ? "ระบบปรับอากาศ " : "Air Conditioner ") +
 		percentAC +
 		"% " +
 		numberFormatter.withCommas(Math.round(ac)) +
-		" kWh"
+		(i18n.language === "th" ? " หน่วย" : " kWh")
 	);
 };
 
@@ -60,11 +62,11 @@ const getLine3 = (ac, others) => {
 	let percentOthers = Math.round((others / (ac + others)) * 100);
 
 	return (
-		"Others " +
+		(i18n.language === "th" ? "อื่นๆ " : "Others ") +
 		percentOthers +
 		"% " +
 		numberFormatter.withCommas(Math.round(others)) +
-		" kWh"
+		(i18n.language === "th" ? " หน่วย" : " kWh")
 	);
 };
 
@@ -157,7 +159,7 @@ class PieChartSystem extends PureComponent {
 						label={renderCustomizedLabel}
 						labelLine={false}
 					>
-						{data.map((entry, index) => (
+						{data.map((_, index) => (
 							<Cell
 								key={`cell-${index}`}
 								fill={COLORS[index % COLORS.length]}
