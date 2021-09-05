@@ -42,4 +42,18 @@ async function sendForgotPasswordEmail(email, hash) {
 	);
 }
 
-module.exports = { sendConfirmationEmail, sendForgotPasswordEmail };
+async function sendShareEmail(email) {
+	transporter.sendMail(emails.makeShareEmail(email), (err, info) => {
+		if (err) {
+			console.log("ERROR: ", err.message);
+			return;
+		}
+		transporter.close();
+	});
+}
+
+module.exports = {
+	sendConfirmationEmail,
+	sendForgotPasswordEmail,
+	sendShareEmail,
+};

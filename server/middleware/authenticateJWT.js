@@ -23,6 +23,10 @@ module.exports = async (req, res, next) => {
 
 			req.userType = decodedToken.userType;
 		} catch (err) {
+			if (err instanceof jwt.TokenExpiredError) {
+				return res.sendStatus(httpStatusCodes.UNAUTHORIZED);
+			}
+
 			console.log(err);
 			return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 		}

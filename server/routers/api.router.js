@@ -28,4 +28,8 @@ router.post("/bill/compare", authenticateJWT, async function (req, res) {
 	apiController.getBillCompare(req, res);
 });
 
+router.get("/energy", authenticateJWT, async function (req, res) {
+	apiController.getEnergy(req, res);
+});
+
 module.exports = router;

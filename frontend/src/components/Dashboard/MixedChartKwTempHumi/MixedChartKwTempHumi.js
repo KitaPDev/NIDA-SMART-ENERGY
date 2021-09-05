@@ -146,6 +146,11 @@ class MixedChartKwTempHumi extends React.Component {
 		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
 		opt.scales.yTemp.title.text = i18n.t(opt.scales.yTemp.title.text);
 		opt.scales.yHumi.title.text = i18n.t(opt.scales.yHumi.title.text);
+		opt.plugins.tooltip.callbacks = {
+			title: function (context) {
+				return dateFormatter.ddmmmyyyyhhmm_noOffset(new Date(context[0].label));
+			},
+		};
 
 		dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 

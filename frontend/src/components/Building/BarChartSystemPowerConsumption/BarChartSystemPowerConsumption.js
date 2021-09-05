@@ -6,6 +6,7 @@ import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
 import i18n from "../../../i18n";
+import dateFormatter from "../../../utils/dateFormatter";
 
 let barChart;
 
@@ -65,6 +66,13 @@ class BarChartSystemPowerConsumption extends React.Component {
 						bodyColor: "#000",
 						titleFont: { size: 18 },
 						bodyFont: { size: 16 },
+						callbacks: {
+							title: function (context) {
+								return dateFormatter.ddmmmyyyyhhmm_noOffset(
+									new Date(context[0].label)
+								);
+							},
+						},
 					},
 					zoom: {
 						pan: {

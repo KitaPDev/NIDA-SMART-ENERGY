@@ -13,4 +13,19 @@ const lsMonth = [
 	"DEC",
 ];
 
-module.exports = { lsMonth };
+const lsMonthFull = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
+
+module.exports = { lsMonth, lsMonthFull };

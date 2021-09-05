@@ -261,6 +261,82 @@ async function getBillCompareData(dateFrom, dateTo) {
 	return data;
 }
 
+async function getEnergy() {
+	let today = new Date();
+	let yesterdayStart = new Date(
+		today.getFullYear(),
+		today.getMonth(),
+		today.getDate() - 1,
+		0,
+		0
+	);
+	let yesterdayEnd = new Date(
+		today.getFullYear(),
+		today.getMonth(),
+		today.getDate() - 1,
+		23,
+		59
+	);
+
+	let monthLastYearBefore_start = new Date(
+		today.getFullYear() - 1,
+		today.getMonth(),
+		1,
+		0,
+		0
+	);
+
+	let monthLastYearBefore_end = new Date(
+		today.getFullYear() - 1,
+		today.getMonth(),
+		1,
+		12,
+		0
+	);
+
+	let monthLastYearAfter_start = new Date(
+		today.getFullYear() - 1,
+		today.getMonth() + 1,
+		0,
+		0,
+		0
+	);
+
+	let monthLastYearAfter_end = new Date(
+		monthLastYearAfter_start.getTime() - 43200000
+	);
+
+	let result = await knex("log_power_meter")
+		.join("device", "log_power_meter.device_id", "=", "device.id")
+		.join("building", "device.building_id", "=", "building.id")
+		.join("system", "device.system_id", "=", "system.id")
+		.select(
+			"log_power_meter.data_datetime",
+			"building.label as building",
+			"device.id as device",
+			"log_power_meter.kwh",
+			"system.label as system"
+		)
+		.where((builder) =>
+			builder
+				.whereBetween("data_datetime", [
+					dateFormatter.yyyymmddhhmmss(yesterdayStart),
+					dateFormatter.yyyymmddhhmmss(yesterdayEnd),
+				])
+				.orWhereBetween("data_datetime", [
+					dateFormatter.yyyymmddhhmmss(monthLastYearBefore_start),
+					dateFormatter.yyyymmddhhmmss(monthLastYearBefore_end),
+				])
+				.orWhereBetween("data_datetime", [
+					dateFormatter.yyyymmddhhmmss(monthLastYearAfter_start),
+					dateFormatter.yyyymmddhhmmss(monthLastYearAfter_end),
+				])
+		)
+		.andWhere("system.label", "=", "Main")
+		.orderBy("log_power_meter.data_datetime", "DESC");
+	return result;
+}
+
 module.exports = {
 	getLogPowerMeterByDatetime,
 	getAllLogPowerMeterDesc,
@@ -276,4 +352,5 @@ module.exports = {
 	getDataPowerMonth,
 	getDataSolarMonth,
 	getBillCompareData,
+	getEnergy,
 };

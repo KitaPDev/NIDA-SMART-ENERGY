@@ -211,6 +211,29 @@ class BarChartEnergyCompare extends React.Component {
 				}
 				return label;
 			},
+
+			title: function (context) {
+				let month = context[0].label;
+				Object.entries(i18n.getDataByLanguage("th").translation).forEach(
+					([en, th]) => {
+						if (th === context[0].label) {
+							month = en;
+							return;
+						}
+					}
+				);
+
+				let displayYear = new Date().getFullYear();
+				lsMonth.forEach((mth, idx) => {
+					if (mth === month) {
+						if (new Date().getMonth() - idx < 0) {
+							displayYear = new Date().getFullYear() - 1;
+						}
+					}
+				});
+
+				return context[0].label + " " + displayYear;
+			},
 		};
 
 		document.getElementById("bc-energy-compare").remove();

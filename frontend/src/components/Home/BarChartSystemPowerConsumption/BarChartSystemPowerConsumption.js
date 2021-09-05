@@ -5,6 +5,7 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
+import dateFormatter from "../../../utils/dateFormatter";
 import i18n from "../../../i18n";
 
 let barChart;
@@ -120,6 +121,11 @@ class BarChartSystemPowerConsumption extends React.Component {
 		let opt = JSON.parse(JSON.stringify(options));
 
 		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
+		opt.plugins.tooltip.callbacks = {
+			title: function (context) {
+				return dateFormatter.ddmmmyyyyhhmm_noOffset(new Date(context[0].label));
+			},
+		};
 
 		dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
 

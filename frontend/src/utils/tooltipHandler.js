@@ -1,3 +1,5 @@
+import dateFormatter from "./dateFormatter";
+
 //Custom Tooltip
 const getOrCreateTooltip = (chart) => {
 	let tooltipEl = chart.canvas.parentNode.querySelector("div");
@@ -11,7 +13,7 @@ const getOrCreateTooltip = (chart) => {
 		tooltipEl.style.position = "absolute";
 		tooltipEl.style.transform = "translate(20%, -50%)";
 		tooltipEl.style.transition = "all .1s ease";
-		tooltipEl.style.zIndex = "99999";
+		tooltipEl.style.zIndex = "500";
 
 		const table = document.createElement("table");
 		table.style.margin = "0px";
@@ -48,7 +50,9 @@ const tooltipHandlerRight_100_top_100 = (context) => {
 
 			const th = document.createElement("th");
 			th.style.borderWidth = 0;
-			const text = document.createTextNode(title);
+			const text = document.createTextNode(
+				dateFormatter.ddmmmyyyyhhmm_noOffset(new Date(title))
+			);
 
 			th.appendChild(text);
 			tr.appendChild(th);

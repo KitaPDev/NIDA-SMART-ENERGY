@@ -17,6 +17,7 @@ async function getDataPowerMeterByDatetime(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(result);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -37,6 +38,7 @@ async function getDataSolarByDatetime(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(result);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -57,6 +59,7 @@ async function getDataIaqByDatetime(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(result);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -114,6 +117,7 @@ async function getDataPowerMonthBuilding(req, res) {
 
 		return res.status(httpStatusCodes.OK).send(monthKwh_building);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -133,6 +137,7 @@ async function getDataSolarMonth(req, res) {
 
 		return res.status(httpStatusCodes.OK).send({ kwhSolar });
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -234,6 +239,122 @@ async function getBillCompare(req, res) {
 	}
 }
 
+async function getEnergy(_, res) {
+	try {
+		let lsLog = await apiService.getEnergy();
+
+		let energy = 0;
+
+		let kwhYesterday = 0;
+		let kwhLastYearMonthAverage = 0;
+
+		let lsPrevDevice_yesterday = [];
+		let lsPrevDevice_lastYear = [];
+		let today = new Date();
+		for (let log of lsLog) {
+			let date = new Date(log.data_datetime);
+			let device = log.device;
+			let kwh = log.kwh;
+
+			let year = date.getFullYear();
+			if (year === today.getFullYear()) {
+				if (!lsPrevDevice_yesterday.includes(device)) {
+					kwhYesterday += kwh;
+					lsPrevDevice_yesterday.push(device);
+				}
+			}
+
+			if (year === today.getFullYear() - 1) {
+				if (!lsPrevDevice_lastYear.includes(device)) {
+					kwhLastYearMonthAverage += kwh;
+					lsPrevDevice_lastYear.push(device);
+				}
+			}
+		}
+
+		lsPrevDevice_yesterday = [];
+		lsPrevDevice_lastYear = [];
+		for (let log of lsLog.slice().reverse()) {
+			let date = new Date(log.data_datetime);
+			let device = log.device;
+			let kwh = log.kwh;
+
+			let year = date.getFullYear();
+			if (year === today.getFullYear()) {
+				if (!lsPrevDevice_yesterday.includes(device)) {
+					kwhYesterday -= kwh;
+					lsPrevDevice_yesterday.push(device);
+				}
+			}
+
+			if (year === today.getFullYear() - 1) {
+				if (!lsPrevDevice_lastYear.includes(device)) {
+					kwhLastYearMonthAverage -= kwh;
+					lsPrevDevice_lastYear.push(device);
+				}
+			}
+		}
+
+		if (today.getFullYear() === 2021) {
+			switch (today.getMonth()) {
+				case 8:
+					kwhLastYearMonthAverage = 698000;
+					break;
+				case 9:
+					kwhLastYearMonthAverage = 658000;
+					break;
+				case 10:
+					kwhLastYearMonthAverage = 645000;
+					break;
+				case 11:
+					kwhLastYearMonthAverage = 606000;
+					break;
+			}
+		}
+
+		if (today.getFullYear() === 2022) {
+			switch (today.getMonth()) {
+				case 0:
+					kwhLastYearMonthAverage = 372000;
+					break;
+				case 1:
+					kwhLastYearMonthAverage = 511000;
+					break;
+				case 2:
+					kwhLastYearMonthAverage = 707000;
+					break;
+				case 3:
+					kwhLastYearMonthAverage = 352000;
+					break;
+				case 4:
+					kwhLastYearMonthAverage = 383000;
+					break;
+				case 5:
+					kwhLastYearMonthAverage = 417000;
+					break;
+			}
+		}
+
+		kwhLastYearMonthAverage /= new Date(
+			today.getFullYear(),
+			today.getMonth() + 1,
+			0
+		).getDate();
+
+		if (kwhLastYearMonthAverage !== 0) {
+			energy =
+				(kwhLastYearMonthAverage - kwhYesterday) / kwhLastYearMonthAverage;
+		}
+
+		return res
+			.status(httpStatusCodes.OK)
+			.send({ energy: energy, diff: kwhYesterday - kwhLastYearMonthAverage });
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getDataPowerMeterByDatetime,
 	getDataSolarByDatetime,
@@ -241,4 +362,5 @@ module.exports = {
 	getDataPowerMonthBuilding,
 	getDataSolarMonth,
 	getBillCompare,
+	getEnergy,
 };

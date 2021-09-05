@@ -1,17 +1,5 @@
-let lsMonth = [
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December",
-];
+import { lsMonthFull } from "./months";
+import i18n from "../i18n";
 
 function ddmmyyyy(date) {
 	if (date instanceof Date) {
@@ -61,7 +49,9 @@ function ddmmyyyyhhmm(date) {
 			min = "0" + min;
 		}
 
-		return dd + "/" + mm + "/" + yyyy + " " + hh + ":" + min;
+		return (
+			dd + "/" + mm + "/" + yyyy + " " + (hh === "24" ? "00" : hh) + ":" + min
+		);
 	}
 }
 
@@ -97,7 +87,19 @@ function yyyymmddhhmmss(date) {
 			ss = "0" + ss;
 		}
 
-		return yyyy + "-" + mm + "-" + dd + " " + hh + ":" + min + ":" + ss;
+		return (
+			yyyy +
+			"-" +
+			mm +
+			"-" +
+			dd +
+			" " +
+			(hh === "24" ? "00" : hh) +
+			":" +
+			min +
+			":" +
+			ss
+		);
 	}
 }
 
@@ -107,7 +109,7 @@ function ddmmmyyyy(date) {
 		date = new Date(date.getTime() - offset * 60 * 1000);
 
 		let dd = date.getDate();
-		let mmm = lsMonth[date.getMonth()].substring(0, 3);
+		let mmm = i18n.t(lsMonthFull[date.getMonth()]);
 		let yyyy = date.getFullYear();
 
 		return dd + " " + mmm + " " + yyyy;
@@ -153,21 +155,19 @@ function ddmmyyyyhhmm_noOffset(date) {
 			min = "0" + min;
 		}
 
-		return dd + "/" + mm + "/" + yyyy + " " + hh + ":" + min;
+		return (
+			dd + "/" + mm + "/" + yyyy + " " + (hh === "24" ? "00" : hh) + ":" + min
+		);
 	}
 }
 
 function ddmmmyyyyhhmm_noOffset(date) {
 	if (date instanceof Date) {
 		let dd = date.getDate();
-		let mmm = lsMonth[date.getMonth()].substring(0, 3);
+		let mmm = i18n.t(lsMonthFull[date.getMonth()]);
 		let yyyy = date.getFullYear();
 		let hh = date.getHours();
 		let min = date.getMinutes();
-
-		if (dd < 10) {
-			dd = "0" + dd;
-		}
 
 		if (hh < 10) {
 			hh = "0" + hh;
@@ -177,7 +177,9 @@ function ddmmmyyyyhhmm_noOffset(date) {
 			min = "0" + min;
 		}
 
-		return dd + " " + mmm + " " + yyyy + " " + hh + ":" + min;
+		return (
+			dd + " " + mmm + " " + yyyy + ", " + (hh === "24" ? "00" : hh) + ":" + min
+		);
 	}
 }
 
@@ -210,7 +212,19 @@ function yyyymmddhhmmss_noOffset(date) {
 			ss = "0" + ss;
 		}
 
-		return yyyy + "-" + mm + "-" + dd + " " + hh + ":" + min + ":" + ss;
+		return (
+			yyyy +
+			"-" +
+			mm +
+			"-" +
+			dd +
+			" " +
+			(hh === "24" ? "00" : hh) +
+			":" +
+			min +
+			":" +
+			ss
+		);
 	}
 }
 
@@ -263,7 +277,7 @@ function hhmm(date) {
 			min = "0" + min;
 		}
 
-		return hh + ":" + min;
+		return (hh === "24" ? "00" : hh) + ":" + min;
 	}
 }
 

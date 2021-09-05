@@ -2,7 +2,6 @@ const userService = require("../services/user.service");
 const authService = require("../services/auth.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 const mailer = require("../mailer");
-const jwt = require("jsonwebtoken");
 
 const emailRegex =
 	/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;

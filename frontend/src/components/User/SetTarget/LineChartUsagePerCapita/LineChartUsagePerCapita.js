@@ -180,6 +180,30 @@ class LineChartUsagePerCapita extends React.Component {
 		opt.scales.yAxis.max = Math.ceil(yMax);
 		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
 		opt.scales.yAxis.title.text = i18n.t(opt.scales.yAxis.title.text);
+		opt.plugins.tooltip.callbacks = {
+			title: function (context) {
+				let month = context[0].label;
+				Object.entries(i18n.getDataByLanguage("th").translation).forEach(
+					([en, th]) => {
+						if (th === context[0].label) {
+							month = en;
+							return;
+						}
+					}
+				);
+
+				let displayYear = new Date().getFullYear();
+				lsMonth.forEach((mth, idx) => {
+					if (mth === month) {
+						if (new Date().getMonth() - idx < 0) {
+							displayYear = new Date().getFullYear() - 1;
+						}
+					}
+				});
+
+				return context[0].label + " " + displayYear;
+			},
+		};
 
 		document.getElementById("lc-energy-capita").remove();
 		document.getElementById(

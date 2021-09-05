@@ -18,6 +18,7 @@ import { FaCamera, FaUserCircle } from "react-icons/fa";
 import { MdModeEdit } from "react-icons/md";
 
 import http from "../../../utils/http";
+import validator from "validator";
 
 import { withTranslation } from "react-i18next";
 
@@ -205,6 +206,13 @@ class EditProfile extends React.Component {
 	async submitEmail() {
 		try {
 			let email = this.state.email;
+
+			if (!validator.isEmail(email)) {
+				alert("Email address is invalid.");
+				this.toggleModalConfirmEmail();
+				this.toggleEditEmail();
+				return;
+			}
 
 			let payload = {
 				email: email,

@@ -8,12 +8,12 @@ nav {
 }
 
 .navbar-logo {
-	width: 150px;
-	margin-right: 1rem;
+	height: 60px;
 }
 
-.nav-link {
-	width: 100px;
+.nav-link,
+.nav-item {
+	width: 95px;
 }
 
 .nav-item {
@@ -35,10 +35,36 @@ a.dropdown-toggle.nav-link {
 	text-align: center;
 }
 
-li.dropdown.nav-item {
-	width: fit-content !important;
-}
-
 nav button :active {
 	color: white !important;
+}
+
+nav .user-image {
+	height: 40px;
+}
+
+.navbar-logo-2 {
+	height: 40px;
+}
+
+nav .dropdown-menu.show {
+	width: 250px;
+}
+
+.nav-item-share {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+nav .share {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+}
+
+nav .share svg {
+	margin-left: 0.5rem;
 }
