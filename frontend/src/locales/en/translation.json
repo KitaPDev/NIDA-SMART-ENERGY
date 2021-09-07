@@ -200,7 +200,7 @@
 	"General User": "General User",
 	"Student": "Student",
 	"Add/Edit/Delete Meter": "Add/Edit/Delete Meter",
-	"Generate Report": "Generate Report",
+	"Generate Reports": "Generate Reports",
 	"Export Information": "Export Information",
 	"View Other's Activity Log": "View Other's Activity Log",
 	"Add/Edit/Delete Meter Information": "Add/Edit/Delete Meter Information",
@@ -212,5 +212,15 @@
 	"Website Environmental": "Website Environmental",
 	"Website Energy V1": "Website Energy V1",
 	"Share": "Share",
-	"Share to": "Share to"
+	"Share to": "Share to",
+
+	"Choose Report": "Choose Report",
+	"report.Energy Usage": "Energy Usage",
+	"Air Conditioning Power used Compared to Temperature and Humidity": "Air Conditioning Power used Compared to Temperature and Humidity",
+
+	"Energy Usage Report": "Energy Usage Report",
+	"Date": "Date",
+	"Electricity Bill Report": "Electricity Bill Report",
+	"Air Conditioning Power Used Compared to Tempeerature and Humidity Report": "Air Conditioning Power Used Compared to Tempeerature and Humidity Report",
+	"Energy Use per Capita Report": "Energy Use per Capita Report"
 }

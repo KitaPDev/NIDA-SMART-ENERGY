@@ -213,7 +213,7 @@
 	"General User": "ผู้ใช้งานทั่วไป",
 	"Student": "นักศึกษา",
 	"Add/Edit/Delete Meter": "เพิ่ม/ลด/แก้ไข มิเตอร์",
-	"Generate Report": "สร้างรายงาน",
+	"Generate Reports": "สร้างรายงาน",
 	"Export Information": "นำข้อมูลออก",
 	"View Other's Activity Log": "ดูบันทึกกิจกรรมของผู้ใช้งานอื่น",
 	"Add/Edit/Delete Meter Information": "เพิ่ม/ลด/แก้ไข ข้อมูลมิเตอร์",
@@ -225,5 +225,15 @@
 	"Website Environmental": "เว็บไซต์สิ่งแวดล้อม",
 	"Website Energy V1": "เว็บไซต์พลังงาน",
 	"Share": "แชร์",
-	"Share to": "แชร์ไปที่"
+	"Share to": "แชร์ไปที่",
+
+	"Choose Report": "เลือกรายงาน",
+	"report.Energy Usage": "การใช้พลังงาน",
+	"Air Conditioning Power Used Compared to Temperature and Humidity": "กำลังไฟฟ้าของระบบปรับอากาศเปรียบเทียบกับอุณหภูมิและความชื้น",
+
+	"Energy Usage Report": "รายงานการใช้ไฟฟ้า",
+	"Date": "วันที่",
+	"Electricity Bill Report": "รายงานค่าไฟฟ้า",
+	"A/C Power Used Compared to Temperature and Humidity Report": "รายงานการใช้ไฟฟ้าเทียบกับอุณหภูมิและความชื้น",
+	"Energy Use per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร"
 }

@@ -465,6 +465,7 @@ class Home extends React.Component {
 								<div className="total-energy-consumption-pane">
 									<Row
 										style={{
+											height: "15%",
 											fontSize: "160%",
 											marginTop: "auto",
 										}}
@@ -480,7 +481,7 @@ class Home extends React.Component {
 										</span>
 									</Row>
 
-									<Row>
+									<Row style={{ height: "20%" }}>
 										<span
 											style={{
 												fontSize: "160%",
@@ -517,7 +518,13 @@ class Home extends React.Component {
 										</span>
 									</Row>
 
-									<Row>
+									<Row
+										style={{
+											height: "15%",
+											display: "flex",
+											alignItems: "center",
+										}}
+									>
 										<span
 											style={{
 												color: "#6B6666",

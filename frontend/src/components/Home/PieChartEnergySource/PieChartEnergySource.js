@@ -39,8 +39,8 @@ export default class PieChartEnergySource extends PureComponent {
 		];
 
 		return (
-			<ResponsiveContainer width="100%" height="100%">
-				<PieChart width={400} height={400}>
+			<ResponsiveContainer width="100%" height={100}>
+				<PieChart>
 					<Pie
 						isAnimationActive={false}
 						data={data}
@@ -48,7 +48,7 @@ export default class PieChartEnergySource extends PureComponent {
 						cy="50%"
 						labelLine={false}
 						label={renderCustomizedLabel}
-						outerRadius={49}
+						outerRadius={50}
 						fill="#8884d8"
 						dataKey="value"
 					>

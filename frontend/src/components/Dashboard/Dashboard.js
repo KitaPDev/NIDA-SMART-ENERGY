@@ -31,20 +31,7 @@ import MixedChartKwTempHumi from "./MixedChartKwTempHumi/MixedChartKwTempHumi";
 import { withTranslation } from "react-i18next";
 import i18n from "../../i18n";
 
-const lsMonthName = [
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December",
-];
+import { lsMonthFull } from "../../utils/months";
 
 let subscriberPowerMeterData;
 let subscriberSolarData;
@@ -596,7 +583,7 @@ class Dashboard extends React.Component {
 								<Col sm={2}>
 									<Input
 										type="checkbox"
-										onClick={this.onClickAllBuilding}
+										onChange={this.onClickAllBuilding}
 										checked={lsSelectedBuilding.length === lsBuilding.length}
 									/>
 								</Col>
@@ -609,7 +596,7 @@ class Dashboard extends React.Component {
 											<Input
 												type="checkbox"
 												name={bld.label}
-												onClick={() => this.onClickBuilding(bld.label)}
+												onChange={() => this.onClickBuilding(bld.label)}
 												checked={lsSelectedBuilding.includes(bld.label)}
 											/>
 										</Col>
@@ -639,7 +626,7 @@ class Dashboard extends React.Component {
 					{/* ****************************** Date Row *****************************/}
 					<div className="row-date">
 						{displayDateFrom.getDate() + " "}
-						{t(`${lsMonthName[displayDateFrom.getMonth()]}`)}
+						{t(`${lsMonthFull[displayDateFrom.getMonth()]}`)}
 						{" " +
 							(i18n.language === "th"
 								? displayDateFrom.getFullYear() + 543
@@ -647,7 +634,7 @@ class Dashboard extends React.Component {
 							" "}
 						{dateFormatter.hhmm(displayDateFrom) + " - "}
 						{displayDateTo.getDate() + " "}
-						{t(`${lsMonthName[displayDateTo.getMonth()]}`)}
+						{t(`${lsMonthFull[displayDateTo.getMonth()]}`)}
 						{" " +
 							(i18n.language === "th"
 								? displayDateTo.getFullYear() + 543
