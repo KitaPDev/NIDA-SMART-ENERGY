@@ -59,6 +59,16 @@ const styles = StyleSheet.create({
 });
 
 class EnergyUsePerCapitaReport extends React.PureComponent {
+	constructor(props) {
+		super(props);
+		this.state = {
+			dateFrom: this.props.dateFrom,
+			dateTo: this.props.dateTo,
+			lsSelectedBuilding: this.props.lsSelectedBuilding,
+			lsBuilding: this.props.lsBuilding,
+		};
+	}
+
 	render() {
 		const { t } = this.props;
 

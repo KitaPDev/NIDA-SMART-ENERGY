@@ -33,16 +33,6 @@ class Report extends React.Component {
 			displayDateTo: dateTo,
 			lsBuilding: [],
 			lsSelectedBuilding: [],
-			kwh_system_building: {},
-			lsKw_system_building: {},
-			bill_building: {},
-			tariff_building: {},
-			targetBill_building: {},
-			kwhSolar: 0,
-			compareTo: "Target",
-			lsTempHumi: [],
-			billData_month: {},
-			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
 			isEnergyUsageReportSelected: false,
 			isElectricityBillReportSelected: false,
 			isAcPowerCompareTempHumiReportSelected: false,
@@ -139,31 +129,64 @@ class Report extends React.Component {
 			isElectricityBillReportSelected,
 			isAcPowerCompareTempHumiReportSelected,
 			isEnergyUsePerCapitaReportSelected,
+
+			dateFrom,
+			dateTo,
+			lsSelectedBuilding,
+			lsBuilding,
 		} = this.state;
 
 		if (isEnergyUsageReportSelected) {
 			let fileName = i18n.t("Energy Usage Report");
-			let blob = await pdf(<EnergyUsageReport />).toBlob();
+			let blob = await pdf(
+				<EnergyUsageReport
+					dateFrom={dateFrom}
+					dateTo={dateTo}
+					lsSelectedBuilding={lsSelectedBuilding}
+					lsBuilding={lsBuilding}
+				/>
+			).toBlob();
 			saveAs(blob, fileName + ".pdf");
 		}
 
 		if (isElectricityBillReportSelected) {
 			let fileName = i18n.t("Electricity Bill Report");
-			let blob = await pdf(<ElectricityBillReport />).toBlob();
+			let blob = await pdf(
+				<ElectricityBillReport
+					dateFrom={dateFrom}
+					dateTo={dateTo}
+					lsSelectedBuilding={lsSelectedBuilding}
+					lsBuilding={lsBuilding}
+				/>
+			).toBlob();
 			saveAs(blob, fileName + ".pdf");
 		}
 
 		if (isAcPowerCompareTempHumiReportSelected) {
 			let fileName = i18n.t(
-				"Air Conditioning Power Used Compared to Temperature and Humidity Report"
+				"A/C Power Used Compared to Temperature and Humidity Report"
 			);
-			let blob = await pdf(<AcPowerCompareTempHumiReport />).toBlob();
+			let blob = await pdf(
+				<AcPowerCompareTempHumiReport
+					dateFrom={dateFrom}
+					dateTo={dateTo}
+					lsSelectedBuilding={lsSelectedBuilding}
+					lsBuilding={lsBuilding}
+				/>
+			).toBlob();
 			saveAs(blob, fileName + ".pdf");
 		}
 
 		if (isEnergyUsePerCapitaReportSelected) {
 			let fileName = i18n.t("Energy Use per Capita Report");
-			let blob = await pdf(<EnergyUsePerCapitaReport />).toBlob();
+			let blob = await pdf(
+				<EnergyUsePerCapitaReport
+					dateFrom={dateFrom}
+					dateTo={dateTo}
+					lsSelectedBuilding={lsSelectedBuilding}
+					lsBuilding={lsBuilding}
+				/>
+			).toBlob();
 			saveAs(blob, fileName + ".pdf");
 		}
 	}

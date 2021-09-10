@@ -140,8 +140,35 @@ async function getBillCompareData(buildingID) {
 	return data;
 }
 
+async function getEnergyUsageDatetime(lsBuildingID, start, end) {
+	let result = await knex("log_power_meter")
+		.join("device", "log_power_meter.device_id", "=", "device.id")
+		.join("building", "device.building_id", "=", "building.id")
+		.join("system", "device.system_id", "=", "system.id")
+		.select(
+			"log_power_meter.data_datetime",
+			"building.label as building",
+			"device.id as device",
+			"log_power_meter.kwh",
+			"system.label as system"
+		)
+		.where(function () {
+			this.whereIn("building.id", lsBuildingID);
+		})
+		.andWhere(function () {
+			this.whereBetween("log_power_meter.data_datetime", [
+				dateFormatter.yyyymmddhhmmss(start),
+				dateFormatter.yyyymmddhhmmss(end),
+			]);
+		})
+		.orderBy("log_power_meter.data_datetime", "desc");
+
+	return result;
+}
+
 module.exports = {
 	getAllBuilding,
 	getData,
 	getBillCompareData,
+	getEnergyUsageDatetime,
 };

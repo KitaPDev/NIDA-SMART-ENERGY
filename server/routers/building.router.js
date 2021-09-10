@@ -16,4 +16,8 @@ router.post("/bill/compare", authenticateJWT, async function (req, res) {
 	buildingController.getBillCompare(req, res);
 });
 
+router.post("/energy/datetime", authenticateJWT, async function (req, res) {
+	buildingController.getEnergyUsageDatetime(req, res);
+});
+
 module.exports = router;

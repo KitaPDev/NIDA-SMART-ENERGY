@@ -22,6 +22,24 @@ function ddmmyyyy(date) {
 	}
 }
 
+function ddmmyyyy_noOffset(date) {
+	if (date instanceof Date) {
+		let dd = date.getDate();
+		let mm = date.getMonth() + 1;
+		let yyyy = date.getFullYear();
+
+		if (dd < 10) {
+			dd = "0" + dd;
+		}
+
+		if (mm < 10) {
+			mm = "0" + mm;
+		}
+
+		return dd + "/" + mm + "/" + yyyy;
+	}
+}
+
 function ddmmyyyyhhmm(date) {
 	if (date instanceof Date) {
 		const offset = date.getTimezoneOffset();
@@ -283,6 +301,7 @@ function hhmm(date) {
 
 const dateFormatter = {
 	ddmmyyyy,
+	ddmmyyyy_noOffset,
 	ddmmyyyyhhmm,
 	yyyymmddhhmmss,
 	ddmmmyyyy,

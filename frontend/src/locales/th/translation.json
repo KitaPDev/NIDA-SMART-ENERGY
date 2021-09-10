@@ -235,5 +235,8 @@
 	"Date": "วันที่",
 	"Electricity Bill Report": "รายงานค่าไฟฟ้า",
 	"A/C Power Used Compared to Temperature and Humidity Report": "รายงานการใช้ไฟฟ้าเทียบกับอุณหภูมิและความชื้น",
-	"Energy Use per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร"
+	"Energy Use per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร",
+	"to": "ถึง",
+	"By building": "ของอาคาร",
+	"with total energy usage of": "มีการใช้พลังงานทั้งหมด"
 }

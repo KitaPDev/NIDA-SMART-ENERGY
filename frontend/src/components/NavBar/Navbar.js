@@ -199,6 +199,7 @@ class NavBar extends React.Component {
 			unauthenticatedPathnames,
 			lsPermission,
 			isFetchingPermissions,
+			profileImage,
 		} = this.state;
 		let pathname = this.props.history.location.pathname;
 
@@ -213,6 +214,9 @@ class NavBar extends React.Component {
 				this.setState({ isFetchingPermissions: true }, () =>
 					this.getUserPermissions()
 				);
+			}
+			if (profileImage.length === 0) {
+				this.getUserInfo();
 			}
 		}
 	}
@@ -691,7 +695,7 @@ class NavBar extends React.Component {
 										</DropdownItem>
 										<DropdownItem
 											className="share"
-											onClick={() => this.toggleModalShare}
+											onClick={() => this.toggleModalShare()}
 										>
 											<div>{t("Share") + " "}</div>
 											<IoMdShare />

@@ -166,8 +166,62 @@ async function getBillCompare(req, res) {
 	}
 }
 
+async function getEnergyUsageDatetime(req, res) {
+	try {
+		let body = req.body;
+		let lsBuildingID = body.ls_building_id;
+		let dateFrom = new Date(body.date_from);
+		let dateTo = new Date(body.date_to);
+
+		let result = await buildingService.getEnergyUsageDatetime(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		let kwh_system_building = {};
+
+		let lsPrevDevice = [];
+		for (let row of result) {
+			let building = row.building;
+			let kwh = row.kwh;
+			let system = row.system;
+			let device = row.device;
+
+			if (lsPrevDevice.includes(device)) continue;
+			lsPrevDevice.push(device);
+
+			if (!kwh_system_building[building]) kwh_system_building[building] = {};
+			if (!kwh_system_building[building][system]) {
+				kwh_system_building[building][system] = 0;
+			}
+
+			kwh_system_building[building][system] += kwh;
+		}
+
+		lsPrevDevice = [];
+		for (let row of result.slice().reverse()) {
+			let building = row.building;
+			let kwh = row.kwh;
+			let system = row.system;
+			let device = row.device;
+
+			if (lsPrevDevice.includes(device)) continue;
+			lsPrevDevice.push(device);
+
+			kwh_system_building[building][system] -= kwh;
+		}
+
+		return res.status(httpStatusCodes.OK).send(kwh_system_building);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getAll,
 	getData,
 	getBillCompare,
+	getEnergyUsageDatetime,
 };
