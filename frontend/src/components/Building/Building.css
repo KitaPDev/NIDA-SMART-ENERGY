@@ -1,7 +1,5 @@
 #container-building {
-	height: 100%;
-	padding: 1rem;
-	overflow: hidden !important;
+	padding: 0 1rem 1rem 1rem;
 }
 
 #container-building-top {
@@ -233,13 +231,8 @@
 	border: 1px solid #000000;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	margin-top: 1rem;
 	height: 33%;
 	overflow: scroll;
-}
-
-#floor-plan-row-top {
-	height: 20%;
 }
 
 #floor-plan-title {
@@ -250,6 +243,7 @@
 }
 
 #floors {
+	margin-top: 1rem;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;

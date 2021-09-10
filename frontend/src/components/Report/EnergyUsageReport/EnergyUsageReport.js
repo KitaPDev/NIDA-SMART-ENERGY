@@ -84,61 +84,9 @@ class EnergyUsageReport extends React.PureComponent {
 			dateTo: this.props.dateTo,
 			lsSelectedBuilding: this.props.lsSelectedBuilding,
 			lsBuilding: this.props.lsBuilding,
-			kwh_system_building: {},
-			kwhSolar: 0,
+			kwh_system_building: this.props.kwh_system_building,
+			kwhSolar: this.props.kwhSolar,
 		};
-
-		this.getData = this.getData.bind(this);
-		this.getDataSolar = this.getDataSolar.bind(this);
-	}
-
-	async componentDidMount() {
-		await this.getData();
-		await this.getDataSolar();
-	}
-
-	async getData() {
-		try {
-			let { lsBuilding, lsSelectedBuilding, dateFrom, dateTo } = this.state;
-
-			let lsBuildingID = [];
-			for (let bld of lsBuilding) {
-				if (lsSelectedBuilding.includes(bld.label)) lsBuildingID.push(bld.id);
-			}
-
-			let payload = {
-				ls_building_id: lsBuildingID,
-				date_from: dateFrom,
-				date_to: dateTo,
-			};
-
-			let resp = await http.post("/building/energy/datetime", payload);
-
-			this.setState({
-				kwh_system_building: resp.data,
-			});
-		} catch (err) {
-			console.log(err);
-			return err.response;
-		}
-	}
-
-	async getDataSolar() {
-		try {
-			let { dateFrom, dateTo } = this.state;
-
-			let payload = {
-				start: dateFrom,
-				end: dateTo,
-			};
-
-			let resp = await http.post("/api/solar/datetime", payload);
-
-			console.log(resp.data);
-		} catch (err) {
-			console.log(err);
-			return err.response;
-		}
 	}
 
 	render() {
@@ -148,15 +96,23 @@ class EnergyUsageReport extends React.PureComponent {
 			lsSelectedBuilding,
 			lsBuilding,
 			kwh_system_building,
+			kwhSolar,
 		} = this.state;
 
 		const { t } = this.props;
 
 		let kwhMainTotal = 0;
 		let kwhAcTotal = 0;
+		let kwhOthersTotal = 0;
 
-		for (let [kwh_system, building] of Object.entries(kwh_system_building)) {
+		for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
+			kwhMainTotal += kwh_system["Main"];
+			if (kwh_system["Air Conditioner"]) {
+				kwhAcTotal += kwh_system["Air Conditioner"];
+			}
 		}
+
+		kwhOthersTotal = kwhMainTotal - kwhAcTotal;
 
 		return (
 			<Document>
@@ -210,11 +166,11 @@ class EnergyUsageReport extends React.PureComponent {
 
 						<View style={styles.section}>
 							<View style={styles.line}>
-								<Text>{t(`NIDA's energy usage from`)}</Text>
+								<Text>{t(`NIDA's energy usage from`) + " "}</Text>
 								<Text style={styles.red}>
 									{dateFormatter.ddmmyyyyhhmm_noOffset(dateFrom) + " "}
 								</Text>
-								<Text>{t("to")} </Text>
+								<Text>{t("to") + " "}</Text>
 								<Text style={styles.red}>
 									{dateFormatter.ddmmyyyyhhmm_noOffset(dateTo)}
 								</Text>
@@ -234,7 +190,72 @@ class EnergyUsageReport extends React.PureComponent {
 										</Text>
 									)}
 								</Text>
-								<Text>{" " + t("with total energy usage of") + " "}</Text>
+								<Text> {t("with total energy usage of")}</Text>
+								<Text style={styles.red}>
+									{" "}
+									{parseFloat(kwhMainTotal).toFixed(2)}
+								</Text>
+								<Text> {t("kWh")}</Text>
+							</View>
+							<View style={styles.line}>
+								<Text>{t("Used in")} </Text>
+								<Text>{t("Air Conditioning")} </Text>
+								<Text style={styles.red}>
+									{parseFloat(kwhAcTotal).toFixed(2)}{" "}
+								</Text>
+								<Text>{t("kWh")} </Text>
+								<Text>{t("or")} </Text>
+								<Text style={styles.red}>
+									{parseFloat((kwhAcTotal / kwhMainTotal) * 100).toFixed(2)}%
+								</Text>
+							</View>
+							<View style={styles.line}>
+								<Text>{t("and in")} </Text>
+								<Text>{t("Others")} </Text>
+								<Text style={styles.red}>
+									{parseFloat(kwhOthersTotal).toFixed(2)}{" "}
+								</Text>
+								<Text>{t("kWh")} </Text>
+								<Text>{t("or")} </Text>
+								<Text style={styles.red}>
+									{parseFloat((kwhOthersTotal / kwhMainTotal) * 100).toFixed(2)}
+									%
+								</Text>
+							</View>
+						</View>
+
+						<View style={styles.section}>
+							<View style={styles.line}>
+								<Text>{t("Energy sourced from (MEA)")} </Text>
+								<Text style={styles.red}>
+									{parseFloat(kwhMainTotal).toFixed(2)}{" "}
+								</Text>
+								<Text>{t("kWh")} </Text>
+								<Text>{t("or")} </Text>
+								<Text style={styles.red}>
+									{parseFloat(
+										(kwhMainTotal / (kwhMainTotal + kwhSolar)) * 100
+									).toFixed(2)}
+									%
+								</Text>
+							</View>
+							<View style={styles.line}>
+								<Text>{t("and from Solar Cells (PV)")} </Text>
+								<Text style={styles.red}>
+									{parseFloat(kwhSolar).toFixed(2)}{" "}
+								</Text>
+								<Text>{t("kWh")} </Text>
+								<Text>{t("or")} </Text>
+								<Text style={styles.red}>
+									{parseFloat(
+										(kwhSolar / (kwhMainTotal + kwhSolar)) * 100
+									).toFixed(2)}
+									%
+								</Text>
+							</View>
+							<View style={styles.line}>
+								<Text>{t("Resulting in an electricity bill of")} </Text>
+								<Text style={styles.red}></Text>
 							</View>
 						</View>
 					</View>

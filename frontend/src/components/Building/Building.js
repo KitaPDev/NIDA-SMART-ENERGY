@@ -404,7 +404,7 @@ class Building extends React.Component {
 
 		// Calculate Electricity Use per Capita
 		let kwhPerCapita = 0;
-		if (estimatedPeople !== "N/A")
+		if (estimatedPeople !== "N/A" && estimatedPeople !== 0)
 			kwhPerCapita = parseFloat(kwhTotal / estimatedPeople).toFixed(2);
 
 		let color = lsBuilding.find((bld) => bld.label === currentBuildingLabel)

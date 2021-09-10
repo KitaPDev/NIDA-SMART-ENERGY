@@ -53,6 +53,9 @@ class Report extends React.Component {
 		this.toggleEnergyUsePerCapitaReport =
 			this.toggleEnergyUsePerCapitaReport.bind(this);
 
+		this.getKwhSystemBuilding = this.getKwhSystemBuilding.bind(this);
+		this.getKwhSolar = this.getKwhSolar.bind(this);
+
 		this.generateReports = this.generateReports.bind(this);
 	}
 
@@ -123,6 +126,51 @@ class Report extends React.Component {
 		}));
 	}
 
+	// Data for reports
+	async getKwhSystemBuilding() {
+		try {
+			let { lsBuilding, lsSelectedBuilding, dateFrom, dateTo } = this.state;
+
+			let lsBuildingID = [];
+			for (let bld of lsBuilding) {
+				if (lsSelectedBuilding.includes(bld.label)) lsBuildingID.push(bld.id);
+			}
+
+			let payload = {
+				ls_building_id: lsBuildingID,
+				date_from: dateFrom,
+				date_to: dateTo,
+			};
+
+			let resp = await http.post("/building/energy/datetime", payload);
+
+			return resp.data;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getKwhSolar() {
+		try {
+			let { dateFrom, dateTo } = this.state;
+
+			let payload = {
+				start: dateFrom,
+				end: dateTo,
+			};
+
+			let resp = await http.post("/api/solar/datetime", payload);
+
+			let kwhSolar = resp.data[resp.data.length - 1].kwh - resp.data[0].kwh;
+
+			return kwhSolar;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	async generateReports() {
 		let {
 			isEnergyUsageReportSelected,
@@ -137,6 +185,9 @@ class Report extends React.Component {
 		} = this.state;
 
 		if (isEnergyUsageReportSelected) {
+			let kwh_system_building = await this.getKwhSystemBuilding();
+			let kwhSolar = await this.getKwhSolar();
+
 			let fileName = i18n.t("Energy Usage Report");
 			let blob = await pdf(
 				<EnergyUsageReport
@@ -144,6 +195,8 @@ class Report extends React.Component {
 					dateTo={dateTo}
 					lsSelectedBuilding={lsSelectedBuilding}
 					lsBuilding={lsBuilding}
+					kwh_system_building={kwh_system_building}
+					kwhSolar={kwhSolar}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
