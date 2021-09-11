@@ -100,7 +100,7 @@ class NavBar extends React.Component {
 
 	async componentDidMount() {
 		await this.getUserInfo();
-		this.getEnergy();
+		await this.getEnergy();
 
 		let { unauthenticatedPathnames } = this.state;
 		let { pathname } = this.props.location;
@@ -199,7 +199,6 @@ class NavBar extends React.Component {
 			unauthenticatedPathnames,
 			lsPermission,
 			isFetchingPermissions,
-			profileImage,
 		} = this.state;
 		let pathname = this.props.history.location.pathname;
 
@@ -207,6 +206,7 @@ class NavBar extends React.Component {
 			if (username === "" || username === null) {
 				username = localStorage.getItem("current_username");
 				if (username === null) await this.getUsername();
+				this.getUserInfo();
 
 				this.setState({ username: username });
 			}
@@ -214,9 +214,6 @@ class NavBar extends React.Component {
 				this.setState({ isFetchingPermissions: true }, () =>
 					this.getUserPermissions()
 				);
-			}
-			if (profileImage.length === 0) {
-				this.getUserInfo();
 			}
 		}
 	}
@@ -472,7 +469,7 @@ class NavBar extends React.Component {
 									toggle={this.toggleUserDropdown}
 									style={{
 										textAlign: "center",
-										padding: "0.5rem",
+										width: "fit-content",
 									}}
 								>
 									{profileImage.length === 0 ? (

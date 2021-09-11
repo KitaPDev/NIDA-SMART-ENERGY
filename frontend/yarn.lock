@@ -3461,6 +3461,11 @@ chartjs-plugin-datalabels@^2.0.0:
   resolved "https://registry.yarnpkg.com/chartjs-plugin-datalabels/-/chartjs-plugin-datalabels-2.0.0.tgz#caacefb26803d968785071eab012dde8746c5939"
   integrity sha512-WBsWihphzM0Y8fmQVm89+iy99mmgejmj5/jcsYqwxSioLRL/zqJ4Scv/eXq5ZqvG3TpojlGzZLeaOaSvDm7fwA==
 
+chartjs-plugin-labels@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/chartjs-plugin-labels/-/chartjs-plugin-labels-1.1.0.tgz#3a040fa78994e8c482ca4d47426d1e894fe679f5"
+  integrity sha512-ab1oiQT7oMnpYDn6h8biL7VZM0qIxtwfhQw1+qH7xe7Ia6lBKX/ks5rEhgI6CZ4PlRRgDFGK9Mf/T2SO9l+NCA==
+
 chartjs-plugin-zoom@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/chartjs-plugin-zoom/-/chartjs-plugin-zoom-1.1.1.tgz#8a28923a17fcb5eb57a0dc94c5113bf402677647"

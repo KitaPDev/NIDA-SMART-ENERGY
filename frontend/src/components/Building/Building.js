@@ -403,7 +403,7 @@ class Building extends React.Component {
 		kwhOthers -= kwhAc;
 
 		// Calculate Electricity Use per Capita
-		let kwhPerCapita = 0;
+		let kwhPerCapita = "N/A";
 		if (estimatedPeople !== "N/A" && estimatedPeople !== 0)
 			kwhPerCapita = parseFloat(kwhTotal / estimatedPeople).toFixed(2);
 

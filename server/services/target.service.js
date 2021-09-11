@@ -279,6 +279,24 @@ async function getDataEnergyMonthPastYear() {
 	return lsLog_month;
 }
 
+async function getAllTarget_lsBuildingID_period(lsBuildingID, start, end) {
+	let lsTarget = await knex("target")
+		.join("building", "target.building_id", "=", "building.id")
+		.select(
+			"target.id",
+			"target.month",
+			"target.year",
+			"building.label as building",
+			"target.electricity_bill",
+			"target.tariff"
+		)
+		.whereIn("building.id", lsBuildingID)
+		.andWhereBetween("target.year", [start.getFullYear(), end.getFullYear()])
+		.andWhereBetween("target.month", [start.getMonth(), end.getMonth()]);
+
+	return lsTarget;
+}
+
 module.exports = {
 	getBuildingPeople,
 	targetExists,
@@ -288,4 +306,5 @@ module.exports = {
 	getBuildingTargetRange,
 	getTargetPresetData,
 	getDataEnergyMonthPastYear,
+	getAllTarget_lsBuildingID_period,
 };

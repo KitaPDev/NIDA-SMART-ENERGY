@@ -13,7 +13,7 @@ const getOrCreateTooltip = (chart) => {
 		tooltipEl.style.position = "absolute";
 		tooltipEl.style.transform = "translate(20%, -50%)";
 		tooltipEl.style.transition = "all .1s ease";
-		tooltipEl.style.zIndex = "500";
+		tooltipEl.style.zIndex = "99999";
 
 		const table = document.createElement("table");
 		table.style.margin = "0px";

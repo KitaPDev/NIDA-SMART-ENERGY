@@ -185,9 +185,9 @@
 	margin-left: 0.5rem !important;
 }
 
-.row-chart {
+.container-set-target .row-chart {
 	height: 40%;
-	margin-bottom: 1rem !important;
+	margin-bottom: 1rem;
 }
 
 .col-chart {

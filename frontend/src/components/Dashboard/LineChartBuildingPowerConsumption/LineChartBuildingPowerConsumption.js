@@ -5,6 +5,8 @@ import { Chart, registerables } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "chartjs-adapter-moment";
 
+import tooltipHandler from "../../../utils/tooltipHandler";
+
 import i18n from "../.../../../../i18n";
 import dateFormatter from "../../../utils/dateFormatter";
 
@@ -69,13 +71,8 @@ class LineChartBuildingPowerConsumption extends React.Component {
 						display: false,
 					},
 					tooltip: {
-						enabled: true,
-						padding: 14,
-						backgroundColor: "#F2F2F2f0",
-						titleColor: "#000",
-						bodyColor: "#000",
-						titleFont: { size: 18 },
-						bodyFont: { size: 16 },
+						enabled: false,
+						external: tooltipHandler.tooltipHandlerRight_100_top_100,
 					},
 					zoom: {
 						pan: {
@@ -106,10 +103,9 @@ class LineChartBuildingPowerConsumption extends React.Component {
 		let opt = JSON.parse(JSON.stringify(options));
 
 		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
-		opt.plugins.tooltip.callbacks = {
-			title: function (context) {
-				return dateFormatter.ddmmmyyyyhhmm_noOffset(new Date(context[0].label));
-			},
+		opt.plugins.tooltip = {
+			enabled: false,
+			external: tooltipHandler.tooltipHandlerRight_100_top_100,
 		};
 
 		if (dt.datasets) {

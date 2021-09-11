@@ -2,6 +2,8 @@ import React from "react";
 
 import "./Report.css";
 import { Row, Col, Label, Input } from "reactstrap";
+import { Chart } from "chart.js";
+import "chartjs-plugin-labels";
 
 import http from "../../utils/http";
 import dateFormatter from "../../utils/dateFormatter";
@@ -55,8 +57,13 @@ class Report extends React.Component {
 
 		this.getKwhSystemBuilding = this.getKwhSystemBuilding.bind(this);
 		this.getKwhSolar = this.getKwhSolar.bind(this);
+		this.getElectricityBillBuilding =
+			this.getElectricityBillBuilding.bind(this);
 
 		this.generateReports = this.generateReports.bind(this);
+
+		this.getBase64PieChartBuildingEnergyUsage =
+			this.getBase64PieChartBuildingEnergyUsage.bind(this);
 	}
 
 	componentDidMount() {
@@ -171,6 +178,30 @@ class Report extends React.Component {
 		}
 	}
 
+	async getElectricityBillBuilding() {
+		try {
+			let { lsBuilding, lsSelectedBuilding, dateFrom, dateTo } = this.state;
+
+			let lsBuildingID = [];
+			for (let bld of lsBuilding) {
+				if (lsSelectedBuilding.includes(bld.label)) lsBuildingID.push(bld.id);
+			}
+
+			let payload = {
+				ls_building_id: lsBuildingID,
+				date_from: dateFrom,
+				date_to: dateTo,
+			};
+
+			let resp = await http.post("/building/bill/datetime", payload);
+
+			return resp.data;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	async generateReports() {
 		let {
 			isEnergyUsageReportSelected,
@@ -187,6 +218,14 @@ class Report extends React.Component {
 		if (isEnergyUsageReportSelected) {
 			let kwh_system_building = await this.getKwhSystemBuilding();
 			let kwhSolar = await this.getKwhSolar();
+			let bill_system_building = await this.getElectricityBillBuilding();
+
+			let b64PieChartBuildingEnergyUsage =
+				this.getBase64PieChartBuildingEnergyUsage(
+					lsSelectedBuilding,
+					kwh_system_building,
+					lsBuilding
+				);
 
 			let fileName = i18n.t("Energy Usage Report");
 			let blob = await pdf(
@@ -197,6 +236,8 @@ class Report extends React.Component {
 					lsBuilding={lsBuilding}
 					kwh_system_building={kwh_system_building}
 					kwhSolar={kwhSolar}
+					bill_system_building={bill_system_building}
+					base64PieChartBuildingEnergyUsage={b64PieChartBuildingEnergyUsage}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
@@ -242,6 +283,65 @@ class Report extends React.Component {
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
 		}
+	}
+
+	getBase64PieChartBuildingEnergyUsage(
+		lsSelectedBuilding,
+		kwh_system_building,
+		lsBuilding
+	) {
+		let options = {
+			responsive: true,
+			animation: false,
+			maintainAspectRatio: false,
+			labels: {
+				render: "percentage",
+				fontColor: "white",
+				precision: 0,
+			},
+			plugins: {
+				legend: {
+					display: false,
+				},
+			},
+		};
+
+		let lsData = [];
+		Object.values(kwh_system_building).forEach((kwh_system) => {
+			lsData.push(+parseFloat(kwh_system["Main"]).toFixed(2));
+		});
+
+		let lsColor = [];
+		lsSelectedBuilding.forEach((b) =>
+			lsColor.push(lsBuilding.find((bld) => bld.label === b).color_code)
+		);
+
+		let data = {
+			labels: [...lsSelectedBuilding],
+			datasets: [
+				{
+					data: lsData,
+					backgoundColor: lsColor,
+				},
+			],
+		};
+
+		document.getElementById("pc-building-energy-usage").remove();
+		document.getElementById(
+			"pc-building-energy-usage"
+		).innerHTML = `<canvas id="pc-building-energy-usage" />`;
+
+		let ctx = document
+			.getElementById("pc-building-energy-usage")
+			.getContext("2d");
+
+		let chart = new Chart(ctx, {
+			type: "pie",
+			data: data,
+			options: options,
+		});
+
+		return chart.toBase64Image();
 	}
 
 	render() {
@@ -385,6 +485,13 @@ class Report extends React.Component {
 					<button onClick={this.generateReports}>
 						{t("Generate Reports")}
 					</button>
+				</div>
+
+				{/* ****************************** Invisible Chart Container *****************************/}
+				<div id="charts-invisible">
+					<div id="wrapper-pc-building-energy-usage">
+						<canvas id="pc-building-energy-usage" />
+					</div>
 				</div>
 			</div>
 		);

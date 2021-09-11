@@ -1,4 +1,5 @@
 const buildingService = require("../services/building.service");
+const targetService = require("../services/target.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function getAll(req, res) {
@@ -219,9 +220,89 @@ async function getEnergyUsageDatetime(req, res) {
 	}
 }
 
+async function getElectricityBillDatetime(req, res) {
+	try {
+		let body = req.body;
+		let lsBuildingID = body.ls_building_id;
+		let dateFrom = new Date(body.date_from);
+		let dateTo = new Date(body.date_to);
+
+		let result = await buildingService.getEnergyUsageDatetime(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		let lsTarget = await targetService.getAllTarget_lsBuildingID_period(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		let bill_system_building = {};
+
+		let lsPrevDevice = [];
+		for (let row of result) {
+			let datetime = row.data_datetime;
+			let building = row.building;
+			let kwh = row.kwh;
+			let system = row.system;
+			let device = row.device;
+
+			if (lsPrevDevice.includes(device)) continue;
+			lsPrevDevice.push(device);
+
+			if (!bill_system_building[building]) bill_system_building[building] = {};
+			if (!bill_system_building[building][system]) {
+				bill_system_building[building][system] = 0;
+			}
+
+			let tariff = 4;
+			let target = lsTarget.find(
+				(t) =>
+					t.month === datetime.getMonth() &&
+					t.year === datetime.getFullYear() &&
+					t.building === building
+			);
+			if (target) if (target.tariff !== null) tariff = target.tariff;
+
+			bill_system_building[building][system] += kwh * tariff;
+		}
+
+		lsPrevDevice = [];
+		for (let row of result.slice().reverse()) {
+			let datetime = row.data_datetime;
+			let building = row.building;
+			let kwh = row.kwh;
+			let system = row.system;
+			let device = row.device;
+
+			if (lsPrevDevice.includes(device)) continue;
+			lsPrevDevice.push(device);
+
+			let tariff = 4;
+			let target = lsTarget.find(
+				(t) =>
+					t.month === datetime.getMonth() &&
+					t.year === datetime.getFullYear() &&
+					t.building === building
+			);
+			if (target) if (target.tariff !== null) tariff = target.tariff;
+
+			bill_system_building[building][system] -= kwh * tariff;
+		}
+
+		return res.status(httpStatusCodes.OK).send(bill_system_building);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getAll,
 	getData,
 	getBillCompare,
 	getEnergyUsageDatetime,
+	getElectricityBillDatetime,
 };
