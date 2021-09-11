@@ -74,6 +74,22 @@ const styles = StyleSheet.create({
 		flexWrap: "wrap",
 	},
 	red: { color: "red" },
+	lineCenter: {
+		display: "flex",
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "center",
+		alignItems: "center",
+		marginTop: 10,
+	},
+	pieChart: {
+		height: 250,
+	},
+	column: {
+		display: "flex",
+		flexDirection: "column",
+		marginLeft: 10,
+	},
 });
 
 class EnergyUsageReport extends React.PureComponent {
@@ -87,64 +103,8 @@ class EnergyUsageReport extends React.PureComponent {
 			kwh_system_building: this.props.kwh_system_building,
 			kwhSolar: this.props.kwhSolar,
 			bill_system_building: this.props.bill_system_building,
+			b64PieChartBuildingEnergyUsage: this.props.b64PieChartBuildingEnergyUsage,
 		};
-
-		this.getBase64PieChart = this.getBase64PieChart.bind(this);
-	}
-
-	getBase64PieChart() {
-		let { lsSelectedBuilding, kwh_system_building, lsBuilding } = this.state;
-
-		let options = {
-			animation: false,
-			maintainAspectRatio: false,
-			plugins: {
-				legend: {
-					display: false,
-				},
-			},
-		};
-
-		let lsData = [];
-		Object.values(kwh_system_building).forEach((kwh_system) => {
-			lsData.push(+parseFloat(kwh_system["Main"]).toFixed(2));
-		});
-
-		let lsColor = [];
-		lsSelectedBuilding.forEach((b) =>
-			lsColor.push(lsBuilding.find((bld) => bld.label === b).color_code)
-		);
-
-		let data = {
-			labels: [...lsSelectedBuilding],
-			datasets: [
-				{
-					data: lsData,
-					backgoundColor: lsColor,
-				},
-			],
-		};
-
-		if (document.getElementById("pc-building-energy-usage") !== null) {
-			document.getElementById("pc-building-energy-usage").remove();
-		}
-		let canvas = document.createElement("canvas");
-		canvas.setAttribute("id", "pc-building-energy-usage");
-		canvas.setAttribute("height", "250px");
-		canvas.setAttribute("width", "250px");
-
-		let ctx = canvas.getContext("2d");
-
-		let chart = new Chart(ctx, {
-			type: "pie",
-			data: data,
-			options: options,
-		});
-
-		let base64 = chart.toBase64Image();
-		chart.destroy();
-
-		return base64;
 	}
 
 	render() {
@@ -156,6 +116,7 @@ class EnergyUsageReport extends React.PureComponent {
 			kwh_system_building,
 			kwhSolar,
 			bill_system_building,
+			b64PieChartBuildingEnergyUsage,
 		} = this.state;
 
 		const { t } = this.props;
@@ -177,8 +138,6 @@ class EnergyUsageReport extends React.PureComponent {
 		for (let bill_system of Object.values(bill_system_building)) {
 			billTotal += bill_system["Main"];
 		}
-
-		console.log(this.getBase64PieChart());
 
 		return (
 			<Document>
@@ -330,13 +289,27 @@ class EnergyUsageReport extends React.PureComponent {
 
 						<View style={styles.section}>
 							<View style={styles.line}>
-								{t(
-									"The percentage of each building's energy usage are as described in the figure below"
-								)}
+								<Text>
+									{t(
+										"The percentage of each building's energy usage are as described in the figure below"
+									)}
+								</Text>
 							</View>
-							<View style={styles.line}>
-								<View>
-									<Image src={this.getBase64PieChart} />
+							<View style={styles.lineCenter}>
+								<Image
+									style={styles.pieChart}
+									src={b64PieChartBuildingEnergyUsage}
+								/>
+								<View style={styles.column}>
+									{lsSelectedBuilding.map((bld) => (
+										<View style={styles.line}>
+											<Text>{t(bld)} </Text>
+											<Text style={styles.red}>
+												{kwh_system_building[bld]["Main"]}{" "}
+											</Text>
+											<Text>{t("kWh")}</Text>
+										</View>
+									))}
 								</View>
 							</View>
 						</View>

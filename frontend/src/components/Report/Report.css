@@ -62,6 +62,8 @@
 
 #charts-invisible {
 	visibility: visible;
+	position: absolute;
+	z-index: -99999;
 }
 
 #charts-invisible #wrapper-pc-building-energy-usage {

@@ -782,7 +782,7 @@ class Home extends React.Component {
 													<div className="bill-building">
 														฿{" "}
 														{numberFormatter.withCommas(
-															bill_building[building.label]
+															Math.round(bill_building[building.label])
 														)}
 													</div>
 												) : (

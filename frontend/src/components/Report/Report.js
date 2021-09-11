@@ -2,7 +2,7 @@ import React from "react";
 
 import "./Report.css";
 import { Row, Col, Label, Input } from "reactstrap";
-import { Chart } from "chart.js";
+import { Chart, registerables } from "chart.js";
 import "chartjs-plugin-labels";
 
 import http from "../../utils/http";
@@ -68,6 +68,7 @@ class Report extends React.Component {
 
 	componentDidMount() {
 		this.getAllBuilding();
+		Chart.register(...registerables);
 	}
 
 	async getAllBuilding() {
@@ -237,7 +238,7 @@ class Report extends React.Component {
 					kwh_system_building={kwh_system_building}
 					kwhSolar={kwhSolar}
 					bill_system_building={bill_system_building}
-					base64PieChartBuildingEnergyUsage={b64PieChartBuildingEnergyUsage}
+					b64PieChartBuildingEnergyUsage={b64PieChartBuildingEnergyUsage}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
@@ -321,14 +322,14 @@ class Report extends React.Component {
 			datasets: [
 				{
 					data: lsData,
-					backgoundColor: lsColor,
+					backgroundColor: lsColor,
 				},
 			],
 		};
 
 		document.getElementById("pc-building-energy-usage").remove();
 		document.getElementById(
-			"pc-building-energy-usage"
+			"wrapper-pc-building-energy-usage"
 		).innerHTML = `<canvas id="pc-building-energy-usage" />`;
 
 		let ctx = document
