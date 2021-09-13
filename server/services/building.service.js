@@ -166,9 +166,67 @@ async function getEnergyUsageDatetime(lsBuildingID, start, end) {
 	return result;
 }
 
+async function getDataBuildingMonthYear(lsBuildingID, start, end) {
+	let monthDiff = (start.getFullYear() - end.getFullYear()) * 12;
+	monthDiff -= start.getMonth();
+	monthDiff += end.getMonth();
+	if (monthDiff < 0) monthDiff = 0;
+
+	let lsLog = [];
+
+	let year = start.getFullYear();
+	let month = start.getMonth();
+	for (i = 0; i <= monthDiff; i++) {
+		if (month > 11) {
+			year++;
+			month = 0;
+		}
+
+		let result = await knex("log_power_meter")
+			.join("device", "log_power_meter.device_id", "=", "device.id")
+			.join("building", "device.building_id", "=", "building.id")
+			.join("system", "device.system_id", "=", "system.id")
+			.select(
+				"log_power_meter.data_datetime",
+				"building.label as building",
+				"device.id as device",
+				"log_power_meter.kwh",
+				"system.label as system"
+			)
+			.where(function () {
+				this.whereIn("building.id", lsBuildingID);
+			})
+			.andWhere("system.label", "=", "Main")
+			.andWhere(function () {
+				let dateStart_before = new Date(year, month, 1, 0, 0, 0);
+				let dateStart_after = new Date(dateStart_before.getTime() + 43200000);
+				let dateEnd_after = new Date(year, month + 1, 0, 0, 0, 0);
+
+				if (i === monthDiff) dateEnd_after = new Date();
+				let dateEnd_before = new Date(dateEnd_after.getTime() - 43200000);
+
+				this.whereBetween("log_power_meter.data_datetime", [
+					dateFormatter.yyyymmddhhmmss(dateStart_before),
+					dateFormatter.yyyymmddhhmmss(dateStart_after),
+				]).orWhereBetween("log_power_meter.data_datetime", [
+					dateFormatter.yyyymmddhhmmss(dateEnd_before),
+					dateFormatter.yyyymmddhhmmss(dateEnd_after),
+				]);
+			})
+			.orderBy("log_power_meter.data_datetime", "desc");
+
+		lsLog.push(...result);
+
+		month++;
+	}
+
+	return lsLog;
+}
+
 module.exports = {
 	getAllBuilding,
 	getData,
 	getBillCompareData,
 	getEnergyUsageDatetime,
+	getDataBuildingMonthYear,
 };

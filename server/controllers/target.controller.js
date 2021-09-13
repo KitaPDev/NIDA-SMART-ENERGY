@@ -548,6 +548,26 @@ async function getDataEnergyMonthPastYear(_, res) {
 	}
 }
 
+async function getAllTargetBuildingPeriod(req, res) {
+	try {
+		let body = req.body;
+		let lsBuildingID = body.ls_building_id;
+		let dateFrom = new Date(body.date_from);
+		let dateTo = new Date(body.date_to);
+
+		let lsTarget = await targetService.getAllTarget_lsBuildingID_period(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		return res.status(httpStatusCodes.OK).send(lsTarget);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	inputTarget,
 	getAllTargetByMonthYear,
@@ -556,4 +576,5 @@ module.exports = {
 	getTargetPresets,
 	getEnergyUseCompareData,
 	getDataEnergyMonthPastYear,
+	getAllTargetBuildingPeriod,
 };

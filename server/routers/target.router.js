@@ -51,4 +51,8 @@ router.get("/energy/year", authenticateJWT, async function (req, res) {
 	targetController.getDataEnergyMonthPastYear(req, res);
 });
 
+router.post("/building/period", authenticateJWT, async function (req, res) {
+	targetController.getAllTargetBuildingPeriod(req, res);
+});
+
 module.exports = router;

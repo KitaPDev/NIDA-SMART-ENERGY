@@ -189,7 +189,7 @@ async function getEnergyUsageDatetime(req, res) {
 			let system = row.system;
 			let device = row.device;
 
-			if (lsPrevDevice.includes(device)) continue;
+			if (lsPrevDevice.includes(device) || kwh === null) continue;
 			lsPrevDevice.push(device);
 
 			if (!kwh_system_building[building]) kwh_system_building[building] = {};
@@ -207,7 +207,7 @@ async function getEnergyUsageDatetime(req, res) {
 			let system = row.system;
 			let device = row.device;
 
-			if (lsPrevDevice.includes(device)) continue;
+			if (lsPrevDevice.includes(device) || kwh === null) continue;
 			lsPrevDevice.push(device);
 
 			kwh_system_building[building][system] -= kwh;
@@ -249,7 +249,7 @@ async function getElectricityBillDatetime(req, res) {
 			let system = row.system;
 			let device = row.device;
 
-			if (lsPrevDevice.includes(device)) continue;
+			if (lsPrevDevice.includes(device) || kwh === null) continue;
 			lsPrevDevice.push(device);
 
 			if (!bill_system_building[building]) bill_system_building[building] = {};
@@ -277,7 +277,7 @@ async function getElectricityBillDatetime(req, res) {
 			let system = row.system;
 			let device = row.device;
 
-			if (lsPrevDevice.includes(device)) continue;
+			if (lsPrevDevice.includes(device) || kwh === null) continue;
 			lsPrevDevice.push(device);
 
 			let tariff = 4;
@@ -299,10 +299,114 @@ async function getElectricityBillDatetime(req, res) {
 	}
 }
 
+async function getElectricityBillMonthYear(req, res) {
+	try {
+		let body = req.body;
+		let lsBuildingID = body.ls_building_id;
+		let dateFrom = new Date(body.date_from);
+		let dateTo = new Date(body.date_to);
+
+		let result = await buildingService.getDataBuildingMonthYear(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		let lsTarget = await targetService.getAllTarget_lsBuildingID_period(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		let bill_building_month_year = {};
+
+		let lsPrevDevice = [];
+		for (let row of result) {
+			let datetime = row.data_datetime;
+			let building = row.building;
+			let kwh = row.kwh;
+			let device = row.device;
+
+			let m = datetime.getMonth();
+			let y = datetime.getFullYear();
+
+			if (!bill_building_month_year[y]) {
+				bill_building_month_year[y] = {};
+			}
+
+			if (!bill_building_month_year[y][m]) {
+				bill_building_month_year[y][m] = {};
+				lsPrevDevice = [];
+			}
+
+			if (!bill_building_month_year[y][m][building]) {
+				bill_building_month_year[y][m][building] = 0;
+			}
+
+			if (lsPrevDevice.includes(device) || kwh === null) continue;
+			lsPrevDevice.push(device);
+
+			let tariff = 4;
+			let target = lsTarget.find(
+				(t) =>
+					t.month === datetime.getMonth() &&
+					t.year === datetime.getFullYear() &&
+					t.building === building
+			);
+			if (target) if (target.tariff !== null) tariff = target.tariff;
+
+			bill_building_month_year[y][m][building] += kwh * tariff;
+		}
+
+		lsPrevDevice = [];
+		let prevMonth;
+		let prevDatetime;
+		for (let row of result.slice().reverse()) {
+			let datetime = row.data_datetime;
+			let building = row.building;
+			let kwh = row.kwh;
+			let device = row.device;
+
+			let m = datetime.getMonth();
+			let y = datetime.getFullYear();
+
+			if (prevMonth === undefined) {
+				prevMonth = m;
+			}
+
+			if (prevMonth !== m && datetime.getTime() < prevDatetime.getTime()) {
+				prevMonth = m;
+				lsPrevDevice = [];
+			}
+			prevDatetime = datetime;
+
+			if (lsPrevDevice.includes(device) || kwh === null) continue;
+			lsPrevDevice.push(device);
+
+			let tariff = 4;
+			let target = lsTarget.find(
+				(t) =>
+					t.month === datetime.getMonth() &&
+					t.year === datetime.getFullYear() &&
+					t.building === building
+			);
+			if (target) if (target.tariff !== null) tariff = target.tariff;
+
+			bill_building_month_year[y][m][building] -= kwh * tariff;
+		}
+
+		return res.status(httpStatusCodes.OK).send(bill_building_month_year);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getAll,
 	getData,
 	getBillCompare,
 	getEnergyUsageDatetime,
 	getElectricityBillDatetime,
+	getElectricityBillMonthYear,
 };

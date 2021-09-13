@@ -61,12 +61,17 @@
 }
 
 #charts-invisible {
-	visibility: visible;
+	visibility: hidden;
 	position: absolute;
 	z-index: -99999;
 }
 
 #charts-invisible #wrapper-pc-building-energy-usage {
 	width: 250px;
+	height: 250px;
+}
+
+#charts-invisible #wrapper-bc-building-bill {
+	width: 550px;
 	height: 250px;
 }

@@ -3,10 +3,12 @@ import React from "react";
 import "./Report.css";
 import { Row, Col, Label, Input } from "reactstrap";
 import { Chart, registerables } from "chart.js";
-import "chartjs-plugin-labels";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import http from "../../utils/http";
 import dateFormatter from "../../utils/dateFormatter";
+import { lsMonthFull } from "../../utils/months";
+import numberFormatter from "../../utils/numberFormatter";
 
 import { withTranslation } from "react-i18next";
 import i18n from "../../i18n";
@@ -60,10 +62,17 @@ class Report extends React.Component {
 		this.getElectricityBillBuilding =
 			this.getElectricityBillBuilding.bind(this);
 
+		this.getAllTargetBuildingPeriod =
+			this.getAllTargetBuildingPeriod.bind(this);
+		this.getElectricityBillBuildingMonthYear =
+			this.getElectricityBillBuildingMonthYear.bind(this);
+
 		this.generateReports = this.generateReports.bind(this);
 
-		this.getBase64PieChartBuildingEnergyUsage =
-			this.getBase64PieChartBuildingEnergyUsage.bind(this);
+		this.getB64PieChartBuildingEnergyUsage =
+			this.getB64PieChartBuildingEnergyUsage.bind(this);
+		this.getB64BarChartBuildingElectricityBill =
+			this.getB64BarChartBuildingElectricityBill.bind(this);
 	}
 
 	componentDidMount() {
@@ -203,13 +212,60 @@ class Report extends React.Component {
 		}
 	}
 
+	async getAllTargetBuildingPeriod() {
+		try {
+			let { lsBuilding, lsSelectedBuilding, dateFrom, dateTo } = this.state;
+
+			let lsBuildingID = [];
+			for (let bld of lsBuilding) {
+				if (lsSelectedBuilding.includes(bld.label)) lsBuildingID.push(bld.id);
+			}
+
+			let payload = {
+				ls_building_id: lsBuildingID,
+				date_from: dateFrom,
+				date_to: dateTo,
+			};
+
+			let resp = await http.post("/target/building/period", payload);
+
+			return resp.data;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
+	async getElectricityBillBuildingMonthYear() {
+		try {
+			let { lsBuilding, lsSelectedBuilding, dateFrom, dateTo } = this.state;
+
+			let lsBuildingID = [];
+			for (let bld of lsBuilding) {
+				if (lsSelectedBuilding.includes(bld.label)) lsBuildingID.push(bld.id);
+			}
+
+			let payload = {
+				ls_building_id: lsBuildingID,
+				date_from: dateFrom,
+				date_to: dateTo,
+			};
+
+			let resp = await http.post("/building/bill/monthyear", payload);
+
+			return resp.data;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	async generateReports() {
 		let {
 			isEnergyUsageReportSelected,
 			isElectricityBillReportSelected,
 			isAcPowerCompareTempHumiReportSelected,
 			isEnergyUsePerCapitaReportSelected,
-
 			dateFrom,
 			dateTo,
 			lsSelectedBuilding,
@@ -222,29 +278,43 @@ class Report extends React.Component {
 			let bill_system_building = await this.getElectricityBillBuilding();
 
 			let b64PieChartBuildingEnergyUsage =
-				this.getBase64PieChartBuildingEnergyUsage(
+				this.getB64PieChartBuildingEnergyUsage(
 					lsSelectedBuilding,
 					kwh_system_building,
 					lsBuilding
 				);
 
-			let fileName = i18n.t("Energy Usage Report");
-			let blob = await pdf(
-				<EnergyUsageReport
-					dateFrom={dateFrom}
-					dateTo={dateTo}
-					lsSelectedBuilding={lsSelectedBuilding}
-					lsBuilding={lsBuilding}
-					kwh_system_building={kwh_system_building}
-					kwhSolar={kwhSolar}
-					bill_system_building={bill_system_building}
-					b64PieChartBuildingEnergyUsage={b64PieChartBuildingEnergyUsage}
-				/>
-			).toBlob();
-			saveAs(blob, fileName + ".pdf");
+			if (Object.keys(bill_system_building).length === 0) {
+				alert("No data within selected datetime range.");
+			} else {
+				let fileName = i18n.t("Energy Usage Report");
+				let blob = await pdf(
+					<EnergyUsageReport
+						dateFrom={dateFrom}
+						dateTo={dateTo}
+						lsSelectedBuilding={lsSelectedBuilding}
+						lsBuilding={lsBuilding}
+						kwh_system_building={kwh_system_building}
+						kwhSolar={kwhSolar}
+						bill_system_building={bill_system_building}
+						b64PieChartBuildingEnergyUsage={b64PieChartBuildingEnergyUsage}
+					/>
+				).toBlob();
+				saveAs(blob, fileName + ".pdf");
+			}
 		}
 
 		if (isElectricityBillReportSelected) {
+			let bill_building_month_year =
+				await this.getElectricityBillBuildingMonthYear();
+			let lsTarget = await this.getAllTargetBuildingPeriod();
+
+			let b64BarChartBuildingElectricityBill =
+				this.getB64BarChartBuildingElectricityBill(
+					bill_building_month_year,
+					lsBuilding
+				);
+
 			let fileName = i18n.t("Electricity Bill Report");
 			let blob = await pdf(
 				<ElectricityBillReport
@@ -252,6 +322,11 @@ class Report extends React.Component {
 					dateTo={dateTo}
 					lsSelectedBuilding={lsSelectedBuilding}
 					lsBuilding={lsBuilding}
+					bill_building_month_year={bill_building_month_year}
+					lsTarget={lsTarget}
+					b64BarChartBuildingElectricityBill={
+						b64BarChartBuildingElectricityBill
+					}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
@@ -286,19 +361,17 @@ class Report extends React.Component {
 		}
 	}
 
-	getBase64PieChartBuildingEnergyUsage(
+	getB64PieChartBuildingEnergyUsage(
 		lsSelectedBuilding,
 		kwh_system_building,
 		lsBuilding
 	) {
 		let options = {
-			responsive: true,
+			responsive: false,
 			animation: false,
 			maintainAspectRatio: false,
-			labels: {
-				render: "percentage",
-				fontColor: "white",
-				precision: 0,
+			layout: {
+				padding: { top: 10 },
 			},
 			plugins: {
 				legend: {
@@ -308,14 +381,11 @@ class Report extends React.Component {
 		};
 
 		let lsData = [];
-		Object.values(kwh_system_building).forEach((kwh_system) => {
-			lsData.push(+parseFloat(kwh_system["Main"]).toFixed(2));
-		});
-
 		let lsColor = [];
-		lsSelectedBuilding.forEach((b) =>
-			lsColor.push(lsBuilding.find((bld) => bld.label === b).color_code)
-		);
+		lsSelectedBuilding.forEach((b) => {
+			lsData.push(+parseFloat(kwh_system_building[b]["Main"]).toFixed(2));
+			lsColor.push(lsBuilding.find((bld) => bld.label === b).color_code);
+		});
 
 		let data = {
 			labels: [...lsSelectedBuilding],
@@ -325,6 +395,27 @@ class Report extends React.Component {
 					backgroundColor: lsColor,
 				},
 			],
+		};
+
+		let dataTotal = lsData.reduce((a, b) => a + b);
+
+		options.plugins.datalabels = {
+			display: "auto",
+			color: "#000000",
+			anchor: function (context) {
+				let idx = context.dataIndex;
+				if (context.dataset.data[idx] < 20) return "end";
+				return "center";
+			},
+			align: function (context) {
+				let idx = context.dataIndex;
+				if (context.dataset.data[idx] < 20) return "end";
+				return "center";
+			},
+			font: { weight: "normal", size: 12 },
+			formatter: function (value) {
+				return `${Math.round((value / dataTotal) * 100)}%`;
+			},
 		};
 
 		document.getElementById("pc-building-energy-usage").remove();
@@ -340,6 +431,111 @@ class Report extends React.Component {
 			type: "pie",
 			data: data,
 			options: options,
+			plugins: [ChartDataLabels],
+		});
+
+		return chart.toBase64Image();
+	}
+
+	getB64BarChartBuildingElectricityBill(bill_building_month_year, lsBuilding) {
+		let options = {
+			responsive: true,
+			animation: false,
+			maintainAspectRatio: false,
+			scales: {
+				x: {
+					stacked: true,
+					ticks: { font: { size: 12 }, color: "red" },
+					title: { display: true, text: i18n.t("Month"), font: { size: 12 } },
+				},
+				y: {
+					stacked: true,
+					ticks: { font: { size: 10 } },
+					title: {
+						display: true,
+						text: i18n.t("Electricity Bill (Baht)"),
+						font: { size: 12 },
+					},
+					grid: { display: false },
+				},
+			},
+			layout: {
+				padding: { top: 12 },
+			},
+			plugins: {
+				legend: { display: false },
+			},
+		};
+
+		let labels = [];
+		let datasets = [];
+		for (let [year, bill_building_month] of Object.entries(
+			bill_building_month_year
+		)) {
+			for (let [month, bill_building] of Object.entries(bill_building_month)) {
+				labels.push(
+					`${i18n.t(lsMonthFull[month])} ${
+						i18n.language === "th" ? +year + 543 : year
+					}`
+				);
+
+				for (let [building, bill] of Object.entries(bill_building)) {
+					let dataset = datasets.find((ds) => ds.label === building);
+					if (dataset === undefined) {
+						dataset = {
+							label: building,
+							backgroundColor: lsBuilding.find((bld) => bld.label === building)
+								.color_code,
+							data: [],
+						};
+
+						datasets.push(dataset);
+					}
+
+					dataset.data.push(bill);
+				}
+			}
+		}
+
+		let data = {
+			labels: labels,
+			datasets: datasets,
+		};
+
+		options.plugins.datalabels = {
+			display: true,
+			color: "red",
+			anchor: "end",
+			align: "top",
+			font: { weight: "normal", size: 12 },
+			formatter: (value, ctx) => {
+				let datasets = ctx.chart.data.datasets;
+				if (ctx.datasetIndex === datasets.length - 1) {
+					let sum = 0;
+					datasets.map((dataset) => {
+						sum += dataset.data[ctx.dataIndex];
+					});
+					return (
+						numberFormatter.withCommas(Math.round(sum)) + ` ${i18n.t("Baht")}`
+					);
+				} else {
+					return "";
+				}
+			},
+		};
+
+		document.getElementById("bc-building-bill").remove();
+		document.getElementById(
+			"wrapper-bc-building-bill"
+		).innerHTML = `<canvas id="bc-building-bill" />`;
+
+		let ctx = document.getElementById("bc-building-bill").getContext("2d");
+
+		let chart = new Chart(ctx, {
+			type: "bar",
+			data: data,
+			options: options,
+			plugins: [ChartDataLabels],
 		});
 
 		return chart.toBase64Image();
@@ -492,6 +688,9 @@ class Report extends React.Component {
 				<div id="charts-invisible">
 					<div id="wrapper-pc-building-energy-usage">
 						<canvas id="pc-building-energy-usage" />
+					</div>
+					<div id="wrapper-bc-building-bill">
+						<canvas id="bc-building-bill" />
 					</div>
 				</div>
 			</div>

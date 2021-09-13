@@ -238,5 +238,21 @@
 	"Energy Use per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร",
 	"to": "ถึง",
 	"By building": "ของอาคาร",
-	"with total energy usage of": "มีการใช้พลังงานทั้งหมด"
+	"with total energy usage of": "มีการใช้พลังงานทั้งหมด",
+	"NIDA's energy usage from": "การใช้พลังงานของสถาบันบัณฑิตพัฒนบริหารศาสตร์ สำหรับวันที่",
+	"Air Conditioning": "ปรับอากาศ",
+	"calculated as": "คิดเป็น",
+	"and in": "และระบบ",
+	"Energy sourced from (MEA)": "พลังงานที่ใช้มาจากการไฟฟ้านครหลวง (MEA)",
+	"and from Solar Cells (PV)": "และมาจากเซลล์แสงอาทิตย์ (PV)",
+	"Resulting in an electricity bill of": "ส่งผลให้มีค่าไฟฟ้า",
+	"The percentage of each building's energy usage are described in the figure below.": "โดยสัดส่วนการใช้พลังงานในแต่ละตึก สามารถแบ่งได้ตามสัดส่วนดังรูป",
+	"used in": "ใช้ในระบบ",
+
+	"NIDA's electricity bill from": "ค่าไฟฟ้าของสถาบันบัณฑิตพัฒนบริหารศาสตร์ ประจำเดือน",
+	"is shown below": "แสดงได้ดังนี้",
+	"Electricity Bill (Baht)": "ค่าไฟฟ้า (บาท)",
+	"Electricity Bill Table": "ตารางแสดงค่าไฟฟ้า",
+	"Bill (Baht)": "ค่าไฟ (บาท)",
+	"Total": "รวมทั้งหมด"
 }

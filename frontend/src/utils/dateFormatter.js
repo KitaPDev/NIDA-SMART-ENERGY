@@ -18,7 +18,7 @@ function ddmmyyyy(date) {
 			mm = "0" + mm;
 		}
 
-		return dd + "/" + mm + "/" + yyyy;
+		return dd + "/" + mm + "/" + (i18n.language === "th" ? yyyy + 543 : yyyy);
 	}
 }
 
@@ -36,7 +36,7 @@ function ddmmyyyy_noOffset(date) {
 			mm = "0" + mm;
 		}
 
-		return dd + "/" + mm + "/" + yyyy;
+		return dd + "/" + mm + "/" + (i18n.language === "th" ? yyyy + 543 : yyyy);
 	}
 }
 
@@ -68,7 +68,15 @@ function ddmmyyyyhhmm(date) {
 		}
 
 		return (
-			dd + "/" + mm + "/" + yyyy + " " + (hh === "24" ? "00" : hh) + ":" + min
+			dd +
+			"/" +
+			mm +
+			"/" +
+			(i18n.language === "th" ? yyyy + 543 : yyyy) +
+			" " +
+			(hh === "24" ? "00" : hh) +
+			":" +
+			min
 		);
 	}
 }
@@ -106,7 +114,7 @@ function yyyymmddhhmmss(date) {
 		}
 
 		return (
-			yyyy +
+			(i18n.language === "th" ? yyyy + 543 : yyyy) +
 			"-" +
 			mm +
 			"-" +
@@ -130,7 +138,7 @@ function ddmmmyyyy(date) {
 		let mmm = i18n.t(lsMonthFull[date.getMonth()]);
 		let yyyy = date.getFullYear();
 
-		return dd + " " + mmm + " " + yyyy;
+		return dd + " " + mmm + " " + (i18n.language === "th" ? yyyy + 543 : yyyy);
 	}
 }
 
@@ -174,7 +182,15 @@ function ddmmyyyyhhmm_noOffset(date) {
 		}
 
 		return (
-			dd + "/" + mm + "/" + yyyy + " " + (hh === "24" ? "00" : hh) + ":" + min
+			dd +
+			"/" +
+			mm +
+			"/" +
+			(i18n.language === "th" ? yyyy + 543 : yyyy) +
+			" " +
+			(hh === "24" ? "00" : hh) +
+			":" +
+			min
 		);
 	}
 }
@@ -196,7 +212,15 @@ function ddmmmyyyyhhmm_noOffset(date) {
 		}
 
 		return (
-			dd + " " + mmm + " " + yyyy + ", " + (hh === "24" ? "00" : hh) + ":" + min
+			dd +
+			" " +
+			mmm +
+			" " +
+			(i18n.language === "th" ? yyyy + 543 : yyyy) +
+			", " +
+			(hh === "24" ? "00" : hh) +
+			":" +
+			min
 		);
 	}
 }
@@ -231,7 +255,7 @@ function yyyymmddhhmmss_noOffset(date) {
 		}
 
 		return (
-			yyyy +
+			(i18n.language === "th" ? yyyy + 543 : yyyy) +
 			"-" +
 			mm +
 			"-" +
@@ -260,7 +284,7 @@ function yyyymmdd_noOffset(date) {
 			mm = "0" + mm;
 		}
 
-		return yyyy + "-" + mm + "-" + dd;
+		return (i18n.language === "th" ? yyyy + 543 : yyyy) + "-" + mm + "-" + dd;
 	}
 }
 
@@ -278,7 +302,7 @@ function yyyymmdd_input(date) {
 			mm = "0" + mm;
 		}
 
-		return yyyy + "-" + mm + "-" + dd;
+		return (i18n.language === "th" ? yyyy + 543 : yyyy) + "-" + mm + "-" + dd;
 	}
 }
 

@@ -223,5 +223,22 @@
 	"Electricity Bill Report": "Electricity Bill Report",
 	"Air Conditioning Power Used Compared to Tempeerature and Humidity Report": "Air Conditioning Power Used Compared to Tempeerature and Humidity Report",
 	"Energy Use per Capita Report": "Energy Use per Capita Report",
-	"to": "to"
+	"to": "to",
+	"By building": "By building",
+	"with total energy usage of": "with total energy usage of",
+	"NIDA's energy usage from": "NIDA's energy usage from",
+	"Air Conditioning": "Air Conditioning",
+	"calculated as": "calculated as",
+	"and in": "and in",
+	"Energy sourced from (MEA)": "Energy sourced from (MEA)",
+	"and from Solar Cells (PV)": "and from Solar Cells (PV)",
+	"Resulting in an electricity bill of": "Resulting in an electricity bill of",
+	"The percentage of each building's energy usage are described in the figure below": "The percentage of each building's energy usage are described in the figure below",
+	"used in": "used in",
+
+	"NIDA's electricity bill from": "NIDA's electricity bill from",
+	"is shown below": "is shown below",
+	"Electricity Bill (Baht)": "Electricity Bill (Baht)",
+	"Electricity Bill Table": "Electricity Bill Table",
+	"Bill (Baht)": "Bill (Baht)"
 }

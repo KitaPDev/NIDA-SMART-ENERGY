@@ -8,8 +8,9 @@ import {
 	Image,
 	StyleSheet,
 	Font,
+	Svg,
+	Rect,
 } from "@react-pdf/renderer";
-import { Chart } from "chart.js";
 
 import dateFormatter from "../../../utils/dateFormatter";
 
@@ -66,12 +67,13 @@ const styles = StyleSheet.create({
 		marginBottom: 10,
 	},
 	section: {
-		marginBottom: 10,
+		marginBottom: 15,
 	},
 	line: {
 		display: "flex",
 		flexDirection: "row",
 		flexWrap: "wrap",
+		alignItems: "center",
 	},
 	red: { color: "red" },
 	lineCenter: {
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 	},
 	pieChart: {
-		height: 250,
+		height: 300,
 	},
 	column: {
 		display: "flex",
@@ -169,7 +171,7 @@ class EnergyUsageReport extends React.PureComponent {
 						<View style={styles.section}>
 							<View style={styles.line}>
 								<Text>
-									{t("Building") + ": "}
+									{t("Building") + " "}
 									{lsSelectedBuilding.length === lsBuilding.length ? (
 										<Text style={styles.red}>{t("All")}</Text>
 									) : (
@@ -184,7 +186,7 @@ class EnergyUsageReport extends React.PureComponent {
 								</Text>
 							</View>
 							<View style={styles.line}>
-								<Text>{t("System")}: </Text>
+								<Text>{t("System")} </Text>
 								<Text style={styles.red}>{t("All")}</Text>
 							</View>
 						</View>
@@ -223,7 +225,7 @@ class EnergyUsageReport extends React.PureComponent {
 								<Text> {t("kWh")}</Text>
 							</View>
 							<View style={styles.line}>
-								<Text>{t("Used in")} </Text>
+								<Text>{t("used in")} </Text>
 								<Text>{t("Air Conditioning")} </Text>
 								<Text style={styles.red}>
 									{parseFloat(kwhAcTotal).toFixed(2)}{" "}
@@ -291,23 +293,43 @@ class EnergyUsageReport extends React.PureComponent {
 							<View style={styles.line}>
 								<Text>
 									{t(
-										"The percentage of each building's energy usage are as described in the figure below"
+										"The percentage of each building's energy usage are described in the figure below."
 									)}
 								</Text>
 							</View>
 							<View style={styles.lineCenter}>
-								<Image
-									style={styles.pieChart}
-									src={b64PieChartBuildingEnergyUsage}
-								/>
+								<View>
+									<Image
+										style={styles.pieChart}
+										src={b64PieChartBuildingEnergyUsage}
+									/>
+								</View>
 								<View style={styles.column}>
 									{lsSelectedBuilding.map((bld) => (
 										<View style={styles.line}>
+											<Svg width="20" height="20">
+												<Rect
+													width="15"
+													height="15"
+													fill={
+														lsBuilding.find((b) => b.label === bld).color_code
+													}
+												/>
+											</Svg>
 											<Text>{t(bld)} </Text>
 											<Text style={styles.red}>
-												{kwh_system_building[bld]["Main"]}{" "}
+												{Math.round(kwh_system_building[bld]["Main"])}{" "}
 											</Text>
-											<Text>{t("kWh")}</Text>
+											<Text>{t("kWh")} </Text>
+											<Text style={styles.red}>
+												(
+												{parseFloat(
+													(Math.round(kwh_system_building[bld]["Main"]) /
+														kwhMainTotal) *
+														100
+												).toFixed(2)}
+												%)
+											</Text>
 										</View>
 									))}
 								</View>

@@ -24,4 +24,8 @@ router.post("/bill/datetime", authenticateJWT, async function (req, res) {
 	buildingController.getElectricityBillDatetime(req, res);
 });
 
+router.post("/bill/monthyear", authenticateJWT, async function (req, res) {
+	buildingController.getElectricityBillMonthYear(req, res);
+});
+
 module.exports = router;
