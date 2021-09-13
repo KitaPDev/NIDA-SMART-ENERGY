@@ -231,10 +231,44 @@ async function getDataBuildingMonthYear(lsBuildingID, start, end) {
 	return lsLog;
 }
 
+async function getPowerIaqDatetime(lsBuildingID, start, end) {
+	let result = await knex("log_power_meter")
+		.join("device", "log_power_meter.device_id", "=", "device.id")
+		.join("building", "device.building_id", "=", "building.id")
+		.join("system", "device.system_id", "=", "system.id")
+		.join(
+			"log_iaq",
+			"log_iaq.data_datetime",
+			"=",
+			"log_power_meter.data_datetime"
+		)
+		.select(
+			"log_power_meter.data_datetime",
+			"building.label as building",
+			"device.id as device",
+			"log_power_meter.kw_total as kw",
+			"log_iaq.humidity",
+			"log_iaq.temperature"
+		)
+		.where(function () {
+			this.whereIn("building.id", lsBuildingID);
+		})
+		.andWhereBetween("log_power_meter.data_datetime", [
+			dateFormatter.yyyymmddhhmmss(start),
+			dateFormatter.yyyymmddhhmmss(end),
+		])
+		.andWhere(knex.raw(`MINUTE(log_power_meter.data_datetime) % 15 = 0`))
+		.andWhere("system.label", "=", "Air Conditioner")
+		.orderBy("log_power_meter.data_datetime", "desc");
+
+	return result;
+}
+
 module.exports = {
 	getAllBuilding,
 	getData,
 	getBillCompareData,
 	getEnergyUsageDatetime,
 	getDataBuildingMonthYear,
+	getPowerIaqDatetime,
 };

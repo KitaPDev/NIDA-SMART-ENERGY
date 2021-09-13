@@ -67,12 +67,18 @@ class Report extends React.Component {
 		this.getElectricityBillBuildingMonthYear =
 			this.getElectricityBillBuildingMonthYear.bind(this);
 
+		this.getAcPowerIaqBuilding = this.getAcPowerIaqBuilding.bind(this);
+
 		this.generateReports = this.generateReports.bind(this);
 
 		this.getB64PieChartBuildingEnergyUsage =
 			this.getB64PieChartBuildingEnergyUsage.bind(this);
 		this.getB64BarChartBuildingElectricityBill =
 			this.getB64BarChartBuildingElectricityBill.bind(this);
+		this.getB64LineChartTempBuilding =
+			this.getB64LineChartTempBuilding.bind(this);
+		this.getB64LineChartHumiBuilding =
+			this.getB64LineChartHumiBuilding.bind(this);
 	}
 
 	componentDidMount() {
@@ -260,6 +266,30 @@ class Report extends React.Component {
 		}
 	}
 
+	async getAcPowerIaqBuilding() {
+		try {
+			let { lsBuilding, lsSelectedBuilding, dateFrom, dateTo } = this.state;
+
+			let lsBuildingID = [];
+			for (let bld of lsBuilding) {
+				if (lsSelectedBuilding.includes(bld.label)) lsBuildingID.push(bld.id);
+			}
+
+			let payload = {
+				ls_building_id: lsBuildingID,
+				date_from: dateFrom,
+				date_to: dateTo,
+			};
+
+			let resp = await http.post("/building/power_iaq/datetime", payload);
+
+			return resp.data;
+		} catch (err) {
+			console.log(err);
+			return err.response;
+		}
+	}
+
 	async generateReports() {
 		let {
 			isEnergyUsageReportSelected,
@@ -333,8 +363,14 @@ class Report extends React.Component {
 		}
 
 		if (isAcPowerCompareTempHumiReportSelected) {
+			let lsLogAcKwIaq = await this.getAcPowerIaqBuilding();
+			let b64LineChartTempKw_building =
+				this.getB64LineChartTempBuilding(lsLogAcKwIaq);
+			let b64LineChartHumiKw_building =
+				this.getB64LineChartHumiBuilding(lsLogAcKwIaq);
+
 			let fileName = i18n.t(
-				"A/C Power Used Compared to Temperature and Humidity Report"
+				"Air Conditioning Power Used Compared to Temperature and Humidity Report"
 			);
 			let blob = await pdf(
 				<AcPowerCompareTempHumiReport
@@ -342,6 +378,8 @@ class Report extends React.Component {
 					dateTo={dateTo}
 					lsSelectedBuilding={lsSelectedBuilding}
 					lsBuilding={lsBuilding}
+					b64LineChartTempKw_building={b64LineChartTempKw_building}
+					b64LineChartHumiKw_building={b64LineChartHumiKw_building}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
@@ -541,6 +579,254 @@ class Report extends React.Component {
 		return chart.toBase64Image();
 	}
 
+	getB64LineChartTempBuilding(lsLogAcKwIaq) {
+		let { lsSelectedBuilding } = this.state;
+
+		let options = {
+			responsive: true,
+			animation: false,
+			maintainAspectRatio: false,
+			scales: {
+				x: {
+					type: "time",
+					time: {
+						displayFormats: {
+							millisecond: "HH:mm:ss.SSS",
+							second: "HH:mm:ss",
+							minute: "HH:mm",
+							hour: "HH:mm",
+						},
+					},
+					ticks: { font: { size: 14 } },
+					title: { display: true, text: i18n.t("Time"), font: { size: 18 } },
+					grid: { display: false },
+				},
+				yTemp: {
+					ticks: { font: { size: 16 } },
+					title: {
+						display: true,
+						text: i18n.t("Temperature") + " (°C)",
+						font: { size: 18 },
+					},
+					grid: { display: false },
+				},
+				yKw: {
+					ticks: { font: { size: 16 } },
+					position: "right",
+					title: {
+						display: true,
+						text: i18n.t("kW"),
+						font: { size: 18 },
+					},
+					grid: { display: false },
+				},
+			},
+			plugins: {
+				legend: { display: false },
+			},
+		};
+
+		let b64_building = {};
+
+		for (let bld of lsSelectedBuilding) {
+			let labels = [];
+
+			let datasetKw = {
+				borderColor: "#FFC708",
+				borderWidth: 2,
+				pointRadius: 0,
+				spanGaps: true,
+				yAxisID: "yKw",
+				data: [],
+			};
+
+			let datasetTemp = {
+				borderColor: "#FF0859",
+				borderWidth: 2,
+				pointRadius: 0,
+				spanGaps: true,
+				yAxisID: "yTemp",
+				data: [],
+			};
+
+			let prevDatetime;
+			for (let log of lsLogAcKwIaq) {
+				let datetime = new Date(log.data_datetime);
+				let building = log.building;
+				let kw = log.kw;
+				let temp = log.temperature;
+
+				if (building !== bld) continue;
+
+				if (!labels.find((d) => d.getTime() === datetime.getTime())) {
+					labels.push(new Date(datetime));
+				}
+
+				if (prevDatetime) {
+					if (datetime.getTime() !== prevDatetime.getTime()) {
+						datasetTemp.data.push(temp);
+					}
+				} else datasetTemp.data.push(temp);
+
+				if (prevDatetime) {
+					if (datetime.getTime() === prevDatetime.getTime()) {
+						datasetKw.data[datasetKw.data.length - 1] += kw;
+					} else datasetKw.data.push(kw);
+				} else datasetKw.data.push(kw);
+
+				prevDatetime = datetime;
+			}
+
+			let data = {
+				labels: labels,
+				datasets: [datasetKw, datasetTemp],
+			};
+
+			document.getElementById("lc-building-power-temp").remove();
+			document.getElementById(
+				"wrapper-lc-building-power-temp"
+			).innerHTML = `<canvas id="lc-building-power-temp" />`;
+
+			let ctx = document
+				.getElementById("lc-building-power-temp")
+				.getContext("2d");
+
+			let chart = new Chart(ctx, {
+				type: "line",
+				data: data,
+				options: options,
+			});
+
+			b64_building[bld] = chart.toBase64Image();
+		}
+
+		return b64_building;
+	}
+
+	getB64LineChartHumiBuilding(lsLogAcKwIaq) {
+		let { lsSelectedBuilding } = this.state;
+
+		let options = {
+			responsive: true,
+			animation: false,
+			maintainAspectRatio: false,
+			scales: {
+				x: {
+					type: "time",
+					time: {
+						displayFormats: {
+							millisecond: "HH:mm:ss.SSS",
+							second: "HH:mm:ss",
+							minute: "HH:mm",
+							hour: "HH:mm",
+						},
+					},
+					ticks: { font: { size: 14 } },
+					title: { display: true, text: i18n.t("Time"), font: { size: 18 } },
+					grid: { display: false },
+				},
+				yHumi: {
+					ticks: { font: { size: 16 } },
+					title: {
+						display: true,
+						text: i18n.t("Humidity") + " (°C)",
+						font: { size: 18 },
+					},
+					grid: { display: false },
+				},
+				yKw: {
+					ticks: { font: { size: 16 } },
+					position: "right",
+					title: {
+						display: true,
+						text: i18n.t("kW"),
+						font: { size: 18 },
+					},
+					grid: { display: false },
+				},
+			},
+			plugins: {
+				legend: { display: false },
+			},
+		};
+
+		let b64_building = {};
+
+		for (let bld of lsSelectedBuilding) {
+			let labels = [];
+
+			let datasetKw = {
+				borderColor: "#FFC708",
+				borderWidth: 2,
+				pointRadius: 0,
+				spanGaps: true,
+				yAxisID: "yKw",
+				data: [],
+			};
+
+			let datasetHumi = {
+				borderColor: "#C0DDFB",
+				borderWidth: 2,
+				pointRadius: 0,
+				spanGaps: true,
+				yAxisID: "yHumi",
+				data: [],
+			};
+
+			let prevDatetime;
+			for (let log of lsLogAcKwIaq) {
+				let datetime = new Date(log.data_datetime);
+				let building = log.building;
+				let kw = log.kw;
+				let humi = log.humidity;
+
+				if (building !== bld) continue;
+
+				if (!labels.find((d) => d.getTime() === datetime.getTime())) {
+					labels.push(new Date(datetime));
+				}
+
+				if (prevDatetime) {
+					if (datetime.getTime() !== prevDatetime.getTime()) {
+						datasetHumi.data.push(humi);
+					}
+				} else datasetHumi.data.push(humi);
+
+				if (prevDatetime) {
+					if (datetime.getTime() === prevDatetime.getTime()) {
+						datasetKw.data[datasetKw.data.length - 1] += kw;
+					} else datasetKw.data.push(kw);
+				} else datasetKw.data.push(kw);
+
+				prevDatetime = datetime;
+			}
+
+			let data = {
+				labels: labels,
+				datasets: [datasetKw, datasetHumi],
+			};
+
+			document.getElementById("lc-building-power-humi").remove();
+			document.getElementById(
+				"wrapper-lc-building-power-humi"
+			).innerHTML = `<canvas id="lc-building-power-humi" />`;
+
+			let ctx = document
+				.getElementById("lc-building-power-humi")
+				.getContext("2d");
+
+			let chart = new Chart(ctx, {
+				type: "line",
+				data: data,
+				options: options,
+			});
+
+			b64_building[bld] = chart.toBase64Image();
+		}
+
+		return b64_building;
+	}
+
 	render() {
 		let {
 			dateFrom,
@@ -691,6 +977,12 @@ class Report extends React.Component {
 					</div>
 					<div id="wrapper-bc-building-bill">
 						<canvas id="bc-building-bill" />
+					</div>
+					<div id="wrapper-lc-building-power-temp">
+						<canvas id="lc-building-power-temp" />
+					</div>
+					<div id="wrapper-lc-building-power-humi">
+						<canvas id="lc-building-power-humi" />
 					</div>
 				</div>
 			</div>

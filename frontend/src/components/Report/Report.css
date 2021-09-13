@@ -75,3 +75,11 @@
 	width: 550px;
 	height: 250px;
 }
+
+#charts-invisible #wrapper-lc-building-power-temp {
+	height: 200px;
+}
+
+#charts-invisible #wrapper-lc-building-power-humi {
+	height: 200px;
+}

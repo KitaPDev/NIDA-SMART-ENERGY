@@ -402,6 +402,26 @@ async function getElectricityBillMonthYear(req, res) {
 	}
 }
 
+async function getPowerIaqDatetime(req, res) {
+	try {
+		let body = req.body;
+		let lsBuildingID = body.ls_building_id;
+		let dateFrom = new Date(body.date_from);
+		let dateTo = new Date(body.date_to);
+
+		let result = await buildingService.getPowerIaqDatetime(
+			lsBuildingID,
+			dateFrom,
+			dateTo
+		);
+
+		return res.status(httpStatusCodes.OK).send(result);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
+	}
+}
+
 module.exports = {
 	getAll,
 	getData,
@@ -409,4 +429,5 @@ module.exports = {
 	getEnergyUsageDatetime,
 	getElectricityBillDatetime,
 	getElectricityBillMonthYear,
+	getPowerIaqDatetime,
 };

@@ -28,4 +28,8 @@ router.post("/bill/monthyear", authenticateJWT, async function (req, res) {
 	buildingController.getElectricityBillMonthYear(req, res);
 });
 
+router.post("/power_iaq/datetime", authenticateJWT, async function (req, res) {
+	buildingController.getPowerIaqDatetime(req, res);
+});
+
 module.exports = router;

@@ -76,9 +76,7 @@ async function updateDataIaq() {
 
 			logIaq["data_datetime"] = value["DataDateTime"];
 			logIaq["device_id"] = value["Device"];
-			logIaq["co2"] = value["CO2"];
 			logIaq["humidity"] = value["Humidity"];
-			logIaq["pm2_5"] = value["PM2_5"];
 			logIaq["temperature"] = value["Temperature"];
 
 			lsLogIaq.push(logIaq);

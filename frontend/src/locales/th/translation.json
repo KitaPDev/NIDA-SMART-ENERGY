@@ -255,5 +255,8 @@
 	"Electricity Bill Table": "ตารางแสดงค่าไฟฟ้า",
 	"Bill (Baht)": "ค่าไฟ (บาท)",
 	"Total": "รวมทั้งหมด",
-	"% Target": "% เทียบค่าเป้าหมาย"
+	"% Target": "% เทียบค่าเป้าหมาย",
+
+	"Compare air conditioning power usage to temperature and humidity": "เปรียบเทียบการใช้ไฟฟ้าของระบบปรับอากาศ เทียบกับอุณหภูมิและความชื้น",
+	"Time": "เวลา"
 }
