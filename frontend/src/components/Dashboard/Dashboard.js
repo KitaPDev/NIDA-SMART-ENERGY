@@ -547,6 +547,9 @@ class Dashboard extends React.Component {
 									value={dateFormatter.toDateTimeString(dateFrom)}
 									onChange={this.handleInputDateChange}
 									max={dateFormatter.toDateTimeString(dateTo)}
+									min={dateFormatter.toDateTimeString(
+										new Date(new Date().setFullYear(dateTo.getFullYear() - 1))
+									)}
 								/>
 							</Col>
 						</Row>
@@ -564,6 +567,9 @@ class Dashboard extends React.Component {
 									value={dateFormatter.toDateTimeString(dateTo)}
 									onChange={this.handleInputDateChange}
 									min={dateFormatter.toDateTimeString(dateFrom)}
+									max={dateFormatter.toDateTimeString(
+										new Date(new Date().setFullYear(dateFrom.getFullYear() + 1))
+									)}
 								/>
 							</Col>
 						</Row>

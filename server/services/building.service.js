@@ -156,9 +156,17 @@ async function getEnergyUsageDatetime(lsBuildingID, start, end) {
 			this.whereIn("building.id", lsBuildingID);
 		})
 		.andWhere(function () {
+			let dateStart_before = start;
+			let dateStart_after = new Date(dateStart_before.getTime() + 43200000);
+			let dateEnd_after = end;
+			let dateEnd_before = new Date(dateEnd_after.getTime() - 43200000);
+
 			this.whereBetween("log_power_meter.data_datetime", [
-				dateFormatter.yyyymmddhhmmss(start),
-				dateFormatter.yyyymmddhhmmss(end),
+				dateFormatter.yyyymmddhhmmss(dateStart_before),
+				dateFormatter.yyyymmddhhmmss(dateStart_after),
+			]).orWhereBetween("log_power_meter.data_datetime", [
+				dateFormatter.yyyymmddhhmmss(dateEnd_before),
+				dateFormatter.yyyymmddhhmmss(dateEnd_after),
 			]);
 		})
 		.orderBy("log_power_meter.data_datetime", "desc");

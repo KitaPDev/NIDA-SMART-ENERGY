@@ -15,6 +15,7 @@ import {
 import dateFormatter from "../../../utils/dateFormatter";
 
 import { withTranslation } from "react-i18next";
+import numberFormatter from "../../../utils/numberFormatter";
 
 Font.register({
 	family: "THSarabunNew",
@@ -220,7 +221,9 @@ class EnergyUsageReport extends React.PureComponent {
 								<Text> {t("with total energy usage of")}</Text>
 								<Text style={styles.red}>
 									{" "}
-									{parseFloat(kwhMainTotal).toFixed(2)}
+									{numberFormatter.withCommas(
+										parseFloat(kwhMainTotal).toFixed(2)
+									)}
 								</Text>
 								<Text> {t("kWh")}</Text>
 							</View>
@@ -228,24 +231,33 @@ class EnergyUsageReport extends React.PureComponent {
 								<Text>{t("used in")} </Text>
 								<Text>{t("Air Conditioning")} </Text>
 								<Text style={styles.red}>
-									{parseFloat(kwhAcTotal).toFixed(2)}{" "}
+									{numberFormatter.withCommas(
+										parseFloat(kwhAcTotal).toFixed(2)
+									)}{" "}
 								</Text>
 								<Text>{t("kWh")} </Text>
 								<Text>{t("calculated as")} </Text>
 								<Text style={styles.red}>
-									{parseFloat((kwhAcTotal / kwhMainTotal) * 100).toFixed(2)}%
+									{numberFormatter.withCommas(
+										parseFloat((kwhAcTotal / kwhMainTotal) * 100).toFixed(2)
+									)}
+									%
 								</Text>
 							</View>
 							<View style={styles.line}>
 								<Text>{t("and in")} </Text>
 								<Text>{t("Others")} </Text>
 								<Text style={styles.red}>
-									{parseFloat(kwhOthersTotal).toFixed(2)}{" "}
+									{numberFormatter.withCommas(
+										parseFloat(kwhOthersTotal).toFixed(2)
+									)}{" "}
 								</Text>
 								<Text>{t("kWh")} </Text>
 								<Text>{t("calculated as")} </Text>
 								<Text style={styles.red}>
-									{parseFloat((kwhOthersTotal / kwhMainTotal) * 100).toFixed(2)}
+									{numberFormatter.withCommas(
+										parseFloat((kwhOthersTotal / kwhMainTotal) * 100).toFixed(2)
+									)}
 									%
 								</Text>
 							</View>
@@ -255,7 +267,9 @@ class EnergyUsageReport extends React.PureComponent {
 							<View style={styles.line}>
 								<Text>{t("Energy sourced from (MEA)")} </Text>
 								<Text style={styles.red}>
-									{parseFloat(kwhMainTotal).toFixed(2)}{" "}
+									{numberFormatter.withCommas(
+										parseFloat(kwhMainTotal).toFixed(2)
+									)}{" "}
 								</Text>
 								<Text>{t("kWh")} </Text>
 								<Text>{t("calculated as")} </Text>
@@ -269,7 +283,7 @@ class EnergyUsageReport extends React.PureComponent {
 							<View style={styles.line}>
 								<Text>{t("and from Solar Cells (PV)")} </Text>
 								<Text style={styles.red}>
-									{parseFloat(kwhSolar).toFixed(2)}{" "}
+									{numberFormatter.withCommas(parseFloat(kwhSolar).toFixed(2))}{" "}
 								</Text>
 								<Text>{t("kWh")} </Text>
 								<Text>{t("calculated as")} </Text>
@@ -283,7 +297,7 @@ class EnergyUsageReport extends React.PureComponent {
 							<View style={styles.line}>
 								<Text>{t("Resulting in an electricity bill of")} </Text>
 								<Text style={styles.red}>
-									{parseFloat(billTotal).toFixed(2)}{" "}
+									{numberFormatter.withCommas(parseFloat(billTotal).toFixed(2))}{" "}
 								</Text>
 								<Text>{t("Baht")}</Text>
 							</View>
@@ -318,7 +332,9 @@ class EnergyUsageReport extends React.PureComponent {
 											</Svg>
 											<Text>{t(bld)} </Text>
 											<Text style={styles.red}>
-												{Math.round(kwh_system_building[bld]["Main"])}{" "}
+												{numberFormatter.withCommas(
+													Math.round(kwh_system_building[bld]["Main"])
+												)}{" "}
 											</Text>
 											<Text>{t("kWh")} </Text>
 											<Text style={styles.red}>
