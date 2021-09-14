@@ -83,3 +83,11 @@
 #charts-invisible #wrapper-lc-building-power-humi {
 	height: 200px;
 }
+
+#charts-invisible #wrapper-bc-building-energy-usage {
+	height: 250px;
+}
+
+#charts-invisible #wrapper-bc-building-energy-usage-capita {
+	height: 250px;
+}

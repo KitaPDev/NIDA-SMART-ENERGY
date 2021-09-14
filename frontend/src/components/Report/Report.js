@@ -21,7 +21,7 @@ import { pdf } from "@react-pdf/renderer";
 import EnergyUsageReport from "./EnergyUsageReport/EnergyUsageReport";
 import ElectricityBillReport from "./ElectricityBillReport/ElectricityBillReport";
 import AcPowerCompareTempHumiReport from "./AcPowerCompareTempHumiReport/AcPowerCompareTempHumiReport";
-import EnergyUsePerCapitaReport from "./EnergyUsePerCapitaReport/EnergyUsePerCapitaReport";
+import EnergyUsagePerCapitaReport from "./EnergyUsagePerCapitaReport/EnergyUsagePerCapitaReport";
 
 class Report extends React.Component {
 	constructor(props) {
@@ -40,7 +40,7 @@ class Report extends React.Component {
 			isEnergyUsageReportSelected: false,
 			isElectricityBillReportSelected: false,
 			isAcPowerCompareTempHumiReportSelected: false,
-			isEnergyUsePerCapitaReportSelected: false,
+			isEnergyUsagePerCapitaReportSelected: false,
 		};
 
 		this.getAllBuilding = this.getAllBuilding.bind(this);
@@ -54,8 +54,8 @@ class Report extends React.Component {
 			this.toggleElectricityBillReport.bind(this);
 		this.toggleAcPowerCompareTempHumiReport =
 			this.toggleAcPowerCompareTempHumiReport.bind(this);
-		this.toggleEnergyUsePerCapitaReport =
-			this.toggleEnergyUsePerCapitaReport.bind(this);
+		this.toggleEnergyUsagePerCapitaReport =
+			this.toggleEnergyUsagePerCapitaReport.bind(this);
 
 		this.getKwhSystemBuilding = this.getKwhSystemBuilding.bind(this);
 		this.getKwhSolar = this.getKwhSolar.bind(this);
@@ -79,6 +79,10 @@ class Report extends React.Component {
 			this.getB64LineChartTempBuilding.bind(this);
 		this.getB64LineChartHumiBuilding =
 			this.getB64LineChartHumiBuilding.bind(this);
+		this.getB64BarChartBuildingEnergyUsage =
+			this.getB64BarChartBuildingEnergyUsage.bind(this);
+		this.getB64BarChartBuildingEnergyUsagePerCapita =
+			this.getB64BarChartBuildingEnergyUsagePerCapita.bind(this);
 	}
 
 	componentDidMount() {
@@ -142,10 +146,10 @@ class Report extends React.Component {
 		}));
 	}
 
-	toggleEnergyUsePerCapitaReport() {
+	toggleEnergyUsagePerCapitaReport() {
 		this.setState((prevState) => ({
-			isEnergyUsePerCapitaReportSelected:
-				!prevState.isEnergyUsePerCapitaReportSelected,
+			isEnergyUsagePerCapitaReportSelected:
+				!prevState.isEnergyUsagePerCapitaReportSelected,
 		}));
 	}
 
@@ -295,7 +299,7 @@ class Report extends React.Component {
 			isEnergyUsageReportSelected,
 			isElectricityBillReportSelected,
 			isAcPowerCompareTempHumiReportSelected,
-			isEnergyUsePerCapitaReportSelected,
+			isEnergyUsagePerCapitaReportSelected,
 			dateFrom,
 			dateTo,
 			lsSelectedBuilding,
@@ -385,14 +389,19 @@ class Report extends React.Component {
 			saveAs(blob, fileName + ".pdf");
 		}
 
-		if (isEnergyUsePerCapitaReportSelected) {
-			let fileName = i18n.t("Energy Use per Capita Report");
+		if (isEnergyUsagePerCapitaReportSelected) {
+			let kwh_system_building = await this.getKwhSystemBuilding();
+			let lsTarget = await this.getAllTargetBuildingPeriod();
+
+			let fileName = i18n.t("Energy Usage per Capita Report");
 			let blob = await pdf(
-				<EnergyUsePerCapitaReport
+				<EnergyUsagePerCapitaReport
 					dateFrom={dateFrom}
 					dateTo={dateTo}
 					lsSelectedBuilding={lsSelectedBuilding}
 					lsBuilding={lsBuilding}
+					kwh_system_building={kwh_system_building}
+					lsTarget={lsTarget}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
@@ -827,6 +836,10 @@ class Report extends React.Component {
 		return b64_building;
 	}
 
+	getB64BarChartBuildingEnergyUsage() {}
+
+	getB64BarChartBuildingEnergyUsagePerCapita() {}
+
 	render() {
 		let {
 			dateFrom,
@@ -836,7 +849,7 @@ class Report extends React.Component {
 			isEnergyUsageReportSelected,
 			isElectricityBillReportSelected,
 			isAcPowerCompareTempHumiReportSelected,
-			isEnergyUsePerCapitaReportSelected,
+			isEnergyUsagePerCapitaReportSelected,
 		} = this.state;
 
 		const { t } = this.props;
@@ -960,10 +973,10 @@ class Report extends React.Component {
 					<div className="row-report">
 						<Input
 							type="checkbox"
-							onChange={this.toggleEnergyUsePerCapitaReport}
-							checked={isEnergyUsePerCapitaReportSelected}
+							onChange={this.toggleEnergyUsagePerCapitaReport}
+							checked={isEnergyUsagePerCapitaReportSelected}
 						/>
-						{t("Energy Use per Capita")}
+						{t("Energy Usage per Capita")}
 					</div>
 					<button onClick={this.generateReports}>
 						{t("Generate Reports")}
@@ -983,6 +996,12 @@ class Report extends React.Component {
 					</div>
 					<div id="wrapper-lc-building-power-humi">
 						<canvas id="lc-building-power-humi" />
+					</div>
+					<div id="wrapper-bc-building-energy-usage">
+						<canvas id="bc-building-energy-usage" />
+					</div>
+					<div id="wrapper-bc-building-energy-usage-capita">
+						<canvas id="bc-building-energy-usage-capita" />
 					</div>
 				</div>
 			</div>
