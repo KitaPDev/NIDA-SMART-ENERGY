@@ -306,3 +306,25 @@
 		display: none;
 	}
 }
+
+@media only screen and (max-width: 672px) {
+	#container-home .img-building,
+	#container-home .map-campus img {
+		margin-top: 0;
+	}
+
+	#container-home .row-pie-charts {
+		width: 100%;
+		margin: auto;
+		margin-bottom: 0.5rem;
+	}
+
+	#container-home .row-pie-charts .col-sm-6 {
+		width: 50%;
+	}
+
+	#container-home .row-legend-pc {
+		gap: 8px;
+		justify-content: flex-start;
+	}
+}

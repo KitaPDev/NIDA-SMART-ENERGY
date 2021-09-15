@@ -185,3 +185,39 @@
 		height: 90%;
 	}
 }
+
+@media only screen and (max-width: 1366px) {
+	.container-device-manager .row-heading {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		max-height: fit-content !important;
+	}
+
+	.container-device-manager .col-heading {
+		width: 100%;
+	}
+
+	.container-device-manager .col-right {
+		display: flex;
+		margin: auto;
+		width: 100% !important;
+	}
+
+	.container-device-manager .div-add-meter {
+		margin-right: 0;
+		font-size: 125%;
+	}
+
+	#searchText {
+		width: 60%;
+	}
+
+	.div-add-meter {
+		width: 100%;
+	}
+
+	.container-device-manager .container-table-device-manager {
+		height: 90%;
+	}
+}

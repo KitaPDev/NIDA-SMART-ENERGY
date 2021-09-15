@@ -109,3 +109,26 @@
 	background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=)
 		no-repeat center right !important;
 }
+
+@media only screen and (max-width: 672px) {
+	.activity-log .row-fg-period {
+		flex-wrap: wrap;
+	}
+
+	.activity-log .col-input {
+		width: 100%;
+	}
+
+	.activity-log .btn-apply {
+		margin: 1rem auto 0 auto;
+	}
+
+	.container-table-activity-log #searchText {
+		margin-top: 1rem;
+		width: 80%;
+	}
+
+	.container-table-activity-log .search-icon {
+		margin-top: 1rem;
+	}
+}

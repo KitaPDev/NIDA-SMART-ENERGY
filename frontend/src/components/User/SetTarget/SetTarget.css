@@ -352,3 +352,21 @@
 		height: 300px;
 	}
 }
+
+@media only screen and (max-width: 672px) {
+	.container-set-target .row-content {
+		height: fit-content;
+	}
+
+	.container-set-target .col-left {
+		width: 100% !important;
+	}
+
+	.col-btn-set-target {
+		margin-top: 1rem;
+	}
+
+	.container-set-target .col-right {
+		display: none;
+	}
+}

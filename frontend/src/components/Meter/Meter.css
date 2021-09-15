@@ -608,3 +608,108 @@
 		width: 50%;
 	}
 }
+
+@media only screen and (max-width: 672px) {
+	.row-btn-mode {
+		height: fit-content !important;
+	}
+
+	.map-campus img[class^="img-"],
+	.map-campus div[id^="img-"] {
+		display: none;
+	}
+
+	#container-meter .map-campus {
+		position: static;
+	}
+
+	#container-meter .map-campus .row-building-block {
+		position: static;
+		top: 0;
+		left: 0;
+		transform: none;
+		margin-bottom: 1rem;
+	}
+
+	#container-meter .col-table-heading {
+		margin-right: 0;
+	}
+
+	#container-meter .row-input #searchText {
+		width: 25%;
+	}
+
+	#container-meter .row-input .span-search-icon {
+		margin-top: auto;
+		margin-bottom: auto;
+	}
+
+	#container-meter .row-diagram .col-left,
+	#container-meter .row-diagram .col-right {
+		width: 100% !important;
+	}
+
+	#container-meter .meter-building {
+		width: 100%;
+	}
+
+	#container-meter .building-list-pane .row-building {
+		width: fit-content;
+	}
+
+	#container-meter .building-list-pane .col-square-building {
+		width: 15px;
+	}
+
+	#container-meter .building-list-pane .col-sm-10 {
+		width: fit-content;
+	}
+
+	#container-meter .meter {
+		display: none !important;
+	}
+
+	#container-meter .meter-main {
+		width: 100%;
+		margin-bottom: 1rem;
+		display: flex;
+		justify-content: center;
+		padding: 0.5rem 1rem 0.5rem 1rem;
+	}
+
+	#container-meter .meter-main > div {
+		width: fit-content !important;
+	}
+
+	#container-meter .meter-main .status {
+		text-align: right;
+		padding-left: 1rem;
+		padding-right: 0;
+	}
+
+	#container-meter .container-table {
+		flex-direction: column;
+		flex-wrap: wrap;
+	}
+
+	#container-meter .container-table .table-ac,
+	#container-meter .container-table .table-others {
+		width: 90%;
+		height: 500px;
+		margin-bottom: 1rem;
+	}
+
+	#container-meter .container-table .meter-system {
+		display: flex;
+		justify-content: center;
+	}
+
+	#container-meter .container-table .meter-system .info {
+		width: 80%;
+		font-size: 80%;
+	}
+
+	#container-meter .container-table .meter-system .status {
+		width: 20%;
+	}
+}

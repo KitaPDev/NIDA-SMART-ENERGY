@@ -90,3 +90,17 @@
 	margin-top: auto;
 	margin-bottom: auto;
 }
+
+@media only screen and (max-width: 672px) {
+	.user-management .heading {
+		font-size: 150%;
+	}
+
+	.fg-search {
+		justify-content: center;
+	}
+
+	.user-management #searchText {
+		width: 80%;
+	}
+}

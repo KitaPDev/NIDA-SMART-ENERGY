@@ -72,7 +72,7 @@
 	font-weight: 600 !important;
 	text-transform: uppercase !important;
 	border-radius: 0.4rem !important;
-	width: 40% !important;
+	width: 40%;
 }
 
 .container-login #btn-login:hover {
@@ -82,7 +82,7 @@
 	font-weight: 600 !important;
 	text-transform: uppercase !important;
 	border-radius: 0.4rem !important;
-	width: 40% !important;
+	width: 40%;
 	transition-duration: 0.3s;
 }
 
@@ -120,5 +120,19 @@ footer {
 @media only screen and (max-width: 1366px) {
 	.container-login .container-form {
 		width: 80vw !important;
+	}
+}
+
+@media only screen and (max-width: 672px) {
+	.container-login .col-title {
+		font-size: 60%;
+	}
+
+	.container-login label {
+		text-align: left;
+	}
+
+	#btn-login {
+		width: 80% !important;
 	}
 }

@@ -40,7 +40,7 @@
 	font-weight: 600 !important;
 	text-transform: uppercase !important;
 	border-radius: 0.4rem !important;
-	width: 40% !important;
+	width: 40%;
 }
 
 .container-register #btn-register:hover {
@@ -50,7 +50,7 @@
 	font-weight: 600 !important;
 	text-transform: uppercase !important;
 	border-radius: 0.4rem !important;
-	width: 40% !important;
+	width: 40%;
 }
 
 .container-register .row-login {
@@ -96,5 +96,25 @@
 @media only screen and (max-width: 1366px) {
 	.container-register .container-form {
 		width: 80vw !important;
+	}
+}
+
+@media only screen and (max-width: 672px) {
+	.container-register .col-title {
+		font-size: 60%;
+	}
+
+	.container-register label {
+		text-align: left;
+	}
+
+	#btn-register {
+		width: 80% !important;
+	}
+
+	.container-register .container-form {
+		padding: 1rem !important;
+		max-height: 70%;
+		overflow: scroll;
 	}
 }
