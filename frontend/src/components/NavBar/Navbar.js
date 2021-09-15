@@ -364,11 +364,14 @@ class NavBar extends React.Component {
 		const { t } = this.props;
 
 		return (
-			<div style={{ height: isDisplayNavbar ? "10%" : 0 }}>
+			<div
+				style={{ height: isDisplayNavbar ? "10%" : 0 }}
+				className="wrapper-navbar"
+			>
 				{!isDisplayNavbar ? (
 					<div></div>
 				) : (
-					<Navbar style={{ backgroundColor: "#F2F3F7" }} light expand="md">
+					<Navbar style={{ backgroundColor: "#F2F3F7" }} light expand="lg">
 						<NavbarBrand href="http://www.nida.ac.th" target="_blank">
 							<img className="navbar-logo" src="/favicon.ico" alt="logo"></img>
 						</NavbarBrand>
@@ -653,12 +656,13 @@ class NavBar extends React.Component {
 									>
 										{t("Link")}
 									</DropdownToggle>
-									<DropdownMenu style={{ width: "220px" }}>
+									<DropdownMenu style={{ width: "220px" }} right>
 										<DropdownItem>
 											<NavLink
 												exact
 												tag={Link}
 												to=""
+												href="environment.nida.ac.th"
 												target="_blank"
 												className="nav-link d-flex flex-column"
 												onClick={() =>
@@ -677,6 +681,7 @@ class NavBar extends React.Component {
 												exact
 												tag={Link}
 												to=""
+												href="http://energy.nida.ac.th/"
 												target="_blank"
 												className="nav-link d-flex flex-column"
 												onClick={() =>
@@ -701,116 +706,118 @@ class NavBar extends React.Component {
 								</Dropdown>
 							</Nav>
 						</Collapse>
-						<div
-							style={{
-								width: "fit-content",
-								fontWeight: "600",
-								color: energy > 0 ? "green" : "red",
-							}}
-						>
-							<Row
+						<div className="navbar-right">
+							<div
 								style={{
-									justifyContent: "center",
+									width: "fit-content",
+									fontWeight: "600",
+									color: energy > 0 ? "green" : "red",
 								}}
 							>
-								{Math.abs(energy) > 10
-									? parseFloat(energy).toFixed(1)
-									: parseFloat(energy).toFixed(2)}
-								%
-							</Row>
-							<Row style={{ justifyContent: "center", alignItems: "center" }}>
-								{energy >= 0 ? <GoTriangleDown /> : <GoTriangleUp />}
-							</Row>
-						</div>
-						<div
-							style={{
-								width: "120px",
-								fontWeight: "600",
-							}}
-						>
-							<Row
+								<Row
+									style={{
+										justifyContent: "center",
+									}}
+								>
+									{Math.abs(energy) > 10
+										? parseFloat(energy).toFixed(1)
+										: parseFloat(energy).toFixed(2)}
+									%
+								</Row>
+								<Row style={{ justifyContent: "center", alignItems: "center" }}>
+									{energy >= 0 ? <GoTriangleDown /> : <GoTriangleUp />}
+								</Row>
+							</div>
+							<div
 								style={{
-									justifyContent: "center",
+									width: "120px",
+									fontWeight: "600",
 								}}
 							>
-								{t("Energy")}
-							</Row>
-							<Row style={{ justifyContent: "center", alignItems: "center" }}>
-								{Math.abs(diff) > 1000
-									? Math.round(diff)
-											.toString()
-											.substring(0, Math.round(diff).toString().length - 3) +
-									  "k "
-									: Math.round(diff) + " "}
-								{t("kWh")}
-							</Row>
-						</div>
-						<div
-							style={{
-								width: "120px",
-								fontWeight: "600",
-							}}
-						>
-							<Row
+								<Row
+									style={{
+										justifyContent: "center",
+									}}
+								>
+									{t("Energy")}
+								</Row>
+								<Row style={{ justifyContent: "center", alignItems: "center" }}>
+									{Math.abs(diff) > 1000
+										? Math.round(diff)
+												.toString()
+												.substring(0, Math.round(diff).toString().length - 3) +
+										  "k "
+										: Math.round(diff) + " "}
+									{t("kWh")}
+								</Row>
+							</div>
+							<div
 								style={{
-									justifyContent: "center",
+									width: "120px",
+									fontWeight: "600",
 								}}
 							>
-								{t("Temperature")}
-							</Row>
-							<Row style={{ justifyContent: "center", alignItems: "center" }}>
-								<FaTemperatureLow />
-								{temperature.length > 0 ? temperature : "N/A "}°C
-							</Row>
-						</div>
-						<div style={{ width: "100px", fontWeight: "600" }}>
-							<Row
+								<Row
+									style={{
+										justifyContent: "center",
+									}}
+								>
+									{t("Temperature")}
+								</Row>
+								<Row style={{ justifyContent: "center", alignItems: "center" }}>
+									<FaTemperatureLow />
+									{temperature.length > 0 ? temperature : "N/A "}°C
+								</Row>
+							</div>
+							<div style={{ width: "100px", fontWeight: "600" }}>
+								<Row
+									style={{
+										justifyContent: "center",
+									}}
+								>
+									{t("Humidity")}
+								</Row>
+								<Row style={{ justifyContent: "center", alignItems: "center" }}>
+									<IoIosWater />
+									{humidity.length > 0 ? humidity : "N/A "}%
+								</Row>
+							</div>
+							<div
 								style={{
-									justifyContent: "center",
+									width: "fit-content",
+									fontWeight: "600",
 								}}
 							>
-								{t("Humidity")}
-							</Row>
-							<Row style={{ justifyContent: "center", alignItems: "center" }}>
-								<IoIosWater />
-								{humidity.length > 0 ? humidity : "N/A "}%
-							</Row>
-						</div>
-						<div
-							style={{
-								width: "fit-content",
-								fontWeight: "600",
-							}}
-						>
-							<Row
-								style={{
-									width: "100%",
-									margin: "auto",
-								}}
-							>
-								<span style={{ textAlign: "center" }}>
-									{t(`${lsDay[today.getDay()]}`)}
-								</span>
-							</Row>
-							<Row style={{ width: "100%", margin: 0 }}>
-								{today.getDate() + " "}
-								{t(`${lsMonthFull[today.getMonth()]}`)}
-								{" " +
-									(i18n.language === "th"
-										? today.getFullYear() + 543
-										: today.getFullYear())}
-							</Row>
-						</div>
-						<div style={{ fontWeight: "700", marginLeft: "0.5rem" }}>
-							<Row
-								style={{
-									width: "100%",
-									margin: 0,
-									fontSize: "330%",
-								}}
-							>
-								{currentTime}
-							</Row>
+								<Row
+									style={{
+										width: "100%",
+										margin: "auto",
+									}}
+								>
+									<span style={{ textAlign: "center" }}>
+										{t(`${lsDay[today.getDay()]}`)}
+									</span>
+								</Row>
+								<Row style={{ width: "100%", margin: 0 }}>
+									{today.getDate() + " "}
+									{t(`${lsMonthFull[today.getMonth()]}`)}
+									{" " +
+										(i18n.language === "th"
+											? today.getFullYear() + 543
+											: today.getFullYear())}
+								</Row>
+							</div>
+							<div style={{ fontWeight: "700", marginLeft: "0.5rem" }}>
+								<Row
+									style={{
+										width: "100%",
+										margin: 0,
+										fontSize: "330%",
+									}}
+								>
+									{currentTime}
+								</Row>
+							</div>
 						</div>
 					</Navbar>
 				)}

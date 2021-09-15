@@ -175,3 +175,13 @@
 	margin: auto;
 	vertical-align: middle;
 }
+
+@media only screen and (max-width: 1366px) {
+	.container-device-manager .col-heading {
+		width: 40%;
+	}
+
+	.container-device-manager .container-table-device-manager {
+		height: 90%;
+	}
+}

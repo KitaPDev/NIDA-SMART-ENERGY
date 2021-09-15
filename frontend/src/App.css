@@ -82,3 +82,9 @@
 	background-color: black;
 	color: white;
 }
+
+@media only screen and (max-width: 1366px) {
+	#wrapper-content {
+		height: 95%;
+	}
+}

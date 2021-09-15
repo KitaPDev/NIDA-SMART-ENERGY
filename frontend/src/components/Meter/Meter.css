@@ -561,3 +561,50 @@
 .modal-meter #interval {
 	text-align-last: center;
 }
+
+@media only screen and (max-width: 1366px) {
+	#container-meter .row-btn-mode {
+		height: 5%;
+	}
+
+	#container-meter .building-block {
+		width: fit-content !important;
+		padding: 0.5rem 1rem 0.5rem 1rem !important;
+	}
+
+	#container-meter .row-building-block {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+	}
+
+	#container-meter .container-table-device-manager {
+		height: 50%;
+	}
+
+	#container-meter .form-group .col-sm-1 {
+		width: fit-content !important;
+		display: flex;
+		align-items: center;
+	}
+
+	#container-meter .row-diagram {
+		height: 95%;
+		padding: 2rem 1rem 2rem 1rem;
+	}
+}
+
+@media only screen and (max-width: 1024px) {
+	.col-left {
+		width: 30%;
+	}
+
+	.col-right {
+		width: 70% !important;
+		height: fit-content !important;
+	}
+
+	#container-meter .meter-building {
+		width: 50%;
+	}
+}

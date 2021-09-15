@@ -5,7 +5,7 @@
 
 #container-report #report-filter {
 	height: 100%;
-	width: 18% !important;
+	width: 18%;
 	padding: 1rem 0 1rem 0;
 	margin-left: 1rem;
 }
@@ -90,4 +90,26 @@
 
 #charts-invisible #wrapper-bc-building-energy-usage-capita {
 	height: 150px;
+}
+
+@media only screen and (max-width: 1366px) {
+	#report-filter {
+		width: 25% !important;
+	}
+
+	#select-report {
+		padding: 1rem 0 0 0;
+		width: 75%;
+	}
+}
+
+@media only screen and (max-width: 1024px) {
+	#report-filter {
+		width: 30% !important;
+	}
+
+	#select-report {
+		padding: 1rem 0 0 0;
+		width: 70%;
+	}
 }

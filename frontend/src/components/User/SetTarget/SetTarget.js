@@ -579,8 +579,6 @@ class SetTarget extends React.Component {
 						) : (
 							<></>
 						)}
-						<Button className="btn-period">{t("Monthly")}</Button>
-						<Button className="btn-period">{t("Yearly")}</Button>
 					</Col>
 				</Row>
 

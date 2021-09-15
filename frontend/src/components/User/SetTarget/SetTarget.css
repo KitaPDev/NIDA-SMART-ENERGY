@@ -318,3 +318,37 @@
 .form-target .form-group {
 	margin-top: 1rem;
 }
+
+@media only screen and (max-width: 1366px) {
+	.container-set-target {
+		height: 95%;
+		overflow: auto;
+	}
+}
+
+@media only screen and (max-width: 1024px) {
+	.container-set-target .heading-historical-data {
+		display: none;
+	}
+
+	.container-set-target .col-left {
+		width: 80%;
+		height: fit-content;
+		margin: auto;
+		margin-bottom: 1rem;
+	}
+
+	.container-set-target .row-config,
+	.container-set-target .list-pane {
+		flex-grow: 0;
+	}
+
+	.container-set-target .col-right {
+		width: 80% !important;
+		margin: auto;
+	}
+
+	.container-set-target .row-chart {
+		height: 300px;
+	}
+}

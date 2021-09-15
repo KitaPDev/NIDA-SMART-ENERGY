@@ -9,6 +9,7 @@
 
 .col-brand {
 	width: fit-content !important;
+	margin-right: 1rem;
 }
 
 .col-title {
@@ -114,4 +115,10 @@ footer {
 	padding: 1rem;
 	font-weight: 500;
 	color: #777172;
+}
+
+@media only screen and (max-width: 1366px) {
+	.container-login .container-form {
+		width: 80vw !important;
+	}
 }

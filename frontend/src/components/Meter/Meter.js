@@ -664,7 +664,7 @@ class Meter extends React.Component {
 					</div>
 				) : (
 					<Row className="row-diagram">
-						<Col sm={2}>
+						<Col sm={2} className="col-left">
 							<div class="building-list-pane">
 								<p class="heading-1">{t("Building")}</p>
 								<Row

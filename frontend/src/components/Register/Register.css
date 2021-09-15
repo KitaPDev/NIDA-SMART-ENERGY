@@ -92,3 +92,9 @@
 	color: black;
 	font-weight: 500;
 }
+
+@media only screen and (max-width: 1366px) {
+	.container-register .container-form {
+		width: 80vw !important;
+	}
+}

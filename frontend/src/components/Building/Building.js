@@ -449,10 +449,10 @@ class Building extends React.Component {
 						</Col>
 
 						{/* ******************************** Main Section ******************************** */}
-						<Col sm={10}>
+						<Col sm={10} id="col-building-data">
 							<Row style={{ height: "100%" }}>
 								{/* ******************************** Left ******************************** */}
-								<Col sm={4} style={{ paddingRight: "2rem" }}>
+								<Col sm={4} className="col-data-left">
 									<Row
 										className="row-title"
 										style={{
@@ -575,7 +575,7 @@ class Building extends React.Component {
 								</Col>
 
 								{/* ******************************** Right ******************************** */}
-								<Col sm={8}>
+								<Col sm={8} className="col-data-right">
 									<Row className="row-form">
 										<Label for="dateFrom" sm={1} className="label-datepicker">
 											{t("From")}

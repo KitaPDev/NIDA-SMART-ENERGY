@@ -256,3 +256,53 @@
 	flex-flow: row-reverse;
 	align-items: center;
 }
+
+#container-home .row-legend-pc {
+	height: "15%";
+	display: "flex";
+	align-items: "center";
+}
+
+@media only screen and (max-width: 1366px) {
+	#container-home {
+		overflow: auto !important;
+	}
+
+	#container-home .left-column {
+		width: 100% !important;
+		height: fit-content !important;
+	}
+
+	#container-home .right-column {
+		width: 100% !important;
+		margin-top: 1rem;
+	}
+
+	#container-home .row-legend-pc {
+		justify-content: center;
+		margin-bottom: 0.5rem;
+	}
+
+	#container-home .row-pie-charts {
+		width: 70%;
+		margin: auto;
+		margin-bottom: 0.5rem;
+	}
+
+	#container-home .building-power-consumption-pane {
+		height: 350px;
+	}
+
+	#container-home .electrical-system-power-consumption-pane {
+		height: 350px;
+	}
+
+	#container-home .img-building,
+	#container-home .map-campus img {
+		margin-top: -6rem;
+	}
+
+	#container-home .footer {
+		display: none;
+	}
+}

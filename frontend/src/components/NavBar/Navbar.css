@@ -68,3 +68,18 @@ nav .share {
 nav .share svg {
 	margin-left: 0.5rem;
 }
+
+.navbar-right {
+	display: flex;
+	align-items: center;
+}
+
+@media only screen and (max-width: 1366px) {
+	.navbar-right {
+		display: none;
+	}
+
+	.wrapper-navbar {
+		height: fit-content !important;
+	}
+}

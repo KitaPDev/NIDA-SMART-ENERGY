@@ -459,7 +459,7 @@ class Home extends React.Component {
 				>
 					<Row>
 						{/* ******************************** LEFT COLUMN ******************************** */}
-						<Col sm="5" style={{ height: "100%" }}>
+						<Col sm="5" style={{ height: "100%" }} className="left-column">
 							<div id="left-top-pane-group">
 								{/* ******************************** ENERGY CONSUMPTION PANE ******************************** */}
 								<div className="total-energy-consumption-pane">
@@ -518,13 +518,7 @@ class Home extends React.Component {
 										</span>
 									</Row>
 
-									<Row
-										style={{
-											height: "15%",
-											display: "flex",
-											alignItems: "center",
-										}}
-									>
+									<Row className="row-legend-pc">
 										<span
 											style={{
 												color: "#6B6666",

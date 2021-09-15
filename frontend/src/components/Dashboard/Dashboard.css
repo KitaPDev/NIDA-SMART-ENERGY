@@ -207,3 +207,58 @@
 	padding: 0 0.5rem 1rem 0.5rem;
 	position: relative;
 }
+
+@media only screen and (max-width: 1366px) {
+	#container-dashboard {
+		flex-direction: column;
+	}
+
+	#dashboard-filter {
+		width: 60% !important;
+		margin: auto;
+	}
+
+	#dashboard-filter .row-form {
+		display: flex;
+		justify-content: center;
+	}
+
+	#dashboard-filter .col-datepicker {
+		width: fit-content;
+	}
+
+	#dashboard-filter .building-list-pane .row-building {
+		width: fit-content;
+		margin-left: 25% !important;
+	}
+
+	#dashboard-filter .building-list-pane .row-building div[class^="col-"] {
+		width: fit-content;
+	}
+
+	#dashboard-filter .building-list-pane .row-building .col-square-building {
+		width: fit-content;
+		margin: 0 1rem 0 1rem;
+		display: flex;
+		align-items: center;
+	}
+
+	.footer-note {
+		display: none;
+	}
+
+	#dashboard-center {
+		width: 90%;
+		margin: auto;
+		margin-top: 1rem;
+		padding: 0;
+	}
+
+	#dashboard-right {
+		width: 90%;
+		margin: auto;
+		margin-top: 1rem;
+		padding: 0;
+		padding-bottom: 1rem;
+	}
+}
