@@ -263,5 +263,10 @@
 	"Energy Usage per Capita": "การใช้ไฟฟ้าต่อหัวประชากร",
 	"Energy Usage per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร",
 	"report2.Energy Usage": "การใช้พลังงานไฟฟ้า",
-	"Capita": "จำนวนประชากร"
+	"Capita": "จำนวนประชากร",
+	"NIDA's energy usage per capita from": "รายงานการใช้ไฟฟ้าต่อหัวประชากรของสถาบันบัณฑิตพัฒนบริหารศาสตร์ สำหรับวันที่",
+	"of building": "ของอาคาร",
+	"has a total energy usage of": "มีการใช้พลังงานไฟฟ้าทั้งหมด",
+	"has a total capita of": "จำนวนประชากรทั้งหมด",
+	"has an energy usage per capita of": "เฉลี่ยการใช้ไฟฟ้าต่อหัวประชากรเท่ากับ "
 }

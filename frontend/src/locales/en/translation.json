@@ -249,5 +249,10 @@
 	"Energy Usage per Capita": "Energy Usage per Capita",
 	"Energy Usage per Capita Report": "Energy Usage per Capita Report",
 	"report2.Energy Usage": "Energy Usage",
-	"Capita": "Capita"
+	"Capita": "Capita",
+	"NIDA's energy usage per capita from": "NIDA's energy usage per capita from",
+	"of building": "of building",
+	"has a total energy usage of": "has a total energy usage of",
+	"has a total capita of": "has a total capita of",
+	"has an energy usage per capita of": "has an energy usage per capita of "
 }

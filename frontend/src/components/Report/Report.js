@@ -872,7 +872,7 @@ class Report extends React.Component {
 			},
 		};
 
-		let labels = Object.keys(kwh_system_building);
+		let labels = Object.keys(kwh_system_building).map((bld) => i18n.t(bld));
 		let lsData = [];
 		let lsColor = [];
 
@@ -937,7 +937,7 @@ class Report extends React.Component {
 			},
 		};
 
-		let labels = Object.keys(kwh_system_building);
+		let labels = Object.keys(kwh_system_building).map((bld) => i18n.t(bld));
 		let lsData = [];
 		let lsColor = [];
 
