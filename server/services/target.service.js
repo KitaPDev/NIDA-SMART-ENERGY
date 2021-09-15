@@ -288,7 +288,8 @@ async function getAllTarget_lsBuildingID_period(lsBuildingID, start, end) {
 			"target.year",
 			"building.label as building",
 			"target.electricity_bill",
-			"target.tariff"
+			"target.tariff",
+			"target.amount_people"
 		)
 		.whereIn("building.id", lsBuildingID)
 		.andWhereBetween("target.year", [start.getFullYear(), end.getFullYear()])

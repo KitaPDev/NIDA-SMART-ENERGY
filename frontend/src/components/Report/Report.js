@@ -393,6 +393,16 @@ class Report extends React.Component {
 			let kwh_system_building = await this.getKwhSystemBuilding();
 			let lsTarget = await this.getAllTargetBuildingPeriod();
 
+			let b64BarChartBuildingEnergyUsage =
+				this.getB64BarChartBuildingEnergyUsage(kwh_system_building, lsBuilding);
+
+			let b64BarChartBuildingEnergyUsagePerCapita =
+				this.getB64BarChartBuildingEnergyUsagePerCapita(
+					kwh_system_building,
+					lsTarget,
+					lsBuilding
+				);
+
 			let fileName = i18n.t("Energy Usage per Capita Report");
 			let blob = await pdf(
 				<EnergyUsagePerCapitaReport
@@ -402,6 +412,10 @@ class Report extends React.Component {
 					lsBuilding={lsBuilding}
 					kwh_system_building={kwh_system_building}
 					lsTarget={lsTarget}
+					b64BarChartBuildingEnergyUsage={b64BarChartBuildingEnergyUsage}
+					b64BarChartBuildingEnergyUsagePerCapita={
+						b64BarChartBuildingEnergyUsagePerCapita
+					}
 				/>
 			).toBlob();
 			saveAs(blob, fileName + ".pdf");
@@ -836,9 +850,140 @@ class Report extends React.Component {
 		return b64_building;
 	}
 
-	getB64BarChartBuildingEnergyUsage() {}
+	getB64BarChartBuildingEnergyUsage(kwh_system_building, lsBuilding) {
+		let options = {
+			responsive: true,
+			animation: false,
+			maintainAspectRatio: false,
+			scales: {
+				x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+				y: {
+					ticks: { font: { size: 10 } },
+					title: {
+						display: true,
+						text: i18n.t("kWh"),
+						font: { size: 12 },
+					},
+					grid: { display: true },
+				},
+			},
+			plugins: {
+				legend: { display: false },
+			},
+		};
 
-	getB64BarChartBuildingEnergyUsagePerCapita() {}
+		let labels = Object.keys(kwh_system_building);
+		let lsData = [];
+		let lsColor = [];
+
+		for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
+			lsData.push(kwh_system["Main"]);
+			lsColor.push(lsBuilding.find((bld) => bld.label === building).color_code);
+		}
+
+		let data = {
+			labels: labels,
+			datasets: [
+				{
+					label: "Energy Usage",
+					backgroundColor: lsColor,
+					borderColor: lsColor,
+					data: lsData,
+				},
+			],
+		};
+
+		document.getElementById("bc-building-energy-usage").remove();
+		document.getElementById(
+			"wrapper-bc-building-energy-usage"
+		).innerHTML = `<canvas id="bc-building-energy-usage" />`;
+
+		let ctx = document
+			.getElementById("bc-building-energy-usage")
+			.getContext("2d");
+
+		let chart = new Chart(ctx, {
+			type: "bar",
+			data: data,
+			options: options,
+		});
+
+		return chart.toBase64Image();
+	}
+
+	getB64BarChartBuildingEnergyUsagePerCapita(
+		kwh_system_building,
+		lsTarget,
+		lsBuilding
+	) {
+		let options = {
+			responsive: true,
+			animation: false,
+			maintainAspectRatio: false,
+			scales: {
+				x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+				y: {
+					ticks: { font: { size: 10 } },
+					title: {
+						display: true,
+						text: i18n.t("kWh"),
+						font: { size: 12 },
+					},
+					grid: { display: true },
+				},
+			},
+			plugins: {
+				legend: { display: false },
+			},
+		};
+
+		let labels = Object.keys(kwh_system_building);
+		let lsData = [];
+		let lsColor = [];
+
+		for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
+			let d = 0;
+
+			let target = lsTarget.find((t) => t.building === building);
+			if (target) {
+				if (target.amount_people !== null) {
+					d = kwh_system["Main"] / target.amount_people;
+				}
+			}
+
+			lsData.push(d);
+			lsColor.push(lsBuilding.find((bld) => bld.label === building).color_code);
+		}
+
+		let data = {
+			labels: labels,
+			datasets: [
+				{
+					label: "Energy Usage per Capita",
+					backgroundColor: lsColor,
+					borderColor: lsColor,
+					data: lsData,
+				},
+			],
+		};
+
+		document.getElementById("bc-building-energy-usage-capita").remove();
+		document.getElementById(
+			"wrapper-bc-building-energy-usage-capita"
+		).innerHTML = `<canvas id="bc-building-energy-usage-capita" />`;
+
+		let ctx = document
+			.getElementById("bc-building-energy-usage-capita")
+			.getContext("2d");
+
+		let chart = new Chart(ctx, {
+			type: "bar",
+			data: data,
+			options: options,
+		});
+
+		return chart.toBase64Image();
+	}
 
 	render() {
 		let {

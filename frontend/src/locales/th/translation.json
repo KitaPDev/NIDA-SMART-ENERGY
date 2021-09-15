@@ -235,7 +235,7 @@
 	"Date": "วันที่",
 	"Electricity Bill Report": "รายงานค่าไฟฟ้า",
 	"A/C Power Used Compared to Temperature and Humidity Report": "รายงานการใช้ไฟฟ้าเทียบกับอุณหภูมิและความชื้น",
-	"Energy Use per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร",
+	"Air Conditioning Power Used Compared to Temperature and Humidity Report": "รายงานการใช้ไฟฟ้าเทียบกับอุณหภูมิและความชื้น",
 	"to": "ถึง",
 	"By building": "ของอาคาร",
 	"with total energy usage of": "มีการใช้พลังงานทั้งหมด",
@@ -257,6 +257,11 @@
 	"Total": "รวมทั้งหมด",
 	"% Target": "% เทียบค่าเป้าหมาย",
 
-	"Compare air conditioning power usage to temperature and humidity": "เปรียบเทียบการใช้ไฟฟ้าของระบบปรับอากาศ เทียบกับอุณหภูมิและความชื้น",
-	"Time": "เวลา"
+	"Compare air conditioning power usage to temperature and humidity.": "เปรียบเทียบการใช้ไฟฟ้าของระบบปรับอากาศ เทียบกับอุณหภูมิและความชื้น",
+	"Time": "เวลา",
+
+	"Energy Usage per Capita": "การใช้ไฟฟ้าต่อหัวประชากร",
+	"Energy Usage per Capita Report": "รายงานการใช้ไฟฟ้าต่อหัวประชากร",
+	"report2.Energy Usage": "การใช้พลังงานไฟฟ้า",
+	"Capita": "จำนวนประชากร"
 }

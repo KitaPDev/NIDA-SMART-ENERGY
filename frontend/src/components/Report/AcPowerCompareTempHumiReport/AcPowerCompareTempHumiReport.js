@@ -257,7 +257,7 @@ class AcPowerCompareTempHumiReport extends React.PureComponent {
 									</View>
 								</View>
 
-								{lsSelectedBuilding.map((bld) => (
+								{lsSelectedBuilding.slice(0, 6).map((bld) => (
 									<View style={styles.tableRow}>
 										<View style={styles.tableCol15}>
 											<Text style={styles.tableCellRed}>{t(bld)}</Text>
@@ -280,6 +280,67 @@ class AcPowerCompareTempHumiReport extends React.PureComponent {
 						</View>
 					</View>
 				</Page>
+
+				{lsSelectedBuilding.length > 6 ? (
+					<Page size="A4" style={styles.page}>
+						<View style={{ marginTop: 30 }} />
+						<View style={styles.body}>
+							<View style={styles.table}>
+								<View style={styles.tableRow}>
+									<View style={styles.tableColHeader15}>
+										<Text style={styles.tableCellHeader}>{t("Building")}</Text>
+									</View>
+									<View style={styles.tableColHeader85}>
+										<View style={styles.line}>
+											<Svg width="10" height="10" style={{ marginRight: 5 }}>
+												<Rect width="10" height="10" fill="#FFC708" />
+											</Svg>
+											<Text style={{ fontSize: 16, marginRight: 20 }}>
+												{t("Power") + " (kW)"}
+											</Text>
+
+											<Svg width="10" height="10" style={{ marginRight: 5 }}>
+												<Rect width="10" height="10" fill="#C0DDFB" />
+											</Svg>
+											<Text style={{ fontSize: 16, marginRight: 20 }}>
+												{t("Humidity") + " (%)"}
+											</Text>
+
+											<Svg width="10" height="10" style={{ marginRight: 5 }}>
+												<Rect width="10" height="10" fill="#FF0859" />
+											</Svg>
+											<Text style={{ fontSize: 16, marginRight: 20 }}>
+												{t("Temperature") + " (°C)"}
+											</Text>
+										</View>
+									</View>
+								</View>
+
+								{lsSelectedBuilding.slice(6).map((bld) => (
+									<View style={styles.tableRow}>
+										<View style={styles.tableCol15}>
+											<Text style={styles.tableCellRed}>{t(bld)}</Text>
+										</View>
+										<View style={styles.tableCol85}>
+											<View style={styles.line}>
+												<Image
+													style={styles.lineChart}
+													src={b64LineChartHumiKw_building[bld]}
+												/>
+												<Image
+													style={styles.lineChart}
+													src={b64LineChartTempKw_building[bld]}
+												/>
+											</View>
+										</View>
+									</View>
+								))}
+							</View>
+						</View>
+					</Page>
+				) : (
+					<Text></Text>
+				)}
 			</Document>
 		);
 	}

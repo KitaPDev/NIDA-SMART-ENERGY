@@ -74,7 +74,18 @@ const styles = StyleSheet.create({
 		flexWrap: "wrap",
 		alignItems: "center",
 	},
+	lineCenter: {
+		display: "flex",
+		flexDirection: "row",
+		flexWrap: "wrap",
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	red: { color: "red" },
+
+	barChart: {
+		height: 150,
+	},
 
 	table: {
 		display: "table",
@@ -84,6 +95,78 @@ const styles = StyleSheet.create({
 		width: "100%",
 		display: "flex",
 		flexDirection: "row",
+	},
+	tableColHeader15: {
+		width: "15%",
+		borderStyle: "solid",
+		borderColor: "#000",
+		borderWidth: 0.5,
+		borderLeftWidth: 1.5,
+		borderTopWidth: 1.5,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	tableColHeader25: {
+		width: "25%",
+		borderStyle: "solid",
+		borderColor: "#000",
+		borderWidth: 0.5,
+		borderRightWidth: 1.5,
+		borderTopWidth: 1.5,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	tableColHeader35: {
+		width: "35%",
+		borderStyle: "solid",
+		borderColor: "#000",
+		borderWidth: 0.5,
+		borderRightWidth: 1.5,
+		borderTopWidth: 1.5,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	tableCol15: {
+		width: "15%",
+		borderStyle: "solid",
+		borderColor: "#000",
+		borderWidth: 0.5,
+		borderLeftWidth: 1.5,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	tableCol25: {
+		width: "25%",
+		borderStyle: "solid",
+		borderColor: "#000",
+		borderWidth: 0.5,
+		borderRightWidth: 1.5,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	tableCol35: {
+		width: "35%",
+		borderStyle: "solid",
+		borderColor: "#000",
+		borderWidth: 0.5,
+		borderRightWidth: 1.5,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	tableCellHeader: {
+		fontSize: 16,
+		fontWeight: 600,
+	},
+	tableCellRed: {
+		fontSize: 16,
+		fontWeight: 600,
+		color: "red",
 	},
 });
 
@@ -97,6 +180,9 @@ class EnergyUsagePerCapitaReport extends React.PureComponent {
 			lsBuilding: this.props.lsBuilding,
 			kwh_system_building: this.props.kwh_system_building,
 			lsTarget: this.props.lsTarget,
+			b64BarChartBuildingEnergyUsage: this.props.b64BarChartBuildingEnergyUsage,
+			b64BarChartBuildingEnergyUsagePerCapita:
+				this.props.b64BarChartBuildingEnergyUsagePerCapita,
 		};
 	}
 
@@ -108,6 +194,8 @@ class EnergyUsagePerCapitaReport extends React.PureComponent {
 			lsBuilding,
 			kwh_system_building,
 			lsTarget,
+			b64BarChartBuildingEnergyUsage,
+			b64BarChartBuildingEnergyUsagePerCapita,
 		} = this.state;
 
 		const { t } = this.props;
@@ -228,8 +316,165 @@ class EnergyUsagePerCapitaReport extends React.PureComponent {
 								<Text>{t("kWh")}</Text>
 							</View>
 						</View>
+
+						<View style={styles.section}>
+							<View style={styles.lineCenter}>
+								<Text>{`${t("Energy Usage")} (${t("kWh")})`}</Text>
+							</View>
+							<View style={styles.lineCenter}>
+								<View>
+									<Image
+										style={styles.barChart}
+										src={b64BarChartBuildingEnergyUsage}
+									/>
+								</View>
+							</View>
+						</View>
+
+						<View style={styles.section}>
+							<View style={styles.lineCenter}>
+								<Text>{`${t("Energy Usage per Capita")} (${t("kWh")})`}</Text>
+							</View>
+							<View style={styles.lineCenter}>
+								<View>
+									<Image
+										style={styles.barChart}
+										src={b64BarChartBuildingEnergyUsagePerCapita}
+									/>
+								</View>
+							</View>
+						</View>
+
+						{lsSelectedBuilding.length <= 5 ? (
+							<View style={styles.table}>
+								<View style={styles.tableRow}>
+									<View style={styles.tableColHeader15}>
+										<Text style={styles.tableCellHeader}>{t("Building")}</Text>
+									</View>
+									<View style={styles.tableColHeader25}>
+										<Text>{`${t("Capita")} (${t("people")})`}</Text>
+									</View>
+									<View style={styles.tableColHeader25}>
+										<Text>{`${t("report2.Energy Usage")} (${t("kWh")})`}</Text>
+									</View>
+									<View style={styles.tableColHeader35}>
+										<Text>{`${t("Energy Usage per Capita")} (${t(
+											"kWh"
+										)})`}</Text>
+									</View>
+								</View>
+								{lsSelectedBuilding.map((bld) => {
+									let capita = "-";
+									let kwh = kwh_system_building[bld]["Main"];
+									let kwhPerCapita = "-";
+
+									let target = lsTarget.find((t) => t.building === bld);
+									if (target) {
+										if (target.amount_people !== null) {
+											capita = target.amount_people;
+
+											if (capita !== 0) {
+												kwhPerCapita = numberFormatter.withCommas(
+													parseFloat(kwh / capita).toFixed(2)
+												);
+											}
+										}
+									}
+
+									return (
+										<View style={styles.tableRow}>
+											<View style={styles.tableCol15}>
+												<Text style={styles.tableCellRed}>{t(bld)}</Text>
+											</View>
+											<View style={styles.tableCol25}>
+												<Text style={styles.tableCellRed}>{capita}</Text>
+											</View>
+											<View style={styles.tableCol25}>
+												<Text style={styles.tableCellRed}>
+													{numberFormatter.withCommas(
+														parseFloat(kwh).toFixed(2)
+													)}
+												</Text>
+											</View>
+											<View style={styles.tableCol35}>
+												<Text style={styles.tableCellRed}>{kwhPerCapita}</Text>
+											</View>
+										</View>
+									);
+								})}
+							</View>
+						) : (
+							<Text></Text>
+						)}
 					</View>
 				</Page>
+
+				{lsSelectedBuilding.length > 5 ? (
+					<Page size="A4" style={styles.page}>
+						<View style={{ marginTop: 30 }} />
+						<View style={styles.body}>
+							<View style={styles.table}>
+								<View style={styles.tableRow}>
+									<View style={styles.tableColHeader15}>
+										<Text style={styles.tableCellHeader}>{t("Building")}</Text>
+									</View>
+									<View style={styles.tableColHeader25}>
+										<Text>{`${t("Capita")} (${t("people")})`}</Text>
+									</View>
+									<View style={styles.tableColHeader25}>
+										<Text>{`${t("report2.Energy Usage")} (${t("kWh")})`}</Text>
+									</View>
+									<View style={styles.tableColHeader35}>
+										<Text>{`${t("Energy Usage per Capita")} (${t(
+											"kWh"
+										)})`}</Text>
+									</View>
+								</View>
+								{lsSelectedBuilding.map((bld) => {
+									let capita = "-";
+									let kwh = kwh_system_building[bld]["Main"];
+									let kwhPerCapita = "-";
+
+									let target = lsTarget.find((t) => t.building === bld);
+									if (target) {
+										if (target.amount_people !== null) {
+											capita = target.amount_people;
+
+											if (capita !== 0) {
+												kwhPerCapita = numberFormatter.withCommas(
+													parseFloat(kwh / capita).toFixed(2)
+												);
+											}
+										}
+									}
+
+									return (
+										<View style={styles.tableRow}>
+											<View style={styles.tableCol15}>
+												<Text style={styles.tableCellRed}>{t(bld)}</Text>
+											</View>
+											<View style={styles.tableCol25}>
+												<Text style={styles.tableCellRed}>{capita}</Text>
+											</View>
+											<View style={styles.tableCol25}>
+												<Text style={styles.tableCellRed}>
+													{numberFormatter.withCommas(
+														parseFloat(kwh).toFixed(2)
+													)}
+												</Text>
+											</View>
+											<View style={styles.tableCol35}>
+												<Text style={styles.tableCellRed}>{kwhPerCapita}</Text>
+											</View>
+										</View>
+									);
+								})}
+							</View>
+						</View>
+					</Page>
+				) : (
+					<Text></Text>
+				)}
 			</Document>
 		);
 	}

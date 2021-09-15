@@ -215,6 +215,7 @@ class EnergyUsageReport extends React.PureComponent {
 													t(bld) +
 													(idx === lsSelectedBuilding.length - 1 ? "" : ", ")
 											)}
+											<Text> </Text>
 										</Text>
 									)}
 								</Text>

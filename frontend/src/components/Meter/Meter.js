@@ -761,6 +761,7 @@ class Meter extends React.Component {
 														<div className="meter">
 															<img
 																src={window.location.origin + "/meter.png"}
+																alt="meter.png"
 															/>
 														</div>
 
@@ -821,6 +822,7 @@ class Meter extends React.Component {
 																						window.location.origin +
 																						"/meter.png"
 																					}
+																					alt="meter.png"
 																				/>
 																			</div>
 
@@ -904,6 +906,7 @@ class Meter extends React.Component {
 																						window.location.origin +
 																						"/meter.png"
 																					}
+																					alt="meter.png"
 																				/>
 																			</div>
 
@@ -993,7 +996,10 @@ class Meter extends React.Component {
 					<ModalBody>
 						<div className="body-row-1">
 							<div className="meter-img">
-								<img src={window.location.origin + "/meter.png"} />
+								<img
+									src={window.location.origin + "/meter.png"}
+									alt="meter.png"
+								/>
 							</div>
 							<table>
 								<tbody>

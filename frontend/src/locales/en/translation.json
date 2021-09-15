@@ -221,8 +221,8 @@
 	"Energy Usage Report": "Energy Usage Report",
 	"Date": "Date",
 	"Electricity Bill Report": "Electricity Bill Report",
+	"A/C Power Used Compared to Temperature and Humidity Report": "A/C Power Used Compared to Temperature and Humidity Report",
 	"Air Conditioning Power Used Compared to Tempeerature and Humidity Report": "Air Conditioning Power Used Compared to Tempeerature and Humidity Report",
-	"Energy Use per Capita Report": "Energy Use per Capita Report",
 	"to": "to",
 	"By building": "By building",
 	"with total energy usage of": "with total energy usage of",
@@ -243,6 +243,11 @@
 	"Bill (Baht)": "Bill (Baht)",
 	"% Target": "% Target",
 
-	"Compare air conditioning power usage to temperature and humidity": "Compare air conditioning power usage to temperature and humidity",
-	"Time": "Time"
+	"Compare air conditioning power usage to temperature and humidity.": "Compare air conditioning power usage to temperature and humidity.",
+	"Time": "Time",
+
+	"Energy Usage per Capita": "Energy Usage per Capita",
+	"Energy Usage per Capita Report": "Energy Usage per Capita Report",
+	"report2.Energy Usage": "Energy Usage",
+	"Capita": "Capita"
 }
