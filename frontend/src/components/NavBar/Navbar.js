@@ -661,17 +661,9 @@ class NavBar extends React.Component {
 											<NavLink
 												exact
 												tag={Link}
-												to=""
-												href="environment.nida.ac.th"
+												to={{ pathname: "http://environment.nida.ac.th" }}
 												target="_blank"
 												className="nav-link d-flex flex-column"
-												onClick={() =>
-													window.history.pushState(
-														"",
-														"",
-														"/user/set-permission"
-													)
-												}
 											>
 												{t("Website Environmental")}
 											</NavLink>
@@ -680,17 +672,9 @@ class NavBar extends React.Component {
 											<NavLink
 												exact
 												tag={Link}
-												to=""
-												href="http://energy.nida.ac.th/"
+												to={{ pathname: "http://energy.nida.ac.th/" }}
 												target="_blank"
 												className="nav-link d-flex flex-column"
-												onClick={() =>
-													window.history.pushState(
-														"",
-														"",
-														"/user/set-permission"
-													)
-												}
 											>
 												{t("Website Energy V1")}
 											</NavLink>
