@@ -376,7 +376,7 @@ class Dashboard extends React.Component {
 		rows[3] = ["Air Conditioner", "Others"];
 		rows[4] = [kwhAcTotal, kwhMainTotal - kwhAcTotal];
 
-		csv.exportFile(`Dashboard Pie Charts`, rows);
+		csv.exportFile(i18n.t(`Dashboard Pie Charts`), rows);
 	}
 
 	exportLineChartPower() {
@@ -406,14 +406,14 @@ class Dashboard extends React.Component {
 				if (!rows[idx + 1]) {
 					rows[idx + 1] = [];
 					rows[idx + 1].push(
-						dateFormatter.ddmmmyyyyhhmm_noOffset(log.datetime)
+						dateFormatter.yyyymmddhhmmss_noOffset(log.datetime)
 					);
 				}
 				rows[idx + 1].push(log.kw);
 			});
 		}
 
-		csv.exportFile(`Buildings Power Consumption`, rows);
+		csv.exportFile(`${i18n.t(`Power`)} (kW)`, rows);
 	}
 
 	exportBarChartPower() {
@@ -473,7 +473,7 @@ class Dashboard extends React.Component {
 			);
 		});
 
-		csv.exportFile(`Systems Power Consumption`, rows);
+		csv.exportFile(`${i18n.t(`Power`)} (kW)`, rows);
 	}
 
 	exportBarChartElectricityBill() {
@@ -485,7 +485,7 @@ class Dashboard extends React.Component {
 			rows.push([building, bill]);
 		});
 
-		csv.exportFile(`Electricity Bill`, rows);
+		csv.exportFile(i18n.t(`Electricity Bill`), rows);
 	}
 
 	render() {

@@ -265,7 +265,7 @@ class MixedChartBillCompare extends React.Component {
 			rows[idx + 1].push(labels[idx], d, dataMonthCompare[idx]);
 		});
 
-		csv.exportFile(`Bill Compare to ${compareTo}`, rows);
+		csv.exportFile(i18n.t(`Compare to`), rows);
 	}
 
 	handleDoubleClick() {

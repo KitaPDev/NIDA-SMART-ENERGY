@@ -679,15 +679,15 @@ class NavBar extends React.Component {
 												{t("Website Energy V1")}
 											</NavLink>
 										</DropdownItem>
-										<DropdownItem
-											className="share"
-											onClick={() => this.toggleModalShare()}
-										>
-											<div>{t("Share") + " "}</div>
-											<IoMdShare />
-										</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
+								<NavItem
+									className="share"
+									onClick={() => this.toggleModalShare()}
+								>
+									<div>{t("Share") + " "}</div>
+									<IoMdShare />
+								</NavItem>
 							</Nav>
 						</Collapse>
 						<div className="navbar-right">

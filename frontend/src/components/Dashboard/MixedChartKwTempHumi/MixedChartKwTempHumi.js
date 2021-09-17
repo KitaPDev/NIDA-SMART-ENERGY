@@ -332,7 +332,7 @@ class MixedChartKwTempHumi extends React.Component {
 		let dataKw = data.datasets[2].data;
 
 		let rows = [[]];
-		rows[0].push("Date", "kW", "Temperature", "Humidity", compareTo);
+		rows[0].push("Datetime", "kW", "Temperature", "Humidity", compareTo);
 
 		labels.forEach((d, idx) => {
 			if (!rows[idx + 1]) rows[idx + 1] = [];
@@ -344,7 +344,7 @@ class MixedChartKwTempHumi extends React.Component {
 			);
 		});
 
-		csv.exportFile(`Energy (kW) Air Conditioner`, rows);
+		csv.exportFile(i18n.t(`Energy (kW) Air Conditioner`), rows);
 	}
 
 	handleDoubleClick() {

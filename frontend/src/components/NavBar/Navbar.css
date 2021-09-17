@@ -63,10 +63,16 @@ nav .share {
 	align-items: center;
 	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;
+	width: fit-content;
+}
+
+nav .share:hover {
+	cursor: pointer;
+	font-weight: bold;
 }
 
 nav .share svg {
-	margin-left: 0.5rem;
+	margin-left: 0.25rem;
 }
 
 .navbar-right {

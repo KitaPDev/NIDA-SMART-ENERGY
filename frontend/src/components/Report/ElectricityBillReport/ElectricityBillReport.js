@@ -507,102 +507,75 @@ class ElectricityBillReport extends React.PureComponent {
 															<Text style={styles.tableCellTotalRed}>
 																{numberFormatter.withCommas(
 																	Math.round(
-																		lsTarget.reduce(function (a, b) {
-																			if (Number.isInteger(a)) {
-																				if (
-																					b.year === +year &&
-																					b.month === +month
-																				) {
-																					return a + b.electricity_bill;
-																				}
-																				return a + 0;
-																			}
+																		lsTarget.length > 0
+																			? lsTarget.reduce(function (a, b) {
+																					if (Number.isInteger(a)) {
+																						if (
+																							b.year === +year &&
+																							b.month === +month
+																						) {
+																							return a + b.electricity_bill;
+																						}
+																						return a + 0;
+																					}
 
-																			if (
-																				b.year === +year &&
-																				b.month === +month &&
-																				a.year === +year &&
-																				a.month === +month
-																			) {
-																				return (
-																					a.electricity_bill +
-																					b.electricity_bill
-																				);
-																			}
+																					if (
+																						b.year === +year &&
+																						b.month === +month &&
+																						a.year === +year &&
+																						a.month === +month
+																					) {
+																						return (
+																							a.electricity_bill +
+																							b.electricity_bill
+																						);
+																					}
 
-																			return 0;
-																		})
+																					return 0;
+																			  })
+																			: "-"
 																	)
 																)}
 															</Text>
 														</View>
 														<View style={styles.tableCol40}>
-															<Text style={styles.tableCellTotalRed}>
-																{lsTarget.reduce(function (a, b) {
-																	if (Number.isInteger(a)) {
-																		if (
-																			b.year === +year &&
-																			b.month === +month
-																		) {
-																			return a + b.electricity_bill;
-																		}
-																		return a + 0;
-																	}
-
-																	if (
-																		b.year === +year &&
-																		b.month === +month &&
-																		a.year === +year &&
-																		a.month === +month
-																	) {
-																		return (
-																			a.electricity_bill + b.electricity_bill
-																		);
-																	}
-
-																	return 0;
-																}) -
-																	Math.round(
-																		Object.values(
-																			bill_building_month[month]
-																		).reduce((a, b) => a + b)
-																	) >
-																0
-																	? "+"
-																	: ""}
-																{numberFormatter.withCommas(
-																	parseFloat(
-																		((lsTarget.reduce(function (a, b) {
-																			if (Number.isInteger(a)) {
-																				if (
-																					b.year === +year &&
-																					b.month === +month
-																				) {
-																					return a + b.electricity_bill;
-																				}
-																				return a + 0;
-																			}
-
+															{lsTarget.length > 0 ? (
+																<Text style={styles.tableCellTotalRed}>
+																	{lsTarget.reduce(function (a, b) {
+																		if (Number.isInteger(a)) {
 																			if (
 																				b.year === +year &&
-																				b.month === +month &&
-																				a.year === +year &&
-																				a.month === +month
+																				b.month === +month
 																			) {
-																				return (
-																					a.electricity_bill +
-																					b.electricity_bill
-																				);
+																				return a + b.electricity_bill;
 																			}
+																			return a + 0;
+																		}
 
-																			return 0;
-																		}) -
-																			Math.round(
-																				Object.values(
-																					bill_building_month[month]
-																				).reduce((a, b) => a + b)
-																			)) /
-																			lsTarget.reduce(function (a, b) {
+																		if (
+																			b.year === +year &&
+																			b.month === +month &&
+																			a.year === +year &&
+																			a.month === +month
+																		) {
+																			return (
+																				a.electricity_bill + b.electricity_bill
+																			);
+																		}
+
+																		return 0;
+																	}) -
+																		Math.round(
+																			Object.values(
+																				bill_building_month[month]
+																			).reduce((a, b) => a + b)
+																		) >
+																	0
+																		? "+"
+																		: ""}
+																	{numberFormatter.withCommas(
+																		parseFloat(
+																			((lsTarget.reduce(function (a, b) {
 																				if (Number.isInteger(a)) {
 																					if (
 																						b.year === +year &&
@@ -626,12 +599,45 @@ class ElectricityBillReport extends React.PureComponent {
 																				}
 
 																				return 0;
-																			})) *
-																			100
-																	).toFixed(2)
-																)}
-																%
-															</Text>
+																			}) -
+																				Math.round(
+																					Object.values(
+																						bill_building_month[month]
+																					).reduce((a, b) => a + b)
+																				)) /
+																				lsTarget.reduce(function (a, b) {
+																					if (Number.isInteger(a)) {
+																						if (
+																							b.year === +year &&
+																							b.month === +month
+																						) {
+																							return a + b.electricity_bill;
+																						}
+																						return a + 0;
+																					}
+
+																					if (
+																						b.year === +year &&
+																						b.month === +month &&
+																						a.year === +year &&
+																						a.month === +month
+																					) {
+																						return (
+																							a.electricity_bill +
+																							b.electricity_bill
+																						);
+																					}
+
+																					return 0;
+																				})) *
+																				100
+																		).toFixed(2)
+																	)}
+																	%
+																</Text>
+															) : (
+																<Text style={styles.tableCellTotalRed}>-</Text>
+															)}
 														</View>
 													</View>
 												</View>
@@ -761,48 +767,108 @@ class ElectricityBillReport extends React.PureComponent {
 																	</Text>
 																</View>
 																<View style={styles.tableCol40}>
-																	<Text style={styles.tableCellRed}>
-																		{lsTarget.find(
-																			(t) =>
-																				t.year === +year &&
-																				t.month === +month &&
-																				t.building === bld
-																		)
-																			? lsTarget.find(
-																					(t) =>
-																						t.year === +year &&
-																						t.month === +month &&
-																						t.building === bld
-																			  ).electricity_bill !== null
-																				? `${
-																						lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																						).electricity_bill >
-																						bill_building_month[month][bld]
-																							? "+"
-																							: ""
-																				  }${parseFloat(
-																						((lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																						).electricity_bill -
-																							bill_building_month[month][bld]) /
-																							lsTarget.find(
-																								(t) =>
-																									t.year === +year &&
-																									t.month === +month &&
-																									t.building === bld
-																							).electricity_bill) *
-																							100
-																				  ).toFixed(2)}%`
-																				: "-"
-																			: "-"}
-																	</Text>
+																	{lsTarget.length > 0 ? (
+																		<Text style={styles.tableCellTotalRed}>
+																			{lsTarget.reduce(function (a, b) {
+																				if (Number.isInteger(a)) {
+																					if (
+																						b.year === +year &&
+																						b.month === +month
+																					) {
+																						return a + b.electricity_bill;
+																					}
+																					return a + 0;
+																				}
+
+																				if (
+																					b.year === +year &&
+																					b.month === +month &&
+																					a.year === +year &&
+																					a.month === +month
+																				) {
+																					return (
+																						a.electricity_bill +
+																						b.electricity_bill
+																					);
+																				}
+
+																				return 0;
+																			}) -
+																				Math.round(
+																					Object.values(
+																						bill_building_month[month]
+																					).reduce((a, b) => a + b)
+																				) >
+																			0
+																				? "+"
+																				: ""}
+																			{numberFormatter.withCommas(
+																				parseFloat(
+																					((lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						)) /
+																						lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
+
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
+
+																							return 0;
+																						})) *
+																						100
+																				).toFixed(2)
+																			)}
+																			%
+																		</Text>
+																	) : (
+																		<Text style={styles.tableCellTotalRed}>
+																			-
+																		</Text>
+																	)}
 																</View>
 															</View>
 														</View>
@@ -846,102 +912,76 @@ class ElectricityBillReport extends React.PureComponent {
 																<Text style={styles.tableCellTotalRed}>
 																	{numberFormatter.withCommas(
 																		Math.round(
-																			lsTarget.reduce(function (a, b) {
-																				if (Number.isInteger(a)) {
-																					if (
-																						b.year === +year &&
-																						b.month === +month
-																					) {
-																						return a + b.electricity_bill;
-																					}
-																					return a + 0;
-																				}
+																			lsTarget.length > 0
+																				? lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
 
-																				if (
-																					b.year === +year &&
-																					b.month === +month &&
-																					a.year === +year &&
-																					a.month === +month
-																				) {
-																					return (
-																						a.electricity_bill +
-																						b.electricity_bill
-																					);
-																				}
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
 
-																				return 0;
-																			})
+																						return 0;
+																				  })
+																				: "-"
 																		)
 																	)}
 																</Text>
 															</View>
 															<View style={styles.tableCol40}>
-																<Text style={styles.tableCellTotalRed}>
-																	{lsTarget.reduce(function (a, b) {
-																		if (Number.isInteger(a)) {
-																			if (
-																				b.year === +year &&
-																				b.month === +month
-																			) {
-																				return a + b.electricity_bill;
-																			}
-																			return a + 0;
-																		}
-
-																		if (
-																			b.year === +year &&
-																			b.month === +month &&
-																			a.year === +year &&
-																			a.month === +month
-																		) {
-																			return (
-																				a.electricity_bill + b.electricity_bill
-																			);
-																		}
-
-																		return 0;
-																	}) -
-																		Math.round(
-																			Object.values(
-																				bill_building_month[month]
-																			).reduce((a, b) => a + b)
-																		) >
-																	0
-																		? "+"
-																		: ""}
-																	{numberFormatter.withCommas(
-																		parseFloat(
-																			((lsTarget.reduce(function (a, b) {
-																				if (Number.isInteger(a)) {
-																					if (
-																						b.year === +year &&
-																						b.month === +month
-																					) {
-																						return a + b.electricity_bill;
-																					}
-																					return a + 0;
-																				}
-
+																{lsTarget.length > 0 ? (
+																	<Text style={styles.tableCellTotalRed}>
+																		{lsTarget.reduce(function (a, b) {
+																			if (Number.isInteger(a)) {
 																				if (
 																					b.year === +year &&
-																					b.month === +month &&
-																					a.year === +year &&
-																					a.month === +month
+																					b.month === +month
 																				) {
-																					return (
-																						a.electricity_bill +
-																						b.electricity_bill
-																					);
+																					return a + b.electricity_bill;
 																				}
+																				return a + 0;
+																			}
 
-																				return 0;
-																			}) -
-																				Math.round(
-																					Object.values(
-																						bill_building_month[month]
-																					).reduce((a, b) => a + b)
-																				)) /
-																				lsTarget.reduce(function (a, b) {
+																			if (
+																				b.year === +year &&
+																				b.month === +month &&
+																				a.year === +year &&
+																				a.month === +month
+																			) {
+																				return (
+																					a.electricity_bill +
+																					b.electricity_bill
+																				);
+																			}
+
+																			return 0;
+																		}) -
+																			Math.round(
+																				Object.values(
+																					bill_building_month[month]
+																				).reduce((a, b) => a + b)
+																			) >
+																		0
+																			? "+"
+																			: ""}
+																		{numberFormatter.withCommas(
+																			parseFloat(
+																				((lsTarget.reduce(function (a, b) {
 																					if (Number.isInteger(a)) {
 																						if (
 																							b.year === +year &&
@@ -965,12 +1005,47 @@ class ElectricityBillReport extends React.PureComponent {
 																					}
 
 																					return 0;
-																				})) *
-																				100
-																		).toFixed(2)
-																	)}
-																	%
-																</Text>
+																				}) -
+																					Math.round(
+																						Object.values(
+																							bill_building_month[month]
+																						).reduce((a, b) => a + b)
+																					)) /
+																					lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					})) *
+																					100
+																			).toFixed(2)
+																		)}
+																		%
+																	</Text>
+																) : (
+																	<Text style={styles.tableCellTotalRed}>
+																		-
+																	</Text>
+																)}
 															</View>
 														</View>
 													</View>
@@ -1101,50 +1176,118 @@ class ElectricityBillReport extends React.PureComponent {
 																			</Text>
 																		</View>
 																		<View style={styles.tableCol40}>
-																			<Text style={styles.tableCellRed}>
-																				{lsTarget.find(
-																					(t) =>
-																						t.year === +year &&
-																						t.month === +month &&
-																						t.building === bld
-																				)
-																					? lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																					  ).electricity_bill !== null
-																						? `${
-																								lsTarget.find(
-																									(t) =>
-																										t.year === +year &&
-																										t.month === +month &&
-																										t.building === bld
-																								).electricity_bill >
-																								bill_building_month[month][bld]
-																									? "+"
-																									: ""
-																						  }${parseFloat(
-																								((lsTarget.find(
-																									(t) =>
-																										t.year === +year &&
-																										t.month === +month &&
-																										t.building === bld
-																								).electricity_bill -
-																									bill_building_month[month][
-																										bld
-																									]) /
-																									lsTarget.find(
-																										(t) =>
-																											t.year === +year &&
-																											t.month === +month &&
-																											t.building === bld
-																									).electricity_bill) *
-																									100
-																						  ).toFixed(2)}%`
-																						: "-"
-																					: "-"}
-																			</Text>
+																			{lsTarget.length > 0 ? (
+																				<Text style={styles.tableCellTotalRed}>
+																					{lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						) >
+																					0
+																						? "+"
+																						: ""}
+																					{numberFormatter.withCommas(
+																						parseFloat(
+																							((lsTarget.reduce(function (
+																								a,
+																								b
+																							) {
+																								if (Number.isInteger(a)) {
+																									if (
+																										b.year === +year &&
+																										b.month === +month
+																									) {
+																										return (
+																											a + b.electricity_bill
+																										);
+																									}
+																									return a + 0;
+																								}
+
+																								if (
+																									b.year === +year &&
+																									b.month === +month &&
+																									a.year === +year &&
+																									a.month === +month
+																								) {
+																									return (
+																										a.electricity_bill +
+																										b.electricity_bill
+																									);
+																								}
+
+																								return 0;
+																							}) -
+																								Math.round(
+																									Object.values(
+																										bill_building_month[month]
+																									).reduce((a, b) => a + b)
+																								)) /
+																								lsTarget.reduce(function (
+																									a,
+																									b
+																								) {
+																									if (Number.isInteger(a)) {
+																										if (
+																											b.year === +year &&
+																											b.month === +month
+																										) {
+																											return (
+																												a + b.electricity_bill
+																											);
+																										}
+																										return a + 0;
+																									}
+
+																									if (
+																										b.year === +year &&
+																										b.month === +month &&
+																										a.year === +year &&
+																										a.month === +month
+																									) {
+																										return (
+																											a.electricity_bill +
+																											b.electricity_bill
+																										);
+																									}
+
+																									return 0;
+																								})) *
+																								100
+																						).toFixed(2)
+																					)}
+																					%
+																				</Text>
+																			) : (
+																				<Text style={styles.tableCellTotalRed}>
+																					-
+																				</Text>
+																			)}
 																		</View>
 																	</View>
 																</View>
@@ -1190,103 +1333,76 @@ class ElectricityBillReport extends React.PureComponent {
 																	<Text style={styles.tableCellTotalRed}>
 																		{numberFormatter.withCommas(
 																			Math.round(
-																				lsTarget.reduce(function (a, b) {
-																					if (Number.isInteger(a)) {
-																						if (
-																							b.year === +year &&
-																							b.month === +month
-																						) {
-																							return a + b.electricity_bill;
-																						}
-																						return a + 0;
-																					}
+																				lsTarget.length > 0
+																					? lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
 
-																					if (
-																						b.year === +year &&
-																						b.month === +month &&
-																						a.year === +year &&
-																						a.month === +month
-																					) {
-																						return (
-																							a.electricity_bill +
-																							b.electricity_bill
-																						);
-																					}
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
 
-																					return 0;
-																				})
+																							return 0;
+																					  })
+																					: "-"
 																			)
 																		)}
 																	</Text>
 																</View>
 																<View style={styles.tableCol40}>
-																	<Text style={styles.tableCellTotalRed}>
-																		{lsTarget.reduce(function (a, b) {
-																			if (Number.isInteger(a)) {
-																				if (
-																					b.year === +year &&
-																					b.month === +month
-																				) {
-																					return a + b.electricity_bill;
-																				}
-																				return a + 0;
-																			}
-
-																			if (
-																				b.year === +year &&
-																				b.month === +month &&
-																				a.year === +year &&
-																				a.month === +month
-																			) {
-																				return (
-																					a.electricity_bill +
-																					b.electricity_bill
-																				);
-																			}
-
-																			return 0;
-																		}) -
-																			Math.round(
-																				Object.values(
-																					bill_building_month[month]
-																				).reduce((a, b) => a + b)
-																			) >
-																		0
-																			? "+"
-																			: ""}
-																		{numberFormatter.withCommas(
-																			parseFloat(
-																				((lsTarget.reduce(function (a, b) {
-																					if (Number.isInteger(a)) {
-																						if (
-																							b.year === +year &&
-																							b.month === +month
-																						) {
-																							return a + b.electricity_bill;
-																						}
-																						return a + 0;
-																					}
-
+																	{lsTarget.length > 0 ? (
+																		<Text style={styles.tableCellTotalRed}>
+																			{lsTarget.reduce(function (a, b) {
+																				if (Number.isInteger(a)) {
 																					if (
 																						b.year === +year &&
-																						b.month === +month &&
-																						a.year === +year &&
-																						a.month === +month
+																						b.month === +month
 																					) {
-																						return (
-																							a.electricity_bill +
-																							b.electricity_bill
-																						);
+																						return a + b.electricity_bill;
 																					}
+																					return a + 0;
+																				}
 
-																					return 0;
-																				}) -
-																					Math.round(
-																						Object.values(
-																							bill_building_month[month]
-																						).reduce((a, b) => a + b)
-																					)) /
-																					lsTarget.reduce(function (a, b) {
+																				if (
+																					b.year === +year &&
+																					b.month === +month &&
+																					a.year === +year &&
+																					a.month === +month
+																				) {
+																					return (
+																						a.electricity_bill +
+																						b.electricity_bill
+																					);
+																				}
+
+																				return 0;
+																			}) -
+																				Math.round(
+																					Object.values(
+																						bill_building_month[month]
+																					).reduce((a, b) => a + b)
+																				) >
+																			0
+																				? "+"
+																				: ""}
+																			{numberFormatter.withCommas(
+																				parseFloat(
+																					((lsTarget.reduce(function (a, b) {
 																						if (Number.isInteger(a)) {
 																							if (
 																								b.year === +year &&
@@ -1310,12 +1426,47 @@ class ElectricityBillReport extends React.PureComponent {
 																						}
 
 																						return 0;
-																					})) *
-																					100
-																			).toFixed(2)
-																		)}
-																		%
-																	</Text>
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						)) /
+																						lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
+
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
+
+																							return 0;
+																						})) *
+																						100
+																				).toFixed(2)
+																			)}
+																			%
+																		</Text>
+																	) : (
+																		<Text style={styles.tableCellTotalRed}>
+																			-
+																		</Text>
+																	)}
 																</View>
 															</View>
 														</View>
@@ -1451,48 +1602,108 @@ class ElectricityBillReport extends React.PureComponent {
 																	</Text>
 																</View>
 																<View style={styles.tableCol40}>
-																	<Text style={styles.tableCellRed}>
-																		{lsTarget.find(
-																			(t) =>
-																				t.year === +year &&
-																				t.month === +month &&
-																				t.building === bld
-																		)
-																			? lsTarget.find(
-																					(t) =>
-																						t.year === +year &&
-																						t.month === +month &&
-																						t.building === bld
-																			  ).electricity_bill !== null
-																				? `${
-																						lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																						).electricity_bill >
-																						bill_building_month[month][bld]
-																							? "+"
-																							: ""
-																				  }${parseFloat(
-																						((lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																						).electricity_bill -
-																							bill_building_month[month][bld]) /
-																							lsTarget.find(
-																								(t) =>
-																									t.year === +year &&
-																									t.month === +month &&
-																									t.building === bld
-																							).electricity_bill) *
-																							100
-																				  ).toFixed(2)}%`
-																				: "-"
-																			: "-"}
-																	</Text>
+																	{lsTarget.length > 0 ? (
+																		<Text style={styles.tableCellTotalRed}>
+																			{lsTarget.reduce(function (a, b) {
+																				if (Number.isInteger(a)) {
+																					if (
+																						b.year === +year &&
+																						b.month === +month
+																					) {
+																						return a + b.electricity_bill;
+																					}
+																					return a + 0;
+																				}
+
+																				if (
+																					b.year === +year &&
+																					b.month === +month &&
+																					a.year === +year &&
+																					a.month === +month
+																				) {
+																					return (
+																						a.electricity_bill +
+																						b.electricity_bill
+																					);
+																				}
+
+																				return 0;
+																			}) -
+																				Math.round(
+																					Object.values(
+																						bill_building_month[month]
+																					).reduce((a, b) => a + b)
+																				) >
+																			0
+																				? "+"
+																				: ""}
+																			{numberFormatter.withCommas(
+																				parseFloat(
+																					((lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						)) /
+																						lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
+
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
+
+																							return 0;
+																						})) *
+																						100
+																				).toFixed(2)
+																			)}
+																			%
+																		</Text>
+																	) : (
+																		<Text style={styles.tableCellTotalRed}>
+																			-
+																		</Text>
+																	)}
 																</View>
 															</View>
 														</View>
@@ -1536,102 +1747,76 @@ class ElectricityBillReport extends React.PureComponent {
 																<Text style={styles.tableCellTotalRed}>
 																	{numberFormatter.withCommas(
 																		Math.round(
-																			lsTarget.reduce(function (a, b) {
-																				if (Number.isInteger(a)) {
-																					if (
-																						b.year === +year &&
-																						b.month === +month
-																					) {
-																						return a + b.electricity_bill;
-																					}
-																					return a + 0;
-																				}
+																			lsTarget.length > 0
+																				? lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
 
-																				if (
-																					b.year === +year &&
-																					b.month === +month &&
-																					a.year === +year &&
-																					a.month === +month
-																				) {
-																					return (
-																						a.electricity_bill +
-																						b.electricity_bill
-																					);
-																				}
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
 
-																				return 0;
-																			})
+																						return 0;
+																				  })
+																				: "-"
 																		)
 																	)}
 																</Text>
 															</View>
 															<View style={styles.tableCol40}>
-																<Text style={styles.tableCellTotalRed}>
-																	{lsTarget.reduce(function (a, b) {
-																		if (Number.isInteger(a)) {
-																			if (
-																				b.year === +year &&
-																				b.month === +month
-																			) {
-																				return a + b.electricity_bill;
-																			}
-																			return a + 0;
-																		}
-
-																		if (
-																			b.year === +year &&
-																			b.month === +month &&
-																			a.year === +year &&
-																			a.month === +month
-																		) {
-																			return (
-																				a.electricity_bill + b.electricity_bill
-																			);
-																		}
-
-																		return 0;
-																	}) -
-																		Math.round(
-																			Object.values(
-																				bill_building_month[month]
-																			).reduce((a, b) => a + b)
-																		) >
-																	0
-																		? "+"
-																		: ""}
-																	{numberFormatter.withCommas(
-																		parseFloat(
-																			((lsTarget.reduce(function (a, b) {
-																				if (Number.isInteger(a)) {
-																					if (
-																						b.year === +year &&
-																						b.month === +month
-																					) {
-																						return a + b.electricity_bill;
-																					}
-																					return a + 0;
-																				}
-
+																{lsTarget.length > 0 ? (
+																	<Text style={styles.tableCellTotalRed}>
+																		{lsTarget.reduce(function (a, b) {
+																			if (Number.isInteger(a)) {
 																				if (
 																					b.year === +year &&
-																					b.month === +month &&
-																					a.year === +year &&
-																					a.month === +month
+																					b.month === +month
 																				) {
-																					return (
-																						a.electricity_bill +
-																						b.electricity_bill
-																					);
+																					return a + b.electricity_bill;
 																				}
+																				return a + 0;
+																			}
 
-																				return 0;
-																			}) -
-																				Math.round(
-																					Object.values(
-																						bill_building_month[month]
-																					).reduce((a, b) => a + b)
-																				)) /
-																				lsTarget.reduce(function (a, b) {
+																			if (
+																				b.year === +year &&
+																				b.month === +month &&
+																				a.year === +year &&
+																				a.month === +month
+																			) {
+																				return (
+																					a.electricity_bill +
+																					b.electricity_bill
+																				);
+																			}
+
+																			return 0;
+																		}) -
+																			Math.round(
+																				Object.values(
+																					bill_building_month[month]
+																				).reduce((a, b) => a + b)
+																			) >
+																		0
+																			? "+"
+																			: ""}
+																		{numberFormatter.withCommas(
+																			parseFloat(
+																				((lsTarget.reduce(function (a, b) {
 																					if (Number.isInteger(a)) {
 																						if (
 																							b.year === +year &&
@@ -1655,12 +1840,47 @@ class ElectricityBillReport extends React.PureComponent {
 																					}
 
 																					return 0;
-																				})) *
-																				100
-																		).toFixed(2)
-																	)}
-																	%
-																</Text>
+																				}) -
+																					Math.round(
+																						Object.values(
+																							bill_building_month[month]
+																						).reduce((a, b) => a + b)
+																					)) /
+																					lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					})) *
+																					100
+																			).toFixed(2)
+																		)}
+																		%
+																	</Text>
+																) : (
+																	<Text style={styles.tableCellTotalRed}>
+																		-
+																	</Text>
+																)}
 															</View>
 														</View>
 													</View>
@@ -1791,50 +2011,118 @@ class ElectricityBillReport extends React.PureComponent {
 																			</Text>
 																		</View>
 																		<View style={styles.tableCol40}>
-																			<Text style={styles.tableCellRed}>
-																				{lsTarget.find(
-																					(t) =>
-																						t.year === +year &&
-																						t.month === +month &&
-																						t.building === bld
-																				)
-																					? lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																					  ).electricity_bill !== null
-																						? `${
-																								lsTarget.find(
-																									(t) =>
-																										t.year === +year &&
-																										t.month === +month &&
-																										t.building === bld
-																								).electricity_bill >
-																								bill_building_month[month][bld]
-																									? "+"
-																									: ""
-																						  }${parseFloat(
-																								((lsTarget.find(
-																									(t) =>
-																										t.year === +year &&
-																										t.month === +month &&
-																										t.building === bld
-																								).electricity_bill -
-																									bill_building_month[month][
-																										bld
-																									]) /
-																									lsTarget.find(
-																										(t) =>
-																											t.year === +year &&
-																											t.month === +month &&
-																											t.building === bld
-																									).electricity_bill) *
-																									100
-																						  ).toFixed(2)}%`
-																						: "-"
-																					: "-"}
-																			</Text>
+																			{lsTarget.length > 0 ? (
+																				<Text style={styles.tableCellTotalRed}>
+																					{lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						) >
+																					0
+																						? "+"
+																						: ""}
+																					{numberFormatter.withCommas(
+																						parseFloat(
+																							((lsTarget.reduce(function (
+																								a,
+																								b
+																							) {
+																								if (Number.isInteger(a)) {
+																									if (
+																										b.year === +year &&
+																										b.month === +month
+																									) {
+																										return (
+																											a + b.electricity_bill
+																										);
+																									}
+																									return a + 0;
+																								}
+
+																								if (
+																									b.year === +year &&
+																									b.month === +month &&
+																									a.year === +year &&
+																									a.month === +month
+																								) {
+																									return (
+																										a.electricity_bill +
+																										b.electricity_bill
+																									);
+																								}
+
+																								return 0;
+																							}) -
+																								Math.round(
+																									Object.values(
+																										bill_building_month[month]
+																									).reduce((a, b) => a + b)
+																								)) /
+																								lsTarget.reduce(function (
+																									a,
+																									b
+																								) {
+																									if (Number.isInteger(a)) {
+																										if (
+																											b.year === +year &&
+																											b.month === +month
+																										) {
+																											return (
+																												a + b.electricity_bill
+																											);
+																										}
+																										return a + 0;
+																									}
+
+																									if (
+																										b.year === +year &&
+																										b.month === +month &&
+																										a.year === +year &&
+																										a.month === +month
+																									) {
+																										return (
+																											a.electricity_bill +
+																											b.electricity_bill
+																										);
+																									}
+
+																									return 0;
+																								})) *
+																								100
+																						).toFixed(2)
+																					)}
+																					%
+																				</Text>
+																			) : (
+																				<Text style={styles.tableCellTotalRed}>
+																					-
+																				</Text>
+																			)}
 																		</View>
 																	</View>
 																</View>
@@ -1880,103 +2168,76 @@ class ElectricityBillReport extends React.PureComponent {
 																	<Text style={styles.tableCellTotalRed}>
 																		{numberFormatter.withCommas(
 																			Math.round(
-																				lsTarget.reduce(function (a, b) {
-																					if (Number.isInteger(a)) {
-																						if (
-																							b.year === +year &&
-																							b.month === +month
-																						) {
-																							return a + b.electricity_bill;
-																						}
-																						return a + 0;
-																					}
+																				lsTarget.length > 0
+																					? lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
 
-																					if (
-																						b.year === +year &&
-																						b.month === +month &&
-																						a.year === +year &&
-																						a.month === +month
-																					) {
-																						return (
-																							a.electricity_bill +
-																							b.electricity_bill
-																						);
-																					}
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
 
-																					return 0;
-																				})
+																							return 0;
+																					  })
+																					: "-"
 																			)
 																		)}
 																	</Text>
 																</View>
 																<View style={styles.tableCol40}>
-																	<Text style={styles.tableCellTotalRed}>
-																		{lsTarget.reduce(function (a, b) {
-																			if (Number.isInteger(a)) {
-																				if (
-																					b.year === +year &&
-																					b.month === +month
-																				) {
-																					return a + b.electricity_bill;
-																				}
-																				return a + 0;
-																			}
-
-																			if (
-																				b.year === +year &&
-																				b.month === +month &&
-																				a.year === +year &&
-																				a.month === +month
-																			) {
-																				return (
-																					a.electricity_bill +
-																					b.electricity_bill
-																				);
-																			}
-
-																			return 0;
-																		}) -
-																			Math.round(
-																				Object.values(
-																					bill_building_month[month]
-																				).reduce((a, b) => a + b)
-																			) >
-																		0
-																			? "+"
-																			: ""}
-																		{numberFormatter.withCommas(
-																			parseFloat(
-																				((lsTarget.reduce(function (a, b) {
-																					if (Number.isInteger(a)) {
-																						if (
-																							b.year === +year &&
-																							b.month === +month
-																						) {
-																							return a + b.electricity_bill;
-																						}
-																						return a + 0;
-																					}
-
+																	{lsTarget.length > 0 ? (
+																		<Text style={styles.tableCellTotalRed}>
+																			{lsTarget.reduce(function (a, b) {
+																				if (Number.isInteger(a)) {
 																					if (
 																						b.year === +year &&
-																						b.month === +month &&
-																						a.year === +year &&
-																						a.month === +month
+																						b.month === +month
 																					) {
-																						return (
-																							a.electricity_bill +
-																							b.electricity_bill
-																						);
+																						return a + b.electricity_bill;
 																					}
+																					return a + 0;
+																				}
 
-																					return 0;
-																				}) -
-																					Math.round(
-																						Object.values(
-																							bill_building_month[month]
-																						).reduce((a, b) => a + b)
-																					)) /
-																					lsTarget.reduce(function (a, b) {
+																				if (
+																					b.year === +year &&
+																					b.month === +month &&
+																					a.year === +year &&
+																					a.month === +month
+																				) {
+																					return (
+																						a.electricity_bill +
+																						b.electricity_bill
+																					);
+																				}
+
+																				return 0;
+																			}) -
+																				Math.round(
+																					Object.values(
+																						bill_building_month[month]
+																					).reduce((a, b) => a + b)
+																				) >
+																			0
+																				? "+"
+																				: ""}
+																			{numberFormatter.withCommas(
+																				parseFloat(
+																					((lsTarget.reduce(function (a, b) {
 																						if (Number.isInteger(a)) {
 																							if (
 																								b.year === +year &&
@@ -2000,12 +2261,47 @@ class ElectricityBillReport extends React.PureComponent {
 																						}
 
 																						return 0;
-																					})) *
-																					100
-																			).toFixed(2)
-																		)}
-																		%
-																	</Text>
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						)) /
+																						lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
+
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
+
+																							return 0;
+																						})) *
+																						100
+																				).toFixed(2)
+																			)}
+																			%
+																		</Text>
+																	) : (
+																		<Text style={styles.tableCellTotalRed}>
+																			-
+																		</Text>
+																	)}
 																</View>
 															</View>
 														</View>
@@ -2141,48 +2437,108 @@ class ElectricityBillReport extends React.PureComponent {
 																	</Text>
 																</View>
 																<View style={styles.tableCol40}>
-																	<Text style={styles.tableCellRed}>
-																		{lsTarget.find(
-																			(t) =>
-																				t.year === +year &&
-																				t.month === +month &&
-																				t.building === bld
-																		)
-																			? lsTarget.find(
-																					(t) =>
-																						t.year === +year &&
-																						t.month === +month &&
-																						t.building === bld
-																			  ).electricity_bill !== null
-																				? `${
-																						lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																						).electricity_bill >
-																						bill_building_month[month][bld]
-																							? "+"
-																							: ""
-																				  }${parseFloat(
-																						((lsTarget.find(
-																							(t) =>
-																								t.year === +year &&
-																								t.month === +month &&
-																								t.building === bld
-																						).electricity_bill -
-																							bill_building_month[month][bld]) /
-																							lsTarget.find(
-																								(t) =>
-																									t.year === +year &&
-																									t.month === +month &&
-																									t.building === bld
-																							).electricity_bill) *
-																							100
-																				  ).toFixed(2)}%`
-																				: "-"
-																			: "-"}
-																	</Text>
+																	{lsTarget.length > 0 ? (
+																		<Text style={styles.tableCellTotalRed}>
+																			{lsTarget.reduce(function (a, b) {
+																				if (Number.isInteger(a)) {
+																					if (
+																						b.year === +year &&
+																						b.month === +month
+																					) {
+																						return a + b.electricity_bill;
+																					}
+																					return a + 0;
+																				}
+
+																				if (
+																					b.year === +year &&
+																					b.month === +month &&
+																					a.year === +year &&
+																					a.month === +month
+																				) {
+																					return (
+																						a.electricity_bill +
+																						b.electricity_bill
+																					);
+																				}
+
+																				return 0;
+																			}) -
+																				Math.round(
+																					Object.values(
+																						bill_building_month[month]
+																					).reduce((a, b) => a + b)
+																				) >
+																			0
+																				? "+"
+																				: ""}
+																			{numberFormatter.withCommas(
+																				parseFloat(
+																					((lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					}) -
+																						Math.round(
+																							Object.values(
+																								bill_building_month[month]
+																							).reduce((a, b) => a + b)
+																						)) /
+																						lsTarget.reduce(function (a, b) {
+																							if (Number.isInteger(a)) {
+																								if (
+																									b.year === +year &&
+																									b.month === +month
+																								) {
+																									return a + b.electricity_bill;
+																								}
+																								return a + 0;
+																							}
+
+																							if (
+																								b.year === +year &&
+																								b.month === +month &&
+																								a.year === +year &&
+																								a.month === +month
+																							) {
+																								return (
+																									a.electricity_bill +
+																									b.electricity_bill
+																								);
+																							}
+
+																							return 0;
+																						})) *
+																						100
+																				).toFixed(2)
+																			)}
+																			%
+																		</Text>
+																	) : (
+																		<Text style={styles.tableCellTotalRed}>
+																			-
+																		</Text>
+																	)}
 																</View>
 															</View>
 														</View>
@@ -2226,102 +2582,76 @@ class ElectricityBillReport extends React.PureComponent {
 																<Text style={styles.tableCellTotalRed}>
 																	{numberFormatter.withCommas(
 																		Math.round(
-																			lsTarget.reduce(function (a, b) {
-																				if (Number.isInteger(a)) {
-																					if (
-																						b.year === +year &&
-																						b.month === +month
-																					) {
-																						return a + b.electricity_bill;
-																					}
-																					return a + 0;
-																				}
+																			lsTarget.length > 0
+																				? lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
 
-																				if (
-																					b.year === +year &&
-																					b.month === +month &&
-																					a.year === +year &&
-																					a.month === +month
-																				) {
-																					return (
-																						a.electricity_bill +
-																						b.electricity_bill
-																					);
-																				}
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
 
-																				return 0;
-																			})
+																						return 0;
+																				  })
+																				: "-"
 																		)
 																	)}
 																</Text>
 															</View>
 															<View style={styles.tableCol40}>
-																<Text style={styles.tableCellTotalRed}>
-																	{lsTarget.reduce(function (a, b) {
-																		if (Number.isInteger(a)) {
-																			if (
-																				b.year === +year &&
-																				b.month === +month
-																			) {
-																				return a + b.electricity_bill;
-																			}
-																			return a + 0;
-																		}
-
-																		if (
-																			b.year === +year &&
-																			b.month === +month &&
-																			a.year === +year &&
-																			a.month === +month
-																		) {
-																			return (
-																				a.electricity_bill + b.electricity_bill
-																			);
-																		}
-
-																		return 0;
-																	}) -
-																		Math.round(
-																			Object.values(
-																				bill_building_month[month]
-																			).reduce((a, b) => a + b)
-																		) >
-																	0
-																		? "+"
-																		: ""}
-																	{numberFormatter.withCommas(
-																		parseFloat(
-																			((lsTarget.reduce(function (a, b) {
-																				if (Number.isInteger(a)) {
-																					if (
-																						b.year === +year &&
-																						b.month === +month
-																					) {
-																						return a + b.electricity_bill;
-																					}
-																					return a + 0;
-																				}
-
+																{lsTarget.length > 0 ? (
+																	<Text style={styles.tableCellTotalRed}>
+																		{lsTarget.reduce(function (a, b) {
+																			if (Number.isInteger(a)) {
 																				if (
 																					b.year === +year &&
-																					b.month === +month &&
-																					a.year === +year &&
-																					a.month === +month
+																					b.month === +month
 																				) {
-																					return (
-																						a.electricity_bill +
-																						b.electricity_bill
-																					);
+																					return a + b.electricity_bill;
 																				}
+																				return a + 0;
+																			}
 
-																				return 0;
-																			}) -
-																				Math.round(
-																					Object.values(
-																						bill_building_month[month]
-																					).reduce((a, b) => a + b)
-																				)) /
-																				lsTarget.reduce(function (a, b) {
+																			if (
+																				b.year === +year &&
+																				b.month === +month &&
+																				a.year === +year &&
+																				a.month === +month
+																			) {
+																				return (
+																					a.electricity_bill +
+																					b.electricity_bill
+																				);
+																			}
+
+																			return 0;
+																		}) -
+																			Math.round(
+																				Object.values(
+																					bill_building_month[month]
+																				).reduce((a, b) => a + b)
+																			) >
+																		0
+																			? "+"
+																			: ""}
+																		{numberFormatter.withCommas(
+																			parseFloat(
+																				((lsTarget.reduce(function (a, b) {
 																					if (Number.isInteger(a)) {
 																						if (
 																							b.year === +year &&
@@ -2345,12 +2675,47 @@ class ElectricityBillReport extends React.PureComponent {
 																					}
 
 																					return 0;
-																				})) *
-																				100
-																		).toFixed(2)
-																	)}
-																	%
-																</Text>
+																				}) -
+																					Math.round(
+																						Object.values(
+																							bill_building_month[month]
+																						).reduce((a, b) => a + b)
+																					)) /
+																					lsTarget.reduce(function (a, b) {
+																						if (Number.isInteger(a)) {
+																							if (
+																								b.year === +year &&
+																								b.month === +month
+																							) {
+																								return a + b.electricity_bill;
+																							}
+																							return a + 0;
+																						}
+
+																						if (
+																							b.year === +year &&
+																							b.month === +month &&
+																							a.year === +year &&
+																							a.month === +month
+																						) {
+																							return (
+																								a.electricity_bill +
+																								b.electricity_bill
+																							);
+																						}
+
+																						return 0;
+																					})) *
+																					100
+																			).toFixed(2)
+																		)}
+																		%
+																	</Text>
+																) : (
+																	<Text style={styles.tableCellTotalRed}>
+																		-
+																	</Text>
+																)}
 															</View>
 														</View>
 													</View>

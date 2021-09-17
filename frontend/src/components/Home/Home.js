@@ -435,17 +435,23 @@ class Home extends React.Component {
 							.replace(" ", "-")} polygon[class^="st"],
 							#img-${building.label.toLowerCase().replace(" ", "-")} path[class^="st"],
 							#img-${building.label.toLowerCase().replace(" ", "-")} rect[class^="st"]{
-								fill: #${colorConverter.pickHex(
-									"d10909",
-									"d1dbde",
-									lsBuildingData.length > 0
-										? parseFloat(
-												lsBuildingData.find(
-													(data) => data.building === building.label
-												).kwhPercentage / 100
-										  ).toFixed(2)
+								fill: #${
+									lsSelectedBuilding.length === lsBuilding.length
+										? colorConverter.pickHex(
+												"d10909",
+												"d1dbde",
+												lsBuildingData.length > 0
+													? parseFloat(
+															lsBuildingData.find(
+																(data) => data.building === building.label
+															).kwhPercentage / 100
+													  ).toFixed(2)
+													: "d1dbde"
+										  )
+										: lsSelectedBuilding.includes(building.label)
+										? building.color_code.replace("#", "")
 										: "d1dbde"
-								)}
+								}
 							}`}
 					</style>
 				))}
@@ -785,28 +791,30 @@ class Home extends React.Component {
 												<div
 													className="label-building"
 													style={{
-														backgroundColor: lsSelectedBuilding.includes(
-															building.label
-														)
-															? "#" +
-															  colorConverter.pickHex(
-																	"d10909",
-																	"d1dbde",
-																	lsBuildingData.length > 0
-																		? parseFloat(
-																				lsBuildingData.find(
-																					(data) =>
-																						data.building === building.label
-																				).kwhPercentage / 100
-																		  ).toFixed(2)
-																		: "d1dbde"
-															  )
-															: lsBuildingData.find(
-																	(data) => data.building === building.label
-															  ).color,
-														color: lsSelectedBuilding.includes(building.label)
-															? "black"
-															: "white",
+														backgroundColor: `#${
+															lsSelectedBuilding.length === lsBuilding.length
+																? colorConverter.pickHex(
+																		"d10909",
+																		"d1dbde",
+																		lsBuildingData.length > 0
+																			? parseFloat(
+																					lsBuildingData.find(
+																						(data) =>
+																							data.building === building.label
+																					).kwhPercentage / 100
+																			  ).toFixed(2)
+																			: "d1dbde"
+																  )
+																: lsSelectedBuilding.includes(building.label)
+																? building.color_code.replace("#", "")
+																: "d1dbde"
+														}`,
+														color:
+															lsSelectedBuilding.length === lsBuilding.length
+																? "black"
+																: lsSelectedBuilding.includes(building.label)
+																? "white"
+																: "black",
 													}}
 													onClick={() => this.onClickBuilding(building.label)}
 													onDoubleClick={() =>
@@ -833,9 +841,14 @@ class Home extends React.Component {
 												<div
 													className="percentKwh-building"
 													style={{
-														color: lsBuildingData.find(
-															(data) => data.building === building.label
-														).percentColor,
+														color:
+															lsSelectedBuilding.length === lsBuilding.length
+																? lsBuildingData.find(
+																		(data) => data.building === building.label
+																  ).percentColor
+																: lsSelectedBuilding.includes(building.label)
+																? "black"
+																: "#d1dbde",
 													}}
 												>
 													{
