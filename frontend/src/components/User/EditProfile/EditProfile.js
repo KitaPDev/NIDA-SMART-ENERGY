@@ -437,6 +437,15 @@ class EditProfile extends React.Component {
 									</span>
 								</ImagePicker>
 							</Row>
+							<Row
+								style={{
+									textAlign: "center",
+									fontSize: "80%",
+									fontStyle: "italic",
+								}}
+							>
+								<span>(500x500px)</span>
+							</Row>
 							{prevProfileImage !== profileImage ? (
 								<Row className="row-upload">
 									<Button className="btn-upload" onClick={this.uploadImage}>

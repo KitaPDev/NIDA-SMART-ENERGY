@@ -141,6 +141,9 @@ class Register extends React.Component {
 			let resp = await http.get("/user/user-type/all");
 
 			let lsUserType = resp.data;
+			lsUserType.sort(function (a, b) {
+				return a.id - b.id;
+			});
 			lsUserType.splice(0, 1);
 
 			this.setState({ lsUserType: lsUserType });
