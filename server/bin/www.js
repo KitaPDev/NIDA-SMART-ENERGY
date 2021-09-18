@@ -6,20 +6,26 @@ const apiService = require("../api/api");
 
 dotenv.config();
 
+if (process.env.NODE_ENV === "production") console.log = () => {};
+
 port = process.env.PORT;
 app.set("port", port);
 
 const server = http.createServer(app);
 server.listen(port, async function () {
-	let isDBConnected = await db.isDBConnected();
+	try {
+		let isDBConnected = await db.isDBConnected();
 
-	if (isDBConnected) {
-		console.log("DATABASE CONNECTION SUCCESSFUL");
-	} else {
-		console.log("DATABASE CONNECTION FAILED");
+		if (isDBConnected) {
+			console.log("DATABASE CONNECTION SUCCESSFUL");
+		} else {
+			console.log("DATABASE CONNECTION FAILED");
+		}
+
+		apiService.start();
+
+		console.log("Server listening on port " + port + ".");
+	} catch (err) {
+		console.log(err);
 	}
-
-	apiService.start();
-
-	console.log("Server listening on port " + port + ".");
 });

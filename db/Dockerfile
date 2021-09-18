@@ -9,6 +9,4 @@ RUN apt-get update && apt-get -y install vim
 
 EXPOSE 3306
 
-COPY . .
-
 CMD ["mysqld"]

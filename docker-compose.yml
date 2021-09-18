@@ -5,24 +5,6 @@ services:
     build: ./db
     container_name: nse-database
     volumes:
-      - ./db/backup:/var/lib/mysql
+      - ./db/data:/var/lib/mysql
     ports:
       - 3306:3306
-
-  server:
-    build: ./server
-    image: server:latest
-    container_name: nse-server
-    ports:
-      - 9876:9876
-    depends_on:
-      - database
-
-  # frontend:
-  #   build: ./frontend
-  #   image: frontend:latest
-  #   container_name: nse-frontend
-  #   ports:
-  #     - 3000:80
-  #   depends_on:
-  #     - server
