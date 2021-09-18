@@ -36,8 +36,6 @@ Create a _.env_ file with the following keys
 NODE_ENV=production
 PORT=9876
 
-COOKIE_SECRET=[cookie secret]
-
 DB_CLIENT=mysql
 DB_HOST=localhost
 DB_USER=root
