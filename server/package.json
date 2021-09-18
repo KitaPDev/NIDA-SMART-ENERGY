@@ -9,7 +9,10 @@
 	"private": true,
 	"scripts": {
 		"start:dev": "nodemon ./bin/www",
-		"build": "webpack"
+		"stop": "pm2 stop ./bin/www",
+		"monitor": "pm2 monit",
+		"start": "pm2 start ./bin/www",
+		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
