@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const cookieSession = require("cookie-session");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 const authRouter = require("./routers/auth.router");
@@ -28,15 +27,6 @@ app.use(
 	})
 );
 app.use(cookieParser());
-app.use(
-	cookieSession({
-		name: "session",
-		keys: [process.env.COOKIE_SECRET],
-		secure: true,
-		httpOnly: true,
-		sameSite: "none",
-	})
-);
 
 app.get("/", async function (req, res) {
 	res.status(httpStatusCodes.OK);

@@ -52,8 +52,8 @@ async function login(req, res) {
 
 		activityService.insertActivity(username, 2);
 
-		res.cookie("jwt", jwt);
-		res.cookie("refresh_jwt", refreshJwt);
+		res.cookie("jwt", jwt, { sameSite: "none", secure: true });
+		res.cookie("refresh_jwt", refreshJwt, { sameSite: "none", secure: true });
 
 		etcService.incrementVisitors();
 		return res.sendStatus(httpStatusCodes.OK);

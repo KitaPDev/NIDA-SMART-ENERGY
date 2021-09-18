@@ -19,7 +19,7 @@ module.exports = async (req, res, next) => {
 				return res.status(httpStatusCodes.UNAUTHORIZED).send();
 			}
 
-			res.cookie("jwt", newToken);
+			res.cookie("jwt", newToken, { sameSite: "none", secure: true });
 
 			req.userType = decodedToken.userType;
 		} catch (err) {
