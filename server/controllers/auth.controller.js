@@ -28,7 +28,7 @@ async function login(req, res) {
 				);
 		}
 
-		if (username !== "admin") {
+		if (username !== "Super Admin") {
 			if (
 				!(await userService.isEmailVerified(
 					await userService.getEmailFromUsername(username)
@@ -58,6 +58,7 @@ async function login(req, res) {
 		etcService.incrementVisitors();
 		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }
@@ -69,6 +70,7 @@ async function logout(req, res) {
 		res.sendStatus(httpStatusCodes.OK);
 		return;
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }

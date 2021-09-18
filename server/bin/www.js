@@ -8,11 +8,12 @@ dotenv.config();
 
 if (process.env.NODE_ENV === "production") console.log = () => {};
 
+hostname = process.env.HOSTNAME;
 port = process.env.PORT;
 app.set("port", port);
 
 const server = http.createServer(app);
-server.listen(port, async function () {
+server.listen(port, hostname, async function () {
 	try {
 		let isDBConnected = await db.isDBConnected();
 
