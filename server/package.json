@@ -8,7 +8,8 @@
 	"license": "MIT",
 	"private": true,
 	"scripts": {
-		"start:dev": "nodemon ./bin/www"
+		"start:dev": "nodemon ./bin/www",
+		"build": "webpack"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
