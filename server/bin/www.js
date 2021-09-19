@@ -14,7 +14,7 @@ app.set("host", hostname);
 app.set("port", port);
 
 const server = http.createServer(app);
-server.listen(app.get("port"), app.get("host"), async function () {
+server.listen(app.get("port"), async function () {
 	try {
 		let isDBConnected = await db.isDBConnected();
 
