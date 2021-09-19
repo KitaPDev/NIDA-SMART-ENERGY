@@ -9,11 +9,10 @@
 	"private": true,
 	"scripts": {
 		"start:dev": "nodemon ./bin/www",
-		"stop": "pm2 stop ./bin/www",
-		"monitor": "pm2 monit",
-		"start": "pm2 start ./bin/www -n server",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"delete": "pm2 delete"
+		"start:prod": "pm2 start ./bin/www.js -n server",
+		"stop:prod": "pm2 stop ./bin/www.js",
+		"delete:prod": "pm2 delete server",
+		"monitor": "pm2 monit"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
@@ -39,6 +38,7 @@
 		"nodemon": "^2.0.7",
 		"pg": "^8.6.0",
 		"pg-hstore": "^2.3.3",
+		"pm2": "^5.1.1",
 		"request": "^2.88.2",
 		"sequelize": "^6.6.2",
 		"sequelize-cli": "^6.2.0"
