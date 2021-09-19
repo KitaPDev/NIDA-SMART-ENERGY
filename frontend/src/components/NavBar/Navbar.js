@@ -101,11 +101,12 @@ class NavBar extends React.Component {
 	async componentDidMount() {
 		await this.getUserInfo();
 		await this.getEnergy();
+		await apiService.updateIaqData();
 
 		let { unauthenticatedPathnames } = this.state;
 		let { pathname } = this.props.location;
 
-		if (!this.state.unauthenticatedPathnames.includes(pathname)) {
+		if (!unauthenticatedPathnames.includes(pathname)) {
 			await this.getUserPermissions();
 		}
 
@@ -129,23 +130,26 @@ class NavBar extends React.Component {
 			this.setState({ username: localStorage.getItem("current_username") });
 		}
 
-		this.unlisten = this.props.history.listen((location, action) => {
-			if (
-				this.state.username === "" &&
-				this.state.unauthenticatedPathnames.indexOf(location.pathname) === -1
-			) {
-				this.setState({ username: localStorage.getItem("current_username") });
-			}
-		});
-
 		let start = new Date(new Date().getTime() - 15 * 60 * 1000);
 		let end = new Date();
 
-		let dataIaq = subjectIaqData.value;
+		this.unlisten = this.props.history.listen(async (location, action) => {
+			if (unauthenticatedPathnames.indexOf(location.pathname) === -1) {
+				if (this.state.username === "") {
+					this.setState({ username: localStorage.getItem("current_username") });
+				}
 
-		if (!dataIaq && !unauthenticatedPathnames.includes(pathname)) {
-			await apiService.updateIaqData(start, end);
-		}
+				if (this.state.energy === "") {
+					this.getEnergy();
+				}
+			}
+
+			if (dataIaq === undefined) {
+				await apiService.updateIaqData(start, end);
+			}
+		});
+
+		let dataIaq = subjectIaqData.value;
 
 		subscriberIaqData = subjectIaqData.subscribe(async (dataIaq) => {
 			if (!dataIaq) return;

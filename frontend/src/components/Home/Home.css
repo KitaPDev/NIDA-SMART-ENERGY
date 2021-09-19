@@ -117,7 +117,7 @@
 #container-home .img-trees {
 	position: absolute;
 	width: 100%;
-	z-index: -1;
+	z-index: -3;
 	object-fit: contain;
 }
 
@@ -125,14 +125,15 @@
 	position: absolute;
 	width: 100% !important;
 	margin-top: -5rem;
-}
-
-#container-home #img-nida-house {
 	z-index: -1;
 }
 
+#container-home #img-nida-house {
+	z-index: -2;
+}
+
 #container-home #img-siam {
-	z-index: 2;
+	z-index: -1;
 }
 
 #chk-bill {
