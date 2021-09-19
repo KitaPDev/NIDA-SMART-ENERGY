@@ -22,7 +22,7 @@ instance.interceptors.response.use(
 		if (!resp) {
 			localStorage.clear();
 
-			if (window.location.pathname !== "./login") {
+			if (window.location.pathname !== "/login") {
 				window.location.pathname = "/login";
 				alert(
 					"Unable to connect to the server at this moment. Please try again."
