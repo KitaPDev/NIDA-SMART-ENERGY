@@ -44,9 +44,7 @@ async function updateDataPower() {
 			dateStart.setSeconds(dateStart.getSeconds() + 1);
 		}
 
-		let dateEnd = new Date(
-			new Date(new Date(dateStart).setDate(dateStart.getDate() + 1))
-		);
+		let dateEnd = new Date(dateStart.getTime() + 43200000);
 
 		const headers = {
 			"Content-Type": "application/json",

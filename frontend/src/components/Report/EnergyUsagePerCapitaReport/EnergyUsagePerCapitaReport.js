@@ -365,7 +365,12 @@ class EnergyUsagePerCapitaReport extends React.PureComponent {
 								</View>
 								{lsSelectedBuilding.map((bld) => {
 									let capita = "-";
-									let kwh = kwh_system_building[bld]["Main"];
+
+									let kwh = "-";
+									if (kwh_system_building[bld] !== undefined) {
+										kwh = kwh_system_building[bld]["Main"];
+									}
+
 									let kwhPerCapita = "-";
 
 									let target = lsTarget.find((t) => t.building === bld);
@@ -432,7 +437,12 @@ class EnergyUsagePerCapitaReport extends React.PureComponent {
 								</View>
 								{lsSelectedBuilding.map((bld) => {
 									let capita = "-";
-									let kwh = kwh_system_building[bld]["Main"];
+
+									let kwh = "-";
+									if (kwh_system_building[bld] !== undefined) {
+										kwh = kwh_system_building[bld]["Main"];
+									}
+
 									let kwhPerCapita = "-";
 
 									let target = lsTarget.find((t) => t.building === bld);
