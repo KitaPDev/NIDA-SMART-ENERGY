@@ -1,5 +1,6 @@
 const permissionService = require("../services/permission.service");
 const authService = require("../services/auth.service");
+const userService = require("../services/user.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 
 async function getAllPermission(req, res) {
@@ -48,7 +49,13 @@ async function getUserPermission(req, res) {
 		if (username === "Super Admin") {
 			lsPermission = await permissionService.getAllPermission();
 		} else {
-			lsPermission = await permissionService.getPermissionsByUsername(username);
+			if (await userService.isUserTypeApproved(username)) {
+				lsPermission = await permissionService.getPermissionsByUsername(
+					username
+				);
+			} else {
+				lsPermission = await permissionService.getGeneralUserPermissions();
+			}
 		}
 
 		return res.status(httpStatusCodes.OK).send(lsPermission);

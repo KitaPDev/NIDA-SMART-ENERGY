@@ -1,6 +1,7 @@
 const httpStatusCodes = require("http-status-codes").StatusCodes;
 const jwt = require("jsonwebtoken");
 const permissionService = require("../services/permission.service");
+const userService = require("../services/user.service");
 
 module.exports = async (req, res, next, permission) => {
 	let cookies = req.cookies;
@@ -18,6 +19,10 @@ module.exports = async (req, res, next, permission) => {
 				req.url !== "/activate"
 			)
 				return next();
+		}
+
+		if (!(await userService.isUserTypeApproved(decodedToken.username))) {
+			userType = "General User";
 		}
 
 		if (

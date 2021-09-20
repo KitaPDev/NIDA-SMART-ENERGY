@@ -26,7 +26,6 @@ class Register extends React.Component {
 			password: "",
 			confirmPassword: "",
 			userTypeLabel: "General User",
-			isCredentialsIncorrect: false,
 			isUsernameEmpty: false,
 			isEmailEmpty: false,
 			isEmailValid: false,
@@ -68,8 +67,6 @@ class Register extends React.Component {
 			lsUserType,
 		} = this.state;
 
-		this.setState({ isCredentialsIncorrect: false });
-
 		username.length === 0
 			? this.setState({ isUsernameEmpty: true })
 			: this.setState({ isUsernameEmpty: false });
@@ -108,14 +105,15 @@ class Register extends React.Component {
 
 		let resp = await this.postRegister(username, email, password, userTypeID);
 
-		if (resp.status === 200) {
-			this.props.history.push({
-				pathname: "/login",
-			});
-		} else if (resp.status === 500) {
-			alert("Could not perform registration. Please try again");
-		} else {
-			this.setState({ isCredentialsIncorrect: true });
+		if (resp) {
+			if (resp.status === 200) {
+				alert("A verification email will be sent to the provided inbox.");
+				this.props.history.push({
+					pathname: "/login",
+				});
+			} else if (resp.status === 500) {
+				alert("Could not perform registration. Please try again");
+			}
 		}
 	}
 
@@ -167,7 +165,6 @@ class Register extends React.Component {
 			password,
 			confirmPassword,
 			userTypeLabel,
-			isCredentialsIncorrect,
 			isUsernameEmpty,
 			isEmailEmpty,
 			isEmailValid,
@@ -264,7 +261,10 @@ class Register extends React.Component {
 												onChange={this.handleInputChangeSelect}
 											>
 												{lsUserType.map((userType) => (
-													<option>{t(userType.label)}</option>
+													<option
+														value={userType.label}
+														label={t(userType.label)}
+													></option>
 												))}
 											</Input>
 										</Col>
@@ -281,13 +281,6 @@ class Register extends React.Component {
 								</FormGroup>
 							</Form>
 						</Row>
-						{isCredentialsIncorrect ? (
-							<Row className="row-feedback">
-								{t("Credentials don't match!")}
-							</Row>
-						) : (
-							""
-						)}
 						{isUsernameEmpty ? (
 							<Row className="row-feedback">
 								{t("Please fill in your username.")}

@@ -277,6 +277,8 @@ class EditProfile extends React.Component {
 			pathname: "/login",
 		});
 		this.setState({ username: "" });
+		localStorage.clear();
+		window.location.reload();
 	}
 
 	async uploadImage() {

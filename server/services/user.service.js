@@ -264,6 +264,14 @@ async function approveUserType(username) {
 		.update({ is_user_type_approved: 1 });
 }
 
+async function isUserTypeApproved(username) {
+	let result = await knex("user")
+		.select("is_user_type_approved")
+		.where("username", "=", username);
+
+	return result[0].is_user_type_approved;
+}
+
 module.exports = {
 	usernameExists,
 	emailExists,
@@ -294,4 +302,5 @@ module.exports = {
 	activateUser,
 	getAllUser,
 	approveUserType,
+	isUserTypeApproved,
 };

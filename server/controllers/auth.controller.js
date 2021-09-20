@@ -87,6 +87,7 @@ async function getUsername(req, res) {
 
 		return res.sendStatus(httpStatusCodes.FORBIDDEN);
 	} catch (err) {
+		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
 	}
 }

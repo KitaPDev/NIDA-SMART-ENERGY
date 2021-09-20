@@ -11,7 +11,10 @@ module.exports = async (req, res, next) => {
 
 			let refreshToken = cookies.refresh_jwt;
 
-			let newToken = await authService.newToken(refreshToken);
+			let newToken;
+			if (jwt.decode(refreshToken) !== null) {
+				newToken = await authService.newToken(refreshToken);
+			}
 
 			if (newToken === undefined) {
 				res.clearCookie("jwt");

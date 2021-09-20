@@ -71,10 +71,20 @@ async function getPermissionsByUsername(username) {
 	return result;
 }
 
+async function getGeneralUserPermissions() {
+	let result = await knex("user_type_permission as utp")
+		.join("permission", "utp.permission_id", "=", "permission.id")
+		.select("permission.id", "permission.label")
+		.where("utp.user_type_id", "=", 7);
+
+	return result;
+}
+
 module.exports = {
 	getAllUserTypePermission,
 	getAllPermission,
 	updateUserTypePermission,
 	checkUserTypePermission,
 	getPermissionsByUsername,
+	getGeneralUserPermissions,
 };

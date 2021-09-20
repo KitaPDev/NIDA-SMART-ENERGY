@@ -99,10 +99,6 @@ class NavBar extends React.Component {
 	}
 
 	async componentDidMount() {
-		await this.getUserInfo();
-		await this.getEnergy();
-		await apiService.updateIaqData();
-
 		let { unauthenticatedPathnames } = this.state;
 		let { pathname } = this.props.location;
 
@@ -133,19 +129,22 @@ class NavBar extends React.Component {
 		let start = new Date(new Date().getTime() - 15 * 60 * 1000);
 		let end = new Date();
 
-		this.unlisten = this.props.history.listen(async (location, action) => {
-			if (unauthenticatedPathnames.indexOf(location.pathname) === -1) {
-				if (this.state.username === "") {
-					this.setState({ username: localStorage.getItem("current_username") });
+		this.unlisten = this.props.history.listen(async () => {
+			if (!unauthenticatedPathnames.includes(pathname)) {
+				if (this.state.username === "" || this.state.username === null) {
+					username = localStorage.getItem("current_username");
+					if (username === null) await this.getUsername();
+
+					this.setState({ username: username });
 				}
 
 				if (this.state.energy === "") {
 					this.getEnergy();
 				}
-			}
 
-			if (dataIaq === undefined) {
-				await apiService.updateIaqData(start, end);
+				if (dataIaq === undefined) {
+					await apiService.updateIaqData(start, end);
+				}
 			}
 		});
 
@@ -162,7 +161,9 @@ class NavBar extends React.Component {
 				start = new Date(dataIaq[0].data_datetime);
 				end = new Date();
 
-				await apiService.updateIaqData(start, end);
+				if (!unauthenticatedPathnames.includes(pathname)) {
+					await apiService.updateIaqData(start, end);
+				}
 				return;
 			}
 
@@ -180,7 +181,9 @@ class NavBar extends React.Component {
 				let start = new Date(new Date().getTime() - 15 * 60 * 1000);
 				let end = new Date();
 
-				await apiService.updateIaqData(start, end);
+				if (!unauthenticatedPathnames.includes(pathname)) {
+					await apiService.updateIaqData(start, end);
+				}
 				return;
 			}
 
@@ -214,6 +217,18 @@ class NavBar extends React.Component {
 
 				this.setState({ username: username });
 			}
+
+			if (this.state.energy === "") {
+				this.getEnergy();
+			}
+
+			let dataIaq = subjectIaqData.value;
+			if (dataIaq === undefined) {
+				let start = new Date(new Date().getTime() - 15 * 60 * 1000);
+				let end = new Date();
+				await apiService.updateIaqData(start, end);
+			}
+
 			if (lsPermission.length === 0 && !isFetchingPermissions) {
 				this.setState({ isFetchingPermissions: true }, () =>
 					this.getUserPermissions()

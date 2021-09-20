@@ -16,23 +16,25 @@ async function register(req, res) {
 		let userTypeID = body.user_type_id;
 
 		if (await userService.usernameExists(username)) {
-			res.status(httpStatusCodes.FORBIDDEN).send("Username already exists.");
-			return;
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send("Username already exists.");
 		}
 
 		if (!emailRegex.test(email)) {
-			res.status(httpStatusCodes.FORBIDDEN).send("Email is not valid.");
-			return;
+			return res.status(httpStatusCodes.FORBIDDEN).send("Email is not valid.");
 		}
 
 		if (await userService.emailExists(email)) {
-			res.status(httpStatusCodes.FORBIDDEN).send("Email already exists.");
-			return;
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send("Email already exists.");
 		}
 
 		if (clearTextPassword.length < 8) {
-			res.status(httpStatusCodes.FORBIDDEN).send("Password is too short.");
-			return;
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send("Password is too short.");
 		}
 
 		if (
@@ -40,8 +42,9 @@ async function register(req, res) {
 			userTypeID <= 0 ||
 			!userService.userTypeExists(userTypeID)
 		) {
-			res.status(httpStatusCodes.FORBIDDEN).send("User type is not valid.");
-			return;
+			return res
+				.status(httpStatusCodes.FORBIDDEN)
+				.send("User type is not valid.");
 		}
 
 		let err = await userService.insertUser(
@@ -60,7 +63,7 @@ async function register(req, res) {
 
 		mailer.sendConfirmationEmail(email, hash, username);
 
-		res.sendStatus(httpStatusCodes.OK);
+		return res.sendStatus(httpStatusCodes.OK);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(httpStatusCodes.INTERNAL_SERVER_ERROR);
