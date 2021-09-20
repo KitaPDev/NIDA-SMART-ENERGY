@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors");
+// const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
@@ -17,9 +17,9 @@ const etcRouter = require("./routers/etc.router");
 
 const app = express();
 
-const corsOptions = { origin: true };
+// const corsOptions = { origin: true };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(
 	bodyParser.urlencoded({
@@ -27,6 +27,16 @@ app.use(
 	})
 );
 app.use(cookieParser());
+
+// CORS
+app.use(function (req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header(
+		"Access-Control-Allow-Headers",
+		"Origin, X-Requested-With, Content-Type, Accept"
+	);
+	next();
+});
 
 app.get("/", async function (req, res) {
 	res.status(httpStatusCodes.OK);
