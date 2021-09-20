@@ -17,7 +17,7 @@ const etcRouter = require("./routers/etc.router");
 
 const app = express();
 
-const corsOptions = { origin: true };
+const corsOptions = { origin: true, credentials: true };
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
