@@ -30,6 +30,7 @@
 		"fs": "^0.0.1-security",
 		"got": "^11.8.2",
 		"http-status-codes": "^2.1.4",
+		"https": "^1.0.0",
 		"jsonwebtoken": "^8.5.1",
 		"knex": "^0.95.6",
 		"mysql": "^2.18.1",

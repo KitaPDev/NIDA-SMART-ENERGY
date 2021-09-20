@@ -1,4 +1,6 @@
-const http = require("http");
+// const http = require("http");
+const https = require("https");
+const fs = require("fs");
 const app = require("../app");
 const dotenv = require("dotenv");
 const db = require("../database");
@@ -13,8 +15,16 @@ port = process.env.PORT;
 app.set("host", hostname);
 app.set("port", port);
 
-const server = http.createServer(app);
-server.listen(app.get("port"), async function () {
+let privateKey = fs.readFileSync("sslcert/server.key", "utf8");
+let certificate = fs.readFileSync("sslcert/server.crt", "utf8");
+
+// const server = http.createServer(app);
+
+const sslServer = https.createServer(
+	{ key: privateKey, cert: certificate },
+	app
+);
+sslServer.listen(app.get("port"), async function () {
 	try {
 		let isDBConnected = await db.isDBConnected();
 
