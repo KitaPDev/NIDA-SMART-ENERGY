@@ -50,7 +50,7 @@ async function login(req, res) {
 
 		let refreshJwt = await authService.generateRefreshJwt(username);
 
-		activityService.insertActivity(username, 2);
+		activityService.insertActivityUsernameUserID(username, 2);
 
 		res.cookie("jwt", jwt, { httpOnly: true });
 		res.cookie("refresh_jwt", refreshJwt, {

@@ -21,7 +21,7 @@ async function getActivityByPeriod(from, to) {
 	return result;
 }
 
-async function insertActivity(username, actionID) {
+async function insertActivityUsername(username, actionID) {
 	let userID = await userService.getUserIDbyUsername(username);
 
 	await knex("activity").insert({
@@ -31,7 +31,16 @@ async function insertActivity(username, actionID) {
 	});
 }
 
+async function insertActivityUserID(userID, actionID) {
+	await knex("activity").insert({
+		datetime: dateFormatter.yyyymmddhhmmss(new Date()),
+		user_id: userID,
+		action_id: actionID,
+	});
+}
+
 module.exports = {
 	getActivityByPeriod,
-	insertActivity,
+	insertActivityUsername,
+	insertActivityUserID,
 };
