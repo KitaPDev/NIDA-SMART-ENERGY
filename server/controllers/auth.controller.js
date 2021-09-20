@@ -16,7 +16,7 @@ async function login(req, res) {
 
 		if (!(await userService.usernameExists(username))) {
 			return res
-				.status(httpStatusCodes.NOT_FOUND)
+				.status(httpStatusCodes.FORBIDDEN)
 				.send("Username does not exist.");
 		}
 
