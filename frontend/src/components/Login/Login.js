@@ -64,20 +64,27 @@ class Login extends React.Component {
 
 		let resp = await this.postLogin(username, password);
 
-		if (resp.status === 200) {
-			localStorage.setItem("current_username", username);
+		if (resp) {
+			if (resp.status === 200) {
+				localStorage.setItem("current_username", username);
 
-			this.props.history.push({
-				pathname: "/",
-			});
-		} else if (resp.status === 500 || resp.status === 403) {
-			if (resp.data.length > 0) {
-				alert(resp.data);
+				this.props.history.push({
+					pathname: "/",
+				});
+			} else if (resp.status === 500 || resp.status === 403) {
+				if (resp.data.length > 0) {
+					alert(resp.data);
+				} else {
+					alert("Could not perform login. Please try again");
+				}
 			} else {
-				alert("Could not perform login. Please try again");
+				this.setState({
+					isCredentialsIncorrect: true,
+					errorMessage: resp.data,
+				});
 			}
 		} else {
-			this.setState({ isCredentialsIncorrect: true, errorMessage: resp.data });
+			alert("Could not perform login. Please try again");
 		}
 	}
 
