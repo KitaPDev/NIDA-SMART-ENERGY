@@ -13,10 +13,7 @@ module.exports = async (req, res, next, actionID) => {
 			activityService.insertActivityUserID(userID, actionID);
 		} else {
 			let decodedToken = jwt.decode(token, process.env.TOKEN_SECRET);
-			activityService.insertActivityUsernameUserID(
-				decodedToken.username,
-				actionID
-			);
+			activityService.insertActivityUsername(decodedToken.username, actionID);
 		}
 
 		return next();
