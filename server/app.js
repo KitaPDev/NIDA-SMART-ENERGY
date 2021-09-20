@@ -17,9 +17,9 @@ const etcRouter = require("./routers/etc.router");
 
 const app = express();
 
-const corsOptions = { credentials: true, origin: true };
+// const corsOptions = { credentials: true, origin: true };
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(
 	bodyParser.urlencoded({
