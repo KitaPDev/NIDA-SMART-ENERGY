@@ -20,8 +20,6 @@ module.exports = async (req, res, next) => {
 			}
 
 			res.cookie("jwt", newToken, {
-				sameSite: "none",
-				secure: true,
 				httpOnly: true,
 			});
 

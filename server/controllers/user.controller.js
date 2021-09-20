@@ -246,13 +246,9 @@ async function changeUsername(req, res) {
 		let token = await authService.generateJwt(username);
 
 		res.cookie("refresh_jwt", refreshToken, {
-			sameSite: "none",
-			secure: true,
 			httpOnly: true,
 		});
 		res.cookie("jwt", token, {
-			sameSite: "none",
-			secure: true,
 			httpOnly: true,
 		});
 
