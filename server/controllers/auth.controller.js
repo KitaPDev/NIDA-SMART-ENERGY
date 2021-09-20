@@ -16,13 +16,13 @@ async function login(req, res) {
 
 		if (!(await userService.usernameExists(username))) {
 			return res
-				.status(httpStatusCodes.FORBIDDEN)
+				.status(httpStatusCodes.UNAUTHORIZED)
 				.send("Username does not exist.");
 		}
 
 		if (await userService.isDeactivated(username)) {
 			return res
-				.status(httpStatusCodes.FORBIDDEN)
+				.status(httpStatusCodes.UNAUTHORIZED)
 				.send(
 					"Your user has been deactivated. For help, contact an administrator."
 				);
