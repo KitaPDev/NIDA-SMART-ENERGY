@@ -264,7 +264,7 @@ class Register extends React.Component {
 												onChange={this.handleInputChangeSelect}
 											>
 												{lsUserType.map((userType) => (
-													<option>{userType.label}</option>
+													<option>{t(userType.label)}</option>
 												))}
 											</Input>
 										</Col>
