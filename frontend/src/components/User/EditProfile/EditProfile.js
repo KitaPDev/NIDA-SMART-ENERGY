@@ -78,6 +78,16 @@ class EditProfile extends React.Component {
 		this.getUserInfo();
 	}
 
+	componentDidUpdate() {
+		let { currentUsername, username } = this.state;
+
+		let pathname = this.props.history.location.pathname;
+
+		if (pathname.length <= 19) {
+			if (currentUsername !== username) this.getUserInfo();
+		}
+	}
+
 	async getUserInfo() {
 		try {
 			let paramsUsername = this.props.match.params.username;

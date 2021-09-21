@@ -208,6 +208,11 @@
 	position: relative;
 }
 
+.loading-txt {
+	margin-left: 0.5rem;
+	color: red;
+}
+
 @media only screen and (max-width: 1366px) {
 	#container-dashboard {
 		flex-direction: column;

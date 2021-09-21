@@ -268,5 +268,7 @@
 	"of building": "ของอาคาร",
 	"has a total energy usage of": "มีการใช้พลังงานไฟฟ้าทั้งหมด",
 	"has a total capita of": "จำนวนประชากรทั้งหมด",
-	"has an energy usage per capita of": "เฉลี่ยการใช้ไฟฟ้าต่อหัวประชากรเท่ากับ "
+	"has an energy usage per capita of": "เฉลี่ยการใช้ไฟฟ้าต่อหัวประชากรเท่ากับ ",
+
+	"Loading": "กำลังโหลด"
 }

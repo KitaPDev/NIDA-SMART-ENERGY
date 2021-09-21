@@ -60,6 +60,7 @@ class Dashboard extends React.Component {
 			lsTempHumi: [],
 			billData_month: {},
 			lsPermission: JSON.parse(localStorage.getItem("lsPermission")),
+			isLoadingData: false,
 		};
 
 		this.updateData = this.updateData.bind(this);
@@ -167,6 +168,7 @@ class Dashboard extends React.Component {
 				kwh_system_building: kwh_system_building,
 				lsKw_system_building: lsKw_system_building,
 				bill_building: bill_building,
+				isLoadingData: false,
 			});
 		});
 
@@ -199,6 +201,7 @@ class Dashboard extends React.Component {
 		this.setState({
 			displayDateFrom: dateFrom,
 			displayDateTo: dateTo,
+			isLoadingData: true,
 		});
 	}
 
@@ -504,6 +507,7 @@ class Dashboard extends React.Component {
 			lsTempHumi,
 			billData_month,
 			lsPermission,
+			isLoadingData,
 		} = this.state;
 
 		let kwhMainTotal = 0;
@@ -651,6 +655,12 @@ class Dashboard extends React.Component {
 								: displayDateTo.getFullYear()) +
 							" "}
 						{dateFormatter.hhmm(displayDateTo)}
+
+						{isLoadingData ? (
+							<span className="loading-txt">{t("Loading")}...</span>
+						) : (
+							<></>
+						)}
 					</div>
 
 					{/* ****************************** Total Energy Consumption Pane *****************************/}

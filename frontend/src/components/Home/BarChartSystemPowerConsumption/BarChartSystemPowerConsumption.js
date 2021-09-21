@@ -120,6 +120,9 @@ class BarChartSystemPowerConsumption extends React.Component {
 		let dt = JSON.parse(JSON.stringify(data));
 		let opt = JSON.parse(JSON.stringify(options));
 
+		opt.plugins.zoom.limits.x.min = new Date(opt.plugins.zoom.limits.x.min);
+		opt.plugins.zoom.limits.x.max = new Date(opt.plugins.zoom.limits.x.max);
+
 		opt.plugins.title.text = i18n.t(opt.plugins.title.text);
 		opt.plugins.tooltip.callbacks = {
 			title: function (context) {
