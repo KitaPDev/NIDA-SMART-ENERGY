@@ -427,6 +427,7 @@ class Home extends React.Component {
 
 		if (!lsSelectedBuilding.includes("Navamin")) {
 			kwhSolar = 0;
+			kwhSolarMonth = 0;
 		}
 
 		return (
