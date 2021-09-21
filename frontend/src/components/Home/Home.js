@@ -425,6 +425,10 @@ class Home extends React.Component {
 
 		const { t } = this.props;
 
+		if (!lsSelectedBuilding.includes("Navamin")) {
+			kwhSolar = 0;
+		}
+
 		return (
 			<div style={{ height: "100%" }}>
 				{/* ****************************** Building Map Styles ******************************** */}

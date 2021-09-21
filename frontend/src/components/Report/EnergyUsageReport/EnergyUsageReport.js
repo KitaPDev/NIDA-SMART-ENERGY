@@ -142,6 +142,10 @@ class EnergyUsageReport extends React.PureComponent {
 			billTotal += bill_system["Main"];
 		}
 
+		if (!lsSelectedBuilding.includes("Navamin")) {
+			kwhSolar = 0;
+		}
+
 		return (
 			<Document>
 				<Page size="A4" style={styles.page}>

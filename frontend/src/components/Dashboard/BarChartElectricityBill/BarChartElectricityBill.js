@@ -45,6 +45,7 @@ class BarChartElectricityBill extends React.Component {
 								weight: "500",
 								size: 16,
 							},
+							autoSkip: false,
 						},
 						grid: {
 							display: false,

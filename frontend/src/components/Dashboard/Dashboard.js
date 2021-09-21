@@ -525,6 +525,10 @@ class Dashboard extends React.Component {
 
 		const { t } = this.props;
 
+		if (!lsSelectedBuilding.includes("Navamin")) {
+			kwhSolar = 0;
+		}
+
 		return (
 			<div id="container-dashboard">
 				<div id="dashboard-filter">
