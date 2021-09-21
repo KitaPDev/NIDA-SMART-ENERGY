@@ -704,7 +704,9 @@ class Home extends React.Component {
 											<Progress
 												color="warning"
 												value={
-													((kwhSolar * 4) / (target === 0 ? 1 : target)) * 100
+													((Math.abs(kwhSolarMonth) * 4) /
+														(target === 0 ? 1 : target)) *
+													100
 												}
 												style={{
 													backgroundColor: "white",
