@@ -285,7 +285,7 @@ class NavBar extends React.Component {
 
   async getUserPermissions() {
     try {
-      let resp = await http.get("/permission/", { withCredentials: true });
+      let resp = await http.get("/permission/");
 
       this.setState({ lsPermission: resp.data, isFetchingPermissions: false });
       localStorage.setItem("lsPermission", JSON.stringify(resp.data));
