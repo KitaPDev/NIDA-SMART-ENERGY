@@ -55,7 +55,8 @@ TOKEN_LIFE=[token life]
 REFRESH_TOKEN_SECRET=[refresh token secret key]
 REFRESH_TOKEN_LIFE=[refresh token life]
 
-BASE_URL=http://[domain]:[port] //For reset password and verification emails
+BASE_URL=http://[domain]:[port] // For reset password and verification emails
+BASE_DOMAIN=.[domain] // Enable multiple subdomains for cookie
 
 NIDA_API_BASE_URL=http://api2energy.nida.ac.th
 NIDA_API_HOSTNAME=api2energy.nida.ac.th
