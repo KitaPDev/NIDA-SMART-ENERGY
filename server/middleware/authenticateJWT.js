@@ -17,7 +17,10 @@ module.exports = async (req, res, next) => {
       }
 
       if (newToken === undefined) {
-        res.clearCookie("jwt", { domain: "." + process.env.BASE_DOMAIN });
+        res.clearCookie("jwt", {
+          path: "/",
+          domain: "." + process.env.BASE_DOMAIN,
+        });
         res.clearCookie("refresh_jwt", {
           domain: "." + process.env.BASE_DOMAIN,
         });

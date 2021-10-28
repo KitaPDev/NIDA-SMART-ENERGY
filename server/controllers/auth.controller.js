@@ -71,7 +71,10 @@ async function login(req, res) {
 
 async function logout(req, res) {
   try {
-    res.clearCookie("jwt", { domain: "." + process.env.BASE_DOMAIN });
+    res.clearCookie("jwt", {
+      path: "/",
+      domain: "." + process.env.BASE_DOMAIN,
+    });
     res.clearCookie("refresh_jwt", { domain: "." + process.env.BASE_DOMAIN });
     res.sendStatus(httpStatusCodes.OK);
     return;
