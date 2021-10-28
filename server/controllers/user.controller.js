@@ -250,9 +250,11 @@ async function changeUsername(req, res) {
 
 		res.cookie("refresh_jwt", refreshToken, {
 			httpOnly: true,
+			domain: "." + process.env.BASE_DOMAIN
 		});
 		res.cookie("jwt", token, {
 			httpOnly: true,
+			domain: "." + process.env.BASE_DOMAIN
 		});
 
 		res.sendStatus(httpStatusCodes.OK);
