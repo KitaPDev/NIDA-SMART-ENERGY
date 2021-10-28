@@ -52,9 +52,10 @@ async function login(req, res) {
 
 		activityService.insertActivityUsername(username, 2);
 
-		res.cookie("jwt", jwt, { httpOnly: true });
+		res.cookie("jwt", jwt, { httpOnly: true, domain: "." + process.env.BASE_DOMAIN });
 		res.cookie("refresh_jwt", refreshJwt, {
 			httpOnly: true,
+			domain: "." + process.env.BASE_DOMAIN
 		});
 
 		etcService.incrementVisitors();

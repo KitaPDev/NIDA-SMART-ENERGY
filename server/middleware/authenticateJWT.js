@@ -24,6 +24,7 @@ module.exports = async (req, res, next) => {
 
 			res.cookie("jwt", newToken, {
 				httpOnly: true,
+				domain: "." + process.env.BASE_DOMAIN
 			});
 
 			req.userType = decodedToken.userType;
