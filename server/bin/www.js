@@ -1,7 +1,7 @@
-const express = require("express")
 const http = require("http");
 // const https = require("https");
 // const fs = require("fs");
+const session = require("express-session");
 const app = require("../app");
 const dotenv = require("dotenv");
 const db = require("../database");
@@ -15,7 +15,7 @@ hostname = process.env.HOSTNAME;
 port = process.env.PORT;
 app.set("host", hostname);
 app.set("port", port);
-app.use(express.session({
+app.use(session({
 	cookie: { domain: "." + process.env.BASE_DOMAIN }
 }))
 
