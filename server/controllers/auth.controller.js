@@ -73,7 +73,7 @@ async function login(req, res) {
             expiresIn: process.env.TOKEN_LIFE,
           }
         ),
-        { httpOnly: true }
+        { httpOnly: true, domain: "." + process.env.BASE_DOMAIN }
       );
     }
 
