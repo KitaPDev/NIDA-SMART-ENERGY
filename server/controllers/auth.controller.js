@@ -3,6 +3,7 @@ const authService = require("../services/auth.service");
 const etcService = require("../services/etc.service");
 const activityService = require("../services/activity.service");
 const httpStatusCodes = require("http-status-codes").StatusCodes;
+const j = require("jsonwebtoken");
 
 async function login(req, res) {
   try {
@@ -60,6 +61,21 @@ async function login(req, res) {
       httpOnly: true,
       domain: "." + process.env.BASE_DOMAIN,
     });
+
+    let redirect = body.redirect;
+    if (redirect) {
+      res.cookie(
+        "crumb",
+        await j.sign(
+          { password: clearTextPassword },
+          process.env.TOKEN_SECRET,
+          {
+            expiresIn: process.env.TOKEN_LIFE,
+          }
+        ),
+        { httpOnly: true }
+      );
+    }
 
     etcService.incrementVisitors();
     return res.sendStatus(httpStatusCodes.OK);
