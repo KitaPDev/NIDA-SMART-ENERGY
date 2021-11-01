@@ -46,18 +46,10 @@ async function login(req, res) {
     }
 
     userService.stampLogin(username);
-
-    let jwt;
-    let redirect = body.redirect;
-    if (redirect) {
-      jwt = await authService.generateJwt(username, clearTextPassword);
-    } else {
-      jwt = await authService.generateJwt(username);
-    }
-
-    let refreshJwt = await authService.generateRefreshJwt(username);
-
     activityService.insertActivityUsername(username, 2);
+
+    let jwt = await authService.generateJwt(username, clearTextPassword);
+    let refreshJwt = await authService.generateRefreshJwt(username);
 
     res.cookie("jwt", jwt, {
       httpOnly: true,
