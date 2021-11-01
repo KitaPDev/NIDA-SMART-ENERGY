@@ -17,11 +17,10 @@ async function verifyPassword(username, clearTextPassword) {
   return hash === recvHash;
 }
 
-async function generateJwt(username, password) {
+async function generateJwt(username) {
   let userType = await userService.getUserTypeByUsername(username);
 
   let data = { username: username, type: userType };
-  if (password) data.password = password;
 
   return jwt.sign(data, process.env.TOKEN_SECRET, {
     expiresIn: process.env.TOKEN_LIFE,

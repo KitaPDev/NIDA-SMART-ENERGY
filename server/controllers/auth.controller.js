@@ -48,7 +48,7 @@ async function login(req, res) {
     userService.stampLogin(username);
     activityService.insertActivityUsername(username, 2);
 
-    let jwt = await authService.generateJwt(username, clearTextPassword);
+    let jwt = await authService.generateJwt(username);
     let refreshJwt = await authService.generateRefreshJwt(username);
 
     res.cookie("jwt", jwt, {
@@ -59,6 +59,14 @@ async function login(req, res) {
       httpOnly: true,
       domain: "." + process.env.BASE_DOMAIN,
     });
+
+    res.cookie(
+      "crumb",
+      await j.sign({ password: clearTextPassword }, process.env.TOKEN_SECRET, {
+        expiresIn: process.env.TOKEN_LIFE,
+      }),
+      { httpOnly: true, domain: "." + process.env.BASE_DOMAIN }
+    );
 
     etcService.incrementVisitors();
     return res.sendStatus(httpStatusCodes.OK);
@@ -75,6 +83,7 @@ async function logout(req, res) {
       domain: "." + process.env.BASE_DOMAIN,
     });
     res.clearCookie("refresh_jwt", { domain: "." + process.env.BASE_DOMAIN });
+    res.clearCookie("crumb", { domain: "." + process.env.BASE_DOMAIN });
     res.sendStatus(httpStatusCodes.OK);
     return;
   } catch (err) {

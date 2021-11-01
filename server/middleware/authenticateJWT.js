@@ -24,6 +24,8 @@ module.exports = async (req, res, next) => {
         res.clearCookie("refresh_jwt", {
           domain: "." + process.env.BASE_DOMAIN,
         });
+        res.clearCookie("crumb", { domain: "." + process.env.BASE_DOMAIN });
+
         return res.status(httpStatusCodes.UNAUTHORIZED).send();
       }
 
