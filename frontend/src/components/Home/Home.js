@@ -726,8 +726,7 @@ class Home extends React.Component {
                           (billMonthTotal / (target === 0 ? 1 : target)) * 100
                         }
                         style={{
-                          backgroundColor: "white",
-                          color: "#dee0df",
+                          backgroundColor: "#dee0df",
                           border: "solid 1px",
                           borderRadius: "0",
                           height: "20px",
