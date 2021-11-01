@@ -79,14 +79,6 @@
   padding-top: 0;
 }
 
-.progress {
-  background-color: white;
-  border: solid 1px;
-  border-radius: 0;
-  height: 20px;
-  font-weight: bold;
-}
-
 .progress-bar {
   color: #d7d7d9;
   overflow: visible;
