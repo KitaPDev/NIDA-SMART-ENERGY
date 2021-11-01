@@ -57,7 +57,7 @@ class MixedChartBillCompare extends React.Component {
               display: true,
               text: "Baht",
               font: {
-                size: 10,
+                size: 14,
                 weight: "600",
               },
             },
