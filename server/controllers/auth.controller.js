@@ -47,7 +47,13 @@ async function login(req, res) {
 
     userService.stampLogin(username);
 
-    let jwt = await authService.generateJwt(username);
+    let jwt;
+    let redirect = body.redirect;
+    if (redirect) {
+      jwt = await authService.generateJwt(username, clearTextPassword);
+    } else {
+      jwt = await authService.generateJwt(username);
+    }
 
     let refreshJwt = await authService.generateRefreshJwt(username);
 
@@ -61,21 +67,6 @@ async function login(req, res) {
       httpOnly: true,
       domain: "." + process.env.BASE_DOMAIN,
     });
-
-    let redirect = body.redirect;
-    if (redirect) {
-      res.cookie(
-        "crumb",
-        await j.sign(
-          { password: clearTextPassword },
-          process.env.TOKEN_SECRET,
-          {
-            expiresIn: process.env.TOKEN_LIFE,
-          }
-        ),
-        { httpOnly: true, domain: "." + process.env.BASE_DOMAIN }
-      );
-    }
 
     etcService.incrementVisitors();
     return res.sendStatus(httpStatusCodes.OK);

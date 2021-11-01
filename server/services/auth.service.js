@@ -17,16 +17,15 @@ async function verifyPassword(username, clearTextPassword) {
   return hash === recvHash;
 }
 
-async function generateJwt(username) {
+async function generateJwt(username, password) {
   let userType = await userService.getUserTypeByUsername(username);
 
-  return jwt.sign(
-    { username: username, type: userType },
-    process.env.TOKEN_SECRET,
-    {
-      expiresIn: process.env.TOKEN_LIFE,
-    }
-  );
+  let data = { username: username, type: userType };
+  if (password) data.password = password;
+
+  return jwt.sign(data, process.env.TOKEN_SECRET, {
+    expiresIn: process.env.TOKEN_LIFE,
+  });
 }
 
 async function generateRefreshJwt(username) {
