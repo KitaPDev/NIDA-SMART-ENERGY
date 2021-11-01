@@ -711,12 +711,7 @@ class Home extends React.Component {
                                 (target === 0 ? 1 : target)) *
                               100
                         }
-                        style={{
-                          backgroundColor: "white",
-                          borderRadius: "0",
-                          direction: "rtl",
-                          height: "20px",
-                        }}
+                        style={{ direction: "rtl" }}
                       ></Progress>
                     </Col>
                     <Col sm="8" style={{ paddingLeft: 0 }}>
@@ -725,13 +720,6 @@ class Home extends React.Component {
                         value={
                           (billMonthTotal / (target === 0 ? 1 : target)) * 100
                         }
-                        style={{
-                          backgroundColor: "#dee0df",
-                          border: "solid 1px",
-                          borderRadius: "0",
-                          height: "20px",
-                          fontWeight: "bold",
-                        }}
                       >
                         ฿{" "}
                         {numberFormatter.withCommas(

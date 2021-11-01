@@ -87,9 +87,9 @@
   font-weight: bold;
 }
 
-.progress-bar-label {
-  color: #dee0df;
-  margin: auto;
+.progress-bar {
+  color: #d7d7d9;
+  overflow: visible;
 }
 
 #left-bottom-pane-group {
