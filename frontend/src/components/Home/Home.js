@@ -676,14 +676,7 @@ class Home extends React.Component {
                     </Col>
                   </Row>
                   <Row style={{ textAlign: "center", fontWeight: "bold" }}>
-                    <Col sm="3" style={{ color: "#FFC121" }}>
-                      <span>
-                        ฿ -{" "}
-                        {numberFormatter.withCommas(
-                          Math.abs(parseFloat(kwhSolarMonth * 4).toFixed(2))
-                        )}
-                      </span>
-                    </Col>
+                    <Col sm="3" />
                     <Col sm="6" style={{ color: "#899CA2" }}>
                       <span>
                         {target
@@ -717,7 +710,12 @@ class Home extends React.Component {
                           direction: "rtl",
                           height: "20px",
                         }}
-                      ></Progress>
+                      >
+                        ฿ -{" "}
+                        {numberFormatter.withCommas(
+                          Math.abs(parseFloat(kwhSolarMonth * 4).toFixed(2))
+                        )}
+                      </Progress>
                     </Col>
                     <Col sm="8" style={{ paddingLeft: 0 }}>
                       <Progress
@@ -735,7 +733,9 @@ class Home extends React.Component {
                       >
                         ฿{" "}
                         {numberFormatter.withCommas(
-                          parseFloat(billMonthTotal).toFixed(2)
+                          parseFloat(
+                            billMonthTotal + kwhSolarMonth * 4
+                          ).toFixed(2)
                         )}
                       </Progress>
                     </Col>
