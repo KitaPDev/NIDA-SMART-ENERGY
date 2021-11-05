@@ -709,12 +709,13 @@ class Home extends React.Component {
                           borderRadius: "0",
                           direction: "rtl",
                           height: "20px",
+                          fontWeight: "bold",
                         }}
                       >
-                        ฿ -{" "}
                         {numberFormatter.withCommas(
                           Math.abs(parseFloat(kwhSolarMonth * 4).toFixed(2))
-                        )}
+                        )}{" "}
+                        ฿ -
                       </Progress>
                     </Col>
                     <Col sm="8" style={{ paddingLeft: 0 }}>
