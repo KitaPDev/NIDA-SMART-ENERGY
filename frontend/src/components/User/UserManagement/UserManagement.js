@@ -331,7 +331,7 @@ class UserManagement extends React.Component {
                   <td>{user.email}</td>
                   <td className={user.is_user_type_approved ? "" : "pending"}>
                     {user.user_type}
-                    {user.is_user_type_approved ? "" : ` ${t("Pending")}`}
+                    {user.is_user_type_approved ? "" : ` (${t("Pending")})`}
                   </td>
                   <td>
                     {dateFormatter.ddmmyyyy(new Date(user.activated_timestamp))}
