@@ -330,7 +330,7 @@ class UserManagement extends React.Component {
                   <td>{user.username}</td>
                   <td>{user.email}</td>
                   <td className={user.is_user_type_approved ? "" : "pending"}>
-                    {user.user_type}
+                    {t(`${user.user_type}`)}
                     {user.is_user_type_approved ? "" : ` (${t("Pending")})`}
                   </td>
                   <td>
