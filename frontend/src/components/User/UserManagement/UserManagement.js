@@ -360,4 +360,4 @@ class UserManagement extends React.Component {
   }
 }
 
-export default withTranslation(UserManagement);
+export default withTranslation()(UserManagement);
