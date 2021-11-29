@@ -94,7 +94,7 @@ class MixedChartKwTempHumi extends React.Component {
             display: true,
             text: "Air Conditioner Power vs. Temp. vs Humidity",
             align: "start",
-            font: { weight: "bold", size: 20 },
+            font: { weight: "bold", size: 18 },
             padding: {
               bottom: 10,
             },
