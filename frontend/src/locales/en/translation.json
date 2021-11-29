@@ -84,11 +84,12 @@
   "Used in": "Used in",
   "Air Conditioner": "Air Conditioner",
   "Others": "Others",
+  "From 2 Buildings": "From 2 Buildings",
   "Electricity Bill": "Electricity Bill",
-  "Total-2": "Total",
+  "Estimate Bill": "Estimate Bill",
   "home.Month to Date": "Month to Date",
   "home.Saved From Solar": "Saved From Solar",
-  "home.Electricity Used Month Target": "Electricity Used Month Target",
+  "home.Electricity Used": "Electricity Used",
   "home.Target": "Target",
   "TODAY": "TODAY",
 
@@ -189,7 +190,7 @@
   "Electricity Bill (THB)": "Electricity Bill (THB)",
   "Energy Usage Compared to Target/Average": "Energy Usage Compared to Target/Average",
   "Energy Usage (kWh)": "Energy Usage (kWh)",
-  "Energy (kW) Air Conditioner": "Energy (kW) Air Conditioner",
+  "Air Conditioner Power vs. Temp. vs Humidity": "Air Conditioner Power vs. Temp. vs Humidity",
 
   "Datetime": "Datetime",
   "Action": "Action",

@@ -97,11 +97,12 @@
   "Used in": "ใช้ใน",
   "Air Conditioner": "ระบบปรับอากาศ",
   "Others": "อื่นๆ",
+  "From 2 Buildings": "จาก 2 ตึก",
   "Electricity Bill": "ค่าไฟฟ้า",
-  "Total-2": "ทั้งหมด",
+  "Estimate Bill": "ค่าไฟเฉลี่ย",
   "home.Month to Date": "ประจำเดือน",
   "home.Saved From Solar": "ผลประหยัดจากโซล่าร์เซลล์",
-  "home.Electricity Used Month Target": "ค่าไฟฟ้าจากการไฟฟ้า",
+  "home.Electricity Used": "ค่าไฟฟ้าจากการไฟฟ้า",
   "home.Target": "เป้าหมาย",
   "TODAY": "วันนี้",
 
@@ -202,7 +203,7 @@
   "Electricity Bill (THB)": "ค่าไฟฟ้า (บาท)",
   "Energy Usage Compared to Target/Average": "การใช้พลังงานไฟฟ้าเปรียบเทียบกับค่าเป้าหมาย/ค่าเฉลี่ย",
   "Energy Usage (kWh)": "การใช้พลังงานเปรียบเทียบกับค่าเป้าหมาย (หน่วย)",
-  "Energy (kW) Air Conditioner": "กำลังไฟฟ้าระบบปรับอากาศ (kW)",
+  "Air Conditioner Power vs. Temp. vs Humidity": "กำลังไฟฟ้าระบบปรับอากาศ (kW) vs. อุณหภูมิ vs. ความชื้น",
 
   "Datetime": "วันเวลา",
   "Action": "กิจกรรม",

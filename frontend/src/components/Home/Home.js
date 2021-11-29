@@ -577,7 +577,7 @@ class Home extends React.Component {
                         paddingLeft: "0.3rem",
                       }}
                     >
-                      {t("Air Conditioner")}
+                      {t("Air Conditioner") + " " + t("From 2 Buildings")}
                     </span>
                     <span className="dot-red" />
                     <span
@@ -646,7 +646,7 @@ class Home extends React.Component {
                           alignItems: "center",
                         }}
                       >
-                        {t("Total-2")}
+                        {t("Estimate Bill")}
                       </span>
                       <span
                         style={{
@@ -669,7 +669,7 @@ class Home extends React.Component {
                       <span>{t("home.Saved From Solar")}</span>
                     </Col>
                     <Col sm="5" style={{ color: "#899CA2" }}>
-                      <span>% {t("home.Electricity Used Month Target")}</span>
+                      <span>% {t("home.Electricity Used")}</span>
                     </Col>
                     <Col sm="3">
                       <span>{t("home.Target")}</span>

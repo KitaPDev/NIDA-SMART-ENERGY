@@ -137,4 +137,4 @@ dist
 
 server/.env
 
-.db/backup/
+db/data
