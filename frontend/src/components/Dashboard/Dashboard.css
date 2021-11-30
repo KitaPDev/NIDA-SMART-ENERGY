@@ -200,7 +200,7 @@
 }
 
 #form-compare legend {
-  font-size: 110%;
+  font-size: 110% !important;
 }
 
 #dashboard-right .container-bill-3 {
