@@ -611,7 +611,12 @@ class Home extends React.Component {
                     </Col>
                   </Row>
                   <Row className="row-pc-remarks">
-                    <span style={{ textDecoration: "underline" }}>
+                    <span
+                      style={{
+                        textDecoration: "underline",
+                        paddingRight: "0.25rem",
+                      }}
+                    >
                       {t("Note")}
                     </span>
                     <span>
