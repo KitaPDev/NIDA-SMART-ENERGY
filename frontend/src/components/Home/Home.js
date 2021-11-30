@@ -610,6 +610,16 @@ class Home extends React.Component {
                       />
                     </Col>
                   </Row>
+                  <Row className="row-pc-remarks">
+                    <span style={{ textDecoration: "underline" }}>
+                      {t("Note")}
+                    </span>
+                    <span>
+                      {t(
+                        "Air Conditioner System from Ratchaphruek and Navamin only."
+                      )}
+                    </span>
+                  </Row>
                 </div>
                 {/* ******************************** ELECTRICITY BILL PANE ******************************** */}
                 <div className="electricity-bill-pane">

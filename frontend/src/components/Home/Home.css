@@ -270,6 +270,10 @@
   font-size: 0.8em;
 }
 
+.row-pc-remarks {
+  font-size: 80%;
+}
+
 @media only screen and (max-width: 1366px) {
   #container-home {
     overflow: auto !important;
