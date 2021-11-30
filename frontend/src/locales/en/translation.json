@@ -260,5 +260,8 @@
   "Loading": "Loading",
 
   "View Activity Log": "View Activity Log",
-  "Pending": "Pending"
+  "Pending": "Pending",
+
+  "Power Demand by Building": "Power Demand by Building",
+  "Air Conditioner vs Other Systems": "Air Conditioner vs Other Systems"
 }

@@ -679,7 +679,7 @@ class Building extends React.Component {
 										<Row>
 											<Col sm={3} id="col-compare">
 												<Form id="form-compare">
-													<legend>{t("Compare to")}</legend>
+													<legend>{t("Electricity Bill")} {t("Compare to")}</legend>
 													<FormGroup check>
 														<Label check>
 															<Input

@@ -11,286 +11,298 @@ import dateFormatter from "../../../utils/dateFormatter";
 let barChart;
 
 class BarChartSystemPowerConsumption extends React.Component {
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.state = {
-			lsBuilding: this.props.lsBuilding,
-			lsSelectedBuildingPrev: [],
-			componentShouldUpdate: true,
-			currentLanguage: i18n.language,
+    this.state = {
+      lsBuilding: this.props.lsBuilding,
+      lsSelectedBuildingPrev: [],
+      componentShouldUpdate: true,
+      currentLanguage: i18n.language,
 
-			// Chart details
-			data: {},
-			options: {
-				responsive: true,
-				animation: false,
-				maintainAspectRatio: false,
-				interaction: {
-					intersect: false,
-					axis: "x",
-					mode: "index",
-				},
-				scales: {
-					xAxis: {
-						type: "time",
-						time: {
-							displayFormats: {
-								millisecond: "HH:mm:ss.SSS",
-								second: "HH:mm:ss",
-								minute: "HH:mm",
-								hour: "HH:mm",
-							},
-						},
-						grid: {
-							display: false,
-						},
-						stacked: true,
-					},
-					yAxis: {
-						min: 0,
-						max: 100,
-						display: true,
-						grid: {
-							display: false,
-						},
-						stacked: true,
-					},
-				},
-				plugins: {
-					legend: {
-						display: true,
-						position: "top",
-						labels: { usePointStyle: true },
-					},
-					tooltip: {
-						enabled: true,
-						padding: 14,
-						backgroundColor: "#F2F2F2",
-						titleColor: "#000",
-						bodyColor: "#000",
-						titleFont: { size: 18 },
-						bodyFont: { size: 16 },
-						callbacks: {
-							title: function (context) {
-								return dateFormatter.ddmmmyyyyhhmm_noOffset(
-									new Date(context[0].label)
-								);
-							},
-						},
-					},
-					zoom: {
-						pan: {
-							enabled: true,
-							mode: "xy",
-						},
-						zoom: {
-							wheel: { enabled: true },
-							pinch: { enabled: true },
-							mode: "xy",
-							speed: 2,
-						},
-						limits: {
-							x: { min: this.props.dateFrom, max: this.props.dateTo },
-							y: { min: "original", max: "original" },
-						},
-					},
-				},
-			},
-		};
+      // Chart details
+      data: {},
+      options: {
+        responsive: true,
+        animation: false,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          axis: "x",
+          mode: "index",
+        },
+        scales: {
+          xAxis: {
+            type: "time",
+            time: {
+              displayFormats: {
+                millisecond: "HH:mm:ss.SSS",
+                second: "HH:mm:ss",
+                minute: "HH:mm",
+                hour: "HH:mm",
+              },
+            },
+            grid: {
+              display: false,
+            },
+            stacked: true,
+          },
+          yAxis: {
+            min: 0,
+            max: 100,
+            display: true,
+            grid: {
+              display: false,
+            },
+            stacked: true,
+          },
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: "Air Conditioner vs Other Systems",
+            align: "start",
+            font: { weight: "bold", size: 14 },
+            padding: {
+              bottom: 10,
+            },
+          },
+          legend: {
+            display: true,
+            position: "top",
+            labels: { usePointStyle: true },
+          },
+          tooltip: {
+            enabled: true,
+            padding: 14,
+            backgroundColor: "#F2F2F2",
+            titleColor: "#000",
+            bodyColor: "#000",
+            titleFont: { size: 18 },
+            bodyFont: { size: 16 },
+            callbacks: {
+              title: function (context) {
+                return dateFormatter.ddmmmyyyyhhmm_noOffset(
+                  new Date(context[0].label)
+                );
+              },
+            },
+          },
+          zoom: {
+            pan: {
+              enabled: true,
+              mode: "xy",
+            },
+            zoom: {
+              wheel: { enabled: true },
+              pinch: { enabled: true },
+              mode: "xy",
+              speed: 2,
+            },
+            limits: {
+              x: { min: this.props.dateFrom, max: this.props.dateTo },
+              y: { min: "original", max: "original" },
+            },
+          },
+        },
+      },
+    };
 
-		this.handleDoubleClick = this.handleDoubleClick.bind(this);
-	}
+    this.handleDoubleClick = this.handleDoubleClick.bind(this);
+  }
 
-	buildChart = () => {
-		let { data, options } = this.state;
-		let dt = JSON.parse(JSON.stringify(data));
+  buildChart = () => {
+    let { data, options } = this.state;
+    let dt = JSON.parse(JSON.stringify(data));
+    let opt = JSON.parse(JSON.stringify(options));
 
-		if (dt.datasets) {
-			dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
-		}
+    if (dt.datasets) {
+      dt.datasets.forEach((ds) => (ds.label = i18n.t(ds.label)));
+    }
 
-		document.getElementById("bc-system-power").remove();
-		document.getElementById(
-			"wrapper-bc-system-power"
-		).innerHTML = `<canvas id="bc-system-power" />`;
+    opt.plugins.title.text = i18n.t(opt.plugins.title.text);
 
-		let ctx = document.getElementById("bc-system-power").getContext("2d");
+    document.getElementById("bc-system-power").remove();
+    document.getElementById(
+      "wrapper-bc-system-power"
+    ).innerHTML = `<canvas id="bc-system-power" />`;
 
-		barChart = new Chart(ctx, {
-			type: "bar",
-			data: dt,
-			options: options,
-		});
-	};
+    let ctx = document.getElementById("bc-system-power").getContext("2d");
 
-	componentDidMount() {
-		Chart.register(...registerables);
-		Chart.register(zoomPlugin);
-	}
+    barChart = new Chart(ctx, {
+      type: "bar",
+      data: dt,
+      options: opt,
+    });
+  };
 
-	componentWillReceiveProps(nextProps) {
-		let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
+  componentDidMount() {
+    Chart.register(...registerables);
+    Chart.register(zoomPlugin);
+  }
 
-		if (currentLanguage !== i18n.language) {
-			this.setState({ currentLanguage: i18n.language }, () =>
-				this.buildChart()
-			);
-		}
+  componentWillReceiveProps(nextProps) {
+    let { data, options, lsSelectedBuildingPrev, currentLanguage } = this.state;
 
-		if (
-			JSON.stringify(this.props.lsKw_system_building) ===
-				JSON.stringify(nextProps.lsKw_system_building) &&
-			JSON.stringify(lsSelectedBuildingPrev) ===
-				JSON.stringify(nextProps.lsSelectedBuilding) &&
-			Object.values(data).length > 0
-		) {
-			return;
-		}
+    if (currentLanguage !== i18n.language) {
+      this.setState({ currentLanguage: i18n.language }, () =>
+        this.buildChart()
+      );
+    }
 
-		let lsKw_system_building = {};
-		Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
+    if (
+      JSON.stringify(this.props.lsKw_system_building) ===
+        JSON.stringify(nextProps.lsKw_system_building) &&
+      JSON.stringify(lsSelectedBuildingPrev) ===
+        JSON.stringify(nextProps.lsSelectedBuilding) &&
+      Object.values(data).length > 0
+    ) {
+      return;
+    }
 
-		let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
+    let lsKw_system_building = {};
+    Object.assign(lsKw_system_building, nextProps.lsKw_system_building);
 
-		if (Object.keys(lsKw_system_building).length <= 1) return;
+    let lsSelectedBuilding = nextProps.lsSelectedBuilding.slice();
 
-		let labels = [];
-		let datasets = [];
+    if (Object.keys(lsKw_system_building).length <= 1) return;
 
-		let building_lsKwMain = {};
-		let building_lsKwAc = {};
+    let labels = [];
+    let datasets = [];
 
-		for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
-			if (!lsSelectedBuilding.includes(building)) continue;
+    let building_lsKwMain = {};
+    let building_lsKwAc = {};
 
-			if (!building_lsKwMain[building]) building_lsKwMain[building] = [];
-			if (!building_lsKwAc[building]) building_lsKwAc[building] = [];
+    for (let [building, lsKw_system] of Object.entries(lsKw_system_building)) {
+      if (!lsSelectedBuilding.includes(building)) continue;
 
-			let lsKwMain = building_lsKwMain[building];
-			let lsKwAc = building_lsKwAc[building];
+      if (!building_lsKwMain[building]) building_lsKwMain[building] = [];
+      if (!building_lsKwAc[building]) building_lsKwAc[building] = [];
 
-			let prevDatetime;
-			for (let logKwMain of lsKw_system["Main"]) {
-				let datetime = new Date(logKwMain.datetime);
-				let kw = logKwMain.kw;
+      let lsKwMain = building_lsKwMain[building];
+      let lsKwAc = building_lsKwAc[building];
 
-				if (!labels.find((d) => d.getTime() === datetime.getTime())) {
-					labels.push(new Date(datetime));
-				}
+      let prevDatetime;
+      for (let logKwMain of lsKw_system["Main"]) {
+        let datetime = new Date(logKwMain.datetime);
+        let kw = logKwMain.kw;
 
-				if (!lsSelectedBuilding.includes(building)) {
-					prevDatetime = datetime;
-					continue;
-				}
+        if (!labels.find((d) => d.getTime() === datetime.getTime())) {
+          labels.push(new Date(datetime));
+        }
 
-				if (prevDatetime) {
-					if (datetime.getTime() === prevDatetime.getTime()) {
-						lsKwMain[lsKwMain.length - 1] += kw;
-					} else lsKwMain.push(kw);
-				} else lsKwMain.push(kw);
+        if (!lsSelectedBuilding.includes(building)) {
+          prevDatetime = datetime;
+          continue;
+        }
 
-				prevDatetime = datetime;
-			}
+        if (prevDatetime) {
+          if (datetime.getTime() === prevDatetime.getTime()) {
+            lsKwMain[lsKwMain.length - 1] += kw;
+          } else lsKwMain.push(kw);
+        } else lsKwMain.push(kw);
 
-			// Fill AC array with zeroes if no AC kw readings
-			if (!lsKw_system["Air Conditioner"]) {
-				let lengthDiff = lsKwMain.length - lsKwAc.length;
-				building_lsKwAc[building] = lsKwAc.concat(Array(lengthDiff).fill(0));
-				continue;
-			}
+        prevDatetime = datetime;
+      }
 
-			for (let logKwAc of lsKw_system["Air Conditioner"]) {
-				let datetime = new Date(logKwAc.datetime);
-				let kw = logKwAc.kw;
+      // Fill AC array with zeroes if no AC kw readings
+      if (!lsKw_system["Air Conditioner"]) {
+        let lengthDiff = lsKwMain.length - lsKwAc.length;
+        building_lsKwAc[building] = lsKwAc.concat(Array(lengthDiff).fill(0));
+        continue;
+      }
 
-				if (prevDatetime) {
-					if (datetime.getTime() === prevDatetime.getTime()) {
-						lsKwAc[lsKwAc.length - 1] += kw;
-					} else lsKwAc.push(kw);
-				} else lsKwAc.push(kw);
+      for (let logKwAc of lsKw_system["Air Conditioner"]) {
+        let datetime = new Date(logKwAc.datetime);
+        let kw = logKwAc.kw;
 
-				prevDatetime = datetime;
-			}
-		}
+        if (prevDatetime) {
+          if (datetime.getTime() === prevDatetime.getTime()) {
+            lsKwAc[lsKwAc.length - 1] += kw;
+          } else lsKwAc.push(kw);
+        } else lsKwAc.push(kw);
 
-		let lsKwOthers = [];
-		let lsKwAc = [];
+        prevDatetime = datetime;
+      }
+    }
 
-		let yMax = 0;
-		for (let [building, lsKwMain] of Object.entries(building_lsKwMain)) {
-			lsKwMain.forEach((kwMain, idx) => {
-				if (!lsKwOthers[idx]) lsKwOthers[idx] = 0;
-				lsKwOthers[idx] += kwMain;
+    let lsKwOthers = [];
+    let lsKwAc = [];
 
-				if (lsKwOthers[idx] > yMax) yMax = lsKwOthers[idx];
-			});
+    let yMax = 0;
+    for (let [building, lsKwMain] of Object.entries(building_lsKwMain)) {
+      lsKwMain.forEach((kwMain, idx) => {
+        if (!lsKwOthers[idx]) lsKwOthers[idx] = 0;
+        lsKwOthers[idx] += kwMain;
 
-			building_lsKwAc[building].forEach((kwAc, idx) => {
-				if (!lsKwAc[idx]) lsKwAc[idx] = 0;
-				lsKwAc[idx] += kwAc;
-			});
-		}
+        if (lsKwOthers[idx] > yMax) yMax = lsKwOthers[idx];
+      });
 
-		lsKwAc.forEach(
-			(kwAc, idx) => (lsKwOthers[idx] = Math.abs(lsKwOthers[idx] - kwAc))
-		);
+      building_lsKwAc[building].forEach((kwAc, idx) => {
+        if (!lsKwAc[idx]) lsKwAc[idx] = 0;
+        lsKwAc[idx] += kwAc;
+      });
+    }
 
-		let datasetAc = {
-			label: "Air Conditioner",
-			backgroundColor: "#4469B8",
-			borderColor: "#4469B8",
-			data: lsKwAc,
-		};
+    lsKwAc.forEach(
+      (kwAc, idx) => (lsKwOthers[idx] = Math.abs(lsKwOthers[idx] - kwAc))
+    );
 
-		let datasetOthers = {
-			label: "Others",
-			backgroundColor: "#B14926",
-			borderColor: "#B14926",
-			data: lsKwOthers,
-		};
+    let datasetAc = {
+      label: "Air Conditioner",
+      backgroundColor: "#4469B8",
+      borderColor: "#4469B8",
+      data: lsKwAc,
+    };
 
-		datasets.push(datasetAc, datasetOthers);
+    let datasetOthers = {
+      label: "Others",
+      backgroundColor: "#B14926",
+      borderColor: "#B14926",
+      data: lsKwOthers,
+    };
 
-		data.labels = labels;
-		data.datasets = datasets;
+    datasets.push(datasetAc, datasetOthers);
 
-		options.scales.xAxis.min = labels[0];
-		options.scales.xAxis.max = labels[labels.length - 1];
-		options.scales.yAxis.max = yMax;
+    data.labels = labels;
+    data.datasets = datasets;
 
-		options.plugins.zoom.limits.x.min = labels[0];
-		options.plugins.zoom.limits.x.max = labels[labels.length - 1];
+    options.scales.xAxis.min = labels[0];
+    options.scales.xAxis.max = labels[labels.length - 1];
+    options.scales.yAxis.max = yMax;
 
-		this.setState({
-			data: data,
-			options: options,
-			componentShouldUpdate: true,
-			lsSelectedBuildingPrev: lsSelectedBuilding,
-		});
+    options.plugins.zoom.limits.x.min = labels[0];
+    options.plugins.zoom.limits.x.max = labels[labels.length - 1];
 
-		this.buildChart();
-	}
+    this.setState({
+      data: data,
+      options: options,
+      componentShouldUpdate: true,
+      lsSelectedBuildingPrev: lsSelectedBuilding,
+    });
 
-	shouldComponentUpdate() {
-		return this.state.componentShouldUpdate;
-	}
+    this.buildChart();
+  }
 
-	componentDidUpdate() {
-		this.setState({ componentShouldUpdate: false });
-	}
+  shouldComponentUpdate() {
+    return this.state.componentShouldUpdate;
+  }
 
-	handleDoubleClick() {
-		if (barChart) barChart.resetZoom();
-	}
+  componentDidUpdate() {
+    this.setState({ componentShouldUpdate: false });
+  }
 
-	render() {
-		return (
-			<div id="wrapper-bc-system-power" onDoubleClick={this.handleDoubleClick}>
-				<canvas id="bc-system-power" />
-			</div>
-		);
-	}
+  handleDoubleClick() {
+    if (barChart) barChart.resetZoom();
+  }
+
+  render() {
+    return (
+      <div id="wrapper-bc-system-power" onDoubleClick={this.handleDoubleClick}>
+        <canvas id="bc-system-power" />
+      </div>
+    );
+  }
 }
 
 export default BarChartSystemPowerConsumption;

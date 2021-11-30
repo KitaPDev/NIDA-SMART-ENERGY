@@ -274,5 +274,8 @@
   "Loading": "กำลังโหลด",
 
   "View Activity Log": "ดูบันทึกกิจกรรม",
-  "Pending": "รออนุมัติ"
+  "Pending": "รออนุมัติ",
+
+  "Power Demand by Building": "กำลังไฟฟ้ารายอาคาร",
+  "Air Conditioner vs Other Systems": "กำลังไฟฟ้ารายระบบ"
 }
