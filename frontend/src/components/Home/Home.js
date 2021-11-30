@@ -577,7 +577,7 @@ class Home extends React.Component {
                         paddingLeft: "0.3rem",
                       }}
                     >
-                      {`${t("Air Conditioner")} (${t("From 2 Buildings")})`}
+                      {`${t("Air Conditioner")}`}
                     </span>
                     <span className="dot-red" />
                     <span
