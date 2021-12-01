@@ -41,7 +41,7 @@ class Home extends React.Component {
       lsKw_system_building: {},
       bill_building: {},
       targetBill_building: {},
-      kwhMonth_building: {},
+      monthKwh_system_building: {},
       kwhSolar: 0,
       kwhSolarMonth: 0,
       lsBuilding: [],
@@ -276,7 +276,7 @@ class Home extends React.Component {
 
       let resp = await http.post("/api/power/month", payload);
 
-      this.setState({ kwhMonth_building: resp.data });
+      this.setState({ monthKwh_system_building: resp.data });
     } catch (err) {
       console.log(err);
       return err.response;
@@ -351,7 +351,7 @@ class Home extends React.Component {
       kwhSolarMonth,
       bill_building,
       targetBill_building,
-      kwhMonth_building,
+      monthKwh_system_building,
       tariff_building,
       isDisplayBill,
       visitors,
@@ -374,14 +374,21 @@ class Home extends React.Component {
       }
     }
 
+    let kwhMainMonthTotal = 0;
+    let kwhAcMonthTotal = 0;
     let billMonthTotal = 0;
-    for (let [building, kwhMonth] of Object.entries(kwhMonth_building)) {
+    for (let [building, kwhMonth_system] of Object.entries(
+      monthKwh_system_building
+    )) {
       if (!lsSelectedBuilding.includes(building)) continue;
+
+      kwhMainMonthTotal += kwhMonth_system["Main"];
+      kwhAcMonthTotal += kwhMonth_system["Air Conditioner"];
 
       let tariff = 4;
       if (tariff_building[building]) tariff = tariff_building[building];
 
-      let bill = kwhMonth * tariff;
+      let bill = kwhMonth_system["Main"] * tariff;
 
       billMonthTotal += bill;
     }
@@ -501,20 +508,12 @@ class Home extends React.Component {
                         alignItems: "center",
                       }}
                     >
-                      {t("home.Today")}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "125%",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        fontWeight: "500",
-                      }}
-                    >
-                      00:00 - {currentTime}
+                      {t("home.Month to Date")}
                     </span>
                     <span style={{ fontSize: "200%", fontWeight: "bold" }}>
-                      {numberFormatter.withCommas(Math.round(kwhMainTotal))}
+                      {numberFormatter.withCommas(
+                        Math.round(kwhMainMonthTotal)
+                      )}
                     </span>
                     <span
                       style={{
@@ -594,8 +593,8 @@ class Home extends React.Component {
                   <Row className="row-pie-charts">
                     <Col sm="6">
                       <PieChartEnergySource
-                        mea={kwhMainTotal}
-                        solar={kwhSolar}
+                        mea={kwhMainMonthTotal}
+                        solar={kwhSolarMonth}
                       />
                     </Col>
                     <Col sm="6">
