@@ -363,7 +363,6 @@ class Home extends React.Component {
     if (lsSelectedBuilding.length === 0) {
       lsSelectedBuilding = lsBuilding.map((building) => building.label);
     }
-    console.log(monthKwh_system_building);
 
     for (let building of lsSelectedBuilding) {
       if (kwh_system_building[building]) {
@@ -384,7 +383,10 @@ class Home extends React.Component {
       if (!lsSelectedBuilding.includes(building)) continue;
 
       kwhMainMonthTotal += kwhMonth_system["Main"];
-      kwhAcMonthTotal += kwhMonth_system["Air Conditioner"];
+
+      if (kwhMonth_system["Air Conditioner"]) {
+        kwhAcMonthTotal += kwhMonth_system["Air Conditioner"];
+      }
 
       let tariff = 4;
       if (tariff_building[building]) tariff = tariff_building[building];
@@ -437,8 +439,6 @@ class Home extends React.Component {
       kwhSolar = 0;
       kwhSolarMonth = 0;
     }
-
-    console.log("FROM HOME: " + kwhMainMonthTotal + " " + kwhAcMonthTotal);
 
     return (
       <div style={{ height: "100%" }}>
