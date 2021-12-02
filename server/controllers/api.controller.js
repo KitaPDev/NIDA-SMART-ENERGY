@@ -83,7 +83,13 @@ async function getDataPowerMonthBuilding(req, res) {
       let building = data.building;
       let kwh = data.kwh;
 
-      if (lsPrevDeviceMain.includes(data.device) || kwh === null) continue;
+      if (
+        lsPrevDeviceMain.includes(data.device) ||
+        lsPrevDeviceAc.includes(data.device) ||
+        kwh === null
+      ) {
+        continue;
+      }
 
       if (!monthKwh_system_building[building]) {
         monthKwh_system_building[building] = {};
@@ -106,10 +112,13 @@ async function getDataPowerMonthBuilding(req, res) {
       let building = data.building;
       let kwh = data.kwh;
 
-      if (lsPrevDeviceMain.includes(data.device) || kwh === null) {
+      if (
+        lsPrevDeviceMain.includes(data.device) ||
+        lsPrevDeviceAc.includes(data.device) ||
+        kwh === null
+      ) {
         continue;
       }
-
       monthKwh_system_building[building][system] -= kwh;
 
       if (system === "Main") lsPrevDeviceMain.push(data.device);

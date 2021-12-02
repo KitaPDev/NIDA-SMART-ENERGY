@@ -387,7 +387,6 @@ class Home extends React.Component {
       kwhMainMonthTotal += kwhMonth_system["Main"];
 
       if (kwhMonth_system["Air Conditioner"]) {
-        console.log(kwhMonth_system["Air Conditioner"]);
         kwhAcMonthTotal += kwhMonth_system["Air Conditioner"];
       }
 
