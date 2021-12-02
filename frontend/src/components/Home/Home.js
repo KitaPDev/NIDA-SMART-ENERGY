@@ -437,6 +437,8 @@ class Home extends React.Component {
       kwhSolarMonth = 0;
     }
 
+    console.log("FROM HOME: " + kwhMainMonthTotal + " " + kwhAcMonthTotal);
+
     return (
       <div style={{ height: "100%" }}>
         {/* ****************************** Building Map Styles ******************************** */}
