@@ -155,17 +155,17 @@ class Home extends React.Component {
         kwh_system_building[building][system] -= kwh;
       }
 
-      for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
-        let tariff = 4;
-        if (tariff_building[building] !== undefined) {
-          if (tariff_building[building] !== null) {
-            tariff = tariff_building[building];
-          }
-        }
+      // for (let [building, kwh_system] of Object.entries(kwh_system_building)) {
+      //   let tariff = 4;
+      //   if (tariff_building[building] !== undefined) {
+      //     if (tariff_building[building] !== null) {
+      //       tariff = tariff_building[building];
+      //     }
+      //   }
 
-        if (bill_building[building]) bill_building[building] = 0;
-        bill_building[building] = kwh_system.Main * tariff;
-      }
+      //   if (bill_building[building]) bill_building[building] = 0;
+      //   bill_building[building] = kwh_system.Main * tariff;
+      // }
 
       this.setState({
         kwh_system_building: kwh_system_building,
@@ -377,6 +377,21 @@ class Home extends React.Component {
     let kwhMainMonthTotal = 0;
     let kwhAcMonthTotal = 0;
     let billMonthTotal = 0;
+    bill_building = {};
+    for (let [building, monthKwh_system] of Object.entries(
+      monthKwh_system_building
+    )) {
+      let tariff = 4;
+      if (tariff_building[building] !== undefined) {
+        if (tariff_building[building] !== null) {
+          tariff = tariff_building[building];
+        }
+      }
+
+      if (bill_building[building]) bill_building[building] = 0;
+      bill_building[building] = monthKwh_system["Main"] * tariff;
+    }
+
     for (let [building, kwhMonth_system] of Object.entries(
       monthKwh_system_building
     )) {
