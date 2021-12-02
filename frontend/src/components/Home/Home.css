@@ -5,7 +5,7 @@
 }
 
 #left-top-pane-group {
-  height: 45%;
+  height: max-content;
 }
 
 .total-energy-consumption-pane {
@@ -65,7 +65,7 @@
 .electricity-bill-pane {
   border: 1px solid #000000;
   padding: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   height: 35%;
 }
 
@@ -85,7 +85,8 @@
 }
 
 #left-bottom-pane-group {
-  height: 50%;
+  height: max-content;
+  margin-top: 0.5rem;
 }
 
 .building-power-consumption-pane {
@@ -98,7 +99,7 @@
 .electrical-system-power-consumption-pane {
   border: 1px solid #000000;
   padding: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   height: 52.5%;
 }
 
