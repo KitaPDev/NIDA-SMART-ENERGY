@@ -374,8 +374,6 @@ class Home extends React.Component {
       }
     }
 
-    console.log(monthKwh_system_building);
-
     let kwhMainMonthTotal = 0;
     let kwhAcMonthTotal = 0;
     let billMonthTotal = 0;
