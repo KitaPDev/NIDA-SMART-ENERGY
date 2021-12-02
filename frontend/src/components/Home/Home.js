@@ -401,13 +401,13 @@ class Home extends React.Component {
     }
 
     let lsBuildingData = [];
-    if (Object.values(kwh_system_building).length > 0) {
+    if (Object.values(monthKwh_system_building).length > 0) {
       let totalKwh = 0;
-      Object.values(kwh_system_building).forEach(
-        (kwh_system) => (totalKwh += kwh_system.Main)
+      Object.values(monthKwh_system_building).forEach(
+        (monthKwh_system) => (totalKwh += monthKwh_system["Main"])
       );
       for (let building of lsBuilding) {
-        let kwh = kwh_system_building[building.label].Main;
+        let kwh = monthKwh_system_building[building.label]["Main"];
         let kwhPercentage = parseFloat((kwh / totalKwh) * 100).toFixed(2);
         let percentColor = "#000";
         if (lsSelectedBuilding.includes(building.label)) {
@@ -599,8 +599,8 @@ class Home extends React.Component {
                     </Col>
                     <Col sm="6">
                       <PieChartSystem
-                        ac={kwhAcTotal}
-                        others={kwhMainTotal - kwhAcTotal}
+                        ac={kwhAcMonthTotal}
+                        others={kwhMainMonthTotal - kwhAcMonthTotal}
                         building={
                           lsSelectedBuilding.length === 1
                             ? lsSelectedBuilding[0]
