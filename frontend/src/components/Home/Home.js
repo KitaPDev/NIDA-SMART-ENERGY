@@ -363,6 +363,7 @@ class Home extends React.Component {
     if (lsSelectedBuilding.length === 0) {
       lsSelectedBuilding = lsBuilding.map((building) => building.label);
     }
+    console.log(monthKwh_system_building);
 
     for (let building of lsSelectedBuilding) {
       if (kwh_system_building[building]) {
