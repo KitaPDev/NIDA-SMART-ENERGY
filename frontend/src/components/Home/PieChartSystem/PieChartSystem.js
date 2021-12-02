@@ -156,6 +156,8 @@ class PieChartSystem extends PureComponent {
       { name: "Others", value: others },
     ];
 
+    console.log(ac, others);
+
     return (
       <ResponsiveContainer width="100%" height={100}>
         <PieChart>

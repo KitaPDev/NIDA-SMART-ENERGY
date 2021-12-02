@@ -855,11 +855,13 @@ class Home extends React.Component {
                             ).kwhColor,
                           }}
                         >
-                          {
-                            lsBuildingData.find(
-                              (data) => data.building === building.label
-                            ).kwh
-                          }{" "}
+                          {numberFormatter.withCommas(
+                            Math.round(
+                              lsBuildingData.find(
+                                (data) => data.building === building.label
+                              ).kwh
+                            )
+                          )}{" "}
                           {t("kWh")}
                         </div>
                         <div
