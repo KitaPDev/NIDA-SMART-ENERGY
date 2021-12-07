@@ -203,7 +203,7 @@
   "Electricity Bill (THB)": "ค่าไฟฟ้า (บาท)",
   "Energy Usage Compared to Target/Average": "การใช้พลังงานไฟฟ้าเปรียบเทียบกับค่าเป้าหมาย/ค่าเฉลี่ย",
   "Energy Usage (kWh)": "การใช้พลังงานเปรียบเทียบกับค่าเป้าหมาย (หน่วย)",
-  "Air Conditioner Power vs. Temperature vs Humidity": "กำลังไฟฟ้าระบบปรับอากาศ (kW) vs. อุณหภูมิ vs. ความชื้น",
+  "Air Conditioner Power vs. Temperature vs. Humidity": "กำลังไฟฟ้าระบบปรับอากาศ (kW) vs. อุณหภูมิ vs. ความชื้น",
 
   "Datetime": "วันเวลา",
   "Action": "กิจกรรม",
