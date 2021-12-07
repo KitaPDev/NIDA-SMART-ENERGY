@@ -691,7 +691,9 @@ class Home extends React.Component {
                       >
                         ฿
                         {numberFormatter.withCommas(
-                          parseFloat(billMonthTotal).toFixed(2)
+                          parseFloat(
+                            billMonthTotal + kwhSolarMonth * 4
+                          ).toFixed(2)
                         )}
                       </span>
                     </Col>
@@ -766,9 +768,7 @@ class Home extends React.Component {
                       >
                         ฿{" "}
                         {numberFormatter.withCommas(
-                          parseFloat(
-                            billMonthTotal + kwhSolarMonth * 4
-                          ).toFixed(2)
+                          parseFloat(billMonthTotal).toFixed(2)
                         )}
                       </Progress>
                     </Col>

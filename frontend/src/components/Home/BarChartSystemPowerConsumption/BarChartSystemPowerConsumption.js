@@ -71,7 +71,7 @@ class BarChartSystemPowerConsumption extends React.Component {
         plugins: {
           title: {
             display: true,
-            text: "Air Conditioner vs Other Systems",
+            text: "Air Conditioner vs Other Systems (kW)",
             align: "start",
             font: { weight: "bold", size: 14 },
             padding: {

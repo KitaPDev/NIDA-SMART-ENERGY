@@ -59,7 +59,7 @@ class LineChartBuildingPowerConsumption extends React.Component {
         plugins: {
           title: {
             display: true,
-            text: "Power Demand by Building",
+            text: "Power Demand by Building (kW)",
             align: "start",
             font: { weight: "bold", size: 14 },
             padding: {

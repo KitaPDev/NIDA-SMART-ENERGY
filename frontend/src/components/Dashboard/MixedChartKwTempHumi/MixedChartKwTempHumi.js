@@ -92,7 +92,7 @@ class MixedChartKwTempHumi extends React.Component {
         plugins: {
           title: {
             display: true,
-            text: "Air Conditioner Power vs. Temp. vs Humidity",
+            text: "Air Conditioner Power vs. Temperature vs. Humidity",
             align: "start",
             font: { weight: "bold", size: 20 },
             padding: {
@@ -347,7 +347,10 @@ class MixedChartKwTempHumi extends React.Component {
       );
     });
 
-    csv.exportFile(i18n.t(`Air Conditioner Power vs. Temp. vs Humidity`), rows);
+    csv.exportFile(
+      i18n.t(`Air Conditioner Power vs. Temperature vs. Humidity`),
+      rows
+    );
   }
 
   handleDoubleClick() {
