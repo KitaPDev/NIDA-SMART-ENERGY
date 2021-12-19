@@ -730,6 +730,7 @@ class Home extends React.Component {
                   <Row className="row-progress" style={{ paddingBottom: 0 }}>
                     <Col sm="3" style={{ paddingRight: 0 }}>
                       <Progress
+                        className="progress-bar-solar"
                         color="warning"
                         value={
                           kwhSolarMonth === 0
@@ -744,6 +745,7 @@ class Home extends React.Component {
                           direction: "rtl",
                           height: "20px",
                           fontWeight: "bold",
+                          color: "#DAA407",
                         }}
                       >
                         {numberFormatter.withCommas(
