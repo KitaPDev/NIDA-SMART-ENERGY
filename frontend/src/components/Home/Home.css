@@ -84,8 +84,8 @@
   overflow: visible;
 }
 
-.progress-bar-solar {
-  color: #daa407;
+.solar {
+  color: #daa407 !important;
 }
 
 #left-bottom-pane-group {
