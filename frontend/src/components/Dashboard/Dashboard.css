@@ -146,15 +146,10 @@
 #dashboard-center .row-pie-charts .dot-orange,
 #dashboard-center .row-pie-charts .dot-grey,
 #dashboard-center .row-pie-charts .dot-red,
-#dashboard-center .row-pie-charts .dot-blue,
-#dashboard-center .row-pie-charts .dot-yellow {
+#dashboard-center .row-pie-charts .dot-blue {
   height: 30px;
   width: 30px !important;
   margin-right: 0.5rem;
-}
-
-.dot-yellow {
-  background-color: #fdd865;
 }
 
 #dashboard-center .row-pie-charts .pie-chart {

@@ -706,7 +706,7 @@ class Dashboard extends React.Component {
                   <span>{t("Air Conditioner")}</span>
                 </div>
                 <div className="legend-row">
-                  <span className="dot-yellow" /> <span>{t("Others")}</span>
+                  <span className="dot-red" /> <span>{t("Others")}</span>
                 </div>
               </div>
               <div className="pie-chart">
