@@ -699,10 +699,10 @@ class Home extends React.Component {
                     </Col>
                   </Row>
                   <Row style={{ textAlign: "center", fontWeight: "bold" }}>
-                    <Col sm="4" style={{ color: "#112B6D" }}>
+                    <Col sm="4" style={{ color: "#000" }}>
                       <span>{t("home.Saved From Solar")}</span>
                     </Col>
-                    <Col sm="5" style={{ color: "#D21E21" }}>
+                    <Col sm="5" style={{ color: "#000" }}>
                       <span>% {t("home.Electricity Used")}</span>
                     </Col>
                     <Col sm="3">
@@ -711,7 +711,7 @@ class Home extends React.Component {
                   </Row>
                   <Row style={{ textAlign: "center", fontWeight: "bold" }}>
                     <Col sm="3" />
-                    <Col sm="6" style={{ color: "#899CA2" }}>
+                    <Col sm="6" style={{ color: "#000" }}>
                       <span>
                         {target
                           ? parseFloat((billMonthTotal / target) * 100).toFixed(
