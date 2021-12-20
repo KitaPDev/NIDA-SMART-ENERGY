@@ -235,7 +235,7 @@ class ElectricityBillReport extends React.PureComponent {
     let displayDateFrom = new Date(
       dateFrom.getFullYear(),
       dateFrom.getMonth(),
-      0,
+      1,
       0,
       0
     );
@@ -268,7 +268,7 @@ class ElectricityBillReport extends React.PureComponent {
               <View style={styles.line}>
                 <Text>{t("From")} </Text>
                 <Text style={styles.red}>
-                  {dateFormatter.ddmmyyyy(displayDateFrom) + " "}
+                  {dateFormatter.ddmmyyyyhhmm_noOffset(displayDateFrom) + " "}
                 </Text>
                 <Text>{t("To")} </Text>
                 <Text style={styles.red}>
