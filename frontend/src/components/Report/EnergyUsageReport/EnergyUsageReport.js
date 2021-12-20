@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  date: { color: "red", fontSize: 10, marginBottom: 3, fontWeight: "bold" },
+  date: { fontSize: 10, marginBottom: 3, fontWeight: "bold" },
   logo: { width: 90 },
 
   body: {
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "center",
   },
-  red: { color: "red" },
+  // red: { color: "red" },
   lineCenter: {
     display: "flex",
     flexDirection: "row",

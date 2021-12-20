@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  date: { color: "red", fontSize: 10, marginBottom: 5, fontWeight: "bold" },
+  date: { fontSize: 10, marginBottom: 5, fontWeight: "bold" },
   logo: { width: 90 },
 
   body: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "center",
   },
-  red: { color: "red" },
+  // red: { color: "red" },
   barChart: {
     height: 200,
   },
@@ -174,14 +174,14 @@ const styles = StyleSheet.create({
   tableCellHeaderRed: {
     fontSize: 16,
     fontWeight: 800,
-    color: "red",
+    // color: "red",
   },
   tableCell: {
     fontSize: 16,
   },
   tableCellRed: {
     fontSize: 16,
-    color: "red",
+    // color: "red",
   },
 
   tableCellTotal: {
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   tableCellTotalRed: {
     fontSize: 16,
     fontWeight: 800,
-    color: "red",
+    // color: "red",
     backgroundColor: "#FFF2CC",
   },
 });
