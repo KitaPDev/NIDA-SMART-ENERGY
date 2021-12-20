@@ -80,12 +80,12 @@
 }
 
 .progress-bar {
-  color: #d7d7d9;
+  color: #000;
   overflow: visible;
 }
 
 .solar {
-  color: #daa407 !important;
+  color: #000 !important;
 }
 
 #left-bottom-pane-group {

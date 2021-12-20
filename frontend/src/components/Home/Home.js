@@ -581,7 +581,7 @@ class Home extends React.Component {
                       style={{
                         color: "#6B6666",
                         fontWeight: "600",
-                        marginLeft: "2%",
+                        marginLeft: "10%",
                       }}
                     >
                       {t("Used in")}
