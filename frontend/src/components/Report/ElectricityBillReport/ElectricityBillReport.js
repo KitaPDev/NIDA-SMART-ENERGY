@@ -232,26 +232,6 @@ class ElectricityBillReport extends React.PureComponent {
 
     let count = 0;
 
-    let displayDateFrom = new Date(
-      dateFrom.getFullYear(),
-      dateFrom.getMonth(),
-      1,
-      0,
-      0
-    );
-
-    let displayDateTo = new Date(
-      dateTo.getFullYear(),
-      dateTo.getMonth() + 1,
-      0,
-      0,
-      0
-    );
-
-    if (displayDateTo.getTime() > new Date().getTime()) {
-      displayDateTo = new Date();
-    }
-
     return (
       <Document>
         <Page size="A4" style={styles.page}>
@@ -270,12 +250,10 @@ class ElectricityBillReport extends React.PureComponent {
               <View style={styles.line}>
                 <Text>{t("From")} </Text>
                 <Text style={styles.red}>
-                  {dateFormatter.ddmmyyyyhhmm_noOffset(displayDateFrom) + " "}
+                  {dateFormatter.mmyyyy(dateTo) + " "}
                 </Text>
                 <Text>{t("To")} </Text>
-                <Text style={styles.red}>
-                  {dateFormatter.ddmmyyyyhhmm_noOffset(displayDateTo)}
-                </Text>
+                <Text style={styles.red}>{dateFormatter.mmyyyy(dateFrom)}</Text>
               </View>
             </View>
 

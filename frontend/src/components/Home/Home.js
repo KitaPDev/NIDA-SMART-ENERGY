@@ -638,7 +638,7 @@ class Home extends React.Component {
                     </span>
                     <span>
                       {t(
-                        "Air Conditioner System from Ratchaphruek and Navamin only."
+                        "Air Conditioner System from Ratchaphruek and Naradhip only."
                       )}
                     </span>
                   </Row>
@@ -699,10 +699,10 @@ class Home extends React.Component {
                     </Col>
                   </Row>
                   <Row style={{ textAlign: "center", fontWeight: "bold" }}>
-                    <Col sm="4" style={{ color: "#DAA407" }}>
+                    <Col sm="4" style={{ color: "#112B6D" }}>
                       <span>{t("home.Saved From Solar")}</span>
                     </Col>
-                    <Col sm="5" style={{ color: "#899CA2" }}>
+                    <Col sm="5" style={{ color: "#D21E21" }}>
                       <span>% {t("home.Electricity Used")}</span>
                     </Col>
                     <Col sm="3">
