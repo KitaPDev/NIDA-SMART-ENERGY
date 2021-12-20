@@ -250,10 +250,10 @@ class ElectricityBillReport extends React.PureComponent {
               <View style={styles.line}>
                 <Text>{t("From")} </Text>
                 <Text style={styles.red}>
-                  {dateFormatter.mmyyyy(dateTo) + " "}
+                  {dateFormatter.mmyyyy(dateFrom) + " "}
                 </Text>
                 <Text>{t("To")} </Text>
-                <Text style={styles.red}>{dateFormatter.mmyyyy(dateFrom)}</Text>
+                <Text style={styles.red}>{dateFormatter.mmyyyy(dateTo)}</Text>
               </View>
             </View>
 
