@@ -248,7 +248,9 @@ class ElectricityBillReport extends React.PureComponent {
       0
     );
 
-    if (dateTo.getTime() > new Date().getTime()) displayDateTo = new Date();
+    if (displayDateTo.getTime() > new Date().getTime()) {
+      displayDateTo = new Date();
+    }
 
     return (
       <Document>
