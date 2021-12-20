@@ -4,7 +4,7 @@ import "./PieChartSystem.css";
 
 import i18n from "../../../i18n";
 
-const COLORS = ["#3c67be", "#be4114"];
+const COLORS = ["#3c67be", "#FDD865"];
 
 const numberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

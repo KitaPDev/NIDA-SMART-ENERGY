@@ -250,15 +250,15 @@ class BarChartSystemPowerConsumption extends React.Component {
 
     let datasetAc = {
       label: "Air Conditioner",
-      backgroundColor: "#4469B8",
-      borderColor: "#4469B8",
+      backgroundColor: "#4672C6",
+      borderColor: "#4672C6",
       data: lsKwAc,
     };
 
     let datasetOthers = {
       label: "Others",
-      backgroundColor: "#B14926",
-      borderColor: "#B14926",
+      backgroundColor: "#FDD764",
+      borderColor: "#FDD764",
       data: lsKwOthers,
     };
 
