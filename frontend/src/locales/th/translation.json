@@ -107,7 +107,7 @@
   "TODAY": "วันนี้",
 
   "people": "คน",
-  "building.Estimated": "จำนวณคนโดยประมาณ",
+  "building.Estimated": "จำนวนคนโดยประมาณ",
   "building.Total Energy Consumption": "ใช้พลังงานไฟฟ้าทั้งหมด",
   "Energy Use per Capita": "การใช้พลังงานไฟฟ้าต่อหัว",
   "To": "ถึง",
@@ -180,12 +180,12 @@
 
   "Month": "เดือน",
   "Year": "ปี",
-  "People": "จำนวณคน",
+  "People": "จำนวนคน",
   "Tariff": "อัตราค่าไฟฟ้า",
   "Baht": "บาท",
   "Energy Usage": "หน่วยการใช้ไฟฟ้า",
   "Set": "ตั้งค่า",
-  "Users": "จำนวณคนในอาคาร",
+  "Users": "จำนวนคนในอาคาร",
   "Historical Data": "ข้อมูลย้อนหลัง",
   "Monthly": "รายเดือน",
   "Yearly": "รายปี",
@@ -219,7 +219,7 @@
   "View Other's Activity Log": "ดูบันทึกกิจกรรมของผู้ใช้งานอื่น",
   "Add/Edit/Delete Meter Information": "เพิ่ม/ลด/แก้ไข ข้อมูลมิเตอร์",
   "Add/Edit/Delete Other User": "เพิ่ม/ลด/แก้ไข ข้อมูลผู้ใช้งานอื่น",
-  "Edit Amount of People": "ตั้งค่าจำนวณผู้ใช้อาคาร",
+  "Edit Amount of People": "ตั้งค่าจำนวนผู้ใช้อาคาร",
   "Set Permissions": "กำหนดสิทธิการเข้าถึง",
 
   "Link": "ลิงก์",
