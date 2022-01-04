@@ -69,7 +69,7 @@ async function getDataPowerMonthBuilding(req, res) {
     let body = req.body;
     let month = body.month;
 
-    if (!month) {
+    if (month === undefined) {
       return res.status(httpStatusCodes.FORBIDDEN).send("Month is required.");
     }
 
@@ -137,7 +137,7 @@ async function getDataSolarMonth(req, res) {
     let body = req.body;
     let month = body.month;
 
-    if (!month) {
+    if (month === undefined) {
       return res.status(httpStatusCodes.FORBIDDEN).send("Month is required.");
     }
 
