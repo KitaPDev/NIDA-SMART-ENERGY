@@ -36,7 +36,9 @@ async function updateDataPower() {
 
     if (dataPower !== undefined && dataPower !== null) {
       if (dataPower.data_datetime !== undefined) {
-        dateStart = new Date(dataPower.data_datetime);
+        if (new Date(dataPower.data_datetime).getTime() > dateStart.getTime()) {
+          dateStart = new Date(dataPower.data_datetime);
+        }
       }
     }
 
