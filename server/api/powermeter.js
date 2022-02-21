@@ -41,7 +41,7 @@ async function updateDataPower() {
     }
 
     if (dateStart.getTime() > dateZero.getTime()) {
-      dateStart.setSeconds(dateStart.getSeconds());
+      dateStart.setSeconds(dateStart.getSeconds() + 1);
     }
 
     let dateEnd = new Date(dateStart.getTime() + 43200000);
