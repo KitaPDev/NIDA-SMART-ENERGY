@@ -429,7 +429,7 @@ class Dashboard extends React.Component {
     let lsLogKwAc_clean = [];
     let lsLogKwOthers_clean = [];
 
-    for (let [_, lsKw_system] of Object.entries(lsKw_system_building)) {
+    for (let [, lsKw_system] of Object.entries(lsKw_system_building)) {
       if (lsKw_system["Main"]) {
         lsKw_system["Main"].forEach((log) => lsLogKwMain.push(log));
       }
