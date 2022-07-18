@@ -405,6 +405,8 @@ class Home extends React.Component {
         (monthKwh_system) => (totalKwh += monthKwh_system["Main"])
       );
       for (let building of lsBuilding) {
+        if (!monthKwh_system_building[building.label]) continue;
+
         let kwh = monthKwh_system_building[building.label]["Main"];
         let kwhPercentage = parseFloat((kwh / totalKwh) * 100).toFixed(2);
         let percentColor = "#000";
