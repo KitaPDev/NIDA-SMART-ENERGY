@@ -406,7 +406,7 @@ class Home extends React.Component {
       );
       for (let building of lsBuilding) {
         let kwh = 0;
-        if (!monthKwh_system_building[building.label]) {
+        if (monthKwh_system_building[building.label]) {
           kwh = monthKwh_system_building[building.label]["Main"];
         }
 
