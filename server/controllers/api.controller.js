@@ -131,7 +131,7 @@ async function getDataPowerMonthBuilding(req, res) {
     if (Object.keys(monthKwh_system_building).length !== lsBuilding.length) {
       for (let b of lsBuilding) {
         if (monthKwh_system_building[b]) continue;
-        monthKwh_system_building[b] = 0;
+        monthKwh_system_building[b] = { Main: 0 };
       }
     }
 
