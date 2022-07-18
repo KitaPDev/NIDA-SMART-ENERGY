@@ -78,10 +78,13 @@ async function getDataPowerMonthBuilding(req, res) {
     let monthKwh_system_building = {};
     let lsPrevDeviceMain = [];
     let lsPrevDeviceAc = [];
+    let lsBuilding = [];
     for (let data of lsData.slice().reverse()) {
       let system = data.system;
       let building = data.building;
       let kwh = data.kwh;
+
+      if (!lsBuilding.includes(building)) lsBuilding.push(building);
 
       if (
         lsPrevDeviceMain.includes(data.device) ||
@@ -103,6 +106,13 @@ async function getDataPowerMonthBuilding(req, res) {
 
       if (system === "Main") lsPrevDeviceMain.push(data.device);
       if (system === "Air Conditioner") lsPrevDeviceAc.push(data.device);
+    }
+
+    if (Object.keys(monthKwh_system_building).length !== lsBuilding.length) {
+      for (let b of lsBuilding) {
+        if (monthKwh_system_building[b]) continue;
+        monthKwh_system_building[b] = 0;
+      }
     }
 
     lsPrevDeviceMain = [];
