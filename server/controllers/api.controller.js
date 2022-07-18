@@ -108,13 +108,6 @@ async function getDataPowerMonthBuilding(req, res) {
       if (system === "Air Conditioner") lsPrevDeviceAc.push(data.device);
     }
 
-    if (Object.keys(monthKwh_system_building).length !== lsBuilding.length) {
-      for (let b of lsBuilding) {
-        if (monthKwh_system_building[b]) continue;
-        monthKwh_system_building[b] = 0;
-      }
-    }
-
     lsPrevDeviceMain = [];
     lsPrevDeviceAc = [];
     for (let data of lsData) {
@@ -133,6 +126,13 @@ async function getDataPowerMonthBuilding(req, res) {
 
       if (system === "Main") lsPrevDeviceMain.push(data.device);
       if (system === "Air Conditioner") lsPrevDeviceAc.push(data.device);
+    }
+
+    if (Object.keys(monthKwh_system_building).length !== lsBuilding.length) {
+      for (let b of lsBuilding) {
+        if (monthKwh_system_building[b]) continue;
+        monthKwh_system_building[b] = 0;
+      }
     }
 
     return res.status(httpStatusCodes.OK).send(monthKwh_system_building);
