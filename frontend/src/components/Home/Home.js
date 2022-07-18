@@ -93,6 +93,7 @@ class Home extends React.Component {
     apiService.updateSolarData(dateStart, dateEnd);
 
     subscriberPowerMeterData = subjectPowerMeterData.subscribe((dataPower) => {
+      let { tariff_building } = this.state;
       let kwh_system_building = {};
       let lsKw_system_building = {};
       let bill_building = {};
@@ -339,12 +340,14 @@ class Home extends React.Component {
 
   render() {
     let {
+      currentTime,
       propsPath,
       buildingPath,
       lsBuilding,
       lsSelectedBuilding,
       kwh_system_building,
       lsKw_system_building,
+      kwhSolar,
       kwhSolarMonth,
       bill_building,
       targetBill_building,
@@ -353,6 +356,23 @@ class Home extends React.Component {
       isDisplayBill,
       visitors,
     } = this.state;
+
+    let kwhMainTotal = 0;
+    let kwhAcTotal = 0;
+
+    if (lsSelectedBuilding.length === 0) {
+      lsSelectedBuilding = lsBuilding.map((building) => building.label);
+    }
+
+    for (let building of lsSelectedBuilding) {
+      if (kwh_system_building[building]) {
+        if (kwh_system_building[building]["Main"])
+          kwhMainTotal += kwh_system_building[building]["Main"];
+
+        if (kwh_system_building[building]["Air Conditioner"])
+          kwhAcTotal += kwh_system_building[building]["Air Conditioner"];
+      }
+    }
 
     let kwhMainMonthTotal = 0;
     let kwhAcMonthTotal = 0;
@@ -435,6 +455,7 @@ class Home extends React.Component {
     const { t } = this.props;
 
     if (!lsSelectedBuilding.includes("Navamin")) {
+      kwhSolar = 0;
       kwhSolarMonth = 0;
     }
 
